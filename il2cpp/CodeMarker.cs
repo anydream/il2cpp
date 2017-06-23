@@ -205,7 +205,7 @@ namespace il2cpp
 						Debug.Assert(metDef != null);
 
 						// 解析所属类型
-						TypeX declType = obj.GetImplType(metDef.DeclaringType, vmet.DeclType);
+						TypeX declType = obj.GetImplType(metDef.DeclaringType, vmet.DeclType, vmet.Def);
 						// 创建方法包装
 						MethodX resMetX = new MethodX(metDef, declType);
 						resMetX.GenArgs = vmet.GenArgs;

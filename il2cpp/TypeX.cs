@@ -192,6 +192,10 @@ namespace il2cpp
 		private HashSet<TypeX> BaseClasses;
 		// 虚表
 		private VirtualTable VTable;
+		// 基类覆盖子类接口的交叉覆盖
+		private HashSet<MethodDef> CrossOverrides_;
+		private HashSet<MethodDef> CrossOverrides => CrossOverrides_ ?? (CrossOverrides_ = new HashSet<MethodDef>());
+		private bool HasCrossOverrides => CrossOverrides_ != null && CrossOverrides_.Count > 0;
 
 		public TypeX(TypeDef tyDef)
 		{
@@ -333,19 +337,25 @@ namespace il2cpp
 			return BaseClasses.Contains(tyX);
 		}
 
-		private bool IsExpiredType(TypeDef tyDef, TypeX vmetDecl)
+		private bool IsExpiredType(TypeDef tyDef, TypeX vmetDecl, MethodDef vmetDef)
 		{
-			return Def.TypeEquals(tyDef) && IsDerivedOrEqual(vmetDecl);
+			if (Def.TypeEquals(tyDef))
+			{
+				if (IsDerivedOrEqual(vmetDecl))
+					return true;
+				return HasCrossOverrides && CrossOverrides_.Contains(vmetDef);
+			}
+			return false;
 		}
 
-		public TypeX GetImplType(TypeDef tyDef, TypeX vmetDecl)
+		public TypeX GetImplType(TypeDef tyDef, TypeX vmetDecl, MethodDef vmetDef)
 		{
-			if (IsExpiredType(tyDef, vmetDecl))
+			if (IsExpiredType(tyDef, vmetDecl, vmetDef))
 				return this;
 
 			foreach (var baseCls in BaseClasses)
 			{
-				if (baseCls.IsExpiredType(tyDef, vmetDecl))
+				if (baseCls.IsExpiredType(tyDef, vmetDecl, vmetDef))
 					return baseCls;
 			}
 
@@ -404,6 +414,33 @@ namespace il2cpp
 			}
 		}
 
+		private bool MergeAbstract(MethodSignature targetSig, MethodDef targetDef, VirtualTable targetVTable)
+		{
+			foreach (var metDef in Def.Methods)
+			{
+				var sig = new MethodSignature(metDef, GenArgs);
+				if (sig.Equals(targetSig))
+				{
+					targetVTable.NewSlot(targetSig, new VirtualSlot(new List<MethodDef> { targetDef }, metDef));
+					CrossOverrides.Add(targetDef);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private static bool IsAbstract(HashSet<MethodDef> metSet, out MethodDef metDef)
+		{
+			if (metSet.Count == 1)
+			{
+				metDef = metSet.First();
+				if (metDef.IsAbstract && metDef.DeclaringType.IsInterface)
+					return true;
+			}
+			metDef = null;
+			return false;
+		}
+
 		private void ResolveVTable()
 		{
 			if (VTable != null)
@@ -438,6 +475,21 @@ namespace il2cpp
 				{
 					var sig = new MethodSignature(metDef, GenArgs);
 					MergeVTable(infMetMap, sig, metDef);
+				}
+			}
+
+			// 处理基类覆盖子类接口方法的情况
+			foreach (var kv in infMetMap)
+			{
+				var curr = BaseType;
+				if (IsAbstract(kv.Value, out var targetMet))
+				{
+					Debug.Assert(curr != null);
+					while (!curr.MergeAbstract(kv.Key, targetMet, VTable))
+					{
+						curr = curr.BaseType;
+						Debug.Assert(curr != null);
+					}
 				}
 			}
 

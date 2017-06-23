@@ -746,11 +746,96 @@ System.IEquatable`1<int>
 		}
 	}
 
+	[TestClass(@"======
+TestIL.TestCrossOverride
+-> void Entry()
+
+object
+-> void .ctor()
+
+TestIL.TestCrossOverride/Sub3
+-> void .ctor()
+
+TestIL.TestCrossOverride/Sub2
+-> void .ctor()
+-> int getWidth()
+--> int field2
+
+TestIL.TestCrossOverride/Sub1
+-> int getWidth() = 0
+   \ int getWidth(): TestIL.TestCrossOverride/Sub2
+-> int getHeight()
+   \ int getHeight(): TestIL.TestCrossOverride/Sub1
+-> void .ctor()
+
+TestIL.TestCrossOverride/Inf
+-> int getWidth() = 0
+   \ int getWidth(): TestIL.TestCrossOverride/Sub2
+-> int getHeight() = 0
+   \ int getHeight(): TestIL.TestCrossOverride/Sub1
+
+======
+void
+System.ValueType
+int
+System.IComparable
+System.IFormattable
+System.IConvertible
+System.IComparable`1<int>
+System.IEquatable`1<int>
+")]
+	static class TestCrossOverride
+	{
+		interface Inf
+		{
+			int getWidth();
+			int getHeight();
+		}
+
+		class Sub1
+		{
+			public virtual int getWidth()
+			{
+				return 0;
+			}
+
+			public int getHeight()
+			{
+				return 0;
+			}
+		}
+
+		class Sub2 : Sub1
+		{
+			private int field2;
+			public override int getWidth()
+			{
+				return field2;
+			}
+		}
+
+		class Sub3 : Sub2, Inf
+		{
+			//public int Width { get; }
+		}
+
+		public static void Entry()
+		{
+			var cls = new Sub3();
+			Inf inf = cls;
+			int a = inf.getWidth();
+			a = inf.getHeight();
+
+			Sub1 t2d = cls;
+			a = t2d.getWidth();
+			a = t2d.getHeight();
+		}
+	}
+
 	class Program
 	{
 		static void Main()
 		{
-			TestSelectInfImpl6.Entry();
 		}
 	}
 }
