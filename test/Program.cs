@@ -115,7 +115,7 @@ namespace test
 		private static void Main(string[] args)
 		{
 			CodeMarker marker = new CodeMarker();
-			marker.Load("../../../TestIL/bin/debug/TestIL.exe");
+			marker.Load("../../MSILTester/bin/debug/MSILTester.exe");
 
 #if true
 			TestProcess(marker);
