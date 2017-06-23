@@ -80,6 +80,7 @@ namespace il2cpp
 				GenArgs_ = value;
 			}
 		}
+		public bool HasGenArgs => GenArgs_ != null && GenArgs_.Count > 0;
 
 		public int GenericHashCode()
 		{

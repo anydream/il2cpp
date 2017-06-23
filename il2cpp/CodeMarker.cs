@@ -382,7 +382,7 @@ namespace il2cpp
 		private void ExpandType(TypeX tyX)
 		{
 			// 跳过包含修饰链的类型, 只展开原始类型
-			if (tyX.ModifierList != null)
+			if (tyX.HasModifierList)
 				return;
 
 			TypeGenericResolver tyGenResolver = new TypeGenericResolver(tyX);

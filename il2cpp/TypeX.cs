@@ -207,6 +207,7 @@ namespace il2cpp
 				ModifierList_ = value;
 			}
 		}
+		public bool HasModifierList => ModifierList_ != null && ModifierList_.Count > 0;
 
 		// 基类
 		public TypeX BaseType { get; set; }
@@ -244,10 +245,10 @@ namespace il2cpp
 		public TypeX Clone(List<NonLeafSig> modList)
 		{
 			TypeX tyX = new TypeX(Def);
-			if (GenArgs != null)
+			if (HasGenArgs)
 				tyX.GenArgs = new List<TypeX>(GenArgs);
 
-			if (ModifierList != null)
+			if (HasModifierList)
 			{
 				if (modList != null)
 					tyX.ModifierList = ModifierList.Concat(modList).ToList();
@@ -344,7 +345,7 @@ namespace il2cpp
 			{
 				BaseClasses = new HashSet<TypeX>();
 
-				if (Interfaces_ != null)
+				if (HasInterfaces)
 				{
 					foreach (var inf in Interfaces_)
 					{
@@ -405,7 +406,7 @@ namespace il2cpp
 		{
 			Debug.Assert(Def.IsInterface);
 
-			if (Interfaces_ != null)
+			if (HasInterfaces)
 			{
 				foreach (var inf in Interfaces_)
 					inf.CollectInterfaceMethods(infMetMap);
@@ -462,7 +463,7 @@ namespace il2cpp
 
 			// 收集接口方法
 			var infMetMap = new Dictionary<MethodSignature, HashSet<MethodDef>>();
-			if (Interfaces_ != null)
+			if (HasInterfaces)
 			{
 				foreach (var inf in Interfaces_)
 					inf.CollectInterfaceMethods(infMetMap);
