@@ -9,50 +9,35 @@ namespace dnlib.DotNet.MD {
 	/// <summary>
 	/// .NET metadata stream
 	/// </summary>
-	[DebuggerDisplay("{imageStream.Length} {streamHeader.Name}")]
+	[DebuggerDisplay("{imageStream.Length} {StreamHeader.Name}")]
 	public class DotNetStream : IFileSection, IDisposable {
 		/// <summary>
 		/// Reader that can access the whole stream
 		/// </summary>
 		protected IImageStream imageStream;
 
-		/// <summary>
-		/// <c>null</c> if it wasn't present in the file
-		/// </summary>
-		StreamHeader streamHeader;
+	    /// <inheritdoc/>
+		public FileOffset StartOffset => imageStream.FileOffset;
 
-		/// <inheritdoc/>
-		public FileOffset StartOffset {
-			get { return imageStream.FileOffset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset EndOffset => imageStream.FileOffset + imageStream.Length;
 
-		/// <inheritdoc/>
-		public FileOffset EndOffset {
-			get { return imageStream.FileOffset + imageStream.Length; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// Gets the length of the internal .NET blob stream
 		/// </summary>
-		public long ImageStreamLength {
-			get { return imageStream.Length; }
-		}
+		public long ImageStreamLength => imageStream.Length;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the stream header
 		/// </summary>
-		public StreamHeader StreamHeader {
-			get { return streamHeader; }
-		}
+		public StreamHeader StreamHeader { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the name of the stream
 		/// </summary>
-		public string Name {
-			get { return streamHeader == null ? string.Empty : streamHeader.Name; }
-		}
+		public string Name => StreamHeader == null ? string.Empty : StreamHeader.Name;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns a cloned <see cref="IImageStream"/> of the internal .NET blob stream.
 		/// </summary>
 		/// <returns>A new <see cref="IImageStream"/> instance</returns>
@@ -65,7 +50,7 @@ namespace dnlib.DotNet.MD {
 		/// </summary>
 		public DotNetStream() {
 			this.imageStream = MemoryImageStream.CreateEmpty();
-			this.streamHeader = null;
+			this.StreamHeader = null;
 		}
 
 		/// <summary>
@@ -75,7 +60,7 @@ namespace dnlib.DotNet.MD {
 		/// <param name="streamHeader">The stream header</param>
 		public DotNetStream(IImageStream imageStream, StreamHeader streamHeader) {
 			this.imageStream = imageStream;
-			this.streamHeader = streamHeader;
+			this.StreamHeader = streamHeader;
 		}
 
 		/// <inheritdoc/>
@@ -91,10 +76,9 @@ namespace dnlib.DotNet.MD {
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
 				var ims = imageStream;
-				if (ims != null)
-					ims.Dispose();
-				imageStream = null;
-				streamHeader = null;
+			    ims?.Dispose();
+			    imageStream = null;
+				StreamHeader = null;
 			}
 		}
 
@@ -142,7 +126,7 @@ namespace dnlib.DotNet.MD {
 		/// Gets/sets the <see cref="HotHeapStream"/> instance
 		/// </summary>
 		internal HotHeapStream HotHeapStream {
-			set { hotHeapStream = value; }
+			set => hotHeapStream = value;
 		}
 
 		/// <inheritdoc/>
@@ -161,7 +145,7 @@ namespace dnlib.DotNet.MD {
 		/// be the offset of the GUID, not its index</param>
 		/// <returns>The heap reader</returns>
 		protected IImageStream GetReader_NoLock(uint offset) {
-			var stream = hotHeapStream == null ? null : hotHeapStream.GetBlobReader(offset);
+			var stream = hotHeapStream?.GetBlobReader(offset);
 			if (stream == null) {
 				stream = imageStream;
 				stream.Position = offset;
@@ -173,9 +157,8 @@ namespace dnlib.DotNet.MD {
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				var hhs = hotHeapStream;
-				if (hhs != null)
-					hhs.Dispose();
-				hotHeapStream = null;
+			    hhs?.Dispose();
+			    hotHeapStream = null;
 			}
 			base.Dispose(disposing);
 		}

@@ -46,18 +46,14 @@ namespace dnlib.DotNet.Emit {
 		/// <summary>
 		/// Gets the value which is compatible with <see cref="System.Reflection.Emit.OpCode.Value"/>
 		/// </summary>
-		public short Value {
-			get { return (short)Code; }
-		}
+		public short Value => (short)Code;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the size of the opcode. It's either 1 or 2 bytes.
 		/// </summary>
-		public int Size {
-			get { return Code < (Code)0x100 || Code == Code.UNKNOWN1 ? 1 : 2; }
-		}
+		public int Size => Code < (Code)0x100 || Code == Code.UNKNOWN1 ? 1 : 2;
 
-		internal OpCode(string name, Code code, OperandType operandType, FlowControl flowControl, OpCodeType opCodeType, StackBehaviour push, StackBehaviour pop) {
+	    internal OpCode(string name, Code code, OperandType operandType, FlowControl flowControl, OpCodeType opCodeType, StackBehaviour push, StackBehaviour pop) {
 			this.Name = name;
 			this.Code = code;
 			this.OperandType = operandType;

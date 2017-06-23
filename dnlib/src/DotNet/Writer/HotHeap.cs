@@ -31,11 +31,9 @@ namespace dnlib.DotNet.Writer {
 		public abstract HotHeapVersion HotHeapVersion { get; }
 
 		/// <inheritdoc/>
-		public override string Name {
-			get { return "#!"; }
-		}
+		public override string Name => "#!";
 
-		/// <summary>
+	    /// <summary>
 		/// Creates a <see cref="HotTable"/> instance
 		/// </summary>
 		/// <param name="mdTable">The MD table</param>
@@ -206,11 +204,9 @@ namespace dnlib.DotNet.Writer {
 	/// </summary>
 	public sealed class HotHeap20 : HotHeap {
 		/// <inheritdoc/>
-		public override HotHeapVersion HotHeapVersion {
-			get { return HotHeapVersion.CLR20; }
-		}
+		public override HotHeapVersion HotHeapVersion => HotHeapVersion.CLR20;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public override HotTable CreateHotTable(IMDTable mdTable) {
 			return new HotTable20(mdTable);
 		}
@@ -226,11 +222,9 @@ namespace dnlib.DotNet.Writer {
 	/// </summary>
 	public sealed class HotHeap40 : HotHeap {
 		/// <inheritdoc/>
-		public override HotHeapVersion HotHeapVersion {
-			get { return HotHeapVersion.CLR40; }
-		}
+		public override HotHeapVersion HotHeapVersion => HotHeapVersion.CLR40;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public override HotTable CreateHotTable(IMDTable mdTable) {
 			return new HotTable40(mdTable);
 		}

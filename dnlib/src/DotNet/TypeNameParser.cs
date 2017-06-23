@@ -236,9 +236,8 @@ namespace dnlib.DotNet {
 		protected virtual void Dispose(bool disposing) {
 			if (!disposing)
 				return;
-			if (reader != null)
-				reader.Dispose();
-			reader = null;
+		    reader?.Dispose();
+		    reader = null;
 		}
 
 		internal abstract class TSpec {
@@ -354,11 +353,10 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <returns>A new <see cref="TypeRef"/> instance</returns>
 		protected TypeRef ReadTypeRefNoAssembly() {
-			string ns, name;
-			// White space is important here. Any white space before the comma/EOF must be
-			// parsed as part of the name.
-			GetNamespaceAndName(ReadId(false), out ns, out name);
-			return ownerModule.UpdateRowId(new TypeRefUser(ownerModule, ns, name));
+            // White space is important here. Any white space before the comma/EOF must be
+            // parsed as part of the name.
+            GetNamespaceAndName(ReadId(false), out string ns, out string name);
+            return ownerModule.UpdateRowId(new TypeRefUser(ownerModule, ns, name));
 		}
 
 		static void GetNamespaceAndName(string fullName, out string ns, out string name) {
@@ -374,16 +372,13 @@ namespace dnlib.DotNet {
 		}
 
 		internal TypeSig ToTypeSig(ITypeDefOrRef type) {
-			var td = type as TypeDef;
-			if (td != null)
-				return ToTypeSig(td, td.IsValueType);
-			var tr = type as TypeRef;
-			if (tr != null)
-				return ToTypeSig(tr, IsValueType(tr));
-			var ts = type as TypeSpec;
-			if (ts != null)
-				return ts.TypeSig;
-			Verify(false, "Unknown type");
+            if (type is TypeDef td)
+                return ToTypeSig(td, td.IsValueType);
+            if (type is TypeRef tr)
+                return ToTypeSig(tr, IsValueType(tr));
+            if (type is TypeSpec ts)
+                return ts.TypeSig;
+            Verify(false, "Unknown type");
 			return null;
 		}
 
@@ -640,9 +635,8 @@ namespace dnlib.DotNet {
 					else if (peeked == '*' || peeked == ',' || peeked == '-' || char.IsDigit((char)peeked)) {
 						// Array
 
-						var arraySpec = new ArraySpec();
-						arraySpec.rank = 0;
-						while (true) {
+					    var arraySpec = new ArraySpec {rank = 0};
+					    while (true) {
 							SkipWhite();
 							int c = PeekChar();
 							if (c == '*')
@@ -735,10 +729,9 @@ namespace dnlib.DotNet {
 
 		AssemblyRef ReadAssemblyRef() {
 			var asmRef = new AssemblyRefUser();
-			if (ownerModule != null)
-				ownerModule.UpdateRowId(asmRef);
+		    ownerModule?.UpdateRowId(asmRef);
 
-			asmRef.Name = ReadAssemblyNameId();
+		    asmRef.Name = ReadAssemblyNameId();
 			SkipWhite();
 			if (PeekChar() != ',')
 				return asmRef;
@@ -767,17 +760,11 @@ namespace dnlib.DotNet {
 					break;
 
 				case "CONTENTTYPE":
-					if (value.Equals("WindowsRuntime", StringComparison.OrdinalIgnoreCase))
-						asmRef.ContentType = AssemblyAttributes.ContentType_WindowsRuntime;
-					else
-						asmRef.ContentType = AssemblyAttributes.ContentType_Default;
+					asmRef.ContentType = value.Equals("WindowsRuntime", StringComparison.OrdinalIgnoreCase) ? AssemblyAttributes.ContentType_WindowsRuntime : AssemblyAttributes.ContentType_Default;
 					break;
 
 				case "RETARGETABLE":
-					if (value.Equals("Yes", StringComparison.OrdinalIgnoreCase))
-						asmRef.IsRetargetable = true;
-					else
-						asmRef.IsRetargetable = false;
+					asmRef.IsRetargetable = value.Equals("Yes", StringComparison.OrdinalIgnoreCase);
 					break;
 
 				case "PUBLICKEY":

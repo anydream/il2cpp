@@ -15,88 +15,66 @@ namespace dnlib.DotNet.Writer {
 	/// Common module writer options base class
 	/// </summary>
 	public class ModuleWriterOptionsBase {
-		IModuleWriterListener listener;
-		PEHeadersOptions peHeadersOptions;
+	    PEHeadersOptions peHeadersOptions;
 		Cor20HeaderOptions cor20HeaderOptions;
 		MetaDataOptions metaDataOptions;
-		ILogger logger;
-		ILogger metaDataLogger;
-		Win32Resources win32Resources;
-		StrongNameKey strongNameKey;
-		StrongNamePublicKey strongNamePublicKey;
-		bool delaySign;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the listener
 		/// </summary>
-		public IModuleWriterListener Listener {
-			get { return listener; }
-			set { listener = value; }
-		}
+		public IModuleWriterListener Listener { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the logger. If this is <c>null</c>, any errors result in a
 		/// <see cref="ModuleWriterException"/> being thrown. To disable this behavior, either
 		/// create your own logger or use <see cref="DummyLogger.NoThrowInstance"/>.
 		/// </summary>
-		public ILogger Logger {
-			get { return logger; }
-			set { logger = value; }
-		}
+		public ILogger Logger { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the <see cref="MetaData"/> writer logger. If this is <c>null</c>, use
 		/// <see cref="Logger"/>.
 		/// </summary>
-		public ILogger MetaDataLogger {
-			get { return metaDataLogger; }
-			set { metaDataLogger = value; }
-		}
+		public ILogger MetaDataLogger { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the <see cref="PEHeaders"/> options. This is never <c>null</c>.
 		/// </summary>
 		public PEHeadersOptions PEHeadersOptions {
-			get { return peHeadersOptions ?? (peHeadersOptions = new PEHeadersOptions()); }
-			set { peHeadersOptions = value; }
-		}
+			get => peHeadersOptions ?? (peHeadersOptions = new PEHeadersOptions());
+	        set => peHeadersOptions = value;
+	    }
 
 		/// <summary>
 		/// Gets/sets the <see cref="ImageCor20Header"/> options. This is never <c>null</c>.
 		/// </summary>
 		public Cor20HeaderOptions Cor20HeaderOptions {
-			get { return cor20HeaderOptions ?? (cor20HeaderOptions = new Cor20HeaderOptions()); }
-			set { cor20HeaderOptions = value; }
+			get => cor20HeaderOptions ?? (cor20HeaderOptions = new Cor20HeaderOptions());
+		    set => cor20HeaderOptions = value;
 		}
 
 		/// <summary>
 		/// Gets/sets the <see cref="MetaData"/> options. This is never <c>null</c>.
 		/// </summary>
 		public MetaDataOptions MetaDataOptions {
-			get { return metaDataOptions ?? (metaDataOptions = new MetaDataOptions()); }
-			set { metaDataOptions = value; }
+			get => metaDataOptions ?? (metaDataOptions = new MetaDataOptions());
+		    set => metaDataOptions = value;
 		}
 
 		/// <summary>
 		/// Gets/sets the Win32 resources. If this is <c>null</c>, use the module's
 		/// Win32 resources if any.
 		/// </summary>
-		public Win32Resources Win32Resources {
-			get { return win32Resources; }
-			set { win32Resources = value; }
-		}
+		public Win32Resources Win32Resources { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// true to delay sign the assembly. Initialize <see cref="StrongNamePublicKey"/> to the
 		/// public key to use, and don't initialize <see cref="StrongNameKey"/>. To generate the
 		/// public key from your strong name key file, execute <c>sn -p mykey.snk mypublickey.snk</c>
 		/// </summary>
-		public bool DelaySign {
-			get { return delaySign; }
-			set { delaySign = value; }
-		}
+		public bool DelaySign { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the strong name key. When you enhance strong name sign an assembly,
 		/// this instance's HashAlgorithm must be initialized to its public key's HashAlgorithm.
 		/// You should call <see cref="InitializeStrongNameSigning(ModuleDef,StrongNameKey)"/>
@@ -105,12 +83,9 @@ namespace dnlib.DotNet.Writer {
 		/// or <see cref="InitializeEnhancedStrongNameSigning(ModuleDef,StrongNameKey,StrongNamePublicKey,StrongNameKey,StrongNamePublicKey)"/>
 		/// to initialize this property if you use enhanced strong name signing.
 		/// </summary>
-		public StrongNameKey StrongNameKey {
-			get { return strongNameKey; }
-			set { strongNameKey = value; }
-		}
+		public StrongNameKey StrongNameKey { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the new public key that should be used. If this is <c>null</c>, use
 		/// the public key generated from <see cref="StrongNameKey"/>. If it is also <c>null</c>,
 		/// use the module's Assembly's public key.
@@ -118,12 +93,9 @@ namespace dnlib.DotNet.Writer {
 		/// or <see cref="InitializeEnhancedStrongNameSigning(ModuleDef,StrongNameKey,StrongNamePublicKey,StrongNameKey,StrongNamePublicKey)"/>
 		/// to initialize this property if you use enhanced strong name signing.
 		/// </summary>
-		public StrongNamePublicKey StrongNamePublicKey {
-			get { return strongNamePublicKey; }
-			set { strongNamePublicKey = value; }
-		}
+		public StrongNamePublicKey StrongNamePublicKey { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if method bodies can be shared (two or more method bodies can share the
 		/// same RVA), <c>false</c> if method bodies can't be shared. Don't enable it if there
 		/// must be a 1:1 relationship with method bodies and their RVAs.
@@ -158,14 +130,10 @@ namespace dnlib.DotNet.Writer {
 		/// <c>true</c> if it should be written as an EXE file, <c>false</c> if it should be
 		/// written as a DLL file.
 		/// </summary>
-		public bool IsExeFile {
-			get {
-				return ModuleKind != ModuleKind.Dll &&
-					ModuleKind != ModuleKind.NetModule;
-			}
-		}
+		public bool IsExeFile => ModuleKind != ModuleKind.Dll &&
+		                         ModuleKind != ModuleKind.NetModule;
 
-		/// <summary>
+	    /// <summary>
 		/// Set it to <c>true</c> to enable writing a PDB file. Default is <c>false</c> (a PDB file
 		/// won't be written to disk).
 		/// </summary>
@@ -214,17 +182,14 @@ namespace dnlib.DotNet.Writer {
 		/// <param name="module">The module</param>
 		/// <param name="listener">Module writer listener</param>
 		protected ModuleWriterOptionsBase(ModuleDef module, IModuleWriterListener listener) {
-			this.listener = listener;
+			this.Listener = listener;
 			ShareMethodBodies = true;
 			MetaDataOptions.MetaDataHeaderOptions.VersionString = module.RuntimeVersion;
 			ModuleKind = module.Kind;
 			PEHeadersOptions.Machine = module.Machine;
 			PEHeadersOptions.Characteristics = module.Characteristics;
 			PEHeadersOptions.DllCharacteristics = module.DllCharacteristics;
-			if (module.Kind == ModuleKind.Windows)
-				PEHeadersOptions.Subsystem = Subsystem.WindowsGui;
-			else
-				PEHeadersOptions.Subsystem = Subsystem.WindowsCui;
+			PEHeadersOptions.Subsystem = module.Kind == ModuleKind.Windows ? Subsystem.WindowsGui : Subsystem.WindowsCui;
 			PEHeadersOptions.NumberOfRvaAndSizes = 0x10;
 			Cor20HeaderOptions.Flags = module.Cor20HeaderFlags;
 
@@ -262,17 +227,17 @@ namespace dnlib.DotNet.Writer {
 			// Some tools crash if #GUID is missing so always create it by default
 			MetaDataOptions.Flags |= MetaDataFlags.AlwaysCreateGuidHeap;
 
-			var modDefMD = module as ModuleDefMD;
-			if (modDefMD != null) {
-				var ntHeaders = modDefMD.MetaData.PEImage.ImageNTHeaders;
-				PEHeadersOptions.TimeDateStamp = ntHeaders.FileHeader.TimeDateStamp;
-				PEHeadersOptions.MajorLinkerVersion = ntHeaders.OptionalHeader.MajorLinkerVersion;
-				PEHeadersOptions.MinorLinkerVersion = ntHeaders.OptionalHeader.MinorLinkerVersion;
-				PEHeadersOptions.ImageBase = ntHeaders.OptionalHeader.ImageBase;
-				AddCheckSum = ntHeaders.OptionalHeader.CheckSum != 0;
-			}
+            if (module is ModuleDefMD modDefMD)
+            {
+                var ntHeaders = modDefMD.MetaData.PEImage.ImageNTHeaders;
+                PEHeadersOptions.TimeDateStamp = ntHeaders.FileHeader.TimeDateStamp;
+                PEHeadersOptions.MajorLinkerVersion = ntHeaders.OptionalHeader.MajorLinkerVersion;
+                PEHeadersOptions.MinorLinkerVersion = ntHeaders.OptionalHeader.MinorLinkerVersion;
+                PEHeadersOptions.ImageBase = ntHeaders.OptionalHeader.ImageBase;
+                AddCheckSum = ntHeaders.OptionalHeader.CheckSum != 0;
+            }
 
-			if (Is64Bit) {
+            if (Is64Bit) {
 				PEHeadersOptions.Characteristics &= ~Characteristics._32BitMachine;
 				PEHeadersOptions.Characteristics |= Characteristics.LargeAddressAware;
 			}
@@ -289,8 +254,7 @@ namespace dnlib.DotNet.Writer {
 		public void InitializeStrongNameSigning(ModuleDef module, StrongNameKey signatureKey) {
 			StrongNameKey = signatureKey;
 			StrongNamePublicKey = null;
-			if (module.Assembly != null)
-				module.Assembly.CustomAttributes.RemoveAll("System.Reflection.AssemblySignatureKeyAttribute");
+		    module.Assembly?.CustomAttributes.RemoveAll("System.Reflection.AssemblySignatureKeyAttribute");
 		}
 
 		/// <summary>
@@ -320,8 +284,7 @@ namespace dnlib.DotNet.Writer {
 			StrongNameKey = signatureKey;
 			StrongNameKey.HashAlgorithm = signaturePubKey.HashAlgorithm;
 			StrongNamePublicKey = identityPubKey;
-			if (module.Assembly != null)
-				module.Assembly.UpdateOrCreateAssemblySignatureKeyAttribute(identityPubKey, identityKey, signaturePubKey);
+		    module.Assembly?.UpdateOrCreateAssemblySignatureKeyAttribute(identityPubKey, identityKey, signaturePubKey);
 		}
 	}
 
@@ -387,60 +350,46 @@ namespace dnlib.DotNet.Writer {
 		/// Gets/sets the module writer listener
 		/// </summary>
 		protected IModuleWriterListener Listener {
-			get { return listener ?? DummyModuleWriterListener.Instance; }
-			set { listener = value; }
+			get => listener ?? DummyModuleWriterListener.Instance;
+		    set => listener = value;
 		}
 
 		/// <summary>
 		/// Gets the destination stream
 		/// </summary>
-		public Stream DestinationStream {
-			get { return destStream; }
-		}
+		public Stream DestinationStream => destStream;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the constants
 		/// </summary>
-		public UniqueChunkList<ByteArrayChunk> Constants {
-			get { return constants; }
-		}
+		public UniqueChunkList<ByteArrayChunk> Constants => constants;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the method bodies
 		/// </summary>
-		public MethodBodyChunks MethodBodies {
-			get { return methodBodies; }
-		}
+		public MethodBodyChunks MethodBodies => methodBodies;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the .NET resources
 		/// </summary>
-		public NetResources NetResources {
-			get { return netResources; }
-		}
+		public NetResources NetResources => netResources;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the .NET metadata
 		/// </summary>
-		public MetaData MetaData {
-			get { return metaData; }
-		}
+		public MetaData MetaData => metaData;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the Win32 resources or <c>null</c> if there's none
 		/// </summary>
-		public Win32ResourcesChunk Win32Resources {
-			get { return win32Resources; }
-		}
+		public Win32ResourcesChunk Win32Resources => win32Resources;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the strong name signature or <c>null</c> if there's none
 		/// </summary>
-		public StrongNameSignature StrongNameSignature {
-			get { return strongNameSignature; }
-		}
+		public StrongNameSignature StrongNameSignature => strongNameSignature;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all <see cref="PESection"/>s
 		/// </summary>
 		public abstract List<PESection> Sections { get; }
@@ -458,19 +407,15 @@ namespace dnlib.DotNet.Writer {
 		/// <summary>
 		/// Gets the debug directory or <c>null</c> if there's none
 		/// </summary>
-		public DebugDirectory DebugDirectory {
-			get { return debugDirectory; }
-		}
+		public DebugDirectory DebugDirectory => debugDirectory;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <c>this</c> is a <see cref="NativeModuleWriter"/>, <c>false</c> if
 		/// <c>this</c> is a <see cref="ModuleWriter"/>.
 		/// </summary>
-		public bool IsNativeWriter {
-			get { return this is NativeModuleWriter; }
-		}
+		public bool IsNativeWriter => this is NativeModuleWriter;
 
-		/// <summary>
+	    /// <summary>
 		/// Writes the module to a file
 		/// </summary>
 		/// <param name="fileName">File name. The file will be truncated if it exists.</param>
@@ -689,13 +634,11 @@ namespace dnlib.DotNet.Writer {
 		}
 
 		ISymbolWriter2 GetSymbolWriter2() {
-			if (TheOptions.CreatePdbSymbolWriter != null) {
-				var writer = TheOptions.CreatePdbSymbolWriter(this);
-				if (writer != null)
-					return writer;
-			}
+		    var writer = TheOptions.CreatePdbSymbolWriter?.Invoke(this);
+		    if (writer != null)
+		        return writer;
 
-			if (TheOptions.PdbStream != null) {
+		    if (TheOptions.PdbStream != null) {
 				return SymbolWriterCreator.Create(TheOptions.PdbStream,
 							TheOptions.PdbFileName ??
 							GetStreamName(TheOptions.PdbStream) ??
@@ -715,7 +658,7 @@ namespace dnlib.DotNet.Writer {
 
 		static string GetStreamName(Stream stream) {
 			var fs = stream as FileStream;
-			return fs == null ? null : fs.Name;
+			return fs?.Name;
 		}
 
 		string GetDefaultPdbFileName() {

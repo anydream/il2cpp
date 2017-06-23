@@ -189,11 +189,12 @@ namespace dnlib.DotNet.Pdb.Managed {
 				for (uint i = 0; i < count; i++) {
 					stream.Position = lineTablePos + i * LINE_ENTRY_SIZE;
 
-					var line = new DbiSourceLine {
-						Document = document
-					};
-					line.Offset = stream.ReadUInt32();
-					var lineFlags = stream.ReadUInt32();
+				    var line = new DbiSourceLine
+				    {
+				        Document = document,
+				        Offset = stream.ReadUInt32()
+				    };
+				    var lineFlags = stream.ReadUInt32();
 
 					line.LineBegin = lineFlags & 0x00ffffff;
 					line.LineEnd = line.LineBegin + ((lineFlags >> 24) & 0x7F);

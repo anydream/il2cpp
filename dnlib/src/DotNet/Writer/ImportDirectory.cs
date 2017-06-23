@@ -10,13 +10,9 @@ namespace dnlib.DotNet.Writer {
 	/// Import directory chunk
 	/// </summary>
 	public sealed class ImportDirectory : IChunk {
-		FileOffset offset;
-		RVA rva;
-		bool isExeFile;
-		uint length;
+	    uint length;
 		RVA importLookupTableRVA;
-		RVA corXxxMainRVA;
-		RVA mscoreeDllRVA;
+	    RVA mscoreeDllRVA;
 		int stringsPadding;
 
 		/// <summary>
@@ -27,41 +23,30 @@ namespace dnlib.DotNet.Writer {
 		/// <summary>
 		/// Gets the RVA of _CorDllMain/_CorExeMain in the import lookup table
 		/// </summary>
-		public RVA CorXxxMainRVA {
-			get { return corXxxMainRVA; }
-		}
+		public RVA CorXxxMainRVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets RVA of _CorExeMain/_CorDllMain in the IAT
 		/// </summary>
-		public RVA IatCorXxxMainRVA {
-			get { return ImportAddressTable.RVA; }
-		}
+		public RVA IatCorXxxMainRVA => ImportAddressTable.RVA;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets a value indicating whether this is a EXE or a DLL file
 		/// </summary>
-		public bool IsExeFile {
-			get { return isExeFile; }
-			set { isExeFile = value; }
-		}
+		public bool IsExeFile { get; set; }
 
-		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		const uint STRINGS_ALIGNMENT = 16;
+	    const uint STRINGS_ALIGNMENT = 16;
 
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 
 			length = 0x28;
 			importLookupTableRVA = rva + length;
@@ -69,7 +54,7 @@ namespace dnlib.DotNet.Writer {
 
 			stringsPadding = (int)(rva.AlignUp(STRINGS_ALIGNMENT) - rva);
 			length += (uint)stringsPadding;
-			corXxxMainRVA = rva + length;
+			CorXxxMainRVA = rva + length;
 			length += 0xE;
 			mscoreeDllRVA = rva + length;
 			length += 0xC;
@@ -98,7 +83,7 @@ namespace dnlib.DotNet.Writer {
 			writer.Write(0);
 
 			// ImportLookupTable
-			writer.Write((uint)corXxxMainRVA);
+			writer.Write((uint)CorXxxMainRVA);
 			writer.Write(0);
 
 			writer.WriteZeros(stringsPadding);

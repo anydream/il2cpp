@@ -9,89 +9,65 @@ namespace dnlib.DotNet.MD {
 	/// <summary>
 	/// A MD table (eg. Method table)
 	/// </summary>
-	[DebuggerDisplay("DL:{imageStream.Length} R:{numRows} RS:{tableInfo.RowSize} C:{Count} {tableInfo.Name}")]
+	[DebuggerDisplay("DL:{imageStream.Length} R:{Rows} RS:{TableInfo.RowSize} C:{Count} {tableInfo.Name}")]
 	public sealed class MDTable : IDisposable, IFileSection {
-		readonly Table table;
-		uint numRows;
-		TableInfo tableInfo;
-		IImageStream imageStream;
+	    private IImageStream imageStream;
 
 		// Fix for VS2015 expression evaluator: "The debugger is unable to evaluate this expression"
-		int Count {
-			get { return tableInfo.Columns.Count; }
-		}
+	    private int Count => TableInfo.Columns.Count;
 
-		/// <inheritdoc/>
-		public FileOffset StartOffset {
-			get { return imageStream.FileOffset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset StartOffset => imageStream.FileOffset;
 
-		/// <inheritdoc/>
-		public FileOffset EndOffset {
-			get { return imageStream.FileOffset + imageStream.Length; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset EndOffset => imageStream.FileOffset + imageStream.Length;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the table
 		/// </summary>
-		public Table Table {
-			get { return table; }
-		}
+		public Table Table { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the name of this table
 		/// </summary>
-		public string Name {
-			get { return tableInfo.Name; }
-		}
+		public string Name => TableInfo.Name;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns total number of rows
 		/// </summary>
-		public uint Rows {
-			get { return numRows; }
-		}
+		public uint Rows { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the total size in bytes of one row in this table
 		/// </summary>
-		public uint RowSize {
-			get { return (uint)tableInfo.RowSize; }
-		}
+		public uint RowSize => (uint)TableInfo.RowSize;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns all the columns
 		/// </summary>
-		public IList<ColumnInfo> Columns {
-			get { return tableInfo.Columns; }
-		}
+		public IList<ColumnInfo> Columns => TableInfo.Columns;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if there are no valid rows
 		/// </summary>
-		public bool IsEmpty {
-			get { return numRows == 0; }
-		}
+		public bool IsEmpty => Rows == 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns info about this table
 		/// </summary>
-		public TableInfo TableInfo {
-			get { return tableInfo; }
-		}
+		public TableInfo TableInfo { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// The stream that can access all the rows in this table
 		/// </summary>
 		internal IImageStream ImageStream {
-			get { return imageStream; }
-			set {
+			get => imageStream;
+	        set {
 				var ims = imageStream;
 				if (ims == value)
 					return;
-				if (ims != null)
-					ims.Dispose();
-				imageStream = value;
+	            ims?.Dispose();
+	            imageStream = value;
 			}
 		}
 
@@ -102,9 +78,9 @@ namespace dnlib.DotNet.MD {
 		/// <param name="numRows">Number of rows in this table</param>
 		/// <param name="tableInfo">Info about this table</param>
 		internal MDTable(Table table, uint numRows, TableInfo tableInfo) {
-			this.table = table;
-			this.numRows = numRows;
-			this.tableInfo = tableInfo;
+			this.Table = table;
+			this.Rows = numRows;
+			this.TableInfo = tableInfo;
 		}
 
 		internal IImageStream CloneImageStream() {
@@ -116,7 +92,7 @@ namespace dnlib.DotNet.MD {
 		/// </summary>
 		/// <param name="rid">Row ID</param>
 		public bool IsValidRID(uint rid) {
-			return rid != 0 && rid <= numRows;
+			return rid != 0 && rid <= Rows;
 		}
 
 		/// <summary>
@@ -124,16 +100,15 @@ namespace dnlib.DotNet.MD {
 		/// </summary>
 		/// <param name="rid">Row ID</param>
 		public bool IsInvalidRID(uint rid) {
-			return rid == 0 || rid > numRows;
+			return rid == 0 || rid > Rows;
 		}
 
 		/// <inheritdoc/>
 		public void Dispose() {
 			var ims = imageStream;
-			if (ims != null)
-				ims.Dispose();
-			numRows = 0;
-			tableInfo = null;
+		    ims?.Dispose();
+		    Rows = 0;
+			TableInfo = null;
 			imageStream = null;
 		}
 	}

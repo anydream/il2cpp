@@ -185,66 +185,42 @@ namespace dnlib.DotNet.MD {
 		public abstract bool IsCompressed { get; }
 
 		/// <inheritdoc/>
-		public ImageCor20Header ImageCor20Header {
-			get { return cor20Header; }
-		}
+		public ImageCor20Header ImageCor20Header => cor20Header;
 
-		/// <inheritdoc/>
-		public ushort MajorVersion {
-			get { return mdHeader.MajorVersion; }
-		}
+	    /// <inheritdoc/>
+		public ushort MajorVersion => mdHeader.MajorVersion;
 
-		/// <inheritdoc/>
-		public ushort MinorVersion {
-			get { return mdHeader.MinorVersion; }
-		}
+	    /// <inheritdoc/>
+		public ushort MinorVersion => mdHeader.MinorVersion;
 
-		/// <inheritdoc/>
-		public string VersionString {
-			get { return mdHeader.VersionString; }
-		}
+	    /// <inheritdoc/>
+		public string VersionString => mdHeader.VersionString;
 
-		/// <inheritdoc/>
-		public IPEImage PEImage {
-			get { return peImage; }
-		}
+	    /// <inheritdoc/>
+		public IPEImage PEImage => peImage;
 
-		/// <inheritdoc/>
-		public MetaDataHeader MetaDataHeader {
-			get { return mdHeader; }
-		}
+	    /// <inheritdoc/>
+		public MetaDataHeader MetaDataHeader => mdHeader;
 
-		/// <inheritdoc/>
-		public StringsStream StringsStream {
-			get { return stringsStream; }
-		}
+	    /// <inheritdoc/>
+		public StringsStream StringsStream => stringsStream;
 
-		/// <inheritdoc/>
-		public USStream USStream {
-			get { return usStream; }
-		}
+	    /// <inheritdoc/>
+		public USStream USStream => usStream;
 
-		/// <inheritdoc/>
-		public BlobStream BlobStream {
-			get { return blobStream; }
-		}
+	    /// <inheritdoc/>
+		public BlobStream BlobStream => blobStream;
 
-		/// <inheritdoc/>
-		public GuidStream GuidStream {
-			get { return guidStream; }
-		}
+	    /// <inheritdoc/>
+		public GuidStream GuidStream => guidStream;
 
-		/// <inheritdoc/>
-		public TablesStream TablesStream {
-			get { return tablesStream; }
-		}
+	    /// <inheritdoc/>
+		public TablesStream TablesStream => tablesStream;
 
-		/// <inheritdoc/>
-		public ThreadSafe.IList<DotNetStream> AllStreams {
-			get { return allStreams; }
-		}
+	    /// <inheritdoc/>
+		public ThreadSafe.IList<DotNetStream> AllStreams => allStreams;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="peImage">The PE image</param>
@@ -258,9 +234,8 @@ namespace dnlib.DotNet.MD {
 				this.mdHeader = mdHeader;
 			}
 			catch {
-				if (peImage != null)
-					peImage.Dispose();
-				throw;
+			    peImage?.Dispose();
+			    throw;
 			}
 		}
 
@@ -349,15 +324,13 @@ namespace dnlib.DotNet.MD {
 			uint endRid = startRid + 1;
 			var column = tableSource.TableInfo.Columns[keyColIndex];
 			for (; startRid > 1; startRid--) {
-				uint key2;
-				if (!tablesStream.ReadColumn_NoLock(tableSource, startRid - 1, column, out key2))
+				if (!tablesStream.ReadColumn_NoLock(tableSource, startRid - 1, column, out uint key2))
 					break;	// Should never happen since startRid is valid
 				if (key != key2)
 					break;
 			}
 			for (; endRid <= tableSource.Rows; endRid++) {
-				uint key2;
-				if (!tablesStream.ReadColumn_NoLock(tableSource, endRid, column, out key2))
+				if (!tablesStream.ReadColumn_NoLock(tableSource, endRid, column, out uint key2))
 					break;	// Should never happen since endRid is valid
 				if (key != key2)
 					break;
@@ -388,11 +361,8 @@ namespace dnlib.DotNet.MD {
 
 		/// <inheritdoc/>
 		public RidList GetGenericParamRidList(Table table, uint rid) {
-			uint codedToken;
-			if (!CodedToken.TypeOrMethodDef.Encode(new MDToken(table, rid), out codedToken))
-				return RidList.Empty;
-			return FindAllRowsUnsorted(tablesStream.GenericParamTable, 2, codedToken);
-		}
+            return !CodedToken.TypeOrMethodDef.Encode(new MDToken(table, rid), out uint codedToken) ? RidList.Empty : FindAllRowsUnsorted(tablesStream.GenericParamTable, 2, codedToken);
+        }
 
 		/// <inheritdoc/>
 		public RidList GetGenericParamConstraintRidList(uint genericParamRid) {
@@ -400,27 +370,21 @@ namespace dnlib.DotNet.MD {
 		}
 
 		/// <inheritdoc/>
-		public RidList GetCustomAttributeRidList(Table table, uint rid) {
-			uint codedToken;
-			if (!CodedToken.HasCustomAttribute.Encode(new MDToken(table, rid), out codedToken))
-				return RidList.Empty;
-			return FindAllRowsUnsorted(tablesStream.CustomAttributeTable, 0, codedToken);
+		public RidList GetCustomAttributeRidList(Table table, uint rid)
+		{
+		    return !CodedToken.HasCustomAttribute.Encode(new MDToken(table, rid), out uint codedToken) ? RidList.Empty : FindAllRowsUnsorted(tablesStream.CustomAttributeTable, 0, codedToken);
 		}
 
 		/// <inheritdoc/>
-		public RidList GetDeclSecurityRidList(Table table, uint rid) {
-			uint codedToken;
-			if (!CodedToken.HasDeclSecurity.Encode(new MDToken(table, rid), out codedToken))
-				return RidList.Empty;
-			return FindAllRowsUnsorted(tablesStream.DeclSecurityTable, 1, codedToken);
+		public RidList GetDeclSecurityRidList(Table table, uint rid)
+		{
+		    return !CodedToken.HasDeclSecurity.Encode(new MDToken(table, rid), out uint codedToken) ? RidList.Empty : FindAllRowsUnsorted(tablesStream.DeclSecurityTable, 1, codedToken);
 		}
 
 		/// <inheritdoc/>
-		public RidList GetMethodSemanticsRidList(Table table, uint rid) {
-			uint codedToken;
-			if (!CodedToken.HasSemantic.Encode(new MDToken(table, rid), out codedToken))
-				return RidList.Empty;
-			return FindAllRowsUnsorted(tablesStream.MethodSemanticsTable, 2, codedToken);
+		public RidList GetMethodSemanticsRidList(Table table, uint rid)
+		{
+		    return !CodedToken.HasSemantic.Encode(new MDToken(table, rid), out uint codedToken) ? RidList.Empty : FindAllRowsUnsorted(tablesStream.MethodSemanticsTable, 2, codedToken);
 		}
 
 		/// <inheritdoc/>
@@ -442,10 +406,9 @@ namespace dnlib.DotNet.MD {
 
 		/// <inheritdoc/>
 		public uint GetFieldMarshalRid(Table table, uint rid) {
-			uint codedToken;
-			if (!CodedToken.HasFieldMarshal.Encode(new MDToken(table, rid), out codedToken))
-				return 0;
-			var list = FindAllRowsUnsorted(tablesStream.FieldMarshalTable, 0, codedToken);
+            if (!CodedToken.HasFieldMarshal.Encode(new MDToken(table, rid), out uint codedToken))
+                return 0;
+            var list = FindAllRowsUnsorted(tablesStream.FieldMarshalTable, 0, codedToken);
 			return list.Length == 0 ? 0 : list[0];
 		}
 
@@ -457,10 +420,9 @@ namespace dnlib.DotNet.MD {
 
 		/// <inheritdoc/>
 		public uint GetImplMapRid(Table table, uint rid) {
-			uint codedToken;
-			if (!CodedToken.MemberForwarded.Encode(new MDToken(table, rid), out codedToken))
-				return 0;
-			var list = FindAllRowsUnsorted(tablesStream.ImplMapTable, 1, codedToken);
+            if (!CodedToken.MemberForwarded.Encode(new MDToken(table, rid), out uint codedToken))
+                return 0;
+            var list = FindAllRowsUnsorted(tablesStream.ImplMapTable, 1, codedToken);
 			return list.Length == 0 ? 0 : list[0];
 		}
 
@@ -492,10 +454,9 @@ namespace dnlib.DotNet.MD {
 
 		/// <inheritdoc/>
 		public uint GetConstantRid(Table table, uint rid) {
-			uint codedToken;
-			if (!CodedToken.HasConstant.Encode(new MDToken(table, rid), out codedToken))
-				return 0;
-			var list = FindAllRowsUnsorted(tablesStream.ConstantTable, 1, codedToken);
+            if (!CodedToken.HasConstant.Encode(new MDToken(table, rid), out uint codedToken))
+                return 0;
+            var list = FindAllRowsUnsorted(tablesStream.ConstantTable, 1, codedToken);
 			return list.Length == 0 ? 0 : list[0];
 		}
 
@@ -640,10 +601,9 @@ namespace dnlib.DotNet.MD {
 			tablesStream.theLock.EnterWriteLock(); try {
 #endif
 			for (uint rid = 1; rid <= gpTable.Rows; rid++) {
-				uint owner;
-				if (!tablesStream.ReadColumn_NoLock(gpTable, rid, ownerCol, out owner))
-					continue;
-				ownersDict[owner] = true;
+                if (!tablesStream.ReadColumn_NoLock(gpTable, rid, ownerCol, out uint owner))
+                    continue;
+                ownersDict[owner] = true;
 			}
 #if THREAD_SAFE
 			} finally { tablesStream.theLock.ExitWriteLock(); }
@@ -653,17 +613,17 @@ namespace dnlib.DotNet.MD {
 			// module could have 2+ owners pointing to the same generic param row.
 			var owners = new List<uint>(ownersDict.Keys);
 			owners.Sort();
-			for (int i = 0; i < owners.Count; i++) {
-				uint ownerToken;
-				if (!CodedToken.TypeOrMethodDef.Decode(owners[i], out ownerToken))
-					continue;
-				var ridList = GetGenericParamRidList(MDToken.ToTable(ownerToken), MDToken.ToRID(ownerToken));
-				for (uint j = 0; j < ridList.Length; j++) {
-					uint ridIndex = ridList[j] - 1;
-					if (newGpRidToOwnerRid[ridIndex] != 0)
-						continue;
-					newGpRidToOwnerRid[ridIndex] = owners[i];
-				}
+			foreach (uint onwer in owners)
+			{
+                if (!CodedToken.TypeOrMethodDef.Decode(onwer, out uint ownerToken))
+                    continue;
+                var ridList = GetGenericParamRidList(MDToken.ToTable(ownerToken), MDToken.ToRID(ownerToken));
+			    for (uint j = 0; j < ridList.Length; j++) {
+			        uint ridIndex = ridList[j] - 1;
+			        if (newGpRidToOwnerRid[ridIndex] != 0)
+			            continue;
+			        newGpRidToOwnerRid[ridIndex] = onwer;
+			    }
 			}
 			Interlocked.CompareExchange(ref gpRidToOwnerRid, newGpRidToOwnerRid, null);
 		}
@@ -693,10 +653,9 @@ namespace dnlib.DotNet.MD {
 			tablesStream.theLock.EnterWriteLock(); try {
 #endif
 			for (uint rid = 1; rid <= gpcTable.Rows; rid++) {
-				uint owner;
-				if (!tablesStream.ReadColumn_NoLock(gpcTable, rid, ownerCol, out owner))
-					continue;
-				ownersDict[owner] = true;
+                if (!tablesStream.ReadColumn_NoLock(gpcTable, rid, ownerCol, out uint owner))
+                    continue;
+                ownersDict[owner] = true;
 			}
 #if THREAD_SAFE
 			} finally { tablesStream.theLock.ExitWriteLock(); }
@@ -704,15 +663,15 @@ namespace dnlib.DotNet.MD {
 
 			var owners = new List<uint>(ownersDict.Keys);
 			owners.Sort();
-			for (int i = 0; i < owners.Count; i++) {
-				uint ownerToken = owners[i];
-				var ridList = GetGenericParamConstraintRidList(ownerToken);
-				for (uint j = 0; j < ridList.Length; j++) {
-					uint ridIndex = ridList[j] - 1;
-					if (newGpcRidToOwnerRid[ridIndex] != 0)
-						continue;
-					newGpcRidToOwnerRid[ridIndex] = ownerToken;
-				}
+			foreach (uint ownerToken in owners)
+			{
+			    var ridList = GetGenericParamConstraintRidList(ownerToken);
+			    for (uint j = 0; j < ridList.Length; j++) {
+			        uint ridIndex = ridList[j] - 1;
+			        if (newGpcRidToOwnerRid[ridIndex] != 0)
+			            continue;
+			        newGpcRidToOwnerRid[ridIndex] = ownerToken;
+			    }
 			}
 			Interlocked.CompareExchange(ref gpcRidToOwnerRid, newGpcRidToOwnerRid, null);
 		}
@@ -749,10 +708,7 @@ namespace dnlib.DotNet.MD {
 		public RidList GetNestedClassRidList(uint typeDefRid) {
 			if (typeDefRidToNestedClasses == null)
 				InitializeNestedClassesDictionary();
-			RandomRidList ridList;
-			if (typeDefRidToNestedClasses.TryGetValue(typeDefRid, out ridList))
-				return ridList;
-			return RidList.Empty;
+            return typeDefRidToNestedClasses.TryGetValue(typeDefRid, out RandomRidList ridList) ? ridList : RidList.Empty;
 		}
 
 		void InitializeNestedClassesDictionary() {
@@ -788,10 +744,9 @@ namespace dnlib.DotNet.MD {
 				var row = tablesStream.ReadNestedClassRow(GetNestedClassRid(nestedRid));
 				if (row == null)
 					continue;
-				RandomRidList ridList;
-				if (!newTypeDefRidToNestedClasses.TryGetValue(row.EnclosingClass, out ridList))
-					newTypeDefRidToNestedClasses[row.EnclosingClass] = ridList = new RandomRidList();
-				ridList.Add(nestedRid);
+                if (!newTypeDefRidToNestedClasses.TryGetValue(row.EnclosingClass, out RandomRidList ridList))
+                    newTypeDefRidToNestedClasses[row.EnclosingClass] = ridList = new RandomRidList();
+                ridList.Add(nestedRid);
 			}
 
 			var newNonNestedTypes = new RandomRidList((int)(destTable.Rows - nestedRidsDict.Count));
@@ -855,9 +810,9 @@ namespace dnlib.DotNet.MD {
 			typeDefRidToNestedClasses = null;
 		}
 
-		static void Dispose(IDisposable id) {
-			if (id != null)
-				id.Dispose();
+		static void Dispose(IDisposable id)
+		{
+		    id?.Dispose();
 		}
 	}
 }

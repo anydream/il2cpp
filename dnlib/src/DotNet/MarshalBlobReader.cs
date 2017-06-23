@@ -152,9 +152,9 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() {
-			if (reader != null)
-				reader.Dispose();
+		public void Dispose()
+		{
+		    reader?.Dispose();
 		}
 	}
 }

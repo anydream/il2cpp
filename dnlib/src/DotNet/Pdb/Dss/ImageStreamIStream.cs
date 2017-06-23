@@ -38,9 +38,7 @@ namespace dnlib.DotNet.Pdb.Dss {
 		/// <param name="stream">Source stream</param>
 		/// <param name="name">Name of original file or <c>null</c> if unknown.</param>
 		public ImageStreamIStream(IImageStream stream, string name) {
-			if (stream == null)
-				throw new ArgumentNullException("stream");
-			this.stream = stream;
+		    this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
 			this.name = name ?? string.Empty;
 		}
 
@@ -141,16 +139,18 @@ namespace dnlib.DotNet.Pdb.Dss {
 
 		/// <inheritdoc/>
 		public void Stat(out System.Runtime.InteropServices.ComTypes.STATSTG pstatstg, int grfStatFlag) {
-			var s = new System.Runtime.InteropServices.ComTypes.STATSTG();
+		    var s = new System.Runtime.InteropServices.ComTypes.STATSTG
+		    {
+		        cbSize = stream.Length,
+		        clsid = Guid.Empty,
+		        grfLocksSupported = 0,
+		        grfMode = 0,
+		        grfStateBits = 0
+		    };
 
-			// s.atime = ???;
-			s.cbSize = stream.Length;
-			s.clsid = Guid.Empty;
-			// s.ctime = ???;
-			s.grfLocksSupported = 0;
-			s.grfMode = 0;
-			s.grfStateBits = 0;
-			// s.mtime = ???;
+		    // s.atime = ???;
+		    // s.ctime = ???;
+		    // s.mtime = ???;
 			if ((grfStatFlag & (int)STATFLAG.NONAME) == 0)
 				s.pwcsName = name;
 			s.reserved = 0;
@@ -173,8 +173,7 @@ namespace dnlib.DotNet.Pdb.Dss {
 		public void Dispose() {
 			stream.Dispose();
 			var id = UserData as IDisposable;
-			if (id != null)
-				id.Dispose();
+		    id?.Dispose();
 		}
 	}
 }

@@ -9,38 +9,21 @@ namespace dnlib.DotNet {
 	/// A high-level representation of a row in the StandAloneSig table
 	/// </summary>
 	public abstract class StandAloneSig : IHasCustomAttribute, IContainsGenericParameter {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.StandAloneSig, Rid);
 
-		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.StandAloneSig, rid); }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
+	    /// <inheritdoc/>
+		public int HasCustomAttributeTag => 11;
 
-		/// <inheritdoc/>
-		public int HasCustomAttributeTag {
-			get { return 11; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// From column StandAloneSig.Signature
 		/// </summary>
-		public CallingConventionSig Signature {
-			get { return signature; }
-			set { signature = value; }
-		}
-		/// <summary/>
-		protected CallingConventionSig signature;
+		public CallingConventionSig Signature { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all custom attributes
 		/// </summary>
 		public CustomAttributeCollection CustomAttributes {
@@ -58,30 +41,26 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public bool HasCustomAttributes {
-			get { return CustomAttributes.Count > 0; }
-		}
+		public bool HasCustomAttributes => CustomAttributes.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the method sig
 		/// </summary>
 		public MethodSig MethodSig {
-			get { return signature as MethodSig; }
-			set { signature = value; }
-		}
+			get => Signature as MethodSig;
+	        set => Signature = value;
+	    }
 
 		/// <summary>
 		/// Gets/sets the locals sig
 		/// </summary>
 		public LocalSig LocalSig {
-			get { return signature as LocalSig; }
-			set { signature = value; }
+			get => Signature as LocalSig;
+		    set => Signature = value;
 		}
 
 		/// <inheritdoc/>
-		public bool ContainsGenericParameter {
-			get { return TypeHelper.ContainsGenericParameter(this); }
-		}
+		public bool ContainsGenericParameter => TypeHelper.ContainsGenericParameter(this);
 	}
 
 	/// <summary>
@@ -99,7 +78,7 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="localSig">A locals sig</param>
 		public StandAloneSigUser(LocalSig localSig) {
-			this.signature = localSig;
+			this.Signature = localSig;
 		}
 
 		/// <summary>
@@ -107,7 +86,7 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="methodSig">A method sig</param>
 		public StandAloneSigUser(MethodSig methodSig) {
-			this.signature = methodSig;
+			this.Signature = methodSig;
 		}
 	}
 
@@ -118,16 +97,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.StandAloneSig, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.StandAloneSig, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -143,15 +118,15 @@ namespace dnlib.DotNet {
 		public StandAloneSigMD(ModuleDefMD readerModule, uint rid, GenericParamContext gpContext) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.StandAloneSigTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("StandAloneSig rid {0} does not exist", rid));
+				throw new BadImageFormatException($"StandAloneSig rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
+			this.OrigRid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
-			uint signature = readerModule.TablesStream.ReadStandAloneSigRow2(origRid);
-			this.signature = readerModule.ReadSignature(signature, gpContext);
+			uint signature = readerModule.TablesStream.ReadStandAloneSigRow2(OrigRid);
+			this.Signature = readerModule.ReadSignature(signature, gpContext);
 		}
 	}
 }

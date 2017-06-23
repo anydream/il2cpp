@@ -13,11 +13,9 @@ namespace dnlib.DotNet.Writer {
 		Dictionary<uint, byte[]> userRawData;
 
 		/// <inheritdoc/>
-		public override string Name {
-			get { return "#GUID"; }
-		}
+		public override string Name => "#GUID";
 
-		/// <summary>
+	    /// <summary>
 		/// Adds a guid to the #GUID heap
 		/// </summary>
 		/// <param name="guid">The guid</param>
@@ -48,10 +46,9 @@ namespace dnlib.DotNet.Writer {
 		protected override void WriteToImpl(BinaryWriter writer) {
 			uint offset = 0;
 			foreach (var guid in guids) {
-				byte[] rawData;
-				if (userRawData == null || !userRawData.TryGetValue(offset, out rawData))
-					rawData = guid.ToByteArray();
-				writer.Write(rawData);
+                if (userRawData == null || !userRawData.TryGetValue(offset, out byte[] rawData))
+                    rawData = guid.ToByteArray();
+                writer.Write(rawData);
 				offset += 16;
 			}
 		}

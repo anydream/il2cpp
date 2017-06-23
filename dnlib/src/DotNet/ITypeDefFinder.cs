@@ -37,7 +37,7 @@
 			var type = self.Find(typeRef);
 			if (type != null)
 				return type;
-			throw new TypeResolveException(string.Format("Could not find type: {0}", typeRef));
+			throw new TypeResolveException($"Could not find type: {typeRef}");
 		}
 
 		/// <summary>
@@ -54,7 +54,7 @@
 			var type = self.Find(fullName, isReflectionName);
 			if (type != null)
 				return type;
-			throw new TypeResolveException(string.Format("Could not find type: {0}", fullName));
+			throw new TypeResolveException($"Could not find type: {fullName}");
 		}
 
 		/// <summary>
@@ -78,7 +78,7 @@
 			var type = self.Find(fullName, false);
 			if (type != null)
 				return type;
-			throw new TypeResolveException(string.Format("Could not find type: {0}", fullName));
+			throw new TypeResolveException($"Could not find type: {fullName}");
 		}
 
 		/// <summary>
@@ -102,7 +102,7 @@
 			var type = self.Find(fullName, true);
 			if (type != null)
 				return type;
-			throw new TypeResolveException(string.Format("Could not find type: {0}", fullName));
+			throw new TypeResolveException($"Could not find type: {fullName}");
 		}
 
 		/// <summary>

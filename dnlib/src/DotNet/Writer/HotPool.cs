@@ -13,17 +13,10 @@ namespace dnlib.DotNet.Writer {
 	/// </summary>
 	public abstract class HotPool : IChunk {
 		internal const uint HP_ALIGNMENT = 4;
-		FileOffset offset;
-		RVA rva;
-		readonly HeapType heapType;
-		Dictionary<uint, byte[]> allData;
+	    Dictionary<uint, byte[]> allData;
 		internal DataInfo[] dataList;
 		int[] sortedIndexes;
-		internal uint dataOffset;
-		internal uint indexesOffset;
-		internal uint ridsOffset;
-		internal uint headerOffset;
-		uint totalLength;
+	    uint totalLength;
 		bool indexesIsSorted;
 
 		internal class DataInfo {
@@ -37,60 +30,46 @@ namespace dnlib.DotNet.Writer {
 		}
 
 		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the offset of the data relative to the start of this chunk. This is valid only
 		/// after <see cref="SetOffset(FileOffset,RVA)"/> has been called.
 		/// </summary>
-		public uint DataOffset {
-			get { return dataOffset; }
-		}
+		public uint DataOffset { get; internal set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the offset of the indexes relative to the start of this chunk. This is valid only
 		/// after <see cref="SetOffset(FileOffset,RVA)"/> has been called.
 		/// </summary>
-		public uint IndexesOffset {
-			get { return indexesOffset; }
-		}
+		public uint IndexesOffset { get; internal set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the offset of the rids relative to the start of this chunk. This is valid only
 		/// after <see cref="SetOffset(FileOffset,RVA)"/> has been called.
 		/// </summary>
-		public uint RidsOffset {
-			get { return ridsOffset; }
-		}
+		public uint RidsOffset { get; internal set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the offset of the header relative to the start of this chunk. This is valid only
 		/// after <see cref="SetOffset(FileOffset,RVA)"/> has been called.
 		/// </summary>
-		public uint HeaderOffset {
-			get { return headerOffset; }
-		}
+		public uint HeaderOffset { get; internal set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the pool type
 		/// </summary>
-		public HeapType HeapType {
-			get { return heapType; }
-		}
+		public HeapType HeapType { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="heapType">Pool type</param>
 		internal HotPool(HeapType heapType) {
-			this.heapType = heapType;
+			this.HeapType = heapType;
 			this.allData = new Dictionary<uint, byte[]>();
 		}
 
@@ -181,8 +160,8 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 
 			CreateData();
 			totalLength = SetOffsetImpl();
@@ -265,21 +244,21 @@ namespace dnlib.DotNet.Writer {
 
 			// data can be anywhere except where rids can be
 			offs = Utils.AlignUp(offs, HP_ALIGNMENT);
-			dataOffset = offs;
+			DataOffset = offs;
 			offs += GetDataSize();
 
 			// indexes can be anywhere except where rids can be
 			offs = Utils.AlignUp(offs, HP_ALIGNMENT);
-			indexesOffset = offs;
+			IndexesOffset = offs;
 			offs += ((uint)dataList.Length - 1) * 4;
 
 			// rids must be right before the header
 			offs = Utils.AlignUp(offs, HP_ALIGNMENT);
-			ridsOffset = offs;
+			RidsOffset = offs;
 			offs += (uint)dataList.Length * 4;
 
 			offs = Utils.AlignUp(offs, HP_ALIGNMENT);
-			headerOffset = offs;
+			HeaderOffset = offs;
 			offs += 3 * 4;
 
 			return offs;
@@ -292,13 +271,13 @@ namespace dnlib.DotNet.Writer {
 			var dataList2 = GetPoolDataOrder();
 
 			// Write data
-			writer.WriteZeros((int)(dataOffset - offs));
+			writer.WriteZeros((int)(DataOffset - offs));
 			foreach (var kv in dataList2)
 				writer.Write(kv.Data);
 			offs = (uint)(writer.BaseStream.Position - startPos);
 
 			// Write indexes (hot pool offsets)
-			writer.WriteZeros((int)(indexesOffset - offs));
+			writer.WriteZeros((int)(IndexesOffset - offs));
 			if (dataList.Length > 1) {
 				for (int i = 1; i < dataList.Length; i++)
 					writer.Write(dataList[i].PoolOffset);
@@ -306,16 +285,16 @@ namespace dnlib.DotNet.Writer {
 			offs = (uint)(writer.BaseStream.Position - startPos);
 
 			// Write rids (heap offsets)
-			writer.WriteZeros((int)(ridsOffset - offs));
+			writer.WriteZeros((int)(RidsOffset - offs));
 			foreach (var kv in dataList)
 				writer.Write(kv.HeapOffset);
 			offs = (uint)(writer.BaseStream.Position - startPos);
 
 			// Write header
-			writer.WriteZeros((int)(headerOffset - offs));
-			writer.Write(headerOffset - dataOffset);	// any alignment
-			writer.Write(headerOffset - indexesOffset);	// low 2 bits are ignored
-			writer.Write(headerOffset - ridsOffset);	// low 2 bits are ignored
+			writer.WriteZeros((int)(HeaderOffset - offs));
+			writer.Write(HeaderOffset - DataOffset);	// any alignment
+			writer.Write(HeaderOffset - IndexesOffset);	// low 2 bits are ignored
+			writer.Write(HeaderOffset - RidsOffset);	// low 2 bits are ignored
 		}
 	}
 
@@ -337,21 +316,21 @@ namespace dnlib.DotNet.Writer {
 
 			// data can be anywhere except where rids can be
 			offs = Utils.AlignUp(offs, HP_ALIGNMENT);
-			dataOffset = offs;
+			DataOffset = offs;
 			offs += GetDataSize();
 
 			// indexes can be anywhere except where rids can be
 			offs = Utils.AlignUp(offs, HP_ALIGNMENT);
-			indexesOffset = offs;
+			IndexesOffset = offs;
 			offs += (uint)dataList.Length * 4;
 
 			// rids must be right before the header
 			offs = Utils.AlignUp(offs, HP_ALIGNMENT);
-			ridsOffset = offs;
+			RidsOffset = offs;
 			offs += (uint)dataList.Length * 4;
 
 			offs = Utils.AlignUp(offs, HP_ALIGNMENT);
-			headerOffset = offs;
+			HeaderOffset = offs;
 			offs += 3 * 4;
 
 			return offs;
@@ -364,28 +343,28 @@ namespace dnlib.DotNet.Writer {
 			var dataList2 = GetPoolDataOrder();
 
 			// Write data
-			writer.WriteZeros((int)(dataOffset - offs));
+			writer.WriteZeros((int)(DataOffset - offs));
 			foreach (var info in dataList2)
 				writer.Write(info.Data);
 			offs = (uint)(writer.BaseStream.Position - startPos);
 
 			// Write indexes (hot pool offsets)
-			writer.WriteZeros((int)(indexesOffset - offs));
+			writer.WriteZeros((int)(IndexesOffset - offs));
 			foreach (var info in dataList)
 				writer.Write(info.PoolOffset);
 			offs = (uint)(writer.BaseStream.Position - startPos);
 
 			// Write rids (heap offsets)
-			writer.WriteZeros((int)(ridsOffset - offs));
+			writer.WriteZeros((int)(RidsOffset - offs));
 			foreach (var kv in dataList)
 				writer.Write(kv.HeapOffset);
 			offs = (uint)(writer.BaseStream.Position - startPos);
 
 			// Write header
-			writer.WriteZeros((int)(headerOffset - offs));
-			writer.Write(headerOffset - ridsOffset);	// must be 4-byte aligned
-			writer.Write(headerOffset - indexesOffset);	// must be 4-byte aligned
-			writer.Write(headerOffset - dataOffset);	// any alignment
+			writer.WriteZeros((int)(HeaderOffset - offs));
+			writer.Write(HeaderOffset - RidsOffset);	// must be 4-byte aligned
+			writer.Write(HeaderOffset - IndexesOffset);	// must be 4-byte aligned
+			writer.Write(HeaderOffset - DataOffset);	// any alignment
 		}
 	}
 }

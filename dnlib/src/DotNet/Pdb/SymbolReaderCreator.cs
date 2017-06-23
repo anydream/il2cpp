@@ -86,9 +86,8 @@ namespace dnlib.DotNet.Pdb {
 				return Managed.SymbolReaderCreator.Create(pdbStream);
 
 			default:
-				if (pdbStream != null)
-					pdbStream.Dispose();
-				throw new InvalidOperationException();
+			    pdbStream?.Dispose();
+			    throw new InvalidOperationException();
 			}
 		}
 
@@ -107,14 +106,12 @@ namespace dnlib.DotNet.Pdb {
 				return Dss.SymbolReaderCreator.Create(mdStream, pdbFileName);
 
 			case PdbImplType.Managed:
-				if (mdStream != null)
-					mdStream.Dispose();
-				return Managed.SymbolReaderCreator.Create(pdbFileName);
+			    mdStream?.Dispose();
+			    return Managed.SymbolReaderCreator.Create(pdbFileName);
 
 			default:
-				if (mdStream != null)
-					mdStream.Dispose();
-				throw new InvalidOperationException();
+			    mdStream?.Dispose();
+			    throw new InvalidOperationException();
 			}
 		}
 
@@ -133,14 +130,12 @@ namespace dnlib.DotNet.Pdb {
 				return Dss.SymbolReaderCreator.Create(mdStream, pdbData);
 
 			case PdbImplType.Managed:
-				if (mdStream != null)
-					mdStream.Dispose();
-				return Managed.SymbolReaderCreator.Create(pdbData);
+			    mdStream?.Dispose();
+			    return Managed.SymbolReaderCreator.Create(pdbData);
 
 			default:
-				if (mdStream != null)
-					mdStream.Dispose();
-				throw new InvalidOperationException();
+			    mdStream?.Dispose();
+			    throw new InvalidOperationException();
 			}
 		}
 
@@ -159,16 +154,13 @@ namespace dnlib.DotNet.Pdb {
 				return Dss.SymbolReaderCreator.Create(mdStream, pdbStream);
 
 			case PdbImplType.Managed:
-				if (mdStream != null)
-					mdStream.Dispose();
-				return Managed.SymbolReaderCreator.Create(pdbStream);
+			    mdStream?.Dispose();
+			    return Managed.SymbolReaderCreator.Create(pdbStream);
 
 			default:
-				if (mdStream != null)
-					mdStream.Dispose();
-				if (pdbStream != null)
-					pdbStream.Dispose();
-				throw new InvalidOperationException();
+			    mdStream?.Dispose();
+			    pdbStream?.Dispose();
+			    throw new InvalidOperationException();
 			}
 		}
 	}

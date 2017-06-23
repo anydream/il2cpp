@@ -179,8 +179,7 @@ namespace dnlib.DotNet.Pdb.Managed {
 		}
 
 		void ReadStringTable() {
-			uint streamId;
-			if (!names.TryGetValue("/names", out streamId))
+			if (!names.TryGetValue("/names", out uint streamId))
 				throw new PdbException("String table not found");
 
 			var stream = streams[streamId].Content;
@@ -247,16 +246,15 @@ namespace dnlib.DotNet.Pdb.Managed {
 		internal DbiDocument GetDocument(uint nameId) {
 			var name = strings[nameId];
 
-			DbiDocument doc;
-			if (!documents.TryGetValue(name, out doc)) {
-				doc = new DbiDocument(name);
+            if (!documents.TryGetValue(name, out DbiDocument doc))
+            {
+                doc = new DbiDocument(name);
 
-				uint streamId;
-				if (names.TryGetValue("/src/files/" + name, out streamId))
-					doc.Read(streams[streamId].Content);
-				documents.Add(name, doc);
-			}
-			return doc;
+                if (names.TryGetValue("/src/files/" + name, out uint streamId))
+                    doc.Read(streams[streamId].Content);
+                documents.Add(name, doc);
+            }
+            return doc;
 		}
 
 		void ReadGlobalSymbols(IImageStream stream) {
@@ -309,10 +307,9 @@ namespace dnlib.DotNet.Pdb.Managed {
 		#region ISymbolReader
 
 		ISymbolMethod ISymbolReader.GetMethod(SymbolToken method) {
-			DbiFunction symMethod;
-			if (functions.TryGetValue((uint)method.GetToken(), out symMethod))
-				return symMethod;
-			return null;
+            if (functions.TryGetValue((uint)method.GetToken(), out DbiFunction symMethod))
+                return symMethod;
+            return null;
 		}
 
 		ISymbolDocument[] ISymbolReader.GetDocuments() {

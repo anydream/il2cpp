@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 
@@ -84,14 +85,7 @@ namespace il2cpp
 
 		public int GenericHashCode()
 		{
-			if (GenArgs == null)
-				return 0;
-
-			int code = GenArgs.Count;
-			foreach (TypeX type in GenArgs)
-				code ^= type.GetHashCode();
-
-			return code;
+		    return GenArgs?.Aggregate(GenArgs.Count, (current, type) => current ^ type.GetHashCode()) ?? 0;
 		}
 
 		public bool GenericEquals(GenericArgs other)
@@ -104,12 +98,7 @@ namespace il2cpp
 			if (GenArgs.Count != other.GenArgs.Count)
 				return false;
 
-			for (int i = 0; i < GenArgs.Count; ++i)
-			{
-				if (!GenArgs[i].Equals(other.GenArgs[i]))
-					return false;
-			}
-			return true;
+		    return !GenArgs.Where((t, i) => !t.Equals(other.GenArgs[i])).Any();
 		}
 
 		public string GenericToString(bool isPretty = false)

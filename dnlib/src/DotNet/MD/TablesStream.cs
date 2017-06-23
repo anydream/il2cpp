@@ -11,19 +11,10 @@ namespace dnlib.DotNet.MD {
 	/// </summary>
 	public sealed partial class TablesStream : DotNetStream {
 		bool initialized;
-		uint reserved1;
-		byte majorVersion;
+	    byte majorVersion;
 		byte minorVersion;
-		MDStreamFlags flags;
-		byte log2Rid;
-		ulong validMask;
-		ulong sortedMask;
-		uint extraData;
-		MDTable[] mdTables;
 
-		HotTableStream hotTableStream;
-		IColumnReader columnReader;
-		IRowReader<RawMethodRow> methodRowReader;
+	    HotTableStream hotTableStream;
 
 #pragma warning disable 1591	// XML doc comment
 		public MDTable ModuleTable { get; private set; }
@@ -86,132 +77,96 @@ namespace dnlib.DotNet.MD {
 #endif
 
 		internal HotTableStream HotTableStream {
-			set { hotTableStream = value; }
+			set => hotTableStream = value;
 		}
 
 		/// <summary>
 		/// Gets/sets the column reader
 		/// </summary>
-		public IColumnReader ColumnReader {
-			get { return columnReader; }
-			set { columnReader = value; }
-		}
+		public IColumnReader ColumnReader { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the <c>Method</c> table reader
 		/// </summary>
-		public IRowReader<RawMethodRow> MethodRowReader {
-			get { return methodRowReader; }
-			set { methodRowReader = value; }
-		}
+		public IRowReader<RawMethodRow> MethodRowReader { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the reserved field
 		/// </summary>
-		public uint Reserved1 {
-			get { return reserved1; }
-		}
+		public uint Reserved1 { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the version. The major version is in the upper 8 bits, and the minor version
 		/// is in the lower 8 bits.
 		/// </summary>
-		public ushort Version {
-			get { return (ushort)((majorVersion << 8) | minorVersion); }
-		}
+		public ushort Version => (ushort)((majorVersion << 8) | minorVersion);
 
-		/// <summary>
+	    /// <summary>
 		/// Gets <see cref="MDStreamFlags"/>
 		/// </summary>
-		public MDStreamFlags Flags {
-			get { return flags; }
-		}
+		public MDStreamFlags Flags { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the reserved log2 rid field
 		/// </summary>
-		public byte Log2Rid {
-			get { return log2Rid; }
-		}
+		public byte Log2Rid { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the valid mask
 		/// </summary>
-		public ulong ValidMask {
-			get { return validMask; }
-		}
+		public ulong ValidMask { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the sorted mask
 		/// </summary>
-		public ulong SortedMask {
-			get { return sortedMask; }
-		}
+		public ulong SortedMask { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the extra data
 		/// </summary>
-		public uint ExtraData {
-			get { return extraData; }
-		}
+		public uint ExtraData { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the MD tables
 		/// </summary>
-		public MDTable[] MDTables {
-			get { return mdTables; }
-		}
+		public MDTable[] MDTables { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="MDStreamFlags.BigStrings"/> bit
 		/// </summary>
-		public bool HasBigStrings {
-			get { return (flags & MDStreamFlags.BigStrings) != 0; }
-		}
+		public bool HasBigStrings => (Flags & MDStreamFlags.BigStrings) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="MDStreamFlags.BigGUID"/> bit
 		/// </summary>
-		public bool HasBigGUID {
-			get { return (flags & MDStreamFlags.BigGUID) != 0; }
-		}
+		public bool HasBigGUID => (Flags & MDStreamFlags.BigGUID) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="MDStreamFlags.BigBlob"/> bit
 		/// </summary>
-		public bool HasBigBlob {
-			get { return (flags & MDStreamFlags.BigBlob) != 0; }
-		}
+		public bool HasBigBlob => (Flags & MDStreamFlags.BigBlob) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="MDStreamFlags.Padding"/> bit
 		/// </summary>
-		public bool HasPadding {
-			get { return (flags & MDStreamFlags.Padding) != 0; }
-		}
+		public bool HasPadding => (Flags & MDStreamFlags.Padding) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="MDStreamFlags.DeltaOnly"/> bit
 		/// </summary>
-		public bool HasDeltaOnly {
-			get { return (flags & MDStreamFlags.DeltaOnly) != 0; }
-		}
+		public bool HasDeltaOnly => (Flags & MDStreamFlags.DeltaOnly) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="MDStreamFlags.ExtraData"/> bit
 		/// </summary>
-		public bool HasExtraData {
-			get { return (flags & MDStreamFlags.ExtraData) != 0; }
-		}
+		public bool HasExtraData => (Flags & MDStreamFlags.ExtraData) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="MDStreamFlags.HasDelete"/> bit
 		/// </summary>
-		public bool HasDelete {
-			get { return (flags & MDStreamFlags.HasDelete) != 0; }
-		}
+		public bool HasDelete => (Flags & MDStreamFlags.HasDelete) != 0;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public TablesStream(IImageStream imageStream, StreamHeader streamHeader)
 			: base(imageStream, streamHeader) {
 		}
@@ -225,37 +180,36 @@ namespace dnlib.DotNet.MD {
 				throw new Exception("Initialize() has already been called");
 			initialized = true;
 
-			reserved1 = imageStream.ReadUInt32();
+			Reserved1 = imageStream.ReadUInt32();
 			majorVersion = imageStream.ReadByte();
 			minorVersion = imageStream.ReadByte();
-			flags = (MDStreamFlags)imageStream.ReadByte();
-			log2Rid = imageStream.ReadByte();
-			validMask = imageStream.ReadUInt64();
-			sortedMask = imageStream.ReadUInt64();
+			Flags = (MDStreamFlags)imageStream.ReadByte();
+			Log2Rid = imageStream.ReadByte();
+			ValidMask = imageStream.ReadUInt64();
+			SortedMask = imageStream.ReadUInt64();
 
-			int maxPresentTables;
 			var dnTableSizes = new DotNetTableSizes();
-			var tableInfos = dnTableSizes.CreateTables(majorVersion, minorVersion, out maxPresentTables);
-			mdTables = new MDTable[tableInfos.Length];
+			var tableInfos = dnTableSizes.CreateTables(majorVersion, minorVersion, out int maxPresentTables);
+			MDTables = new MDTable[tableInfos.Length];
 
-			ulong valid = validMask;
+			ulong valid = ValidMask;
 			var sizes = new uint[64];
 			for (int i = 0; i < 64; valid >>= 1, i++) {
 				uint rows = (valid & 1) == 0 ? 0 : imageStream.ReadUInt32();
 				if (i >= maxPresentTables)
 					rows = 0;
 				sizes[i] = rows;
-				if (i < mdTables.Length)
-					mdTables[i] = new MDTable((Table)i, rows, tableInfos[i]);
+				if (i < MDTables.Length)
+					MDTables[i] = new MDTable((Table)i, rows, tableInfos[i]);
 			}
 
 			if (HasExtraData)
-				extraData = imageStream.ReadUInt32();
+				ExtraData = imageStream.ReadUInt32();
 
 			dnTableSizes.InitializeSizes(HasBigStrings, HasBigGUID, HasBigBlob, sizes);
 
 			var currentRva = peImage.ToRVA(imageStream.FileOffset) + (uint)imageStream.Position;
-			foreach (var mdTable in mdTables) {
+			foreach (var mdTable in MDTables) {
 				var dataLen = (long)mdTable.TableInfo.RowSize * (long)mdTable.Rows;
 				mdTable.ImageStream = peImage.CreateStream(currentRva, dataLen);
 				var newRva = currentRva + (uint)dataLen;
@@ -268,71 +222,71 @@ namespace dnlib.DotNet.MD {
 		}
 
 		void InitializeTables() {
-			ModuleTable = mdTables[(int)Table.Module];
-			TypeRefTable = mdTables[(int)Table.TypeRef];
-			TypeDefTable = mdTables[(int)Table.TypeDef];
-			FieldPtrTable = mdTables[(int)Table.FieldPtr];
-			FieldTable = mdTables[(int)Table.Field];
-			MethodPtrTable = mdTables[(int)Table.MethodPtr];
-			MethodTable = mdTables[(int)Table.Method];
-			ParamPtrTable = mdTables[(int)Table.ParamPtr];
-			ParamTable = mdTables[(int)Table.Param];
-			InterfaceImplTable = mdTables[(int)Table.InterfaceImpl];
-			MemberRefTable = mdTables[(int)Table.MemberRef];
-			ConstantTable = mdTables[(int)Table.Constant];
-			CustomAttributeTable = mdTables[(int)Table.CustomAttribute];
-			FieldMarshalTable = mdTables[(int)Table.FieldMarshal];
-			DeclSecurityTable = mdTables[(int)Table.DeclSecurity];
-			ClassLayoutTable = mdTables[(int)Table.ClassLayout];
-			FieldLayoutTable = mdTables[(int)Table.FieldLayout];
-			StandAloneSigTable = mdTables[(int)Table.StandAloneSig];
-			EventMapTable = mdTables[(int)Table.EventMap];
-			EventPtrTable = mdTables[(int)Table.EventPtr];
-			EventTable = mdTables[(int)Table.Event];
-			PropertyMapTable = mdTables[(int)Table.PropertyMap];
-			PropertyPtrTable = mdTables[(int)Table.PropertyPtr];
-			PropertyTable = mdTables[(int)Table.Property];
-			MethodSemanticsTable = mdTables[(int)Table.MethodSemantics];
-			MethodImplTable = mdTables[(int)Table.MethodImpl];
-			ModuleRefTable = mdTables[(int)Table.ModuleRef];
-			TypeSpecTable = mdTables[(int)Table.TypeSpec];
-			ImplMapTable = mdTables[(int)Table.ImplMap];
-			FieldRVATable = mdTables[(int)Table.FieldRVA];
-			ENCLogTable = mdTables[(int)Table.ENCLog];
-			ENCMapTable = mdTables[(int)Table.ENCMap];
-			AssemblyTable = mdTables[(int)Table.Assembly];
-			AssemblyProcessorTable = mdTables[(int)Table.AssemblyProcessor];
-			AssemblyOSTable = mdTables[(int)Table.AssemblyOS];
-			AssemblyRefTable = mdTables[(int)Table.AssemblyRef];
-			AssemblyRefProcessorTable = mdTables[(int)Table.AssemblyRefProcessor];
-			AssemblyRefOSTable = mdTables[(int)Table.AssemblyRefOS];
-			FileTable = mdTables[(int)Table.File];
-			ExportedTypeTable = mdTables[(int)Table.ExportedType];
-			ManifestResourceTable = mdTables[(int)Table.ManifestResource];
-			NestedClassTable = mdTables[(int)Table.NestedClass];
-			GenericParamTable = mdTables[(int)Table.GenericParam];
-			MethodSpecTable = mdTables[(int)Table.MethodSpec];
-			GenericParamConstraintTable = mdTables[(int)Table.GenericParamConstraint];
-			Document = mdTables[(int)Table.Document];
-			MethodDebugInformation = mdTables[(int)Table.MethodDebugInformation];
-			LocalScope = mdTables[(int)Table.LocalScope];
-			LocalVariable = mdTables[(int)Table.LocalVariable];
-			LocalConstant = mdTables[(int)Table.LocalConstant];
-			ImportScope = mdTables[(int)Table.ImportScope];
-			StateMachineMethod = mdTables[(int)Table.StateMachineMethod];
-			CustomDebugInformation = mdTables[(int)Table.CustomDebugInformation];
+			ModuleTable = MDTables[(int)Table.Module];
+			TypeRefTable = MDTables[(int)Table.TypeRef];
+			TypeDefTable = MDTables[(int)Table.TypeDef];
+			FieldPtrTable = MDTables[(int)Table.FieldPtr];
+			FieldTable = MDTables[(int)Table.Field];
+			MethodPtrTable = MDTables[(int)Table.MethodPtr];
+			MethodTable = MDTables[(int)Table.Method];
+			ParamPtrTable = MDTables[(int)Table.ParamPtr];
+			ParamTable = MDTables[(int)Table.Param];
+			InterfaceImplTable = MDTables[(int)Table.InterfaceImpl];
+			MemberRefTable = MDTables[(int)Table.MemberRef];
+			ConstantTable = MDTables[(int)Table.Constant];
+			CustomAttributeTable = MDTables[(int)Table.CustomAttribute];
+			FieldMarshalTable = MDTables[(int)Table.FieldMarshal];
+			DeclSecurityTable = MDTables[(int)Table.DeclSecurity];
+			ClassLayoutTable = MDTables[(int)Table.ClassLayout];
+			FieldLayoutTable = MDTables[(int)Table.FieldLayout];
+			StandAloneSigTable = MDTables[(int)Table.StandAloneSig];
+			EventMapTable = MDTables[(int)Table.EventMap];
+			EventPtrTable = MDTables[(int)Table.EventPtr];
+			EventTable = MDTables[(int)Table.Event];
+			PropertyMapTable = MDTables[(int)Table.PropertyMap];
+			PropertyPtrTable = MDTables[(int)Table.PropertyPtr];
+			PropertyTable = MDTables[(int)Table.Property];
+			MethodSemanticsTable = MDTables[(int)Table.MethodSemantics];
+			MethodImplTable = MDTables[(int)Table.MethodImpl];
+			ModuleRefTable = MDTables[(int)Table.ModuleRef];
+			TypeSpecTable = MDTables[(int)Table.TypeSpec];
+			ImplMapTable = MDTables[(int)Table.ImplMap];
+			FieldRVATable = MDTables[(int)Table.FieldRVA];
+			ENCLogTable = MDTables[(int)Table.ENCLog];
+			ENCMapTable = MDTables[(int)Table.ENCMap];
+			AssemblyTable = MDTables[(int)Table.Assembly];
+			AssemblyProcessorTable = MDTables[(int)Table.AssemblyProcessor];
+			AssemblyOSTable = MDTables[(int)Table.AssemblyOS];
+			AssemblyRefTable = MDTables[(int)Table.AssemblyRef];
+			AssemblyRefProcessorTable = MDTables[(int)Table.AssemblyRefProcessor];
+			AssemblyRefOSTable = MDTables[(int)Table.AssemblyRefOS];
+			FileTable = MDTables[(int)Table.File];
+			ExportedTypeTable = MDTables[(int)Table.ExportedType];
+			ManifestResourceTable = MDTables[(int)Table.ManifestResource];
+			NestedClassTable = MDTables[(int)Table.NestedClass];
+			GenericParamTable = MDTables[(int)Table.GenericParam];
+			MethodSpecTable = MDTables[(int)Table.MethodSpec];
+			GenericParamConstraintTable = MDTables[(int)Table.GenericParamConstraint];
+			Document = MDTables[(int)Table.Document];
+			MethodDebugInformation = MDTables[(int)Table.MethodDebugInformation];
+			LocalScope = MDTables[(int)Table.LocalScope];
+			LocalVariable = MDTables[(int)Table.LocalVariable];
+			LocalConstant = MDTables[(int)Table.LocalConstant];
+			ImportScope = MDTables[(int)Table.ImportScope];
+			StateMachineMethod = MDTables[(int)Table.StateMachineMethod];
+			CustomDebugInformation = MDTables[(int)Table.CustomDebugInformation];
 		}
 
 		/// <inheritdoc/>
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
-				var mt = mdTables;
+				var mt = MDTables;
 				if (mt != null) {
-					foreach (var mdTable in mt) {
-						if (mdTable != null)
-							mdTable.Dispose();
+					foreach (var mdTable in mt)
+					{
+					    mdTable?.Dispose();
 					}
-					mdTables = null;
+					MDTables = null;
 				}
 			}
 			base.Dispose(disposing);
@@ -345,9 +299,9 @@ namespace dnlib.DotNet.MD {
 		/// <returns>A <see cref="MDTable"/> or <c>null</c> if table doesn't exist</returns>
 		public MDTable Get(Table table) {
 			int index = (int)table;
-			if ((uint)index >= (uint)mdTables.Length)
+			if ((uint)index >= (uint)MDTables.Length)
 				return null;
-			return mdTables[index];
+			return MDTables[index];
 		}
 
 		/// <summary>
@@ -356,7 +310,7 @@ namespace dnlib.DotNet.MD {
 		/// <param name="table">The table type</param>
 		/// <returns><c>true</c> if the table exists</returns>
 		public bool HasTable(Table table) {
-			return (uint)table < (uint)mdTables.Length;
+			return (uint)table < (uint)MDTables.Length;
 		}
 
 		/// <summary>
@@ -367,7 +321,7 @@ namespace dnlib.DotNet.MD {
 			int index = (int)table.Table;
 			if ((uint)index >= 64)
 				return false;
-			return (sortedMask & (1UL << index)) != 0;
+			return (SortedMask & (1UL << index)) != 0;
 		}
 	}
 }

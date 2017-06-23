@@ -9,40 +9,23 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// A high-level representation of a row in the InterfaceImpl table
 	/// </summary>
-	[DebuggerDisplay("{Interface}")]
+	[DebuggerDisplay("{" + nameof(Interface) + "}")]
 	public abstract class InterfaceImpl : IHasCustomAttribute, IContainsGenericParameter {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.InterfaceImpl, Rid);
 
-		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.InterfaceImpl, rid); }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
+	    /// <inheritdoc/>
+		public int HasCustomAttributeTag => 5;
 
-		/// <inheritdoc/>
-		public int HasCustomAttributeTag {
-			get { return 5; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// From column InterfaceImpl.Interface
 		/// </summary>
-		public ITypeDefOrRef Interface {
-			get { return @interface; }
-			set { @interface = value; }
-		}
-		/// <summary/>
-		protected ITypeDefOrRef @interface;
+		public ITypeDefOrRef Interface { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all custom attributes
 		/// </summary>
 		public CustomAttributeCollection CustomAttributes {
@@ -60,13 +43,9 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public bool HasCustomAttributes {
-			get { return CustomAttributes.Count > 0; }
-		}
+		public bool HasCustomAttributes => CustomAttributes.Count > 0;
 
-		bool IContainsGenericParameter.ContainsGenericParameter {
-			get { return TypeHelper.ContainsGenericParameter(this); }
-		}
+	    bool IContainsGenericParameter.ContainsGenericParameter => TypeHelper.ContainsGenericParameter(this);
 	}
 
 	/// <summary>
@@ -84,7 +63,7 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="interface">The interface the type implements</param>
 		public InterfaceImplUser(ITypeDefOrRef @interface) {
-			this.@interface = @interface;
+			this.Interface = @interface;
 		}
 	}
 
@@ -95,16 +74,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.InterfaceImpl, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.InterfaceImpl, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -120,15 +95,15 @@ namespace dnlib.DotNet {
 		public InterfaceImplMD(ModuleDefMD readerModule, uint rid, GenericParamContext gpContext) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.InterfaceImplTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("InterfaceImpl rid {0} does not exist", rid));
+				throw new BadImageFormatException($"InterfaceImpl rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
+			this.OrigRid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
-			uint @interface = readerModule.TablesStream.ReadInterfaceImplRow2(origRid);
-			this.@interface = readerModule.ResolveTypeDefOrRef(@interface, gpContext);
+			uint @interface = readerModule.TablesStream.ReadInterfaceImplRow2(OrigRid);
+			this.Interface = readerModule.ResolveTypeDefOrRef(@interface, gpContext);
 		}
 	}
 }

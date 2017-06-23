@@ -9,9 +9,7 @@ namespace dnlib.DotNet.Writer {
 	/// Stores the instruction that jumps to _CorExeMain/_CorDllMain
 	/// </summary>
 	public sealed class StartupStub : IChunk {
-		FileOffset offset;
-		RVA rva;
-		uint length;
+	    uint length;
 		uint padding;
 
 		/// <summary>
@@ -25,33 +23,25 @@ namespace dnlib.DotNet.Writer {
 		public PEHeaders PEHeaders { get; set; }
 
 		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the address of the JMP instruction
 		/// </summary>
-		public RVA EntryPointRVA {
-			get { return rva + padding; }
-		}
+		public RVA EntryPointRVA => RVA + padding;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the address of the operand of the JMP instruction
 		/// </summary>
-		public RVA RelocRVA {
-			get { return EntryPointRVA + 2; }
-		}
+		public RVA RelocRVA => EntryPointRVA + 2;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 
 			padding = rva.AlignUp(4) - rva + 2;
 			length = padding + 6;

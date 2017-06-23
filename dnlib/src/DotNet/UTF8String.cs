@@ -34,59 +34,46 @@ namespace dnlib.DotNet {
 	/// </summary>
 	/// <remarks>When comparing strings, a byte compare is performed. The reason is that this
 	/// is what the CLR does when comparing strings in the #Strings stream.</remarks>
-	[DebuggerDisplay("{String}")]
+	[DebuggerDisplay("{" + nameof(String) + "}")]
 	public sealed class UTF8String : IEquatable<UTF8String>, IComparable<UTF8String> {
 		/// <summary>
 		/// An empty <see cref="UTF8String"/>
 		/// </summary>
 		public static readonly UTF8String Empty = new UTF8String(string.Empty);
 
-		readonly byte[] data;
-		string asString;
+	    string asString;
 
 		/// <summary>
 		/// Gets the value as a UTF8 decoded string. Only use it for display purposes,
 		/// not for serialization.
 		/// </summary>
-		public string String {
-			get {
-				if (asString == null)
-					asString = ConvertFromUTF8(data);
-				return asString;
-			}
-		}
+		public string String => asString ?? (asString = ConvertFromUTF8(Data));
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the original encoded data. Don't modify this data.
 		/// </summary>
-		public byte[] Data {
-			get { return data; }
-		}
+		public byte[] Data { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the length of the this as a <see cref="string"/>. I.e., it's the same as
 		/// <c>String.Length</c>.
 		/// </summary>
 		/// <seealso cref="DataLength"/>
-		public int Length {
-			get { return String.Length; }
-		}
+		public int Length => String.Length;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the length of the raw data. It's the same as <c>Data.Length</c>
 		/// </summary>
 		/// <seealso cref="Length"/>
-		public int DataLength {
-			get { return data == null ? 0 : data.Length; }
-		}
+		public int DataLength => Data?.Length ?? 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Checks whether <paramref name="utf8"/> is <c>null</c> or if its data is <c>null</c>.
 		/// </summary>
 		/// <param name="utf8">The instance to check</param>
 		/// <returns><c>true</c> if <c>null</c> or empty, <c>false</c> otherwise</returns>
 		public static bool IsNull(UTF8String utf8) {
-			return (object)utf8 == null || utf8.data == null;
+			return (object)utf8 == null || utf8.Data == null;
 		}
 
 		/// <summary>
@@ -96,7 +83,7 @@ namespace dnlib.DotNet {
 		/// <param name="utf8">The instance to check</param>
 		/// <returns><c>true</c> if <c>null</c> or empty, <c>false</c> otherwise</returns>
 		public static bool IsNullOrEmpty(UTF8String utf8) {
-			return (object)utf8 == null || utf8.data == null || utf8.data.Length == 0;
+			return (object)utf8 == null || utf8.Data == null || utf8.Data.Length == 0;
 		}
 
 		/// <summary>Implicit conversion from <see cref="UTF8String"/> to <see cref="string"/></summary>
@@ -115,9 +102,9 @@ namespace dnlib.DotNet {
 		/// <param name="utf8">The UTF-8 string instace or <c>null</c></param>
 		/// <returns>A <see cref="string"/> or <c>null</c> if <paramref name="utf8"/> is <c>null</c></returns>
 		public static string ToSystemString(UTF8String utf8) {
-			if ((object)utf8 == null || utf8.data == null)
+			if ((object)utf8 == null || utf8.Data == null)
 				return null;
-			if (utf8.data.Length == 0)
+			if (utf8.Data.Length == 0)
 				return string.Empty;
 			return utf8.String;
 		}
@@ -138,7 +125,7 @@ namespace dnlib.DotNet {
 		public static int GetHashCode(UTF8String utf8) {
 			if (IsNullOrEmpty(utf8))
 				return 0;
-			return Utils.GetHashCode(utf8.data);
+			return Utils.GetHashCode(utf8.Data);
 		}
 
 		/// <inheritdoc/>
@@ -153,7 +140,7 @@ namespace dnlib.DotNet {
 		/// <param name="b">Instance #2 or <c>null</c></param>
 		/// <returns>&lt; 0 if a &lt; b, 0 if a == b, &gt; 0 if a &gt; b</returns>
 		public static int CompareTo(UTF8String a, UTF8String b) {
-			return Utils.CompareTo((object)a == null ? null : a.data, (object)b == null ? null : b.data);
+			return Utils.CompareTo((object)a == null ? null : a.Data, (object)b == null ? null : b.Data);
 		}
 
 		/// <summary>
@@ -241,7 +228,7 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="data">UTF-8 data that this instance now owns</param>
 		public UTF8String(byte[] data) {
-			this.data = data;
+			this.Data = data;
 		}
 
 		/// <summary>

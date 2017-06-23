@@ -8,16 +8,12 @@ namespace dnlib.PE {
 	/// Represents the IMAGE_DOS_HEADER PE section
 	/// </summary>
 	public sealed class ImageDosHeader : FileSection {
-		readonly uint ntHeadersOffset;
-
-		/// <summary>
+	    /// <summary>
 		/// File offset of the NT headers
 		/// </summary>
-		public uint NTHeadersOffset {
-			get { return ntHeadersOffset; }
-		}
+		public uint NTHeadersOffset { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="reader">PE file reader</param>
@@ -29,7 +25,7 @@ namespace dnlib.PE {
 			if (verify && sig != 0x5A4D)
 				throw new BadImageFormatException("Invalid DOS signature");
 			reader.Position = (long)startOffset + 0x3C;
-			this.ntHeadersOffset = reader.ReadUInt32();
+			this.NTHeadersOffset = reader.ReadUInt32();
 			SetEndoffset(reader);
 		}
 	}

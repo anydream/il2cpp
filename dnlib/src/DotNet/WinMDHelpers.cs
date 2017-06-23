@@ -59,7 +59,7 @@ namespace dnlib.DotNet {
 			}
 
 			public override string ToString() {
-				return string.Format("{0}.{1}", Namespace, Name);
+				return $"{Namespace}.{Name}";
 			}
 		}
 
@@ -77,7 +77,7 @@ namespace dnlib.DotNet {
 			}
 
 			public override string ToString() {
-				return string.Format("{0} <-> {1}, {2}", WinMDClass, ClrClass, CreateAssembly(null, ContractAssembly));
+				return $"{WinMDClass} <-> {ClrClass}, {CreateAssembly(null, ContractAssembly)}";
 			}
 		}
 
@@ -172,45 +172,45 @@ namespace dnlib.DotNet {
 		}
 
 		static AssemblyRef ToCLR(ModuleDef module, ref UTF8String ns, ref UTF8String name) {
-			ProjectedClass pc;
-			if (!winMDToCLR.TryGetValue(new ClassName(ns, name), out pc))
-				return null;
+            if (!winMDToCLR.TryGetValue(new ClassName(ns, name), out ProjectedClass pc))
+                return null;
 
-			ns = pc.ClrClass.Namespace;
+            ns = pc.ClrClass.Namespace;
 			name = pc.ClrClass.Name;
 			return CreateAssembly(module, pc.ContractAssembly);
 		}
 
 		static AssemblyRef CreateAssembly(ModuleDef module, ClrAssembly clrAsm) {
-			var mscorlib = module == null ? null : module.CorLibTypes.AssemblyRef;
+			var mscorlib = module?.CorLibTypes.AssemblyRef;
 
 			var asm = new AssemblyRefUser(GetName(clrAsm), contractAsmVersion, new PublicKeyToken(GetPublicKeyToken(clrAsm)), UTF8String.Empty);
 
 			if (mscorlib != null && mscorlib.Name == mscorlibName && mscorlib.Version != invalidWinMDVersion)
 				asm.Version = mscorlib.Version;
-			var mod = module as ModuleDefMD;
-			if (mod != null) {
-				Version ver = null;
-				foreach (var asmRef in mod.GetAssemblyRefs()) {
-					if (asmRef.IsContentTypeWindowsRuntime)
-						continue;
-					if (asmRef.Name != asm.Name)
-						continue;
-					if (asmRef.Culture != asm.Culture)
-						continue;
-					if (!PublicKeyBase.TokenEquals(asmRef.PublicKeyOrToken, asm.PublicKeyOrToken))
-						continue;
-					if (asmRef.Version == invalidWinMDVersion)
-						continue;
+            if (module is ModuleDefMD mod)
+            {
+                Version ver = null;
+                foreach (var asmRef in mod.GetAssemblyRefs())
+                {
+                    if (asmRef.IsContentTypeWindowsRuntime)
+                        continue;
+                    if (asmRef.Name != asm.Name)
+                        continue;
+                    if (asmRef.Culture != asm.Culture)
+                        continue;
+                    if (!PublicKeyBase.TokenEquals(asmRef.PublicKeyOrToken, asm.PublicKeyOrToken))
+                        continue;
+                    if (asmRef.Version == invalidWinMDVersion)
+                        continue;
 
-					if (ver == null || asmRef.Version > ver)
-						ver = asmRef.Version;
-				}
-				if (ver != null)
-					asm.Version = ver;
-			}
+                    if (ver == null || asmRef.Version > ver)
+                        ver = asmRef.Version;
+                }
+                if (ver != null)
+                    asm.Version = ver;
+            }
 
-			return asm;
+            return asm;
 		}
 		static readonly Version contractAsmVersion = new Version(4, 0, 0, 0);
 		static readonly Version invalidWinMDVersion = new Version(255, 255, 255, 255);
@@ -259,9 +259,8 @@ namespace dnlib.DotNet {
 		/// <param name="td">Type</param>
 		/// <returns></returns>
 		public static TypeRef ToCLR(ModuleDef module, TypeDef td) {
-			bool isClrValueType;
-			return ToCLR(module, td, out isClrValueType);
-		}
+            return ToCLR(module, td, out bool isClrValueType);
+        }
 
 		/// <summary>
 		/// Converts WinMD type <paramref name="td"/> to a CLR type. Returns <c>null</c>
@@ -279,11 +278,10 @@ namespace dnlib.DotNet {
 			if (asm == null || !asm.IsContentTypeWindowsRuntime)
 				return null;
 
-			ProjectedClass pc;
-			if (!winMDToCLR.TryGetValue(new ClassName(td.Namespace, td.Name), out pc))
-				return null;
+            if (!winMDToCLR.TryGetValue(new ClassName(td.Namespace, td.Name), out ProjectedClass pc))
+                return null;
 
-			isClrValueType = pc.ClrClass.IsValueType;
+            isClrValueType = pc.ClrClass.IsValueType;
 			return new TypeRefUser(module, pc.ClrClass.Namespace, pc.ClrClass.Name, CreateAssembly(module, pc.ContractAssembly));
 		}
 
@@ -295,9 +293,8 @@ namespace dnlib.DotNet {
 		/// <param name="tr">Type</param>
 		/// <returns></returns>
 		public static TypeRef ToCLR(ModuleDef module, TypeRef tr) {
-			bool isClrValueType;
-			return ToCLR(module, tr, out isClrValueType);
-		}
+            return ToCLR(module, tr, out bool isClrValueType);
+        }
 
 		/// <summary>
 		/// Converts WinMD type <paramref name="tr"/> to a CLR type. Returns <c>null</c>
@@ -309,19 +306,16 @@ namespace dnlib.DotNet {
 		/// <returns></returns>
 		public static TypeRef ToCLR(ModuleDef module, TypeRef tr, out bool isClrValueType) {
 			isClrValueType = false;
-			if (tr == null)
-				return null;
-			var defAsm = tr.DefinitionAssembly;
+		    var defAsm = tr?.DefinitionAssembly;
 			if (defAsm == null || !defAsm.IsContentTypeWindowsRuntime)
 				return null;
 			if (tr.DeclaringType != null)
 				return null;
 
-			ProjectedClass pc;
-			if (!winMDToCLR.TryGetValue(new ClassName(tr.Namespace, tr.Name), out pc))
-				return null;
+            if (!winMDToCLR.TryGetValue(new ClassName(tr.Namespace, tr.Name), out ProjectedClass pc))
+                return null;
 
-			isClrValueType = pc.ClrClass.IsValueType;
+            isClrValueType = pc.ClrClass.IsValueType;
 			return new TypeRefUser(module, pc.ClrClass.Namespace, pc.ClrClass.Name, CreateAssembly(module, pc.ContractAssembly));
 		}
 
@@ -333,19 +327,16 @@ namespace dnlib.DotNet {
 		/// <param name="et">Type</param>
 		/// <returns></returns>
 		public static ExportedType ToCLR(ModuleDef module, ExportedType et) {
-			if (et == null)
-				return null;
-			var defAsm = et.DefinitionAssembly;
+		    var defAsm = et?.DefinitionAssembly;
 			if (defAsm == null || !defAsm.IsContentTypeWindowsRuntime)
 				return null;
 			if (et.DeclaringType != null)
 				return null;
 
-			ProjectedClass pc;
-			if (!winMDToCLR.TryGetValue(new ClassName(et.TypeNamespace, et.TypeName), out pc))
-				return null;
+            if (!winMDToCLR.TryGetValue(new ClassName(et.TypeNamespace, et.TypeName), out ProjectedClass pc))
+                return null;
 
-			return new ExportedTypeUser(module, 0, pc.ClrClass.Namespace, pc.ClrClass.Name, et.Attributes, CreateAssembly(module, pc.ContractAssembly));
+            return new ExportedTypeUser(module, 0, pc.ClrClass.Namespace, pc.ClrClass.Name, et.Attributes, CreateAssembly(module, pc.ContractAssembly));
 		}
 
 		/// <summary>
@@ -417,15 +408,14 @@ namespace dnlib.DotNet {
 			}
 			else if ((ts = cl as TypeSpec) != null) {
 				var gis = ts.TypeSig as GenericInstSig;
-				if (gis == null || !(gis.GenericType is ClassSig))
+				if (!(gis?.GenericType is ClassSig))
 					return null;
 				tr = gis.GenericType.TypeRef;
 				if (tr == null)
 					return null;
 
-				bool isClrValueType;
-				var newTr = ToCLR(module, tr, out isClrValueType);
-				if (newTr == null || !IsIDisposable(newTr))
+                var newTr = ToCLR(module, tr, out bool isClrValueType);
+                if (newTr == null || !IsIDisposable(newTr))
 					return null;
 
 				newCl = new TypeSpecUser(new GenericInstSig(isClrValueType ?

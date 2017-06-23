@@ -42,11 +42,10 @@ namespace dnlib.DotNet {
 		/// or <c>null</c></param>
 		/// <returns><c>true</c> if the assembly name must be included, <c>false</c> otherwise</returns>
 		public static bool MustUseAssemblyName(ModuleDef module, IType type) {
-			var td = type as TypeDef;
-			if (td != null)
-				return td.Module != module;
+            if (type is TypeDef td)
+                return td.Module != module;
 
-			var tr = type as TypeRef;
+            var tr = type as TypeRef;
 			if (tr == null)
 				return true;
 			if (tr.ResolutionScope == AssemblyRef.CurrentAssembly)
@@ -79,22 +78,17 @@ namespace dnlib.DotNet {
 		/// <param name="sb">String builder to use or null</param>
 		/// <returns>The full name</returns>
 		public static StringBuilder FullNameSB(IType type, bool isReflection, IFullNameCreatorHelper helper, StringBuilder sb) {
-			var td = type as TypeDef;
-			if (td != null)
-				return FullNameSB(td, isReflection, helper, sb);
-			var tr = type as TypeRef;
-			if (tr != null)
-				return FullNameSB(tr, isReflection, helper, sb);
-			var ts = type as TypeSpec;
-			if (ts != null)
-				return FullNameSB(ts, isReflection, helper, sb);
-			var sig = type as TypeSig;
-			if (sig != null)
-				return FullNameSB(sig, isReflection, helper, null, null, sb);
-			var et = type as ExportedType;
-			if (et != null)
-				return FullNameSB(et, isReflection, helper, sb);
-			return sb ?? new StringBuilder();
+            if (type is TypeDef td)
+                return FullNameSB(td, isReflection, helper, sb);
+            if (type is TypeRef tr)
+                return FullNameSB(tr, isReflection, helper, sb);
+            if (type is TypeSpec ts)
+                return FullNameSB(ts, isReflection, helper, sb);
+            if (type is TypeSig sig)
+                return FullNameSB(sig, isReflection, helper, null, null, sb);
+            if (type is ExportedType et)
+                return FullNameSB(et, isReflection, helper, sb);
+            return sb ?? new StringBuilder();
 		}
 
 		/// <summary>
@@ -116,22 +110,17 @@ namespace dnlib.DotNet {
 		/// <param name="sb">String builder to use or null</param>
 		/// <returns>The full name</returns>
 		public static StringBuilder NameSB(IType type, bool isReflection, StringBuilder sb) {
-			var td = type as TypeDef;
-			if (td != null)
-				return NameSB(td, isReflection, sb);
-			var tr = type as TypeRef;
-			if (tr != null)
-				return NameSB(tr, isReflection, sb);
-			var ts = type as TypeSpec;
-			if (ts != null)
-				return NameSB(ts, isReflection, sb);
-			var sig = type as TypeSig;
-			if (sig != null)
-				return NameSB(sig, false, sb);
-			var et = type as ExportedType;
-			if (et != null)
-				return NameSB(et, isReflection, sb);
-			return sb ?? new StringBuilder();
+            if (type is TypeDef td)
+                return NameSB(td, isReflection, sb);
+            if (type is TypeRef tr)
+                return NameSB(tr, isReflection, sb);
+            if (type is TypeSpec ts)
+                return NameSB(ts, isReflection, sb);
+            if (type is TypeSig sig)
+                return NameSB(sig, false, sb);
+            if (type is ExportedType et)
+                return NameSB(et, isReflection, sb);
+            return sb ?? new StringBuilder();
 		}
 
 		/// <summary>
@@ -153,22 +142,17 @@ namespace dnlib.DotNet {
 		/// <param name="sb">String builder to use or null</param>
 		/// <returns>The full name</returns>
 		public static StringBuilder NamespaceSB(IType type, bool isReflection, StringBuilder sb) {
-			var td = type as TypeDef;
-			if (td != null)
-				return NamespaceSB(td, isReflection, sb);
-			var tr = type as TypeRef;
-			if (tr != null)
-				return NamespaceSB(tr, isReflection, sb);
-			var ts = type as TypeSpec;
-			if (ts != null)
-				return NamespaceSB(ts, isReflection, sb);
-			var sig = type as TypeSig;
-			if (sig != null)
-				return NamespaceSB(sig, false, sb);
-			var et = type as ExportedType;
-			if (et != null)
-				return NamespaceSB(et, isReflection, sb);
-			return sb ?? new StringBuilder();
+            if (type is TypeDef td)
+                return NamespaceSB(td, isReflection, sb);
+            if (type is TypeRef tr)
+                return NamespaceSB(tr, isReflection, sb);
+            if (type is TypeSpec ts)
+                return NamespaceSB(ts, isReflection, sb);
+            if (type is TypeSig sig)
+                return NamespaceSB(sig, false, sb);
+            if (type is ExportedType et)
+                return NamespaceSB(et, isReflection, sb);
+            return sb ?? new StringBuilder();
 		}
 
 		/// <summary>
@@ -190,27 +174,22 @@ namespace dnlib.DotNet {
 		/// <param name="sb">String builder to use or null</param>
 		/// <returns>The assembly qualified full name</returns>
 		public static StringBuilder AssemblyQualifiedNameSB(IType type, IFullNameCreatorHelper helper, StringBuilder sb) {
-			var td = type as TypeDef;
-			if (td != null)
-				return AssemblyQualifiedNameSB(td, helper, sb);
+            if (type is TypeDef td)
+                return AssemblyQualifiedNameSB(td, helper, sb);
 
-			var tr = type as TypeRef;
-			if (tr != null)
-				return AssemblyQualifiedNameSB(tr, helper, sb);
+            if (type is TypeRef tr)
+                return AssemblyQualifiedNameSB(tr, helper, sb);
 
-			var ts = type as TypeSpec;
-			if (ts != null)
-				return AssemblyQualifiedNameSB(ts, helper, sb);
+            if (type is TypeSpec ts)
+                return AssemblyQualifiedNameSB(ts, helper, sb);
 
-			var sig = type as TypeSig;
-			if (sig != null)
-				return AssemblyQualifiedNameSB(sig, helper, sb);
+            if (type is TypeSig sig)
+                return AssemblyQualifiedNameSB(sig, helper, sb);
 
-			var et = type as ExportedType;
-			if (et != null)
-				return AssemblyQualifiedNameSB(et, helper, sb);
+            if (type is ExportedType et)
+                return AssemblyQualifiedNameSB(et, helper, sb);
 
-			return sb ?? new StringBuilder();
+            return sb ?? new StringBuilder();
 		}
 
 		/// <summary>
@@ -1053,11 +1032,9 @@ namespace dnlib.DotNet {
 			return new FullNameCreator().GetOwnerModule(exportedType);
 		}
 
-		string Result {
-			get { return sb == null ? null : sb.ToString(); }
-		}
+		string Result => sb?.ToString();
 
-		FullNameCreator(bool isReflection, IFullNameCreatorHelper helper, StringBuilder sb) {
+	    FullNameCreator(bool isReflection, IFullNameCreatorHelper helper, StringBuilder sb) {
 			this.sb = sb ?? new StringBuilder();
 			this.isReflection = isReflection;
 			this.helper = helper;
@@ -1075,66 +1052,65 @@ namespace dnlib.DotNet {
 			if (!recursionCounter.Increment())
 				return type;
 
-			TypeSpec ts = type as TypeSpec;
-			if (ts != null)
-				type = ts.TypeSig;
+            if (type is TypeSpec ts)
+                type = ts.TypeSig;
 
-			TypeSig sig = type as TypeSig;
-			if (sig != null) {
-				TypeDefOrRefSig tdr;
-				GenericInstSig gis;
-				if ((tdr = sig as TypeDefOrRefSig) != null)
-					type = GetDefinitionType(tdr.TypeDefOrRef);
-				else if ((gis = sig as GenericInstSig) != null)
-					type = GetDefinitionType(gis.GenericType);
-				else
-					type = GetDefinitionType(sig.Next);
-			}
+            if (type is TypeSig sig)
+            {
+                TypeDefOrRefSig tdr;
+                GenericInstSig gis;
+                if ((tdr = sig as TypeDefOrRefSig) != null)
+                    type = GetDefinitionType(tdr.TypeDefOrRef);
+                else if ((gis = sig as GenericInstSig) != null)
+                    type = GetDefinitionType(gis.GenericType);
+                else
+                    type = GetDefinitionType(sig.Next);
+            }
 
-			recursionCounter.Decrement();
+            recursionCounter.Decrement();
 			return type;
 		}
 
 		void CreateFullName(ITypeDefOrRef typeDefOrRef) {
-			if (typeDefOrRef is TypeRef)
-				CreateFullName((TypeRef)typeDefOrRef);
-			else if (typeDefOrRef is TypeDef)
-				CreateFullName((TypeDef)typeDefOrRef);
-			else if (typeDefOrRef is TypeSpec)
-				CreateFullName((TypeSpec)typeDefOrRef);
+			if (typeDefOrRef is TypeRef typeRef)
+				CreateFullName(typeRef);
+			else if (typeDefOrRef is TypeDef typeDef)
+				CreateFullName(typeDef);
+			else if (typeDefOrRef is TypeSpec typeSpec)
+				CreateFullName(typeSpec);
 			else
 				sb.Append(NULLVALUE);
 		}
 
 		void CreateNamespace(ITypeDefOrRef typeDefOrRef) {
-			if (typeDefOrRef is TypeRef)
-				CreateNamespace((TypeRef)typeDefOrRef);
-			else if (typeDefOrRef is TypeDef)
-				CreateNamespace((TypeDef)typeDefOrRef);
-			else if (typeDefOrRef is TypeSpec)
-				CreateNamespace((TypeSpec)typeDefOrRef);
+			if (typeDefOrRef is TypeRef typeRef)
+				CreateNamespace(typeRef);
+			else if (typeDefOrRef is TypeDef typeDef)
+				CreateNamespace(typeDef);
+			else if (typeDefOrRef is TypeSpec typeSpec)
+				CreateNamespace(typeSpec);
 			else
 				sb.Append(NULLVALUE);
 		}
 
 		void CreateName(ITypeDefOrRef typeDefOrRef) {
-			if (typeDefOrRef is TypeRef)
-				CreateName((TypeRef)typeDefOrRef);
-			else if (typeDefOrRef is TypeDef)
-				CreateName((TypeDef)typeDefOrRef);
-			else if (typeDefOrRef is TypeSpec)
-				CreateName((TypeSpec)typeDefOrRef);
+			if (typeDefOrRef is TypeRef typeRef)
+				CreateName(typeRef);
+			else if (typeDefOrRef is TypeDef typeDef)
+				CreateName(typeDef);
+			else if (typeDefOrRef is TypeSpec typeSpec)
+				CreateName(typeSpec);
 			else
 				sb.Append(NULLVALUE);
 		}
 
 		void CreateAssemblyQualifiedName(ITypeDefOrRef typeDefOrRef) {
-			if (typeDefOrRef is TypeRef)
-				CreateAssemblyQualifiedName((TypeRef)typeDefOrRef);
-			else if (typeDefOrRef is TypeDef)
-				CreateAssemblyQualifiedName((TypeDef)typeDefOrRef);
-			else if (typeDefOrRef is TypeSpec)
-				CreateAssemblyQualifiedName((TypeSpec)typeDefOrRef);
+			if (typeDefOrRef is TypeRef typeRef)
+				CreateAssemblyQualifiedName(typeRef);
+			else if (typeDefOrRef is TypeDef typeDef)
+				CreateAssemblyQualifiedName(typeDef);
+			else if (typeDefOrRef is TypeSpec typeSpec)
+				CreateAssemblyQualifiedName(typeSpec);
 			else
 				sb.Append(NULLVALUE);
 		}
@@ -1166,13 +1142,13 @@ namespace dnlib.DotNet {
 				return;
 			}
 
-			var declaringTypeRef = typeRef.ResolutionScope as TypeRef;
-			if (declaringTypeRef != null) {
-				CreateFullName(declaringTypeRef);
-				AddNestedTypeSeparator();
-			}
+            if (typeRef.ResolutionScope is TypeRef declaringTypeRef)
+            {
+                CreateFullName(declaringTypeRef);
+                AddNestedTypeSeparator();
+            }
 
-			if (AddNamespace(typeRef.Namespace))
+            if (AddNamespace(typeRef.Namespace))
 				sb.Append('.');
 			AddName(typeRef.Name);
 
@@ -1488,11 +1464,8 @@ namespace dnlib.DotNet {
 							if (mustWriteAssembly) {
 								sb.Append(", ");
 								var asm = GetDefinitionAssembly(genArg);
-								if (asm == null)
-									sb.Append(NULLVALUE);
-								else
-									sb.Append(EscapeAssemblyName(GetAssemblyName(asm)));
-								sb.Append(']');
+							    sb.Append(asm == null ? NULLVALUE : EscapeAssemblyName(GetAssemblyName(asm)));
+							    sb.Append(']');
 							}
 						}
 						sb.Append(']');
@@ -1574,13 +1547,13 @@ namespace dnlib.DotNet {
 				return;
 			}
 
-			var declaringExportedType = exportedType.Implementation as ExportedType;
-			if (declaringExportedType != null) {
-				CreateFullName(declaringExportedType);
-				AddNestedTypeSeparator();
-			}
+            if (exportedType.Implementation is ExportedType declaringExportedType)
+            {
+                CreateFullName(declaringExportedType);
+                AddNestedTypeSeparator();
+            }
 
-			if (AddNamespace(exportedType.TypeNamespace))
+            if (AddNamespace(exportedType.TypeNamespace))
 				sb.Append('.');
 			AddName(exportedType.TypeName);
 
@@ -1624,11 +1597,9 @@ namespace dnlib.DotNet {
 			return sb.ToString();
 		}
 
-		void AddNestedTypeSeparator() {
-			if (isReflection)
-				sb.Append('+');
-			else
-				sb.Append('/');
+		void AddNestedTypeSeparator()
+		{
+		    sb.Append(isReflection ? '+' : '/');
 		}
 
 		bool AddNamespace(UTF8String @namespace) {
@@ -1680,67 +1651,55 @@ namespace dnlib.DotNet {
 		}
 
 		IAssembly GetDefinitionAssembly(ITypeDefOrRef typeDefOrRef) {
-			var tr = typeDefOrRef as TypeRef;
-			if (tr != null)
-				return GetDefinitionAssembly(tr);
+            if (typeDefOrRef is TypeRef tr)
+                return GetDefinitionAssembly(tr);
 
-			var td = typeDefOrRef as TypeDef;
-			if (td != null)
-				return GetDefinitionAssembly(td);
+            if (typeDefOrRef is TypeDef td)
+                return GetDefinitionAssembly(td);
 
-			var ts = typeDefOrRef as TypeSpec;
-			if (ts != null)
-				return GetDefinitionAssembly(ts);
+            if (typeDefOrRef is TypeSpec ts)
+                return GetDefinitionAssembly(ts);
 
-			return null;
+            return null;
 		}
 
 		IScope GetScope(ITypeDefOrRef typeDefOrRef) {
-			var tr = typeDefOrRef as TypeRef;
-			if (tr != null)
-				return GetScope(tr);
+            if (typeDefOrRef is TypeRef tr)
+                return GetScope(tr);
 
-			var td = typeDefOrRef as TypeDef;
-			if (td != null)
-				return td.Scope;
+            if (typeDefOrRef is TypeDef td)
+                return td.Scope;
 
-			var ts = typeDefOrRef as TypeSpec;
-			if (ts != null)
-				return GetScope(ts);
+            if (typeDefOrRef is TypeSpec ts)
+                return GetScope(ts);
 
-			return null;
+            return null;
 		}
 
 		ITypeDefOrRef GetScopeType(ITypeDefOrRef typeDefOrRef) {
-			var tr = typeDefOrRef as TypeRef;
-			if (tr != null)
-				return tr;
+            if (typeDefOrRef is TypeRef tr)
+                return tr;
 
-			var td = typeDefOrRef as TypeDef;
-			if (td != null)
-				return td;
+            if (typeDefOrRef is TypeDef td)
+                return td;
 
-			var ts = typeDefOrRef as TypeSpec;
-			if (ts != null)
-				return GetScopeType(ts);
+            if (typeDefOrRef is TypeSpec ts)
+                return GetScopeType(ts);
 
-			return null;
+            return null;
 		}
 
 		ModuleDef GetOwnerModule(ITypeDefOrRef typeDefOrRef) {
-			var tr = typeDefOrRef as TypeRef;
-			if (tr != null)
-				return GetOwnerModule(tr);
+            if (typeDefOrRef is TypeRef tr)
+                return GetOwnerModule(tr);
 
-			var td = typeDefOrRef as TypeDef;
-			if (td != null)
-				return GetOwnerModule(td);
+            if (typeDefOrRef is TypeDef td)
+                return GetOwnerModule(td);
 
-			var ts = typeDefOrRef as TypeSpec;
-			if (ts != null)
-				return GetOwnerModule(ts);
+            if (typeDefOrRef is TypeSpec ts)
+                return GetOwnerModule(ts);
 
-			return null;
+            return null;
 		}
 
 		IAssembly GetDefinitionAssembly(TypeRef typeRef) {
@@ -1759,7 +1718,7 @@ namespace dnlib.DotNet {
 				result = (AssemblyRef)scope;
 			else if (scope is ModuleRef) {
 				var ownerModule = GetOwnerModule(typeRef);
-				result = ownerModule == null ? null : ownerModule.Assembly;
+				result = ownerModule?.Assembly;
 			}
 			else if (scope is ModuleDef)
 				result = ((ModuleDef)scope).Assembly;
@@ -1800,14 +1759,12 @@ namespace dnlib.DotNet {
 		}
 
 		ModuleDef GetOwnerModule(TypeRef typeRef) {
-			if (typeRef == null)
-				return null;
-			return typeRef.Module;
+		    return typeRef?.Module;
 		}
 
 		IAssembly GetDefinitionAssembly(TypeDef typeDef) {
 			var ownerModule = GetOwnerModule(typeDef);
-			return ownerModule == null ? null : ownerModule.Assembly;
+			return ownerModule?.Assembly;
 		}
 
 		ModuleDef GetOwnerModule(TypeDef typeDef) {
@@ -1827,28 +1784,24 @@ namespace dnlib.DotNet {
 			return result;
 		}
 
-		IAssembly GetDefinitionAssembly(TypeSpec typeSpec) {
-			if (typeSpec == null)
-				return null;
-			return GetDefinitionAssembly(typeSpec.TypeSig);
+		IAssembly GetDefinitionAssembly(TypeSpec typeSpec)
+		{
+		    return typeSpec == null ? null : GetDefinitionAssembly(typeSpec.TypeSig);
 		}
 
-		IScope GetScope(TypeSpec typeSpec) {
-			if (typeSpec == null)
-				return null;
-			return GetScope(typeSpec.TypeSig);
+		IScope GetScope(TypeSpec typeSpec)
+		{
+		    return typeSpec == null ? null : GetScope(typeSpec.TypeSig);
 		}
 
-		ITypeDefOrRef GetScopeType(TypeSpec typeSpec) {
-			if (typeSpec == null)
-				return null;
-			return GetScopeType(typeSpec.TypeSig);
+		ITypeDefOrRef GetScopeType(TypeSpec typeSpec)
+		{
+		    return typeSpec == null ? null : GetScopeType(typeSpec.TypeSig);
 		}
 
-		ModuleDef GetOwnerModule(TypeSpec typeSpec) {
-			if (typeSpec == null)
-				return null;
-			return GetOwnerModule(typeSpec.TypeSig);
+		ModuleDef GetOwnerModule(TypeSpec typeSpec)
+		{
+		    return typeSpec == null ? null : GetOwnerModule(typeSpec.TypeSig);
 		}
 
 		IAssembly GetDefinitionAssembly(TypeSig typeSig) {
@@ -1900,7 +1853,7 @@ namespace dnlib.DotNet {
 			case ElementType.GenericInst:
 				var genericInstSig = (GenericInstSig)typeSig;
 				var genericType = genericInstSig.GenericType;
-				result = GetDefinitionAssembly(genericType == null ? null : genericType.TypeDefOrRef);
+				result = GetDefinitionAssembly(genericType?.TypeDefOrRef);
 				break;
 
 			case ElementType.Var:
@@ -1969,7 +1922,7 @@ namespace dnlib.DotNet {
 			case ElementType.GenericInst:
 				var genericInstSig = (GenericInstSig)typeSig;
 				var genericType = genericInstSig.GenericType;
-				result = GetScopeType(genericType == null ? null : genericType.TypeDefOrRef);
+				result = GetScopeType(genericType?.TypeDefOrRef);
 				break;
 
 			case ElementType.Var:
@@ -2038,7 +1991,7 @@ namespace dnlib.DotNet {
 			case ElementType.GenericInst:
 				var genericInstSig = (GenericInstSig)typeSig;
 				var genericType = genericInstSig.GenericType;
-				result = GetScope(genericType == null ? null : genericType.TypeDefOrRef);
+				result = GetScope(genericType?.TypeDefOrRef);
 				break;
 
 			case ElementType.Var:
@@ -2107,7 +2060,7 @@ namespace dnlib.DotNet {
 			case ElementType.GenericInst:
 				var genericInstSig = (GenericInstSig)typeSig;
 				var genericType = genericInstSig.GenericType;
-				result = GetOwnerModule(genericType == null ? null : genericType.TypeDefOrRef);
+				result = GetOwnerModule(genericType?.TypeDefOrRef);
 				break;
 
 			case ElementType.Var:
@@ -2143,7 +2096,7 @@ namespace dnlib.DotNet {
 				result = asmRef;
 			else if (scope is FileDef) {
 				var ownerModule = GetOwnerModule(exportedType);
-				result = ownerModule == null ? null : ownerModule.Assembly;
+				result = ownerModule?.Assembly;
 			}
 			else
 				result = null;
@@ -2175,9 +2128,8 @@ namespace dnlib.DotNet {
 				var ownerModule = GetOwnerModule(exportedType);
 				//TODO: Not all modules' names are equal to the name in FileDef.Name
 				var modRef = new ModuleRefUser(ownerModule, file.Name);
-				if (ownerModule != null)
-					ownerModule.UpdateRowId(modRef);
-				result = modRef;
+			    ownerModule?.UpdateRowId(modRef);
+			    result = modRef;
 			}
 			else
 				result = null;
@@ -2187,13 +2139,11 @@ namespace dnlib.DotNet {
 		}
 
 		ModuleDef GetOwnerModule(ExportedType exportedType) {
-			if (exportedType == null)
-				return null;
-			return exportedType.Module;
+		    return exportedType?.Module;
 		}
 
 		void CreateFieldFullName(string declaringType, string name, FieldSig fieldSig) {
-			CreateFullName(fieldSig == null ? null : fieldSig.Type);
+			CreateFullName(fieldSig?.Type);
 			sb.Append(' ');
 
 			if (declaringType != null) {

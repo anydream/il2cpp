@@ -3,3 +3,13 @@
 ################################################################################
 
 /il2cpp/bin/Debug
+/il2cpp/obj
+/il2cpp/obj
+/test
+/il2cpp/obj/Debug
+/il2cpp/obj/Release
+/il2cpp/obj
+/test/bin/Debug
+/test/MSILTester
+/il2cpp/obj/Debug
+/.vs

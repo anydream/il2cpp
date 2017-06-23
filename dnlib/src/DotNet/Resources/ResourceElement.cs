@@ -17,7 +17,7 @@ namespace dnlib.DotNet.Resources {
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return string.Format("N: {0}, V: {1}", Name, ResourceData);
+			return $"N: {Name}, V: {ResourceData}";
 		}
 	}
 }

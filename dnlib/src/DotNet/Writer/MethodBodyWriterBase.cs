@@ -20,11 +20,9 @@ namespace dnlib.DotNet.Writer {
 		/// <summary>
 		/// <c>true</c> if there was at least one error
 		/// </summary>
-		public bool ErrorDetected {
-			get { return errors > 0; }
-		}
+		public bool ErrorDetected => errors > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="instructions">All instructions</param>
@@ -58,12 +56,12 @@ namespace dnlib.DotNet.Writer {
 		protected uint GetMaxStack() {
 			if (instructions.Count == 0)
 				return 0;
-			uint maxStack;
-			if (!MaxStackCalculator.GetMaxStack(instructions, exceptionHandlers, out maxStack)) {
-				Error("Error calculating max stack value. If the method's obfuscated, set CilBody.KeepOldMaxStack or MetaDataOptions.Flags (KeepOldMaxStack, global option) to ignore this error. Otherwise fix your generated CIL code so it conforms to the ECMA standard.");
-				maxStack += 8;
-			}
-			return maxStack;
+            if (!MaxStackCalculator.GetMaxStack(instructions, exceptionHandlers, out uint maxStack))
+            {
+                Error("Error calculating max stack value. If the method's obfuscated, set CilBody.KeepOldMaxStack or MetaDataOptions.Flags (KeepOldMaxStack, global option) to ignore this error. Otherwise fix your generated CIL code so it conforms to the ECMA standard.");
+                maxStack += 8;
+            }
+            return maxStack;
 		}
 
 		/// <summary>
@@ -77,10 +75,9 @@ namespace dnlib.DotNet.Writer {
 				Error("Instruction is null");
 				return 0;
 			}
-			uint offset;
-			if (offsets.TryGetValue(instr, out offset))
-				return offset;
-			Error("Found some other method's instruction or a removed instruction. You probably removed an instruction that is the target of a branch instruction or an instruction that's the first/last instruction in an exception handler.");
+            if (offsets.TryGetValue(instr, out uint offset))
+                return offset;
+            Error("Found some other method's instruction or a removed instruction. You probably removed an instruction that is the target of a branch instruction or an instruction that's the first/last instruction in an exception handler.");
 			return 0;
 		}
 

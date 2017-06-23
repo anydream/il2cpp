@@ -11,96 +11,62 @@ namespace dnlib.DotNet.MD {
 	/// </summary>
 	/// <remarks><c>IMAGE_COR20_HEADER.MetaData</c> points to this header</remarks>
 	public sealed class MetaDataHeader : FileSection {
-		readonly uint signature;
-		readonly ushort majorVersion;
-		readonly ushort minorVersion;
-		readonly uint reserved1;
-		readonly uint stringLength;
-		readonly string versionString;
-		readonly FileOffset offset2ndPart;
-		readonly StorageFlags flags;
-		readonly byte reserved2;
-		readonly ushort streams;
-		readonly IList<StreamHeader> streamHeaders;
-
-		/// <summary>
+	    /// <summary>
 		/// Returns the signature (should be 0x424A5342)
 		/// </summary>
-		public uint Signature {
-			get { return signature; }
-		}
+		public uint Signature { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the major version
 		/// </summary>
-		public ushort MajorVersion {
-			get { return majorVersion; }
-		}
+		public ushort MajorVersion { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the minor version
 		/// </summary>
-		public ushort MinorVersion {
-			get { return minorVersion; }
-		}
+		public ushort MinorVersion { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the reserved dword (pointer to extra header data)
 		/// </summary>
-		public uint Reserved1 {
-			get { return reserved1; }
-		}
+		public uint Reserved1 { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the version string length value
 		/// </summary>
-		public uint StringLength {
-			get { return stringLength; }
-		}
+		public uint StringLength { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the version string
 		/// </summary>
-		public string VersionString {
-			get { return versionString; }
-		}
+		public string VersionString { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the offset of <c>STORAGEHEADER</c>
 		/// </summary>
-		public FileOffset StorageHeaderOffset {
-			get { return offset2ndPart; }
-		}
+		public FileOffset StorageHeaderOffset { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the flags (reserved)
 		/// </summary>
-		public StorageFlags Flags {
-			get { return flags; }
-		}
+		public StorageFlags Flags { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the reserved byte (padding)
 		/// </summary>
-		public byte Reserved2 {
-			get { return reserved2; }
-		}
+		public byte Reserved2 { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the number of streams
 		/// </summary>
-		public ushort Streams {
-			get { return streams; }
-		}
+		public ushort Streams { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns all stream headers
 		/// </summary>
-		public IList<StreamHeader> StreamHeaders {
-			get { return streamHeaders; }
-		}
+		public IList<StreamHeader> StreamHeaders { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="reader">PE file reader pointing to the start of this section</param>
@@ -108,23 +74,23 @@ namespace dnlib.DotNet.MD {
 		/// <exception cref="BadImageFormatException">Thrown if verification fails</exception>
 		public MetaDataHeader(IImageStream reader, bool verify) {
 			SetStartOffset(reader);
-			this.signature = reader.ReadUInt32();
-			if (verify && this.signature != 0x424A5342)
+			this.Signature = reader.ReadUInt32();
+			if (verify && this.Signature != 0x424A5342)
 				throw new BadImageFormatException("Invalid MetaData header signature");
-			this.majorVersion = reader.ReadUInt16();
-			this.minorVersion = reader.ReadUInt16();
-			if (verify && !((majorVersion == 1 && minorVersion == 1) || (majorVersion == 0 && minorVersion >= 19)))
-				throw new BadImageFormatException(string.Format("Unknown MetaData header version: {0}.{1}", majorVersion, minorVersion));
-			this.reserved1 = reader.ReadUInt32();
-			this.stringLength = reader.ReadUInt32();
-			this.versionString = ReadString(reader, stringLength);
-			this.offset2ndPart = reader.FileOffset + reader.Position;
-			this.flags = (StorageFlags)reader.ReadByte();
-			this.reserved2 = reader.ReadByte();
-			this.streams = reader.ReadUInt16();
-			this.streamHeaders = new StreamHeader[streams];
-			for (int i = 0; i < streamHeaders.Count; i++)
-				streamHeaders[i] = new StreamHeader(reader, verify);
+			this.MajorVersion = reader.ReadUInt16();
+			this.MinorVersion = reader.ReadUInt16();
+			if (verify && !((MajorVersion == 1 && MinorVersion == 1) || (MajorVersion == 0 && MinorVersion >= 19)))
+				throw new BadImageFormatException($"Unknown MetaData header version: {MajorVersion}.{MinorVersion}");
+			this.Reserved1 = reader.ReadUInt32();
+			this.StringLength = reader.ReadUInt32();
+			this.VersionString = ReadString(reader, StringLength);
+			this.StorageHeaderOffset = reader.FileOffset + reader.Position;
+			this.Flags = (StorageFlags)reader.ReadByte();
+			this.Reserved2 = reader.ReadByte();
+			this.Streams = reader.ReadUInt16();
+			this.StreamHeaders = new StreamHeader[Streams];
+			for (int i = 0; i < StreamHeaders.Count; i++)
+				StreamHeaders[i] = new StreamHeader(reader, verify);
 			SetEndoffset(reader);
 		}
 

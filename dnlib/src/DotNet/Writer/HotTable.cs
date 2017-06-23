@@ -20,10 +20,7 @@ namespace dnlib.DotNet.Writer {
 		public const int MAX_ROWS = 0x10000;
 		internal const uint HT_ALIGNMENT = 4;
 
-		FileOffset offset;
-		RVA rva;
-
-		internal readonly IMDTable mdTable;
+	    internal readonly IMDTable mdTable;
 		readonly HotHeapVersion version;
 		readonly int hotTableHeaderSize;
 		internal readonly int alignedHotTableHeaderSize;
@@ -47,27 +44,19 @@ namespace dnlib.DotNet.Writer {
 		/// <c>true</c> if we can write a partial table, <c>false</c> if we must write
 		/// the full table.
 		/// </summary>
-		public bool CanWritePartialTable {
-			get {
-				return data == null && rids != null && rids.Count <= MAX_ROWS;
-			}
-		}
+		public bool CanWritePartialTable => data == null && rids != null && rids.Count <= MAX_ROWS;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the full size of the table
 		/// </summary>
-		uint FullTableSize {
-			get { return (uint)(mdTable.Rows * mdTable.TableInfo.RowSize); }
-		}
+		uint FullTableSize => (uint)(mdTable.Rows * mdTable.TableInfo.RowSize);
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the table type
 		/// </summary>
-		public Table Table {
-			get { return mdTable.Table; }
-		}
+		public Table Table => mdTable.Table;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="version">Hot heap version</param>
@@ -91,19 +80,15 @@ namespace dnlib.DotNet.Writer {
 		}
 
 		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 
 			mdTable.SetReadOnly();
 			if (CanWritePartialTable) {
@@ -378,10 +363,8 @@ namespace dnlib.DotNet.Writer {
 			writer.Write((ushort)shift);// shift count
 			writer.WriteZeros(alignedHotTableHeaderSize - (int)(writer.BaseStream.Position - startPos));
 
-			uint offs;
-
-			// Data
-			offs = (uint)(writer.BaseStream.Position - startPos);
+		    // Data
+			var offs = (uint)(writer.BaseStream.Position - startPos);
 			writer.WriteZeros((int)(dataOffset - offs));
 			WritePartialData(writer);
 
@@ -451,10 +434,8 @@ namespace dnlib.DotNet.Writer {
 			writer.Write((ushort)shift);// shift count
 			writer.WriteZeros(alignedHotTableHeaderSize - (int)(writer.BaseStream.Position - startPos));
 
-			uint offs;
-
-			// Data
-			offs = (uint)(writer.BaseStream.Position - startPos);
+		    // Data
+			var offs = (uint)(writer.BaseStream.Position - startPos);
 			writer.WriteZeros((int)(dataOffset - offs));
 			WritePartialData(writer);
 

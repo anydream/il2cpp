@@ -7,29 +7,22 @@ namespace dnlib.DotNet {
 	/// Base class of all marshal types
 	/// </summary>
 	public class MarshalType {
-		/// <summary>
-		/// The native type
-		/// </summary>
-		protected readonly NativeType nativeType;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="dnlib.DotNet.NativeType"/>
 		/// </summary>
-		public NativeType NativeType {
-			get { return nativeType; }
-		}
+		public NativeType NativeType { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="nativeType">Native type</param>
 		public MarshalType(NativeType nativeType) {
-			this.nativeType = nativeType;
+			this.NativeType = nativeType;
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return nativeType.ToString();
+			return NativeType.ToString();
 		}
 	}
 
@@ -37,23 +30,18 @@ namespace dnlib.DotNet {
 	/// Contains the raw marshal blob data
 	/// </summary>
 	public sealed class RawMarshalType : MarshalType {
-		byte[] data;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the raw data
 		/// </summary>
-		public byte[] Data {
-			get { return data; }
-			set { data = value; }
-		}
+		public byte[] Data { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="data">Raw data</param>
 		public RawMarshalType(byte[] data)
 			: base(NativeType.RawBlob) {
-			this.data = data;
+			this.Data = data;
 		}
 	}
 
@@ -61,24 +49,17 @@ namespace dnlib.DotNet {
 	/// A <see cref="NativeType.FixedSysString"/> marshal type
 	/// </summary>
 	public sealed class FixedSysStringMarshalType : MarshalType {
-		int size;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the size
 		/// </summary>
-		public int Size {
-			get { return size; }
-			set { size = value; }
-		}
+		public int Size { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="Size"/> is valid
 		/// </summary>
-		public bool IsSizeValid {
-			get { return size >= 0; }
-		}
+		public bool IsSizeValid => Size >= 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public FixedSysStringMarshalType()
@@ -91,14 +72,13 @@ namespace dnlib.DotNet {
 		/// <param name="size">Size</param>
 		public FixedSysStringMarshalType(int size)
 			: base(NativeType.FixedSysString) {
-			this.size = size;
+			this.Size = size;
 		}
 
 		/// <inheritdoc/>
-		public override string ToString() {
-			if (IsSizeValid)
-				return string.Format("{0} ({1})", nativeType, size);
-			return string.Format("{0} (<no size>)", nativeType);
+		public override string ToString()
+		{
+		    return IsSizeValid ? $"{NativeType} ({Size})" : $"{NativeType} (<no size>)";
 		}
 	}
 
@@ -106,40 +86,27 @@ namespace dnlib.DotNet {
 	/// A <see cref="NativeType.SafeArray"/> marshal type
 	/// </summary>
 	public sealed class SafeArrayMarshalType : MarshalType {
-		VariantType vt;
-		ITypeDefOrRef userDefinedSubType;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the variant type
 		/// </summary>
-		public VariantType VariantType {
-			get { return vt; }
-			set { vt = value; }
-		}
+		public VariantType VariantType { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the user-defined sub type (it's usually <c>null</c>)
 		/// </summary>
-		public ITypeDefOrRef UserDefinedSubType {
-			get { return userDefinedSubType; }
-			set { userDefinedSubType = value; }
-		}
+		public ITypeDefOrRef UserDefinedSubType { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="VariantType"/> is valid
 		/// </summary>
-		public bool IsVariantTypeValid {
-			get { return vt != VariantType.NotInitialized; }
-		}
+		public bool IsVariantTypeValid => VariantType != VariantType.NotInitialized;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="UserDefinedSubType"/> is valid
 		/// </summary>
-		public bool IsUserDefinedSubTypeValid {
-			get { return userDefinedSubType != null; }
-		}
+		public bool IsUserDefinedSubTypeValid => UserDefinedSubType != null;
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public SafeArrayMarshalType()
@@ -169,16 +136,16 @@ namespace dnlib.DotNet {
 		/// <param name="userDefinedSubType">User-defined sub type</param>
 		public SafeArrayMarshalType(VariantType vt, ITypeDefOrRef userDefinedSubType)
 			: base(NativeType.SafeArray) {
-			this.vt = vt;
-			this.userDefinedSubType = userDefinedSubType;
+			this.VariantType = vt;
+			this.UserDefinedSubType = userDefinedSubType;
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			var udt = userDefinedSubType;
+			var udt = UserDefinedSubType;
 			if (udt != null)
-				return string.Format("{0} ({1}, {2})", nativeType, vt, udt);
-			return string.Format("{0} ({1})", nativeType, vt);
+				return $"{NativeType} ({VariantType}, {udt})";
+			return $"{NativeType} ({VariantType})";
 		}
 	}
 
@@ -186,40 +153,27 @@ namespace dnlib.DotNet {
 	/// A <see cref="NativeType.FixedArray"/> marshal type
 	/// </summary>
 	public sealed class FixedArrayMarshalType : MarshalType {
-		int size;
-		NativeType elementType;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the element type
 		/// </summary>
-		public NativeType ElementType {
-			get { return elementType; }
-			set { elementType = value; }
-		}
+		public NativeType ElementType { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the size
 		/// </summary>
-		public int Size {
-			get { return size; }
-			set { size = value; }
-		}
+		public int Size { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="ElementType"/> is valid
 		/// </summary>
-		public bool IsElementTypeValid {
-			get { return elementType != NativeType.NotInitialized; }
-		}
+		public bool IsElementTypeValid => ElementType != NativeType.NotInitialized;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="Size"/> is valid
 		/// </summary>
-		public bool IsSizeValid {
-			get { return size >= 0; }
-		}
+		public bool IsSizeValid => Size >= 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public FixedArrayMarshalType()
@@ -241,13 +195,13 @@ namespace dnlib.DotNet {
 		/// <param name="elementType">Element type</param>
 		public FixedArrayMarshalType(int size, NativeType elementType)
 			: base(NativeType.FixedArray) {
-			this.size = size;
-			this.elementType = elementType;
+			this.Size = size;
+			this.ElementType = elementType;
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return string.Format("{0} ({1}, {2})", nativeType, size, elementType);
+			return $"{NativeType} ({Size}, {ElementType})";
 		}
 	}
 
@@ -255,90 +209,61 @@ namespace dnlib.DotNet {
 	/// A <see cref="NativeType.Array"/> marshal type
 	/// </summary>
 	public sealed class ArrayMarshalType : MarshalType {
-		NativeType elementType;
-		int paramNum;
-		int numElems;
-		int flags;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the element type
 		/// </summary>
-		public NativeType ElementType {
-			get { return elementType; }
-			set { elementType = value; }
-		}
+		public NativeType ElementType { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the parameter number
 		/// </summary>
-		public int ParamNumber {
-			get { return paramNum; }
-			set { paramNum = value; }
-		}
+		public int ParamNumber { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the size of the array
 		/// </summary>
-		public int Size {
-			get { return numElems; }
-			set { numElems = value; }
-		}
+		public int Size { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the flags
 		/// </summary>
-		public int Flags {
-			get { return flags; }
-			set { flags = value; }
-		}
+		public int Flags { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="ElementType"/> is valid
 		/// </summary>
-		public bool IsElementTypeValid {
-			get { return elementType != NativeType.NotInitialized; }
-		}
+		public bool IsElementTypeValid => ElementType != NativeType.NotInitialized;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="ParamNumber"/> is valid
 		/// </summary>
-		public bool IsParamNumberValid {
-			get { return paramNum >= 0; }
-		}
+		public bool IsParamNumberValid => ParamNumber >= 0;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="Size"/> is valid
 		/// </summary>
-		public bool IsSizeValid {
-			get { return numElems >= 0; }
-		}
+		public bool IsSizeValid => Size >= 0;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="Flags"/> is valid
 		/// </summary>
-		public bool IsFlagsValid {
-			get { return flags >= 0; }
-		}
+		public bool IsFlagsValid => Flags >= 0;
 
-		const int ntaSizeParamIndexSpecified = 1;
+	    const int ntaSizeParamIndexSpecified = 1;
 
 		/// <summary>
 		/// <c>true</c> if <c>ntaSizeParamIndexSpecified</c> bit is set, <c>false</c> if it's not
 		/// set or if <see cref="Flags"/> is invalid.
 		/// </summary>
-		public bool IsSizeParamIndexSpecified {
-			get { return IsFlagsValid && (flags & ntaSizeParamIndexSpecified) != 0; }
-		}
+		public bool IsSizeParamIndexSpecified => IsFlagsValid && (Flags & ntaSizeParamIndexSpecified) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <c>ntaSizeParamIndexSpecified</c> bit is not set, <c>false</c> if it's
 		/// set or if <see cref="Flags"/> is invalid.
 		/// </summary>
-		public bool IsSizeParamIndexNotSpecified {
-			get { return IsFlagsValid && (flags & ntaSizeParamIndexSpecified) == 0; }
-		}
+		public bool IsSizeParamIndexNotSpecified => IsFlagsValid && (Flags & ntaSizeParamIndexSpecified) == 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public ArrayMarshalType()
@@ -381,15 +306,15 @@ namespace dnlib.DotNet {
 		/// <param name="flags">Flags</param>
 		public ArrayMarshalType(NativeType elementType, int paramNum, int numElems, int flags)
 			: base(NativeType.Array) {
-			this.elementType = elementType;
-			this.paramNum = paramNum;
-			this.numElems = numElems;
-			this.flags = flags;
+			this.ElementType = elementType;
+			this.ParamNumber = paramNum;
+			this.Size = numElems;
+			this.Flags = flags;
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return string.Format("{0} ({1}, {2}, {3}, {4})", nativeType, elementType, paramNum, numElems, flags);
+			return $"{NativeType} ({ElementType}, {ParamNumber}, {Size}, {Flags})";
 		}
 	}
 
@@ -397,44 +322,27 @@ namespace dnlib.DotNet {
 	/// A <see cref="NativeType.CustomMarshaler"/> marshal type
 	/// </summary>
 	public sealed class CustomMarshalType : MarshalType {
-		UTF8String guid;
-		UTF8String nativeTypeName;
-		ITypeDefOrRef custMarshaler;
-		UTF8String cookie;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the <c>GUID</c> string
 		/// </summary>
-		public UTF8String Guid {
-			get { return guid; }
-			set { guid = value; }
-		}
+		public UTF8String Guid { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the native type name string
 		/// </summary>
-		public UTF8String NativeTypeName {
-			get { return nativeTypeName; }
-			set { nativeTypeName = value; }
-		}
+		public UTF8String NativeTypeName { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the custom marshaler
 		/// </summary>
-		public ITypeDefOrRef CustomMarshaler {
-			get { return custMarshaler; }
-			set { custMarshaler = value; }
-		}
+		public ITypeDefOrRef CustomMarshaler { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the cookie string
 		/// </summary>
-		public UTF8String Cookie {
-			get { return cookie; }
-			set { cookie = value; }
-		}
+		public UTF8String Cookie { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public CustomMarshalType()
@@ -477,15 +385,15 @@ namespace dnlib.DotNet {
 		/// <param name="cookie">Cookie string</param>
 		public CustomMarshalType(UTF8String guid, UTF8String nativeTypeName, ITypeDefOrRef custMarshaler, UTF8String cookie)
 			: base(NativeType.CustomMarshaler) {
-			this.guid = guid;
-			this.nativeTypeName = nativeTypeName;
-			this.custMarshaler = custMarshaler;
-			this.cookie = cookie;
+			this.Guid = guid;
+			this.NativeTypeName = nativeTypeName;
+			this.CustomMarshaler = custMarshaler;
+			this.Cookie = cookie;
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return string.Format("{0} ({1}, {2}, {3}, {4})", nativeType, guid, nativeTypeName, custMarshaler, cookie);
+			return $"{NativeType} ({Guid}, {NativeTypeName}, {CustomMarshaler}, {Cookie})";
 		}
 	}
 
@@ -494,24 +402,17 @@ namespace dnlib.DotNet {
 	/// <see cref="NativeType.IntF"/> marshal type
 	/// </summary>
 	public sealed class InterfaceMarshalType : MarshalType {
-		int iidParamIndex;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the IID parameter index
 		/// </summary>
-		public int IidParamIndex {
-			get { return iidParamIndex; }
-			set { iidParamIndex = value; }
-		}
+		public int IidParamIndex { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="IidParamIndex"/> is valid
 		/// </summary>
-		public bool IsIidParamIndexValid {
-			get { return iidParamIndex >= 0; }
-		}
+		public bool IsIidParamIndexValid => IidParamIndex >= 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="nativeType">Native type</param>
@@ -530,12 +431,12 @@ namespace dnlib.DotNet {
 				nativeType != NativeType.IDispatch &&
 				nativeType != NativeType.IntF)
 				throw new ArgumentException("Invalid nativeType");
-			this.iidParamIndex = iidParamIndex;
+			this.IidParamIndex = iidParamIndex;
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return string.Format("{0} ({1})", nativeType, iidParamIndex);
+			return $"{NativeType} ({IidParamIndex})";
 		}
 	}
 }

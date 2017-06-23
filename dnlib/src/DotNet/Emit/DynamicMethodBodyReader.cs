@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using SR = System.Reflection;
 using System.Reflection.Emit;
 using System.IO;
+using System.Linq;
 using dnlib.DotNet.MD;
 using dnlib.IO;
 
@@ -67,7 +68,7 @@ namespace dnlib.DotNet.Emit {
 				if (fieldInfo == null)
 					InitializeField(instance.GetType());
 				if (fieldInfo == null)
-					throw new Exception(string.Format("Couldn't find field '{0}' or '{1}'", fieldName1, fieldName2));
+					throw new Exception($"Couldn't find field '{fieldName1}' or '{fieldName2}'");
 
 				return fieldInfo.GetValue(instance);
 			}
@@ -114,23 +115,23 @@ namespace dnlib.DotNet.Emit {
 			this.methodName = null;
 
 			if (obj == null)
-				throw new ArgumentNullException("obj");
+				throw new ArgumentNullException(nameof(obj));
 
-			var del = obj as Delegate;
-			if (del != null) {
-				obj = del.Method;
-				if (obj == null)
-					throw new Exception("Delegate.Method == null");
-			}
+            if (obj is Delegate del)
+            {
+                obj = del.Method;
+                if (obj == null)
+                    throw new Exception("Delegate.Method == null");
+            }
 
-			if (obj.GetType().ToString() == "System.Reflection.Emit.DynamicMethod+RTDynamicMethod") {
+            if (obj.GetType().ToString() == "System.Reflection.Emit.DynamicMethod+RTDynamicMethod") {
 				obj = rtdmOwnerFieldInfo.Read(obj) as DynamicMethod;
 				if (obj == null)
 					throw new Exception("RTDynamicMethod.m_owner is null or invalid");
 			}
 
-			if (obj is DynamicMethod) {
-				methodName = ((DynamicMethod)obj).Name;
+			if (obj is DynamicMethod o) {
+				methodName = o.Name;
 				obj = dmResolverFieldInfo.Read(obj);
 				if (obj == null)
 					throw new Exception("No resolver found");
@@ -155,10 +156,10 @@ namespace dnlib.DotNet.Emit {
 			if (tokensList == null)
 				throw new Exception("No tokens");
 			tokens = new List<object>(tokensList.Count);
-			for (int i = 0; i < tokensList.Count; i++)
-				tokens.Add(tokensList[i]);
+			foreach (var t in tokensList)
+			    tokens.Add(t);
 
-			ehInfos = (IList<object>)rslvExceptionsFieldInfo.Read(obj);
+		    ehInfos = (IList<object>)rslvExceptionsFieldInfo.Read(obj);
 			ehHeader = rslvExceptionHeaderFieldInfo.Read(obj) as byte[];
 
 			UpdateLocals(rslvLocalsFieldInfo.Read(obj) as byte[]);
@@ -214,37 +215,28 @@ namespace dnlib.DotNet.Emit {
 		}
 
 		MethodDef CreateMethodDef(SR.MethodBase delMethod) {
-			bool isStatic = true;
-			var method = new MethodDefUser();
+		    var method = new MethodDefUser();
 
 			var retType = GetReturnType(delMethod);
 			var pms = GetParameters(delMethod);
-			if (isStatic)
-				method.Signature = MethodSig.CreateStatic(retType, pms.ToArray());
-			else
-				method.Signature = MethodSig.CreateInstance(retType, pms.ToArray());
+			this.method.Signature = MethodSig.CreateStatic(retType, pms.ToArray());
 
 			method.Parameters.UpdateParameterTypes();
 			method.ImplAttributes = MethodImplAttributes.IL;
 			method.Attributes = MethodAttributes.PrivateScope;
-			if (isStatic)
-				method.Attributes |= MethodAttributes.Static;
+			this.method.Attributes |= MethodAttributes.Static;
 
 			return module.UpdateRowId(method);
 		}
 
 		TypeSig GetReturnType(SR.MethodBase mb) {
 			var mi = mb as SR.MethodInfo;
-			if (mi != null)
-				return importer.ImportAsTypeSig(mi.ReturnType);
-			return module.CorLibTypes.Void;
+			return mi != null ? importer.ImportAsTypeSig(mi.ReturnType) : module.CorLibTypes.Void;
 		}
 
-		List<TypeSig> GetParameters(SR.MethodBase delMethod) {
-			var pms = new List<TypeSig>();
-			foreach (var param in delMethod.GetParameters())
-				pms.Add(importer.ImportAsTypeSig(param.ParameterType));
-			return pms;
+		List<TypeSig> GetParameters(SR.MethodBase delMethod)
+		{
+		    return delMethod.GetParameters().Select(param => importer.ImportAsTypeSig(param.ParameterType)).ToList();
 		}
 
 		/// <summary>
@@ -271,9 +263,8 @@ namespace dnlib.DotNet.Emit {
 					for (int i = 0; i < numHandlers; i++) {
 						if (reader.BaseStream.Position + 12 > reader.BaseStream.Length)
 							break;
-						var eh = new ExceptionHandler();
-						eh.HandlerType = (ExceptionHandlerType)reader.ReadUInt16();
-						int offs = reader.ReadUInt16();
+					    var eh = new ExceptionHandler {HandlerType = (ExceptionHandlerType) reader.ReadUInt16()};
+					    int offs = reader.ReadUInt16();
 						eh.TryStart = GetInstructionThrow((uint)offs);
 						eh.TryEnd = GetInstruction((uint)(reader.ReadByte() + offs));
 						offs = reader.ReadUInt16();
@@ -296,9 +287,8 @@ namespace dnlib.DotNet.Emit {
 					for (int i = 0; i < numHandlers; i++) {
 						if (reader.BaseStream.Position + 24 > reader.BaseStream.Length)
 							break;
-						var eh = new ExceptionHandler();
-						eh.HandlerType = (ExceptionHandlerType)reader.ReadUInt32();
-						var offs = reader.ReadUInt32();
+					    var eh = new ExceptionHandler {HandlerType = (ExceptionHandlerType) reader.ReadUInt32()};
+					    var offs = reader.ReadUInt32();
 						eh.TryStart = GetInstructionThrow((uint)offs);
 						eh.TryEnd = GetInstruction((uint)(reader.ReadUInt32() + offs));
 						offs = reader.ReadUInt32();
@@ -322,15 +312,19 @@ namespace dnlib.DotNet.Emit {
 					var tryEnd = GetInstruction((uint)ehInfo.EndAddr);
 					var endFinally = ehInfo.EndFinally < 0 ? null : GetInstruction((uint)ehInfo.EndFinally);
 					for (int i = 0; i < ehInfo.CurrentCatch; i++) {
-						var eh = new ExceptionHandler();
-						eh.HandlerType = (ExceptionHandlerType)ehInfo.Type[i];
-						eh.TryStart = tryStart;
-						eh.TryEnd = eh.HandlerType == ExceptionHandlerType.Finally ? endFinally : tryEnd;
-						eh.FilterStart = null;	// not supported by DynamicMethod.ILGenerator
-						eh.HandlerStart = GetInstructionThrow((uint)ehInfo.CatchAddr[i]);
-						eh.HandlerEnd = GetInstruction((uint)ehInfo.CatchEndAddr[i]);
-						eh.CatchType = importer.Import(ehInfo.CatchClass[i]);
-						exceptionHandlers.Add(eh);
+					    var eh = new ExceptionHandler
+					    {
+					        HandlerType = (ExceptionHandlerType) ehInfo.Type[i],
+					        TryStart = tryStart,
+					        FilterStart = null,
+					        HandlerStart = GetInstructionThrow((uint) ehInfo.CatchAddr[i]),
+					        HandlerEnd = GetInstruction((uint) ehInfo.CatchEndAddr[i]),
+					        CatchType = importer.Import(ehInfo.CatchClass[i])
+					    };
+
+					    // not supported by DynamicMethod.ILGenerator
+					    eh.TryEnd = eh.HandlerType == ExceptionHandlerType.Finally ? endFinally : tryEnd;
+                        exceptionHandlers.Add(eh);
 					}
 				}
 			}
@@ -342,9 +336,12 @@ namespace dnlib.DotNet.Emit {
 		/// <returns>A new <see cref="CilBody"/> instance</returns>
 		public MethodDef GetMethod() {
 			bool initLocals = true;
-			var cilBody = new CilBody(initLocals, instructions, exceptionHandlers, locals);
-			cilBody.MaxStack = (ushort)Math.Min(maxStack, ushort.MaxValue);
-			instructions = null;
+		    var cilBody =
+		        new CilBody(initLocals, instructions, exceptionHandlers, locals)
+		        {
+		            MaxStack = (ushort) Math.Min(maxStack, ushort.MaxValue)
+		        };
+		    instructions = null;
 			exceptionHandlers = null;
 			locals = null;
 			method.Body = cilBody;
@@ -427,11 +424,10 @@ namespace dnlib.DotNet.Emit {
 				obj = method;
 			}
 
-			var dm = obj as DynamicMethod;
-			if (dm != null)
-				throw new Exception("DynamicMethod calls another DynamicMethod");
+            if (obj is DynamicMethod dm)
+                throw new Exception("DynamicMethod calls another DynamicMethod");
 
-			return null;
+            return null;
 		}
 
 		SR.MethodInfo GetVarArgMethod(object obj) {
@@ -488,10 +484,9 @@ namespace dnlib.DotNet.Emit {
 		}
 
 		ITypeDefOrRef ISignatureReaderHelper.ResolveTypeDefOrRef(uint codedToken, GenericParamContext gpContext) {
-			uint token;
-			if (!CodedToken.TypeDefOrRef.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.TypeDefOrRef.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.TypeDef:
 			case Table.TypeRef:

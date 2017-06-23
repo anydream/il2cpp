@@ -9,99 +9,65 @@ namespace dnlib.PE {
 	/// <summary>
 	/// Represents the IMAGE_SECTION_HEADER PE section
 	/// </summary>
-	[DebuggerDisplay("RVA:{virtualAddress} VS:{virtualSize} FO:{pointerToRawData} FS:{sizeOfRawData} {displayName}")]
+	[DebuggerDisplay("RVA:{VirtualAddress} VS:{VirtualSize} FO:{PointerToRawData} FS:{SizeOfRawData} {DisplayName}")]
 	public sealed class ImageSectionHeader : FileSection {
-		readonly string displayName;
-		readonly byte[] name;
-		readonly uint virtualSize;
-		readonly RVA virtualAddress;
-		readonly uint sizeOfRawData;
-		readonly uint pointerToRawData;
-		readonly uint pointerToRelocations;
-		readonly uint pointerToLinenumbers;
-		readonly ushort numberOfRelocations;
-		readonly ushort numberOfLinenumbers;
-		readonly uint characteristics;
-
-		/// <summary>
+	    /// <summary>
 		/// Returns the human readable section name, ignoring everything after
 		/// the first nul byte
 		/// </summary>
-		public string DisplayName {
-			get { return displayName; }
-		}
+		public string DisplayName { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.Name field
 		/// </summary>
-		public byte[] Name {
-			get { return name; }
-		}
+		public byte[] Name { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.VirtualSize field
 		/// </summary>
-		public uint VirtualSize {
-			get { return virtualSize; }
-		}
+		public uint VirtualSize { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.VirtualAddress field
 		/// </summary>
-		public RVA VirtualAddress {
-			get { return virtualAddress; }
-		}
+		public RVA VirtualAddress { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.SizeOfRawData field
 		/// </summary>
-		public uint SizeOfRawData {
-			get { return sizeOfRawData; }
-		}
+		public uint SizeOfRawData { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.PointerToRawData field
 		/// </summary>
-		public uint PointerToRawData {
-			get { return pointerToRawData; }
-		}
+		public uint PointerToRawData { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.PointerToRelocations field
 		/// </summary>
-		public uint PointerToRelocations {
-			get { return pointerToRelocations; }
-		}
+		public uint PointerToRelocations { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.PointerToLinenumbers field
 		/// </summary>
-		public uint PointerToLinenumbers {
-			get { return pointerToLinenumbers; }
-		}
+		public uint PointerToLinenumbers { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.NumberOfRelocations field
 		/// </summary>
-		public ushort NumberOfRelocations {
-			get { return numberOfRelocations; }
-		}
+		public ushort NumberOfRelocations { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.NumberOfLinenumbers field
 		/// </summary>
-		public ushort NumberOfLinenumbers {
-			get { return numberOfLinenumbers; }
-		}
+		public ushort NumberOfLinenumbers { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_SECTION_HEADER.Characteristics field
 		/// </summary>
-		public uint Characteristics {
-			get { return characteristics; }
-		}
+		public uint Characteristics { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="reader">PE file reader pointing to the start of this section</param>
@@ -109,18 +75,18 @@ namespace dnlib.PE {
 		/// <exception cref="BadImageFormatException">Thrown if verification fails</exception>
 		public ImageSectionHeader(IImageStream reader, bool verify) {
 			SetStartOffset(reader);
-			this.name = reader.ReadBytes(8);
-			this.virtualSize = reader.ReadUInt32();
-			this.virtualAddress = (RVA)reader.ReadUInt32();
-			this.sizeOfRawData = reader.ReadUInt32();
-			this.pointerToRawData = reader.ReadUInt32();
-			this.pointerToRelocations = reader.ReadUInt32();
-			this.pointerToLinenumbers = reader.ReadUInt32();
-			this.numberOfRelocations = reader.ReadUInt16();
-			this.numberOfLinenumbers = reader.ReadUInt16();
-			this.characteristics = reader.ReadUInt32();
+			this.Name = reader.ReadBytes(8);
+			this.VirtualSize = reader.ReadUInt32();
+			this.VirtualAddress = (RVA)reader.ReadUInt32();
+			this.SizeOfRawData = reader.ReadUInt32();
+			this.PointerToRawData = reader.ReadUInt32();
+			this.PointerToRelocations = reader.ReadUInt32();
+			this.PointerToLinenumbers = reader.ReadUInt32();
+			this.NumberOfRelocations = reader.ReadUInt16();
+			this.NumberOfLinenumbers = reader.ReadUInt16();
+			this.Characteristics = reader.ReadUInt32();
 			SetEndoffset(reader);
-			displayName = ToString(name);
+			DisplayName = ToString(Name);
 		}
 
 		static string ToString(byte[] name) {

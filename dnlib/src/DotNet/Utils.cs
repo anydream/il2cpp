@@ -57,7 +57,7 @@ namespace dnlib.DotNet {
 
 			sb.Append(", ");
 			sb.Append(publicKey == null || publicKey is PublicKeyToken ? "PublicKeyToken=" : "PublicKey=");
-			sb.Append(publicKey == null ? "null" : publicKey.ToString());
+			sb.Append(publicKey?.ToString() ?? "null");
 
 			if ((attributes & AssemblyAttributes.Retargetable) != 0)
 				sb.Append(", Retargetable=Yes");
@@ -88,8 +88,8 @@ namespace dnlib.DotNet {
 
 		static char ToHexChar(int val, bool upper) {
 			if (0 <= val && val <= 9)
-				return (char)(val + (int)'0');
-			return (char)(val - 10 + (upper ? (int)'A' : (int)'a'));
+				return (char)(val + '0');
+			return (char)(val - 10 + (upper ? 'A' : 'a'));
 		}
 
 		/// <summary>
@@ -125,11 +125,11 @@ namespace dnlib.DotNet {
 		/// a valid hex digit</returns>
 		static int TryParseHexChar(char c) {
 			if ('0' <= c && c <= '9')
-				return (ushort)c - (ushort)'0';
+				return c - '0';
 			if ('a' <= c && c <= 'f')
-				return 10 + (ushort)c - (ushort)'a';
+				return 10 + c - 'a';
 			if ('A' <= c && c <= 'F')
-				return 10 + (ushort)c - (ushort)'A';
+				return 10 + c - 'A';
 			return -1;
 		}
 
@@ -261,7 +261,7 @@ namespace dnlib.DotNet {
 		/// <param name="b">Second</param>
 		/// <returns>&lt; 0 if a &lt; b, 0 if a == b, &gt; 0 if a &gt; b</returns>
 		internal static int LocaleCompareTo(UTF8String a, UTF8String b) {
-			return GetCanonicalLocale(a).CompareTo(GetCanonicalLocale(b));
+			return String.Compare(GetCanonicalLocale(a), GetCanonicalLocale(b), StringComparison.Ordinal);
 		}
 
 		/// <summary>
@@ -281,7 +281,7 @@ namespace dnlib.DotNet {
 		/// <param name="b">Second</param>
 		/// <returns>&lt; 0 if a &lt; b, 0 if a == b, &gt; 0 if a &gt; b</returns>
 		internal static int LocaleCompareTo(UTF8String a, string b) {
-			return GetCanonicalLocale(a).CompareTo(GetCanonicalLocale(b));
+			return String.Compare(GetCanonicalLocale(a), GetCanonicalLocale(b), StringComparison.Ordinal);
 		}
 
 		/// <summary>

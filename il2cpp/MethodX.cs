@@ -65,7 +65,7 @@ namespace il2cpp
 
 			sb.AppendFormat("{0} {1}{2}{3}",
 				ReturnType?.ToString() ?? "<?>",
-				hasDeclType ? DeclType.ToString() + "::" : "",
+				hasDeclType ? DeclType + "::" : "",
 				Def.Name,
 				GenericToString());
 

@@ -9,29 +9,20 @@ namespace dnlib.DotNet.Writer {
 	/// A <see cref="IBinaryReader"/> chunk
 	/// </summary>
 	public class BinaryReaderChunk : IChunk {
-		FileOffset offset;
-		RVA rva;
-		readonly IBinaryReader data;
-		readonly uint virtualSize;
+	    readonly uint virtualSize;
 
 		/// <summary>
 		/// Gets the data
 		/// </summary>
-		public IBinaryReader Data {
-			get { return data; }
-		}
+		public IBinaryReader Data { get; }
 
-		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="data">The data</param>
@@ -45,19 +36,19 @@ namespace dnlib.DotNet.Writer {
 		/// <param name="data">The data</param>
 		/// <param name="virtualSize">Virtual size of <paramref name="data"/></param>
 		public BinaryReaderChunk(IBinaryReader data, uint virtualSize) {
-			this.data = data;
+			this.Data = data;
 			this.virtualSize = virtualSize;
 		}
 
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 		}
 
 		/// <inheritdoc/>
 		public uint GetFileLength() {
-			return (uint)data.Length;
+			return (uint)Data.Length;
 		}
 
 		/// <inheritdoc/>
@@ -67,8 +58,8 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void WriteTo(BinaryWriter writer) {
-			data.Position = 0;
-			data.WriteTo(writer);
+			Data.Position = 0;
+			Data.WriteTo(writer);
 		}
 	}
 }

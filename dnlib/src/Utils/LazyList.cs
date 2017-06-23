@@ -62,7 +62,7 @@ namespace dnlib.Utils {
 	/// Implements a <see cref="IList{T}"/> that is lazily initialized
 	/// </summary>
 	/// <typeparam name="TValue">Type to store in list</typeparam>
-	[DebuggerDisplay("Count = {Count}")]
+	[DebuggerDisplay("Count = {" + nameof(Count) + "}")]
 	public class LazyList<TValue> : ILazyList<TValue> where TValue : class {
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		readonly object context;
@@ -93,11 +93,9 @@ namespace dnlib.Utils {
 			/// <summary>
 			/// <c>true</c> if it has been initialized, <c>false</c> otherwise
 			/// </summary>
-			public virtual bool IsInitialized_NoLock {
-				get { return true; }
-			}
+			public virtual bool IsInitialized_NoLock => true;
 
-			/// <summary>
+		    /// <summary>
 			/// Default constructor
 			/// </summary>
 			protected Element() {
@@ -130,7 +128,7 @@ namespace dnlib.Utils {
 
 			/// <inheritdoc/>
 			public override string ToString() {
-				return value == null ? string.Empty : value.ToString();
+				return value?.ToString() ?? string.Empty;
 			}
 		}
 
@@ -143,11 +141,9 @@ namespace dnlib.Utils {
 			LazyList<TValue> lazyList;
 
 			/// <inheritdoc/>
-			public override bool IsInitialized_NoLock {
-				get { return lazyList == null; }
-			}
+			public override bool IsInitialized_NoLock => lazyList == null;
 
-			/// <inheritdoc/>
+		    /// <inheritdoc/>
 			public override TValue GetValue_NoLock(int index) {
 				if (lazyList != null) {
 					value = lazyList.ReadOriginalValue_NoLock(index, origIndex);
@@ -178,7 +174,7 @@ namespace dnlib.Utils {
 					value = lazyList.ReadOriginalValue_NoLock(this);
 					lazyList = null;
 				}
-				return value == null ? string.Empty : value.ToString();
+				return value?.ToString() ?? string.Empty;
 			}
 		}
 
@@ -198,23 +194,17 @@ namespace dnlib.Utils {
 
 		/// <inheritdoc/>
 		[DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
-		public int Count_NoLock {
-			get { return list.Count; }
-		}
+		public int Count_NoLock => list.Count;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		[DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
-		public bool IsReadOnly {
-			get { return false; }
-		}
+		public bool IsReadOnly => false;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		[DebuggerBrowsableAttribute(DebuggerBrowsableState.Never)]
-		public bool IsReadOnly_NoLock {
-			get { return false; }
-		}
+		public bool IsReadOnly_NoLock => false;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public TValue this[int index] {
 			get {
 #if THREAD_SAFE
@@ -299,9 +289,8 @@ namespace dnlib.Utils {
 
 		TValue ReadOriginalValue_NoLock(int index, uint origIndex) {
 			var newValue = readOriginalValue(context, origIndex);
-			if (listener != null)
-				listener.OnLazyAdd(index, ref newValue);
-			return newValue;
+		    listener?.OnLazyAdd(index, ref newValue);
+		    return newValue;
 		}
 
 		/// <inheritdoc/>
@@ -337,12 +326,10 @@ namespace dnlib.Utils {
 
 		/// <inheritdoc/>
 		public void Insert_NoLock(int index, TValue item) {
-			if (listener != null)
-				listener.OnAdd(index, item);
-			list.Insert(index, new Element(item));
-			if (listener != null)
-				listener.OnResize(index);
-			id++;
+		    listener?.OnAdd(index, item);
+		    list.Insert(index, new Element(item));
+		    listener?.OnResize(index);
+		    id++;
 		}
 
 		/// <inheritdoc/>
@@ -358,12 +345,10 @@ namespace dnlib.Utils {
 
 		/// <inheritdoc/>
 		public void RemoveAt_NoLock(int index) {
-			if (listener != null)
-				listener.OnRemove(index, list[index].GetValue_NoLock(index));
-			list.RemoveAt(index);
-			if (listener != null)
-				listener.OnResize(index);
-			id++;
+		    listener?.OnRemove(index, list[index].GetValue_NoLock(index));
+		    list.RemoveAt(index);
+		    listener?.OnResize(index);
+		    id++;
 		}
 
 		/// <inheritdoc/>
@@ -380,12 +365,10 @@ namespace dnlib.Utils {
 		/// <inheritdoc/>
 		public void Add_NoLock(TValue item) {
 			int index = list.Count;
-			if (listener != null)
-				listener.OnAdd(index, item);
-			list.Add(new Element(item));
-			if (listener != null)
-				listener.OnResize(index);
-			id++;
+		    listener?.OnAdd(index, item);
+		    list.Add(new Element(item));
+		    listener?.OnResize(index);
+		    id++;
 		}
 
 		/// <inheritdoc/>
@@ -401,12 +384,10 @@ namespace dnlib.Utils {
 
 		/// <inheritdoc/>
 		public void Clear_NoLock() {
-			if (listener != null)
-				listener.OnClear();
-			list.Clear();
-			if (listener != null)
-				listener.OnResize(0);
-			id++;
+		    listener?.OnClear();
+		    list.Clear();
+		    listener?.OnResize(0);
+		    id++;
 		}
 
 		/// <inheritdoc/>

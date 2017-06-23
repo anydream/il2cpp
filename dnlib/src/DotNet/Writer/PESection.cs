@@ -9,54 +9,39 @@ namespace dnlib.DotNet.Writer {
 	/// A PE section
 	/// </summary>
 	public sealed class PESection : ChunkList<IChunk> {
-		string name;
-		uint characteristics;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets the name
 		/// </summary>
-		public string Name {
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the Characteristics
 		/// </summary>
-		public uint Characteristics {
-			get { return characteristics; }
-			set { characteristics = value; }
-		}
+		public uint Characteristics { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if this is a code section
 		/// </summary>
-		public bool IsCode {
-			get { return (characteristics & 0x20) != 0; }
-		}
+		public bool IsCode => (Characteristics & 0x20) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if this is an initialized data section
 		/// </summary>
-		public bool IsInitializedData {
-			get { return (characteristics & 0x40) != 0; }
-		}
+		public bool IsInitializedData => (Characteristics & 0x40) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if this is an uninitialized data section
 		/// </summary>
-		public bool IsUninitializedData {
-			get { return (characteristics & 0x80) != 0; }
-		}
+		public bool IsUninitializedData => (Characteristics & 0x80) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="name">Section name</param>
 		/// <param name="characteristics">Section characteristics</param>
 		public PESection(string name, uint characteristics) {
-			this.name = name;
-			this.characteristics = characteristics;
+			this.Name = name;
+			this.Characteristics = characteristics;
 		}
 
 		/// <summary>

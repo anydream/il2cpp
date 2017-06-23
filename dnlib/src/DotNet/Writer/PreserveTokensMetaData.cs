@@ -46,15 +46,14 @@ namespace dnlib.DotNet.Writer {
 			}
 		}
 
-		[DebuggerDisplay("Count = {Count}")]
+		[DebuggerDisplay("Count = {" + nameof(Count) + "}")]
 		sealed class MemberDefDict<T> where T : IMDTokenProvider {
 			readonly Type defMDType;
 			uint userRid = 0x01000000;
 			uint newRid = 1;
 			int numDefMDs;
 			int numDefUsers;
-			int tableSize;
-			bool wasSorted;
+		    bool wasSorted;
 			readonly bool preserveRids;
 			readonly bool enableRidToInfo;
 			readonly Dictionary<T, MemberDefInfo<T>> defToInfo = new Dictionary<T, MemberDefInfo<T>>();
@@ -67,29 +66,19 @@ namespace dnlib.DotNet.Writer {
 			/// Gets total number of defs in the list. It does <c>not</c> necessarily return
 			/// the table size. Use <see cref="TableSize"/> for that.
 			/// </summary>
-			public int Count {
-				get { return defs.Count; }
-			}
+			public int Count => defs.Count;
 
-			/// <summary>
+		    /// <summary>
 			/// Gets the number of rows that need to be created in the table
 			/// </summary>
-			public int TableSize {
-				get { return tableSize; }
-			}
+			public int TableSize { get; private set; }
 
-			/// <summary>
+		    /// <summary>
 			/// Returns <c>true</c> if the ptr table (eg. <c>MethodPtr</c>) is needed
 			/// </summary>
-			public bool NeedPtrTable {
-				get { return preserveRids && !wasSorted; }
-			}
+			public bool NeedPtrTable => preserveRids && !wasSorted;
 
-			public MemberDefDict(Type defMDType, bool preserveRids)
-				: this(defMDType, preserveRids, false) {
-			}
-
-			public MemberDefDict(Type defMDType, bool preserveRids, bool enableRidToInfo) {
+		    public MemberDefDict(Type defMDType, bool preserveRids, bool enableRidToInfo = false) {
 				this.defMDType = defMDType;
 				this.preserveRids = preserveRids;
 				this.enableRidToInfo = enableRidToInfo;
@@ -100,12 +89,12 @@ namespace dnlib.DotNet.Writer {
 			}
 
 			public bool TryGetRid(T def, out uint rid) {
-				MemberDefInfo<T> info;
-				if (def == null || !defToInfo.TryGetValue(def, out info)) {
-					rid = 0;
-					return false;
-				}
-				rid = info.Rid;
+                if (def == null || !defToInfo.TryGetValue(def, out MemberDefInfo<T> info))
+                {
+                    rid = 0;
+                    return false;
+                }
+                rid = info.Rid;
 				return true;
 			}
 
@@ -141,9 +130,8 @@ namespace dnlib.DotNet.Writer {
 			}
 
 			public MemberDefInfo<T> GetByRid(uint rid) {
-				MemberDefInfo<T> info;
-				ridToInfo.TryGetValue(rid, out info);
-				return info;
+                ridToInfo.TryGetValue(rid, out MemberDefInfo<T> info);
+                return info;
 			}
 
 			/// <summary>
@@ -183,10 +171,10 @@ namespace dnlib.DotNet.Writer {
 						defs[i].Rid = newRid++;
 
 					// Now we know total table size
-					tableSize = (int)newRid - 1;
+					TableSize = (int)newRid - 1;
 				}
 				else
-					tableSize = defs.Count;
+					TableSize = defs.Count;
 
 				if (enableRidToInfo) {
 					ridToInfo = new Dictionary<uint, MemberDefInfo<T>>(defs.Count);
@@ -194,7 +182,7 @@ namespace dnlib.DotNet.Writer {
 						ridToInfo.Add(info.Rid, info);
 				}
 
-				if ((uint)tableSize > 0x00FFFFFF)
+				if ((uint)TableSize > 0x00FFFFFF)
 					throw new ModuleWriterException("Table is too big");
 			}
 
@@ -203,11 +191,9 @@ namespace dnlib.DotNet.Writer {
 			}
 		}
 
-		protected override int NumberOfMethods {
-			get { return methodDefInfos.Count; }
-		}
+		protected override int NumberOfMethods => methodDefInfos.Count;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="module">Module</param>
@@ -224,9 +210,8 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public override uint GetRid(TypeRef tr) {
-			uint rid;
-			typeRefInfos.TryGetRid(tr, out rid);
-			return rid;
+            typeRefInfos.TryGetRid(tr, out uint rid);
+            return rid;
 		}
 
 		/// <inheritdoc/>
@@ -235,19 +220,17 @@ namespace dnlib.DotNet.Writer {
 				Error("TypeDef is null");
 				return 0;
 			}
-			uint rid;
-			if (typeToRid.TryGetValue(td, out rid))
-				return rid;
-			Error("TypeDef {0} ({1:X8}) is not defined in this module ({2}). A type was removed that is still referenced by this module.", td, td.MDToken.Raw, module);
+            if (typeToRid.TryGetValue(td, out uint rid))
+                return rid;
+            Error("TypeDef {0} ({1:X8}) is not defined in this module ({2}). A type was removed that is still referenced by this module.", td, td.MDToken.Raw, module);
 			return 0;
 		}
 
 		/// <inheritdoc/>
 		public override uint GetRid(FieldDef fd) {
-			uint rid;
-			if (fieldDefInfos.TryGetRid(fd, out rid))
-				return rid;
-			if (fd == null)
+            if (fieldDefInfos.TryGetRid(fd, out uint rid))
+                return rid;
+            if (fd == null)
 				Error("Field is null");
 			else
 				Error("Field {0} ({1:X8}) is not defined in this module ({2}). A field was removed that is still referenced by this module.", fd, fd.MDToken.Raw, module);
@@ -256,10 +239,9 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public override uint GetRid(MethodDef md) {
-			uint rid;
-			if (methodDefInfos.TryGetRid(md, out rid))
-				return rid;
-			if (md == null)
+            if (methodDefInfos.TryGetRid(md, out uint rid))
+                return rid;
+            if (md == null)
 				Error("Method is null");
 			else
 				Error("Method {0} ({1:X8}) is not defined in this module ({2}). A method was removed that is still referenced by this module.", md, md.MDToken.Raw, module);
@@ -268,10 +250,9 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public override uint GetRid(ParamDef pd) {
-			uint rid;
-			if (paramDefInfos.TryGetRid(pd, out rid))
-				return rid;
-			if (pd == null)
+            if (paramDefInfos.TryGetRid(pd, out uint rid))
+                return rid;
+            if (pd == null)
 				Error("Param is null");
 			else
 				Error("Param {0} ({1:X8}) is not defined in this module ({2}). A parameter was removed that is still referenced by this module.", pd, pd.MDToken.Raw, module);
@@ -280,24 +261,21 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public override uint GetRid(MemberRef mr) {
-			uint rid;
-			memberRefInfos.TryGetRid(mr, out rid);
-			return rid;
+            memberRefInfos.TryGetRid(mr, out uint rid);
+            return rid;
 		}
 
 		/// <inheritdoc/>
 		public override uint GetRid(StandAloneSig sas) {
-			uint rid;
-			standAloneSigInfos.TryGetRid(sas, out rid);
-			return rid;
+            standAloneSigInfos.TryGetRid(sas, out uint rid);
+            return rid;
 		}
 
 		/// <inheritdoc/>
 		public override uint GetRid(EventDef ed) {
-			uint rid;
-			if (eventDefInfos.TryGetRid(ed, out rid))
-				return rid;
-			if (ed == null)
+            if (eventDefInfos.TryGetRid(ed, out uint rid))
+                return rid;
+            if (ed == null)
 				Error("Event is null");
 			else
 				Error("Event {0} ({1:X8}) is not defined in this module ({2}). An event was removed that is still referenced by this module.", ed, ed.MDToken.Raw, module);
@@ -306,10 +284,9 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public override uint GetRid(PropertyDef pd) {
-			uint rid;
-			if (propertyDefInfos.TryGetRid(pd, out rid))
-				return rid;
-			if (pd == null)
+            if (propertyDefInfos.TryGetRid(pd, out uint rid))
+                return rid;
+            if (pd == null)
 				Error("Property is null");
 			else
 				Error("Property {0} ({1:X8}) is not defined in this module ({2}). A property was removed that is still referenced by this module.", pd, pd.MDToken.Raw, module);
@@ -318,16 +295,14 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public override uint GetRid(TypeSpec ts) {
-			uint rid;
-			typeSpecInfos.TryGetRid(ts, out rid);
-			return rid;
+            typeSpecInfos.TryGetRid(ts, out uint rid);
+            return rid;
 		}
 
 		/// <inheritdoc/>
 		public override uint GetRid(MethodSpec ms) {
-			uint rid;
-			methodSpecInfos.TryGetRid(ms, out rid);
-			return rid;
+            methodSpecInfos.TryGetRid(ms, out uint rid);
+            return rid;
 		}
 
 		/// <inheritdoc/>
@@ -689,7 +664,7 @@ namespace dnlib.DotNet.Writer {
 
 				var frow = tablesHeap.FieldTable[frid];
 				frow.Flags = (ushort)(FieldAttributes.Public | FieldAttributes.Static);
-				frow.Name = stringsHeap.Add(string.Format("f{0:X6}", frid));
+				frow.Name = stringsHeap.Add($"f{frid:X6}");
 				frow.Signature = fieldSig;
 				tablesHeap.FieldPtrTable.Create(new RawFieldPtrRow(frid));
 			}
@@ -725,7 +700,7 @@ namespace dnlib.DotNet.Writer {
 				mrow.RVA = 0;
 				mrow.ImplFlags = (ushort)(MethodImplAttributes.IL | MethodImplAttributes.Managed);
 				mrow.Flags = (ushort)(MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Abstract);
-				mrow.Name = stringsHeap.Add(string.Format("m{0:X6}", mrid));
+				mrow.Name = stringsHeap.Add($"m{mrid:X6}");
 				mrow.Signature = methodSig;
 				mrow.ParamList = (uint)paramDefInfos.Count;
 				tablesHeap.MethodPtrTable.Create(new RawMethodPtrRow(mrid));
@@ -765,13 +740,13 @@ namespace dnlib.DotNet.Writer {
 				var prow = tablesHeap.ParamTable[prid];
 				prow.Flags = 0;
 				prow.Sequence = 0;	// Return type parameter
-				prow.Name = stringsHeap.Add(string.Format("p{0:X6}", prid));
+				prow.Name = stringsHeap.Add($"p{prid:X6}");
 				uint ptrRid = tablesHeap.ParamPtrTable.Create(new RawParamPtrRow(prid));
 
 				var mrow = new RawMethodRow(0,
 					(ushort)(MethodImplAttributes.IL | MethodImplAttributes.Managed),
 					(ushort)(MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Abstract),
-					stringsHeap.Add(string.Format("mp{0:X6}", prid)),
+					stringsHeap.Add($"mp{prid:X6}"),
 					methodSig,
 					ptrRid);
 				uint mrid = tablesHeap.MethodTable.Create(mrow);
@@ -809,7 +784,7 @@ namespace dnlib.DotNet.Writer {
 
 				var frow = tablesHeap.EventTable[erid];
 				frow.EventFlags = 0;
-				frow.Name = stringsHeap.Add(string.Format("E{0:X6}", erid));
+				frow.Name = stringsHeap.Add($"E{erid:X6}");
 				frow.EventType = eventType;
 				tablesHeap.EventPtrTable.Create(new RawEventPtrRow(erid));
 			}
@@ -844,7 +819,7 @@ namespace dnlib.DotNet.Writer {
 
 				var frow = tablesHeap.PropertyTable[prid];
 				frow.PropFlags = 0;
-				frow.Name = stringsHeap.Add(string.Format("P{0:X6}", prid));
+				frow.Name = stringsHeap.Add($"P{prid:X6}");
 				frow.Type = propertySig;
 				tablesHeap.PropertyPtrTable.Create(new RawPropertyPtrRow(prid));
 			}
@@ -1055,13 +1030,13 @@ namespace dnlib.DotNet.Writer {
 				Error("TypeRef is null");
 				return 0;
 			}
-			uint rid;
-			if (typeRefInfos.TryGetRid(tr, out rid)) {
-				if (rid == 0)
-					Error("TypeRef {0:X8} has an infinite ResolutionScope loop", tr.MDToken.Raw);
-				return rid;
-			}
-			typeRefInfos.Add(tr, 0);	// Prevent inf recursion
+            if (typeRefInfos.TryGetRid(tr, out uint rid))
+            {
+                if (rid == 0)
+                    Error("TypeRef {0:X8} has an infinite ResolutionScope loop", tr.MDToken.Raw);
+                return rid;
+            }
+            typeRefInfos.Add(tr, 0);	// Prevent inf recursion
 
 			bool isOld = PreserveTypeRefRids && mod.ResolveTypeRef(tr.Rid) == tr;
 			var row = isOld ? tablesHeap.TypeRefTable[tr.Rid] : new RawTypeRefRow();
@@ -1085,13 +1060,13 @@ namespace dnlib.DotNet.Writer {
 				Error("TypeSpec is null");
 				return 0;
 			}
-			uint rid;
-			if (typeSpecInfos.TryGetRid(ts, out rid)) {
-				if (rid == 0)
-					Error("TypeSpec {0:X8} has an infinite TypeSig loop", ts.MDToken.Raw);
-				return rid;
-			}
-			typeSpecInfos.Add(ts, 0);	// Prevent inf recursion
+            if (typeSpecInfos.TryGetRid(ts, out uint rid))
+            {
+                if (rid == 0)
+                    Error("TypeSpec {0:X8} has an infinite TypeSig loop", ts.MDToken.Raw);
+                return rid;
+            }
+            typeSpecInfos.Add(ts, 0);	// Prevent inf recursion
 
 			bool isOld = forceIsOld || (PreserveTypeSpecRids && mod.ResolveTypeSpec(ts.Rid) == ts);
 			var row = isOld ? tablesHeap.TypeSpecTable[ts.Rid] : new RawTypeSpecRow();
@@ -1113,11 +1088,10 @@ namespace dnlib.DotNet.Writer {
 				Error("MemberRef is null");
 				return 0;
 			}
-			uint rid;
-			if (memberRefInfos.TryGetRid(mr, out rid))
-				return rid;
+            if (memberRefInfos.TryGetRid(mr, out uint rid))
+                return rid;
 
-			bool isOld = forceIsOld || (PreserveMemberRefRids && mod.ResolveMemberRef(mr.Rid) == mr);
+            bool isOld = forceIsOld || (PreserveMemberRefRids && mod.ResolveMemberRef(mr.Rid) == mr);
 			var row = isOld ? tablesHeap.MemberRefTable[mr.Rid] : new RawMemberRefRow();
 			row.Class = AddMemberRefParent(mr.Class);
 			row.Name = stringsHeap.Add(mr.Name);
@@ -1139,11 +1113,10 @@ namespace dnlib.DotNet.Writer {
 				Error("StandAloneSig is null");
 				return 0;
 			}
-			uint rid;
-			if (standAloneSigInfos.TryGetRid(sas, out rid))
-				return rid;
+            if (standAloneSigInfos.TryGetRid(sas, out uint rid))
+                return rid;
 
-			bool isOld = forceIsOld || (PreserveStandAloneSigRids && mod.ResolveStandAloneSig(sas.Rid) == sas);
+            bool isOld = forceIsOld || (PreserveStandAloneSigRids && mod.ResolveStandAloneSig(sas.Rid) == sas);
 			var row = isOld ? tablesHeap.StandAloneSigTable[sas.Rid] : new RawStandAloneSigRow();
 			row.Signature = GetSignature(sas.Signature);
 
@@ -1177,15 +1150,15 @@ namespace dnlib.DotNet.Writer {
 
 		uint AddStandAloneSig(CallingConventionSig callConvSig, uint origToken) {
 			uint sig = GetSignature(callConvSig);
-			uint otherSig;
-			if (callConvTokenToSignature.TryGetValue(origToken, out otherSig)) {
-				if (sig == otherSig)
-					return MDToken.ToRID(origToken);
-				Warning("Could not preserve StandAloneSig token {0:X8}", origToken);
-				return 0;
-			}
+            if (callConvTokenToSignature.TryGetValue(origToken, out uint otherSig))
+            {
+                if (sig == otherSig)
+                    return MDToken.ToRID(origToken);
+                Warning("Could not preserve StandAloneSig token {0:X8}", origToken);
+                return 0;
+            }
 
-			uint rid = MDToken.ToRID(origToken);
+            uint rid = MDToken.ToRID(origToken);
 			var sas = mod.ResolveStandAloneSig(rid);
 			if (standAloneSigInfos.Exists(sas)) {
 				Warning("StandAloneSig {0:X8} already exists", origToken);
@@ -1223,11 +1196,10 @@ namespace dnlib.DotNet.Writer {
 				Error("MethodSpec is null");
 				return 0;
 			}
-			uint rid;
-			if (methodSpecInfos.TryGetRid(ms, out rid))
-				return rid;
+            if (methodSpecInfos.TryGetRid(ms, out uint rid))
+                return rid;
 
-			bool isOld = forceIsOld || (PreserveMethodSpecRids && mod.ResolveMethodSpec(ms.Rid) == ms);
+            bool isOld = forceIsOld || (PreserveMethodSpecRids && mod.ResolveMethodSpec(ms.Rid) == ms);
 			var row = isOld ? tablesHeap.MethodSpecTable[ms.Rid] : new RawMethodSpecRow();
 			row.Method = AddMethodDefOrRef(ms.Method);
 			row.Instantiation = GetSignature(ms.Instantiation);

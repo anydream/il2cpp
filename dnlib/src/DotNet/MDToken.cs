@@ -25,42 +25,32 @@ namespace dnlib.DotNet {
 		/// </summary>
 		public const int TABLE_SHIFT = 24;
 
-		readonly uint token;
-
-		/// <summary>
+	    /// <summary>
 		/// Returns the table type
 		/// </summary>
-		public Table Table {
-			get { return ToTable(token); }
-		}
+		public Table Table => ToTable(Raw);
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the row id
 		/// </summary>
-		public uint Rid {
-			get { return ToRID(token); }
-		}
+		public uint Rid => ToRID(Raw);
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the raw token
 		/// </summary>
-		public uint Raw {
-			get { return token; }
-		}
+		public uint Raw { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if it's a <c>null</c> token
 		/// </summary>
-		public bool IsNull {
-			get { return Rid == 0; }
-		}
+		public bool IsNull => Rid == 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="token">Raw token</param>
 		public MDToken(uint token) {
-			this.token = token;
+			this.Raw = token;
 		}
 
 		/// <summary>
@@ -129,14 +119,14 @@ namespace dnlib.DotNet {
 		/// Gets the token as a raw 32-bit signed integer
 		/// </summary>
 		public int ToInt32() {
-			return (int)token;
+			return (int)Raw;
 		}
 
 		/// <summary>
 		/// Gets the token as a raw 32-bit unsigned integer
 		/// </summary>
 		public uint ToUInt32() {
-			return token;
+			return Raw;
 		}
 
 		/// <summary>Overloaded operator</summary>
@@ -171,7 +161,7 @@ namespace dnlib.DotNet {
 
 		/// <inheritdoc/>
 		public int CompareTo(MDToken other) {
-			return token.CompareTo(other.token);
+			return Raw.CompareTo(other.Raw);
 		}
 
 		/// <inheritdoc/>
@@ -188,12 +178,12 @@ namespace dnlib.DotNet {
 
 		/// <inheritdoc/>
 		public override int GetHashCode() {
-			return (int)token;
+			return (int)Raw;
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return string.Format("{0:X8}", token);
+			return $"{Raw:X8}";
 		}
 	}
 }

@@ -64,39 +64,29 @@ namespace dnlib.DotNet {
 		/// <summary>
 		/// Gets the <see cref="AssemblyNameComparerFlags.Name"/> bit
 		/// </summary>
-		public bool CompareName {
-			get { return (flags & AssemblyNameComparerFlags.Name) != 0; }
-		}
+		public bool CompareName => (flags & AssemblyNameComparerFlags.Name) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="AssemblyNameComparerFlags.Version"/> bit
 		/// </summary>
-		public bool CompareVersion {
-			get { return (flags & AssemblyNameComparerFlags.Version) != 0; }
-		}
+		public bool CompareVersion => (flags & AssemblyNameComparerFlags.Version) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="AssemblyNameComparerFlags.PublicKeyToken"/> bit
 		/// </summary>
-		public bool ComparePublicKeyToken {
-			get { return (flags & AssemblyNameComparerFlags.PublicKeyToken) != 0; }
-		}
+		public bool ComparePublicKeyToken => (flags & AssemblyNameComparerFlags.PublicKeyToken) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="AssemblyNameComparerFlags.Culture"/> bit
 		/// </summary>
-		public bool CompareCulture {
-			get { return (flags & AssemblyNameComparerFlags.Culture) != 0; }
-		}
+		public bool CompareCulture => (flags & AssemblyNameComparerFlags.Culture) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="AssemblyNameComparerFlags.ContentType"/> bit
 		/// </summary>
-		public bool CompareContentType {
-			get { return (flags & AssemblyNameComparerFlags.ContentType) != 0; }
-		}
+		public bool CompareContentType => (flags & AssemblyNameComparerFlags.ContentType) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="flags">Comparison flags</param>

@@ -29,32 +29,24 @@ namespace dnlib.DotNet.Emit {
 		/// <summary>
 		/// Gets all parameters
 		/// </summary>
-		public IList<Parameter> Parameters {
-			get { return parameters; }
-		}
+		public IList<Parameter> Parameters => parameters;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all locals
 		/// </summary>
-		public IList<Local> Locals {
-			get { return locals; }
-		}
+		public IList<Local> Locals => locals;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all instructions
 		/// </summary>
-		public IList<Instruction> Instructions {
-			get { return instructions; }
-		}
+		public IList<Instruction> Instructions => instructions;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all exception handlers
 		/// </summary>
-		public IList<ExceptionHandler> ExceptionHandlers {
-			get { return exceptionHandlers; }
-		}
+		public IList<ExceptionHandler> ExceptionHandlers => exceptionHandlers;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		protected MethodBodyReaderBase() {
@@ -189,17 +181,19 @@ namespace dnlib.DotNet.Emit {
 			var instr = GetInstruction(offset);
 			if (instr != null)
 				return instr;
-			throw new InvalidOperationException(string.Format("There's no instruction @ {0:X4}", offset));
+			throw new InvalidOperationException($"There's no instruction @ {offset:X4}");
 		}
 
 		/// <summary>
 		/// Reads the next instruction
 		/// </summary>
 		Instruction ReadOneInstruction() {
-			var instr = new Instruction();
-			instr.Offset = currentOffset;
-			instr.OpCode = ReadOpCode();
-			instr.Operand = ReadOperand(instr);
+		    var instr = new Instruction
+		    {
+		        Offset = currentOffset,
+		        OpCode = ReadOpCode()
+		    };
+		    instr.Operand = ReadOperand(instr);
 
 			if (instr.OpCode.Code == Code.Switch) {
 				var targets = (IList<uint>)instr.Operand;

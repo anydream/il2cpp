@@ -36,35 +36,26 @@ namespace dnlib.DotNet.Writer {
 		readonly bool keepMaxStack;
 		uint codeSize;
 		uint maxStack;
-		byte[] code;
-		byte[] extraSections;
-		uint localVarSigTok;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the code as a byte array. This is valid only after calling <see cref="Write()"/>.
 		/// The size of this array is not necessarily a multiple of 4, even if there are exception
 		/// handlers present. See also <see cref="GetFullMethodBody()"/>
 		/// </summary>
-		public byte[] Code {
-			get { return code; }
-		}
+		public byte[] Code { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the extra sections (exception handlers) as a byte array or <c>null</c> if there
 		/// are no exception handlers. This is valid only after calling <see cref="Write()"/>
 		/// </summary>
-		public byte[] ExtraSections {
-			get { return extraSections; }
-		}
+		public byte[] ExtraSections { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the token of the locals
 		/// </summary>
-		public uint LocalVarSigTok {
-			get { return localVarSigTok; }
-		}
+		public uint LocalVarSigTok { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="helper">Helps this instance</param>
@@ -107,11 +98,11 @@ namespace dnlib.DotNet.Writer {
 		/// </summary>
 		/// <returns>The code and any exception handlers</returns>
 		public byte[] GetFullMethodBody() {
-			int padding = Utils.AlignUp(code.Length, 4) - code.Length;
-			var bytes = new byte[code.Length + (extraSections == null ? 0 : padding + extraSections.Length)];
-			Array.Copy(code, 0, bytes, 0, code.Length);
-			if (extraSections != null)
-				Array.Copy(extraSections, 0, bytes, code.Length + padding, extraSections.Length);
+			int padding = Utils.AlignUp(Code.Length, 4) - Code.Length;
+			var bytes = new byte[Code.Length + (padding + ExtraSections?.Length ?? 0)];
+			Array.Copy(Code, 0, bytes, 0, Code.Length);
+			if (ExtraSections != null)
+				Array.Copy(ExtraSections, 0, bytes, Code.Length + padding, ExtraSections.Length);
 			return bytes;
 		}
 
@@ -135,12 +126,12 @@ namespace dnlib.DotNet.Writer {
 			if (cilBody.InitLocals)
 				flags |= 0x10;
 
-			code = new byte[12 + codeSize];
-			var writer = new BinaryWriter(new MemoryStream(code));
+			Code = new byte[12 + codeSize];
+			var writer = new BinaryWriter(new MemoryStream(Code));
 			writer.Write(flags);
 			writer.Write((ushort)maxStack);
 			writer.Write(codeSize);
-			writer.Write(localVarSigTok = helper.GetToken(GetLocals(), cilBody.LocalVarSigTok).Raw);
+			writer.Write(LocalVarSigTok = helper.GetToken(GetLocals(), cilBody.LocalVarSigTok).Raw);
 			if (WriteInstructions(writer) != codeSize)
 				Error("Didn't write all code bytes");
 		}
@@ -153,9 +144,9 @@ namespace dnlib.DotNet.Writer {
 		}
 
 		void WriteTinyHeader() {
-			localVarSigTok = 0;
-			code = new byte[1 + codeSize];
-			var writer = new BinaryWriter(new MemoryStream(code));
+			LocalVarSigTok = 0;
+			Code = new byte[1 + codeSize];
+			var writer = new BinaryWriter(new MemoryStream(Code));
 			writer.Write((byte)((codeSize << 2) | 2));
 			if (WriteInstructions(writer) != codeSize)
 				Error("Didn't write all code bytes");
@@ -168,7 +159,7 @@ namespace dnlib.DotNet.Writer {
 				WriteFatExceptionClauses(writer);
 			else
 				WriteSmallExceptionClauses(writer);
-			extraSections = outStream.ToArray();
+			ExtraSections = outStream.ToArray();
 		}
 
 		bool NeedFatExceptionClauses() {
@@ -212,12 +203,11 @@ namespace dnlib.DotNet.Writer {
 			writer.Write((((uint)numExceptionHandlers * 24 + 4) << 8) | 0x41);
 			for (int i = 0; i < numExceptionHandlers; i++) {
 				var eh = exceptionHandlers[i];
-				uint offs1, offs2;
 
-				writer.Write((uint)eh.HandlerType);
+			    writer.Write((uint)eh.HandlerType);
 
-				offs1 = GetOffset2(eh.TryStart);
-				offs2 = GetOffset2(eh.TryEnd);
+				var offs1 = GetOffset2(eh.TryStart);
+				var offs2 = GetOffset2(eh.TryEnd);
 				if (offs2 <= offs1)
 					Error("Exception handler: TryEnd <= TryStart");
 				writer.Write(offs1);
@@ -250,12 +240,11 @@ namespace dnlib.DotNet.Writer {
 			writer.Write((((uint)numExceptionHandlers * 12 + 4) << 8) | 1);
 			for (int i = 0; i < numExceptionHandlers; i++) {
 				var eh = exceptionHandlers[i];
-				uint offs1, offs2;
 
-				writer.Write((ushort)eh.HandlerType);
+			    writer.Write((ushort)eh.HandlerType);
 
-				offs1 = GetOffset2(eh.TryStart);
-				offs2 = GetOffset2(eh.TryEnd);
+				var offs1 = GetOffset2(eh.TryStart);
+				var offs2 = GetOffset2(eh.TryEnd);
 				if (offs2 <= offs1)
 					Error("Exception handler: TryEnd <= TryStart");
 				writer.Write((ushort)offs1);

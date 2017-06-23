@@ -20,11 +20,9 @@ namespace dnlib.DotNet.MD {
 #endif
 
 		/// <inheritdoc/>
-		public override bool IsCompressed {
-			get { return false; }
-		}
+		public override bool IsCompressed => false;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public ENCMetaData(IPEImage peImage, ImageCor20Header cor20Header, MetaDataHeader mdHeader)
 			: base(peImage, cor20Header, mdHeader) {
 		}
@@ -92,10 +90,8 @@ namespace dnlib.DotNet.MD {
 				}
 			}
 			finally {
-				if (imageStream != null)
-					imageStream.Dispose();
-				if (dns != null)
-					dns.Dispose();
+			    imageStream?.Dispose();
+			    dns?.Dispose();
 			}
 
 			if (tablesStream == null)
@@ -159,8 +155,7 @@ namespace dnlib.DotNet.MD {
 		uint ToFieldRid(uint listRid) {
 			if (!hasFieldPtr)
 				return listRid;
-			uint listValue;
-			return tablesStream.ReadColumn(tablesStream.FieldPtrTable, listRid, 0, out listValue) ? listValue : 0;
+			return tablesStream.ReadColumn(tablesStream.FieldPtrTable, listRid, 0, out uint listValue) ? listValue : 0;
 		}
 
 		/// <summary>
@@ -171,9 +166,8 @@ namespace dnlib.DotNet.MD {
 		uint ToMethodRid(uint listRid) {
 			if (!hasMethodPtr)
 				return listRid;
-			uint listValue;
-			return tablesStream.ReadColumn(tablesStream.MethodPtrTable, listRid, 0, out listValue) ? listValue : 0;
-		}
+            return tablesStream.ReadColumn(tablesStream.MethodPtrTable, listRid, 0, out uint listValue) ? listValue : 0;
+        }
 
 		/// <summary>
 		/// Converts a logical <c>Param</c> rid to a physical <c>Param</c> rid
@@ -183,9 +177,8 @@ namespace dnlib.DotNet.MD {
 		uint ToParamRid(uint listRid) {
 			if (!hasParamPtr)
 				return listRid;
-			uint listValue;
-			return tablesStream.ReadColumn(tablesStream.ParamPtrTable, listRid, 0, out listValue) ? listValue : 0;
-		}
+            return tablesStream.ReadColumn(tablesStream.ParamPtrTable, listRid, 0, out uint listValue) ? listValue : 0;
+        }
 
 		/// <summary>
 		/// Converts a logical <c>Event</c> rid to a physical <c>Event</c> rid
@@ -195,9 +188,8 @@ namespace dnlib.DotNet.MD {
 		uint ToEventRid(uint listRid) {
 			if (!hasEventPtr)
 				return listRid;
-			uint listValue;
-			return tablesStream.ReadColumn(tablesStream.EventPtrTable, listRid, 0, out listValue) ? listValue : 0;
-		}
+            return tablesStream.ReadColumn(tablesStream.EventPtrTable, listRid, 0, out uint listValue) ? listValue : 0;
+        }
 
 		/// <summary>
 		/// Converts a logical <c>Property</c> rid to a physical <c>Property</c> rid
@@ -207,9 +199,8 @@ namespace dnlib.DotNet.MD {
 		uint ToPropertyRid(uint listRid) {
 			if (!hasPropertyPtr)
 				return listRid;
-			uint listValue;
-			return tablesStream.ReadColumn(tablesStream.PropertyPtrTable, listRid, 0, out listValue) ? listValue : 0;
-		}
+            return tablesStream.ReadColumn(tablesStream.PropertyPtrTable, listRid, 0, out uint listValue) ? listValue : 0;
+        }
 
 		/// <inheritdoc/>
 		public override RidList GetFieldRidList(uint typeDefRid) {
@@ -350,14 +341,13 @@ namespace dnlib.DotNet.MD {
 		/// <returns>A new <see cref="RidList"/> instance</returns>
 		RidList GetRidList(MDTable tableSource, uint tableSourceRid, int colIndex, MDTable tableDest) {
 			var column = tableSource.TableInfo.Columns[colIndex];
-			uint startRid, nextListRid;
-			bool hasNext;
+            bool hasNext;
 #if THREAD_SAFE
 			tablesStream.theLock.EnterWriteLock(); try {
 #endif
-			if (!tablesStream.ReadColumn_NoLock(tableSource, tableSourceRid, column, out startRid))
+            if (!tablesStream.ReadColumn_NoLock(tableSource, tableSourceRid, column, out uint startRid))
 				return RidList.Empty;
-			hasNext = tablesStream.ReadColumn_NoLock(tableSource, tableSourceRid + 1, column, out nextListRid);
+			hasNext = tablesStream.ReadColumn_NoLock(tableSource, tableSourceRid + 1, column, out uint nextListRid);
 #if THREAD_SAFE
 			} finally { tablesStream.theLock.ExitWriteLock(); }
 #endif
@@ -378,10 +368,9 @@ namespace dnlib.DotNet.MD {
 			uint ridLo = 1, ridHi = tableSource.Rows;
 			while (ridLo <= ridHi) {
 				uint rid = (ridLo + ridHi) / 2;
-				uint key2;
-				if (!tablesStream.ReadColumn_NoLock(tableSource, rid, keyColumn, out key2))
-					break;	// Never happens since rid is valid
-				if (key == key2)
+                if (!tablesStream.ReadColumn_NoLock(tableSource, rid, keyColumn, out uint key2))
+                    break;  // Never happens since rid is valid
+                if (key == key2)
 					return rid;
 				if (key2 > key)
 					ridHi = rid - 1;
@@ -408,10 +397,9 @@ namespace dnlib.DotNet.MD {
 				return 0;
 			var keyColumn = tableSource.TableInfo.Columns[keyColIndex];
 			for (uint rid = 1; rid <= tableSource.Rows; rid++) {
-				uint key2;
-				if (!tablesStream.ReadColumn_NoLock(tableSource, rid, keyColumn, out key2))
-					break;	// Never happens since rid is valid
-				if (key == key2)
+                if (!tablesStream.ReadColumn_NoLock(tableSource, rid, keyColumn, out uint key2))
+                    break;  // Never happens since rid is valid
+                if (key == key2)
 					return rid;
 			}
 			return 0;
@@ -421,16 +409,15 @@ namespace dnlib.DotNet.MD {
 		protected override RidList FindAllRowsUnsorted(MDTable tableSource, int keyColIndex, uint key) {
 			if (tablesStream.IsSorted(tableSource))
 				return FindAllRows(tableSource, keyColIndex, key);
-			SortedTable sortedTable;
 #if THREAD_SAFE
 			theLock.EnterWriteLock(); try {
 #endif
-			if (!sortedTables.TryGetValue(tableSource.Table, out sortedTable))
-				sortedTables[tableSource.Table] = sortedTable = new SortedTable(tableSource, keyColIndex);
+            if (!sortedTables.TryGetValue(tableSource.Table, out SortedTable sortedTable))
+                sortedTables[tableSource.Table] = sortedTable = new SortedTable(tableSource, keyColIndex);
 #if THREAD_SAFE
 			} finally { theLock.ExitWriteLock(); }
 #endif
-			return sortedTable.FindAllRows(key);
+            return sortedTable.FindAllRows(key);
 		}
 	}
 }

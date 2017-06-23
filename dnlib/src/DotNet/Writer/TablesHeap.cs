@@ -53,23 +53,13 @@ namespace dnlib.DotNet.Writer {
 		uint length;
 		byte majorVersion;
 		byte minorVersion;
-		bool bigStrings;
-		bool bigGuid;
-		bool bigBlob;
-		bool hasDeletedRows;
-		readonly TablesHeapOptions options;
-		FileOffset offset;
-		RVA rva;
+	    readonly TablesHeapOptions options;
 
-		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
 #pragma warning disable 1591	// XML doc comment
 		public readonly MDTable<RawModuleRow> ModuleTable = new MDTable<RawModuleRow>(Table.Module, RawRowEqualityComparer.Instance);
@@ -125,23 +115,19 @@ namespace dnlib.DotNet.Writer {
 		public readonly IMDTable[] Tables;
 
 		/// <inheritdoc/>
-		public string Name {
-			get { return IsENC ? "#-" : "#~"; }
-		}
+		public string Name => IsENC ? "#-" : "#~";
 
-		/// <inheritdoc/>
-		public bool IsEmpty {
-			get { return false; }
-		}
+	    /// <inheritdoc/>
+		public bool IsEmpty => false;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if the Edit 'N Continue name will be used (#-)
 		/// </summary>
 		public bool IsENC {
 			get {
 				if (options.UseENC.HasValue)
 					return options.UseENC.Value;
-				return hasDeletedRows ||
+				return HasDeletedRows ||
 						!FieldPtrTable.IsEmpty ||
 						!MethodPtrTable.IsEmpty ||
 						!ParamPtrTable.IsEmpty ||
@@ -170,36 +156,24 @@ namespace dnlib.DotNet.Writer {
 		/// <c>true</c> if any rows have been deleted (eg. a deleted TypeDef, Method, Field, etc.
 		/// Its name has been renamed to _Deleted).
 		/// </summary>
-		public bool HasDeletedRows {
-			get { return hasDeletedRows; }
-			set { hasDeletedRows = value; }
-		}
+		public bool HasDeletedRows { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if #Strings heap size > <c>0xFFFF</c>
 		/// </summary>
-		public bool BigStrings {
-			get { return bigStrings; }
-			set { bigStrings = value; }
-		}
+		public bool BigStrings { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if #GUID heap size > <c>0xFFFF</c>
 		/// </summary>
-		public bool BigGuid {
-			get { return bigGuid; }
-			set { bigGuid = value; }
-		}
+		public bool BigGuid { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if #Blob heap size > <c>0xFFFF</c>
 		/// </summary>
-		public bool BigBlob {
-			get { return bigBlob; }
-			set { bigBlob = value; }
-		}
+		public bool BigBlob { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public TablesHeap()
@@ -212,7 +186,7 @@ namespace dnlib.DotNet.Writer {
 		/// <param name="options">Options</param>
 		public TablesHeap(TablesHeapOptions options) {
 			this.options = options ?? new TablesHeapOptions();
-			this.hasDeletedRows = this.options.HasDeletedRows ?? false;
+			this.HasDeletedRows = this.options.HasDeletedRows ?? false;
 			this.Tables = new IMDTable[] {
 				ModuleTable,
 				TypeRefTable,
@@ -270,8 +244,8 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 		}
 
 		/// <inheritdoc/>
@@ -304,7 +278,7 @@ namespace dnlib.DotNet.Writer {
 
 			var dnTableSizes = new DotNetTableSizes();
 			var tableInfos = dnTableSizes.CreateTables(majorVersion, minorVersion);
-			dnTableSizes.InitializeSizes(bigStrings, bigGuid, bigBlob, GetRowCounts());
+			dnTableSizes.InitializeSizes(BigStrings, BigGuid, BigBlob, GetRowCounts());
 			for (int i = 0; i < Tables.Length; i++)
 				Tables[i].TableInfo = tableInfos[i];
 
@@ -391,15 +365,15 @@ namespace dnlib.DotNet.Writer {
 
 		MDStreamFlags GetMDStreamFlags() {
 			MDStreamFlags flags = 0;
-			if (bigStrings)
+			if (BigStrings)
 				flags |= MDStreamFlags.BigStrings;
-			if (bigGuid)
+			if (BigGuid)
 				flags |= MDStreamFlags.BigGUID;
-			if (bigBlob)
+			if (BigBlob)
 				flags |= MDStreamFlags.BigBlob;
 			if (options.ExtraData.HasValue)
 				flags |= MDStreamFlags.ExtraData;
-			if (hasDeletedRows)
+			if (HasDeletedRows)
 				flags |= MDStreamFlags.HasDelete;
 			return flags;
 		}

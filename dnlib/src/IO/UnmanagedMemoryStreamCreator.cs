@@ -10,47 +10,29 @@ namespace dnlib.IO {
 	/// unmanaged memory range
 	/// </summary>
 	/// <seealso cref="MemoryStreamCreator"/>
-	[DebuggerDisplay("mem: D:{data} L:{dataLength} {theFileName}")]
+	[DebuggerDisplay("mem: D:{data} L:{Length} {FileName}")]
 	class UnmanagedMemoryStreamCreator : IImageStreamCreator {
 		/// <summary>
 		/// Address of data
 		/// </summary>
 		protected IntPtr data;
 
-		/// <summary>
-		/// Length of data
-		/// </summary>
-		protected long dataLength;
-
-		/// <summary>
-		/// Name of file
-		/// </summary>
-		protected string theFileName;
-
-		/// <summary>
+	    /// <summary>
 		/// The file name
 		/// </summary>
-		public string FileName {
-			get { return theFileName; }
-			set { theFileName = value; }
-		}
+		public string FileName { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Size of the data
 		/// </summary>
-		public long Length {
-			get { return dataLength; }
-			set { dataLength = value; }
-		}
+		public long Length { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the base address of the data
 		/// </summary>
-		public IntPtr Address {
-			get { return data; }
-		}
+		public IntPtr Address => data;
 
-		public IntPtr UnsafeUseAddress {
+	    public IntPtr UnsafeUseAddress {
 			get {
 				unsafeUseAddress = true;
 				return data;
@@ -80,9 +62,9 @@ namespace dnlib.IO {
 		/// <exception cref="ArgumentOutOfRangeException">If one of the args is invalid</exception>
 		public UnmanagedMemoryStreamCreator(IntPtr data, long dataLength) {
 			if (dataLength < 0)
-				throw new ArgumentOutOfRangeException("dataLength");
+				throw new ArgumentOutOfRangeException(nameof(dataLength));
 			this.data = data;
-			this.dataLength = dataLength;
+			this.Length = dataLength;
 		}
 
 		/// <inheritdoc/>
@@ -90,14 +72,14 @@ namespace dnlib.IO {
 			if (offset < 0 || length < 0)
 				return MemoryImageStream.CreateEmpty();
 
-			long offs = Math.Min((long)dataLength, (long)offset);
-			long len = Math.Min((long)dataLength - offs, length);
+			long offs = Math.Min((long)Length, (long)offset);
+			long len = Math.Min((long)Length - offs, length);
 			return new UnmanagedMemoryImageStream(this, offset, offs, len);
 		}
 
 		/// <inheritdoc/>
 		public IImageStream CreateFull() {
-			return new UnmanagedMemoryImageStream(this, 0, 0, dataLength);
+			return new UnmanagedMemoryImageStream(this, 0, 0, Length);
 		}
 
 		/// <inheritdoc/>
@@ -113,8 +95,8 @@ namespace dnlib.IO {
 		protected virtual void Dispose(bool disposing) {
 			if (disposing) {
 				data = IntPtr.Zero;
-				dataLength = 0;
-				theFileName = null;
+				Length = 0;
+				FileName = null;
 			}
 		}
 	}

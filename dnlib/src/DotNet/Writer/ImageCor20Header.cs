@@ -71,9 +71,7 @@ namespace dnlib.DotNet.Writer {
 	/// .NET header
 	/// </summary>
 	public sealed class ImageCor20Header : IChunk {
-		FileOffset offset;
-		RVA rva;
-		Cor20HeaderOptions options;
+	    Cor20HeaderOptions options;
 
 		/// <summary>
 		/// Gets/sets the <see cref="MetaData"/>
@@ -91,16 +89,12 @@ namespace dnlib.DotNet.Writer {
 		public StrongNameSignature StrongNameSignature { get; set; }
 
 		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="options">Options</param>
@@ -110,8 +104,8 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 		}
 
 		/// <inheritdoc/>

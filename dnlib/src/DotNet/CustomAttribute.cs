@@ -16,27 +16,20 @@ namespace dnlib.DotNet {
 	/// A custom attribute
 	/// </summary>
 	public sealed class CustomAttribute : ICustomAttribute {
-		ICustomAttributeType ctor;
-		byte[] rawData;
-		readonly ThreadSafe.IList<CAArgument> arguments;
-		readonly ThreadSafe.IList<CANamedArgument> namedArguments;
-		IBinaryReader blobReader;
+	    IBinaryReader blobReader;
 
 		/// <summary>
 		/// Gets/sets the custom attribute constructor
 		/// </summary>
-		public ICustomAttributeType Constructor {
-			get { return ctor; }
-			set { ctor = value; }
-		}
+		public ICustomAttributeType Constructor { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the attribute type
 		/// </summary>
 		public ITypeDefOrRef AttributeType {
 			get {
-				var cat = ctor;
-				return cat == null ? null : cat.DeclaringType;
+				var cat = Constructor;
+				return cat?.DeclaringType;
 			}
 		}
 
@@ -45,69 +38,51 @@ namespace dnlib.DotNet {
 		/// </summary>
 		public string TypeFullName {
 			get {
-				var mrCtor = ctor as MemberRef;
-				if (mrCtor != null)
-					return mrCtor.GetDeclaringTypeFullName() ?? string.Empty;
+                if (Constructor is MemberRef mrCtor)
+                    return mrCtor.GetDeclaringTypeFullName() ?? string.Empty;
 
-				var mdCtor = ctor as MethodDef;
-				if (mdCtor != null) {
-					var declType = mdCtor.DeclaringType;
-					if (declType != null)
-						return declType.FullName;
-				}
-
-				return string.Empty;
+                var mdCtor = Constructor as MethodDef;
+			    var declType = mdCtor?.DeclaringType;
+			    return declType != null ? declType.FullName : string.Empty;
 			}
 		}
 
 		/// <summary>
 		/// <c>true</c> if the raw custom attribute blob hasn't been parsed
 		/// </summary>
-		public bool IsRawBlob {
-			get { return rawData != null; }
-		}
+		public bool IsRawBlob => RawData != null;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the raw custom attribute blob or <c>null</c> if the CA was successfully parsed.
 		/// </summary>
-		public byte[] RawData {
-			get { return rawData; }
-		}
+		public byte[] RawData { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all constructor arguments
 		/// </summary>
-		public ThreadSafe.IList<CAArgument> ConstructorArguments {
-			get { return arguments; }
-		}
+		public ThreadSafe.IList<CAArgument> ConstructorArguments { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="ConstructorArguments"/> is not empty
 		/// </summary>
-		public bool HasConstructorArguments {
-			get { return arguments.Count > 0; }
-		}
+		public bool HasConstructorArguments => ConstructorArguments.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all named arguments (field and property values)
 		/// </summary>
-		public ThreadSafe.IList<CANamedArgument> NamedArguments {
-			get { return namedArguments; }
-		}
+		public ThreadSafe.IList<CANamedArgument> NamedArguments { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="NamedArguments"/> is not empty
 		/// </summary>
-		public bool HasNamedArguments {
-			get { return namedArguments.Count > 0; }
-		}
+		public bool HasNamedArguments => NamedArguments.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all <see cref="CANamedArgument"/>s that are field arguments
 		/// </summary>
 		public IEnumerable<CANamedArgument> Fields {
 			get {
-				foreach (var namedArg in namedArguments.GetSafeEnumerable()) {
+				foreach (var namedArg in NamedArguments.GetSafeEnumerable()) {
 					if (namedArg.IsField)
 						yield return namedArg;
 				}
@@ -119,7 +94,7 @@ namespace dnlib.DotNet {
 		/// </summary>
 		public IEnumerable<CANamedArgument> Properties {
 			get {
-				foreach (var namedArg in namedArguments.GetSafeEnumerable()) {
+				foreach (var namedArg in NamedArguments.GetSafeEnumerable()) {
 					if (namedArg.IsProperty)
 						yield return namedArg;
 				}
@@ -133,7 +108,7 @@ namespace dnlib.DotNet {
 		/// <param name="rawData">Raw custom attribute blob</param>
 		public CustomAttribute(ICustomAttributeType ctor, byte[] rawData)
 			: this(ctor, null, null, null) {
-			this.rawData = rawData;
+			this.RawData = rawData;
 		}
 
 		/// <summary>
@@ -180,9 +155,9 @@ namespace dnlib.DotNet {
 		/// <param name="namedArguments">Named arguments or <c>null</c> if none</param>
 		/// <param name="blobReader">A reader that returns the original custom attribute blob data</param>
 		public CustomAttribute(ICustomAttributeType ctor, IEnumerable<CAArgument> arguments, IEnumerable<CANamedArgument> namedArguments, IBinaryReader blobReader) {
-			this.ctor = ctor;
-			this.arguments = arguments == null ? ThreadSafeListCreator.Create<CAArgument>() : ThreadSafeListCreator.Create<CAArgument>(arguments);
-			this.namedArguments = namedArguments == null ? ThreadSafeListCreator.Create<CANamedArgument>() : ThreadSafeListCreator.Create<CANamedArgument>(namedArguments);
+			this.Constructor = ctor;
+			this.ConstructorArguments = arguments == null ? ThreadSafeListCreator.Create<CAArgument>() : ThreadSafeListCreator.Create<CAArgument>(arguments);
+			this.NamedArguments = namedArguments == null ? ThreadSafeListCreator.Create<CANamedArgument>() : ThreadSafeListCreator.Create<CANamedArgument>(namedArguments);
 			this.blobReader = blobReader;
 		}
 
@@ -194,9 +169,9 @@ namespace dnlib.DotNet {
 		/// <param name="namedArguments">Named arguments. The list is now owned by this instance.</param>
 		/// <param name="blobReader">A reader that returns the original custom attribute blob data</param>
 		internal CustomAttribute(ICustomAttributeType ctor, List<CAArgument> arguments, List<CANamedArgument> namedArguments, IBinaryReader blobReader) {
-			this.ctor = ctor;
-			this.arguments = arguments == null ? ThreadSafeListCreator.Create<CAArgument>() : ThreadSafeListCreator.MakeThreadSafe(arguments);
-			this.namedArguments = namedArguments == null ? ThreadSafeListCreator.Create<CANamedArgument>() : ThreadSafeListCreator.MakeThreadSafe(namedArguments);
+			this.Constructor = ctor;
+			this.ConstructorArguments = arguments == null ? ThreadSafeListCreator.Create<CAArgument>() : ThreadSafeListCreator.MakeThreadSafe(arguments);
+			this.NamedArguments = namedArguments == null ? ThreadSafeListCreator.Create<CANamedArgument>() : ThreadSafeListCreator.MakeThreadSafe(namedArguments);
 			this.blobReader = blobReader;
 		}
 
@@ -243,7 +218,7 @@ namespace dnlib.DotNet {
 		/// <param name="isField"><c>true</c> if it's a field, <c>false</c> if it's a property</param>
 		/// <returns>A <see cref="CANamedArgument"/> instance or <c>null</c> if not found</returns>
 		public CANamedArgument GetNamedArgument(string name, bool isField) {
-			foreach (var namedArg in namedArguments.GetSafeEnumerable()) {
+			foreach (var namedArg in NamedArguments.GetSafeEnumerable()) {
 				if (namedArg.IsField == isField && UTF8String.ToSystemStringOrEmpty(namedArg.Name) == name)
 					return namedArg;
 			}
@@ -257,7 +232,7 @@ namespace dnlib.DotNet {
 		/// <param name="isField"><c>true</c> if it's a field, <c>false</c> if it's a property</param>
 		/// <returns>A <see cref="CANamedArgument"/> instance or <c>null</c> if not found</returns>
 		public CANamedArgument GetNamedArgument(UTF8String name, bool isField) {
-			foreach (var namedArg in namedArguments.GetSafeEnumerable()) {
+			foreach (var namedArg in NamedArguments.GetSafeEnumerable()) {
 				if (namedArg.IsField == isField && UTF8String.Equals(namedArg.Name, name))
 					return namedArg;
 			}
@@ -269,8 +244,8 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <returns>Blob of this custom attribute</returns>
 		public byte[] GetBlob() {
-			if (rawData != null)
-				return rawData;
+			if (RawData != null)
+				return RawData;
 			if (blob != null)
 				return blob;
 #if THREAD_SAFE
@@ -303,32 +278,23 @@ namespace dnlib.DotNet {
 	/// A custom attribute constructor argument
 	/// </summary>
 	public struct CAArgument : ICloneable {
-		TypeSig type;
-		object value;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the argument type
 		/// </summary>
-		public TypeSig Type {
-			get { return type; }
-			set { type = value; }
-		}
+		public TypeSig Type { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the argument value
 		/// </summary>
-		public object Value {
-			get { return value; }
-			set { this.value = value; }
-		}
+		public object Value { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="type">Argument type</param>
 		public CAArgument(TypeSig type) {
-			this.type = type;
-			this.value = null;
+			this.Type = type;
+			this.Value = null;
 		}
 
 		/// <summary>
@@ -337,8 +303,8 @@ namespace dnlib.DotNet {
 		/// <param name="type">Argument type</param>
 		/// <param name="value">Argument value</param>
 		public CAArgument(TypeSig type, object value) {
-			this.type = type;
-			this.value = value;
+			this.Type = type;
+			this.Value = value;
 		}
 
 		object ICloneable.Clone() {
@@ -351,23 +317,23 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <returns></returns>
 		public CAArgument Clone() {
-			var value = this.value;
+			var value = this.Value;
 			if (value is CAArgument)
 				value = ((CAArgument)value).Clone();
-			else if (value is IList<CAArgument>) {
-				var args = (IList<CAArgument>)value;
-				var newArgs = ThreadSafeListCreator.Create<CAArgument>(args.Count);
-				foreach (var arg in args.GetSafeEnumerable())
-					newArgs.Add(arg.Clone());
-				value = newArgs;
-			}
-			return new CAArgument(type, value);
+			else if (value is IList<CAArgument> args)
+            {
+                var newArgs = ThreadSafeListCreator.Create<CAArgument>(args.Count);
+                foreach (var arg in args.GetSafeEnumerable())
+                    newArgs.Add(arg.Clone());
+                value = newArgs;
+            }
+            return new CAArgument(Type, value);
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			object v = value;
-			return string.Format("{0} ({1})", v == null ? "null" : v, type);
+			object v = Value;
+			return $"{v ?? "null"} ({Type})";
 		}
 	}
 
@@ -375,65 +341,53 @@ namespace dnlib.DotNet {
 	/// A custom attribute field/property argument
 	/// </summary>
 	public sealed class CANamedArgument : ICloneable {
-		bool isField;
-		TypeSig type;
-		UTF8String name;
-		CAArgument argument;
+	    CAArgument argument;
 
 		/// <summary>
 		/// <c>true</c> if it's a field
 		/// </summary>
-		public bool IsField {
-			get { return isField; }
-			set { isField = value; }
-		}
+		public bool IsField { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if it's a property
 		/// </summary>
 		public bool IsProperty {
-			get { return !isField; }
-			set { isField = !value; }
-		}
+			get => !IsField;
+	        set => IsField = !value;
+	    }
 
 		/// <summary>
 		/// Gets/sets the field/property type
 		/// </summary>
-		public TypeSig Type {
-			get { return type; }
-			set { type = value; }
-		}
+		public TypeSig Type { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the property/field name
 		/// </summary>
-		public UTF8String Name {
-			get { return name; }
-			set { name = value; }
-		}
+		public UTF8String Name { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the argument
 		/// </summary>
 		public CAArgument Argument {
-			get { return argument; }
-			set { argument = value; }
-		}
+			get => argument;
+	        set => argument = value;
+	    }
 
 		/// <summary>
 		/// Gets/sets the argument type
 		/// </summary>
 		public TypeSig ArgumentType {
-			get { return argument.Type; }
-			set { argument.Type = value; }
+			get => argument.Type;
+		    set => argument.Type = value;
 		}
 
 		/// <summary>
 		/// Gets/sets the argument value
 		/// </summary>
 		public object Value {
-			get { return argument.Value; }
-			set { argument.Value = value; }
+			get => argument.Value;
+		    set => argument.Value = value;
 		}
 
 		/// <summary>
@@ -447,7 +401,7 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="isField"><c>true</c> if field, <c>false</c> if property</param>
 		public CANamedArgument(bool isField) {
-			this.isField = isField;
+			this.IsField = isField;
 		}
 
 		/// <summary>
@@ -456,8 +410,8 @@ namespace dnlib.DotNet {
 		/// <param name="isField"><c>true</c> if field, <c>false</c> if property</param>
 		/// <param name="type">Field/property type</param>
 		public CANamedArgument(bool isField, TypeSig type) {
-			this.isField = isField;
-			this.type = type;
+			this.IsField = isField;
+			this.Type = type;
 		}
 
 		/// <summary>
@@ -467,9 +421,9 @@ namespace dnlib.DotNet {
 		/// <param name="type">Field/property type</param>
 		/// <param name="name">Name of field/property</param>
 		public CANamedArgument(bool isField, TypeSig type, UTF8String name) {
-			this.isField = isField;
-			this.type = type;
-			this.name = name;
+			this.IsField = isField;
+			this.Type = type;
+			this.Name = name;
 		}
 
 		/// <summary>
@@ -480,9 +434,9 @@ namespace dnlib.DotNet {
 		/// <param name="name">Name of field/property</param>
 		/// <param name="argument">Field/property argument</param>
 		public CANamedArgument(bool isField, TypeSig type, UTF8String name, CAArgument argument) {
-			this.isField = isField;
-			this.type = type;
-			this.name = name;
+			this.IsField = isField;
+			this.Type = type;
+			this.Name = name;
 			this.argument = argument;
 		}
 
@@ -495,13 +449,13 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <returns></returns>
 		public CANamedArgument Clone() {
-			return new CANamedArgument(isField, type, name, argument.Clone());
+			return new CANamedArgument(IsField, Type, Name, argument.Clone());
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
 			object v = Value;
-			return string.Format("({0}) {1} {2} = {3} ({4})", isField ? "field" : "property", type, name, v == null ? "null" : v, ArgumentType);
+			return $"({(IsField ? "field" : "property")}) {Type} {Name} = {v ?? "null"} ({ArgumentType})";
 		}
 	}
 }

@@ -254,7 +254,7 @@ using dnlib.PE;
 			var table = MethodTable;
 			if (table.IsInvalidRID(rid))
 				return null;
-			var mrr = methodRowReader;
+			var mrr = MethodRowReader;
 			if (mrr != null) {
 				var row = mrr.ReadRow(rid);
 				if (row != null)
@@ -287,7 +287,7 @@ using dnlib.PE;
 		/// <returns></returns>
 		internal uint ReadMethodRow(uint rid, out RVA rva, out int implFlags, out int flags, out uint name) {
 			var table = MethodTable;
-			var mrr = methodRowReader;
+			var mrr = MethodRowReader;
 			if (mrr != null) {
 				var row = mrr.ReadRow(rid);
 				if (row != null) {
@@ -1715,7 +1715,7 @@ using dnlib.PE;
 				value = 0;
 				return false;
 			}
-			var cr = columnReader;
+			var cr = ColumnReader;
 			if (cr != null && cr.ReadColumn(table, rid, column, out value))
 				return true;
 #if THREAD_SAFE
@@ -1743,7 +1743,7 @@ using dnlib.PE;
 				value = 0;
 				return false;
 			}
-			var cr = columnReader;
+			var cr = ColumnReader;
 			if (cr != null && cr.ReadColumn(table, rid, column, out value))
 				return true;
 			var reader = GetReader_NoLock(table, rid);

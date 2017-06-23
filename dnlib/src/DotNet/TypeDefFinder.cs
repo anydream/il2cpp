@@ -49,8 +49,8 @@ namespace dnlib.DotNet {
 		}
 
 		bool IsCacheEnabled_NoLock {
-			get { return isCacheEnabled; }
-			set {
+			get => isCacheEnabled;
+		    set {
 				if (isCacheEnabled == value)
 					return;
 
@@ -87,9 +87,7 @@ namespace dnlib.DotNet {
 		/// from <paramref name="rootTypes"/> should also be included.</param>
 		/// <exception cref="ArgumentNullException">If <paramref name="rootTypes"/> is <c>null</c></exception>
 		public TypeDefFinder(IEnumerable<TypeDef> rootTypes, bool includeNestedTypes) {
-			if (rootTypes == null)
-				throw new ArgumentNullException("rootTypes");
-			this.rootTypes = rootTypes;
+		    this.rootTypes = rootTypes ?? throw new ArgumentNullException(nameof(rootTypes));
 			this.includeNestedTypes = includeNestedTypes;
 		}
 
@@ -146,12 +144,11 @@ namespace dnlib.DotNet {
 		}
 
 		TypeDef FindCache(TypeRef typeRef) {
-			TypeDef cachedType;
-			if (typeRefCache.TryGetValue(typeRef, out cachedType))
-				return cachedType;
+            if (typeRefCache.TryGetValue(typeRef, out TypeDef cachedType))
+                return cachedType;
 
-			// Build the cache lazily
-			var comparer = new SigComparer(TypeComparerOptions);
+            // Build the cache lazily
+            var comparer = new SigComparer(TypeComparerOptions);
 			while (true) {
 				cachedType = GetNextTypeDefCache();
 				if (cachedType == null || comparer.Equals(cachedType, typeRef))
@@ -160,12 +157,11 @@ namespace dnlib.DotNet {
 		}
 
 		TypeDef FindCacheReflection(string fullName) {
-			TypeDef cachedType;
-			if (reflectionNameCache.TryGetValue(fullName, out cachedType))
-				return cachedType;
+            if (reflectionNameCache.TryGetValue(fullName, out TypeDef cachedType))
+                return cachedType;
 
-			// Build the cache lazily
-			while (true) {
+            // Build the cache lazily
+            while (true) {
 				cachedType = GetNextTypeDefCache();
 				if (cachedType == null)
 					return cachedType;
@@ -176,12 +172,11 @@ namespace dnlib.DotNet {
 		}
 
 		TypeDef FindCacheNormal(string fullName) {
-			TypeDef cachedType;
-			if (normalNameCache.TryGetValue(fullName, out cachedType))
-				return cachedType;
+            if (normalNameCache.TryGetValue(fullName, out TypeDef cachedType))
+                return cachedType;
 
-			// Build the cache lazily
-			while (true) {
+            // Build the cache lazily
+            while (true) {
 				cachedType = GetNextTypeDefCache();
 				if (cachedType == null)
 					return cachedType;
@@ -270,9 +265,8 @@ namespace dnlib.DotNet {
 #if THREAD_SAFE
 			theLock.EnterWriteLock(); try {
 #endif
-			if (typeEnumerator != null)
-				typeEnumerator.Dispose();
-			typeEnumerator = null;
+		    typeEnumerator?.Dispose();
+		    typeEnumerator = null;
 			typeRefCache = null;
 			normalNameCache = null;
 			reflectionNameCache = null;

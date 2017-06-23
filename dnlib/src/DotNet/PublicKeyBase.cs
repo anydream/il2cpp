@@ -13,31 +13,25 @@
 		/// <summary>
 		/// Returns <c>true</c> if <see cref="Data"/> is <c>null</c> or empty
 		/// </summary>
-		public bool IsNullOrEmpty {
-			get { return IsNullOrEmpty_NoLock; }
-		}
+		public bool IsNullOrEmpty => IsNullOrEmpty_NoLock;
 
-		/// <summary>
+	    /// <summary>
 		/// The unlocked version of <see cref="IsNullOrEmpty"/>.
 		/// </summary>
-		protected bool IsNullOrEmpty_NoLock {
-			get { return data == null || data.Length == 0; }
-		}
+		protected bool IsNullOrEmpty_NoLock => data == null || data.Length == 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="Data"/> is <c>null</c>
 		/// </summary>
-		public bool IsNull {
-			get { return Data == null; }
-		}
+		public bool IsNull => Data == null;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets key data
 		/// </summary>
 		public virtual byte[] Data {
-			get { return data; }
-			set { data = value; }
-		}
+			get => data;
+	        set => data = value;
+	    }
 
 		/// <summary>
 		/// Gets the <see cref="PublicKeyToken"/>
@@ -86,13 +80,10 @@
 		/// </summary>
 		/// <param name="pkb">A <see cref="PublicKey"/> or a <see cref="PublicKeyToken"/> instance</param>
 		public static PublicKeyToken ToPublicKeyToken(PublicKeyBase pkb) {
-			var pkt = pkb as PublicKeyToken;
-			if (pkt != null)
-				return pkt;
-			var pk = pkb as PublicKey;
-			if (pk != null)
-				return pk.Token;
-			return null;
+            if (pkb is PublicKeyToken pkt)
+                return pkt;
+            var pk = pkb as PublicKey;
+		    return pk?.Token;
 		}
 
 		/// <summary>
@@ -101,10 +92,9 @@
 		/// <param name="a">First</param>
 		/// <param name="b">Second</param>
 		/// <returns>&lt; 0 if a &lt; b, 0 if a == b, &gt; 0 if a &gt; b</returns>
-		public static int TokenCompareTo(PublicKeyBase a, PublicKeyBase b) {
-			if (a == b)
-				return 0;
-			return TokenCompareTo(ToPublicKeyToken(a), ToPublicKeyToken(b));
+		public static int TokenCompareTo(PublicKeyBase a, PublicKeyBase b)
+		{
+		    return a == b ? 0 : TokenCompareTo(ToPublicKeyToken(a), ToPublicKeyToken(b));
 		}
 
 		/// <summary>
@@ -124,10 +114,9 @@
 		/// <param name="a">First</param>
 		/// <param name="b">Second</param>
 		/// <returns>&lt; 0 if a &lt; b, 0 if a == b, &gt; 0 if a &gt; b</returns>
-		public static int TokenCompareTo(PublicKeyToken a, PublicKeyToken b) {
-			if (a == b)
-				return 0;
-			return TokenCompareTo(a == null ? null : a.Data, b == null ? null : b.Data);
+		public static int TokenCompareTo(PublicKeyToken a, PublicKeyToken b)
+		{
+		    return Equals(a, b) ? 0 : TokenCompareTo(a?.Data, b?.Data);
 		}
 
 		static int TokenCompareTo(byte[] a, byte[] b) {
@@ -158,10 +147,9 @@
 		/// </summary>
 		/// <param name="a">Public key token</param>
 		/// <returns>The hash code</returns>
-		public static int GetHashCode(PublicKeyToken a) {
-			if (a == null)
-				return 0;
-			return Utils.GetHashCode(a.Data);
+		public static int GetHashCode(PublicKeyToken a)
+		{
+		    return a == null ? 0 : Utils.GetHashCode(a.Data);
 		}
 
 		/// <summary>
@@ -170,10 +158,9 @@
 		/// <param name="data">Public key data or <c>null</c></param>
 		/// <returns>A new <see cref="PublicKey"/> instance or <c>null</c> if <paramref name="data"/>
 		/// was <c>null</c></returns>
-		public static PublicKey CreatePublicKey(byte[] data) {
-			if (data == null)
-				return null;
-			return new PublicKey(data);
+		public static PublicKey CreatePublicKey(byte[] data)
+		{
+		    return data == null ? null : new PublicKey(data);
 		}
 
 		/// <summary>
@@ -182,10 +169,9 @@
 		/// <param name="data">Public key token data or <c>null</c></param>
 		/// <returns>A new <see cref="PublicKeyToken"/> instance or <c>null</c> if <paramref name="data"/>
 		/// was <c>null</c></returns>
-		public static PublicKeyToken CreatePublicKeyToken(byte[] data) {
-			if (data == null)
-				return null;
-			return new PublicKeyToken(data);
+		public static PublicKeyToken CreatePublicKeyToken(byte[] data)
+		{
+		    return data == null ? null : new PublicKeyToken(data);
 		}
 
 		/// <summary>
@@ -194,17 +180,14 @@
 		/// <param name="pkb">The instance or <c>null</c></param>
 		/// <returns>Raw public key / public key token data or <c>null</c></returns>
 		public static byte[] GetRawData(PublicKeyBase pkb) {
-			if (pkb == null)
-				return null;
-			return pkb.Data;
+		    return pkb?.Data;
 		}
 
 		/// <inheritdoc/>
-		public override string ToString() {
-			var d = Data;
-			if (d == null || d.Length == 0)
-				return "null";
-			return Utils.ToHex(d, false);
+		public override string ToString()
+		{
+		    var d = Data;
+		    return d == null || d.Length == 0 ? "null" : Utils.ToHex(d, false);
 		}
 	}
 }

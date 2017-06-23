@@ -9,27 +9,21 @@ namespace dnlib.IO {
 	/// Creates <see cref="MemoryStream"/>s to partially access a byte[]
 	/// </summary>
 	/// <seealso cref="UnmanagedMemoryStreamCreator"/>
-	[DebuggerDisplay("byte[]: O:{dataOffset} L:{dataLength} {theFileName}")]
+	[DebuggerDisplay("byte[]: O:{dataOffset} L:{dataLength} {FileName}")]
 	sealed class MemoryStreamCreator : IImageStreamCreator {
 		byte[] data;
 		int dataOffset;
 		int dataLength;
-		string theFileName;
 
-		/// <summary>
+	    /// <summary>
 		/// The file name
 		/// </summary>
-		public string FileName {
-			get { return theFileName; }
-			set { theFileName = value; }
-		}
+		public string FileName { get; set; }
 
-		/// <inheritdoc/>
-		public long Length {
-			get { return dataLength; }
-		}
+	    /// <inheritdoc/>
+		public long Length => dataLength;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="data">The data</param>
@@ -46,11 +40,11 @@ namespace dnlib.IO {
 		/// <exception cref="ArgumentOutOfRangeException">If one of the args is invalid</exception>
 		public MemoryStreamCreator(byte[] data, int offset, int length) {
 			if (offset < 0)
-				throw new ArgumentOutOfRangeException("offset");
+				throw new ArgumentOutOfRangeException(nameof(offset));
 			if (length < 0 || offset + length < offset)
-				throw new ArgumentOutOfRangeException("length");
+				throw new ArgumentOutOfRangeException(nameof(length));
 			if (offset + length > data.Length)
-				throw new ArgumentOutOfRangeException("length");
+				throw new ArgumentOutOfRangeException(nameof(length));
 			this.data = data;
 			this.dataOffset = offset;
 			this.dataLength = length;
@@ -76,7 +70,7 @@ namespace dnlib.IO {
 			data = null;
 			dataOffset = 0;
 			dataLength = 0;
-			theFileName = null;
+			FileName = null;
 		}
 	}
 }

@@ -13,47 +13,41 @@ namespace dnlib.DotNet.Pdb.Dss {
 
 		public ISymbolScope RootScope {
 			get {
-				ISymUnmanagedScope scope;
-				method.GetRootScope(out scope);
-				return scope == null ? null : new SymbolScope(scope);
+                method.GetRootScope(out ISymUnmanagedScope scope);
+                return scope == null ? null : new SymbolScope(scope);
 			}
 		}
 
 		public int SequencePointCount {
 			get {
-				uint result;
-				method.GetSequencePointCount(out result);
-				return (int)result;
+                method.GetSequencePointCount(out uint result);
+                return (int)result;
 			}
 		}
 
 		public SymbolToken Token {
 			get {
-				uint result;
-				method.GetToken(out result);
-				return new SymbolToken((int)result);
+                method.GetToken(out uint result);
+                return new SymbolToken((int)result);
 			}
 		}
 
 		public ISymbolNamespace GetNamespace() {
-			ISymUnmanagedNamespace ns;
-			method.GetNamespace(out ns);
-			return ns == null ? null : new SymbolNamespace(ns);
+            method.GetNamespace(out ISymUnmanagedNamespace ns);
+            return ns == null ? null : new SymbolNamespace(ns);
 		}
 
 		public int GetOffset(ISymbolDocument document, int line, int column) {
 			var symDoc = document as SymbolDocument;
 			if (symDoc == null)
 				throw new ArgumentException("document is not a non-null SymbolDocument instance");
-			uint result;
-			method.GetOffset(symDoc.SymUnmanagedDocument, (uint)line, (uint)column, out result);
-			return (int)result;
+            method.GetOffset(symDoc.SymUnmanagedDocument, (uint)line, (uint)column, out uint result);
+            return (int)result;
 		}
 
 		public ISymbolVariable[] GetParameters() {
-			uint numVars;
-			method.GetParameters(0, out numVars, null);
-			var unVars = new ISymUnmanagedVariable[numVars];
+            method.GetParameters(0, out uint numVars, null);
+            var unVars = new ISymUnmanagedVariable[numVars];
 			method.GetParameters((uint)unVars.Length, out numVars, unVars);
 			var vars = new ISymbolVariable[numVars];
 			for (uint i = 0; i < numVars; i++)
@@ -65,17 +59,15 @@ namespace dnlib.DotNet.Pdb.Dss {
 			var symDoc = document as SymbolDocument;
 			if (symDoc == null)
 				throw new ArgumentException("document is not a non-null SymbolDocument instance");
-			uint arySize;
-			method.GetRanges(symDoc.SymUnmanagedDocument, (uint)line, (uint)column, 0, out arySize, null);
-			var ary = new int[arySize];
+            method.GetRanges(symDoc.SymUnmanagedDocument, (uint)line, (uint)column, 0, out uint arySize, null);
+            var ary = new int[arySize];
 			method.GetRanges(symDoc.SymUnmanagedDocument, (uint)line, (uint)column, (uint)ary.Length, out arySize, ary);
 			return ary;
 		}
 
 		public ISymbolScope GetScope(int offset) {
-			ISymUnmanagedScope scope;
-			method.GetScopeFromOffset((uint)offset, out scope);
-			return scope == null ? null : new SymbolScope(scope);
+            method.GetScopeFromOffset((uint)offset, out ISymUnmanagedScope scope);
+            return scope == null ? null : new SymbolScope(scope);
 		}
 
 		public void GetSequencePoints(int[] offsets, ISymbolDocument[] documents, int[] lines, int[] columns, int[] endLines, int[] endColumns) {
@@ -100,10 +92,9 @@ namespace dnlib.DotNet.Pdb.Dss {
 				return;
 
 			var unDocs = documents == null ? null : new ISymUnmanagedDocument[documents.Length];
-			uint size;
-			method.GetSequencePoints((uint)arySize, out size, offsets, unDocs, lines, columns, endLines, endColumns);
+            method.GetSequencePoints((uint)arySize, out uint size, offsets, unDocs, lines, columns, endLines, endColumns);
 
-			if (unDocs != null) {
+            if (unDocs != null) {
 				for (int i = 0; i < unDocs.Length; i++)
 					documents[i] = unDocs[i] == null ? null : new SymbolDocument(unDocs[i]);
 			}
@@ -115,10 +106,9 @@ namespace dnlib.DotNet.Pdb.Dss {
 			if (columns != null && columns.Length < 2) throw new ArgumentException("Invalid array: length < 2: columns");
 
 			var unDocs = docs == null ? null : new ISymUnmanagedDocument[docs.Length];
-			bool result;
-			method.GetSourceStartEnd(unDocs, lines, columns, out result);
+            method.GetSourceStartEnd(unDocs, lines, columns, out bool result);
 
-			if (unDocs != null) {
+            if (unDocs != null) {
 				for (int i = 0; i < unDocs.Length; i++)
 					docs[i] = unDocs[i] == null ? null : new SymbolDocument(unDocs[i]);
 			}

@@ -27,22 +27,19 @@ namespace dnlib.DotNet.Pdb.Dss {
 		/// file on disk or if any of the COM methods fail.</returns>
 		public static ISymbolReader Create(string assemblyFileName) {
 			try {
-				object mdDispObj;
-				Guid CLSID_CorMetaDataDispenser = new Guid(0xE5CB7A31, 0x7512, 0x11D2, 0x89, 0xCE, 0x0, 0x80, 0xC7, 0x92, 0xE5, 0xD8);
-				Guid IID_IMetaDataDispenser = new Guid(0x809C652E, 0x7396, 0x11D2, 0x97, 0x71, 0x00, 0xA0, 0xC9, 0xB4, 0xD5, 0x0C);
-				int hr = CoCreateInstance(ref CLSID_CorMetaDataDispenser, IntPtr.Zero, 1, ref IID_IMetaDataDispenser, out mdDispObj);
+                Guid CLSID_CorMetaDataDispenser = new Guid(0xE5CB7A31, 0x7512, 0x11D2, 0x89, 0xCE, 0x0, 0x80, 0xC7, 0x92, 0xE5, 0xD8);
+                Guid IID_IMetaDataDispenser = new Guid(0x809C652E, 0x7396, 0x11D2, 0x97, 0x71, 0x00, 0xA0, 0xC9, 0xB4, 0xD5, 0x0C);
+				int hr = CoCreateInstance(ref CLSID_CorMetaDataDispenser, IntPtr.Zero, 1, ref IID_IMetaDataDispenser, out object mdDispObj);
 				if (hr < 0)
 					return null;
 
-				object mdImportObj;
-				var mdDisp = (IMetaDataDispenser)mdDispObj;
-				Guid IID_IMetaDataImport = new Guid(0x7DAC8207, 0xD3AE, 0x4C75, 0x9B, 0x67, 0x92, 0x80, 0x1A, 0x49, 0x7D, 0x44);
-				mdDisp.OpenScope(assemblyFileName, 0, ref IID_IMetaDataImport, out mdImportObj);
+                var mdDisp = (IMetaDataDispenser)mdDispObj;
+                Guid IID_IMetaDataImport = new Guid(0x7DAC8207, 0xD3AE, 0x4C75, 0x9B, 0x67, 0x92, 0x80, 0x1A, 0x49, 0x7D, 0x44);
+				mdDisp.OpenScope(assemblyFileName, 0, ref IID_IMetaDataImport, out object mdImportObj);
 				Marshal.FinalReleaseComObject(mdDispObj);
 
-				ISymUnmanagedReader symReader;
-				var binder = (ISymUnmanagedBinder)Activator.CreateInstance(Type.GetTypeFromCLSID(CLSID_CorSymBinder_SxS));
-				hr = binder.GetReaderForFile((IMetaDataImport)mdImportObj, assemblyFileName, null, out symReader);
+                var binder = (ISymUnmanagedBinder)Activator.CreateInstance(Type.GetTypeFromCLSID(CLSID_CorSymBinder_SxS));
+                hr = binder.GetReaderForFile((IMetaDataImport)mdImportObj, assemblyFileName, null, out ISymUnmanagedReader symReader);
 				Marshal.FinalReleaseComObject(mdImportObj);
 				Marshal.FinalReleaseComObject(binder);
 				if (hr >= 0)
@@ -62,10 +59,9 @@ namespace dnlib.DotNet.Pdb.Dss {
 		}
 
 		static IImageStream OpenImageStream(string fileName) {
-			try {
-				if (!File.Exists(fileName))
-					return null;
-				return ImageStreamCreator.CreateImageStream(fileName);
+			try
+			{
+			    return !File.Exists(fileName) ? null : ImageStreamCreator.CreateImageStream(fileName);
 			}
 			catch (IOException) {
 			}
@@ -89,9 +85,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 				return Create(mdStream, OpenImageStream(pdbFileName));
 			}
 			catch {
-				if (mdStream != null)
-					mdStream.Dispose();
-				throw;
+			    mdStream?.Dispose();
+			    throw;
 			}
 		}
 
@@ -110,9 +105,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 				return Create(mdStream, MemoryImageStream.Create(pdbData));
 			}
 			catch {
-				if (mdStream != null)
-					mdStream.Dispose();
-				throw;
+			    mdStream?.Dispose();
+			    throw;
 			}
 		}
 
@@ -128,9 +122,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 				return Create(CreateMetaDataStream(metaData), pdbStream);
 			}
 			catch {
-				if (pdbStream != null)
-					pdbStream.Dispose();
-				throw;
+			    pdbStream?.Dispose();
+			    throw;
 			}
 		}
 
@@ -146,9 +139,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 				return Create(mdStream, OpenImageStream(pdbFileName));
 			}
 			catch {
-				if (mdStream != null)
-					mdStream.Dispose();
-				throw;
+			    mdStream?.Dispose();
+			    throw;
 			}
 		}
 
@@ -161,17 +153,15 @@ namespace dnlib.DotNet.Pdb.Dss {
 		/// methods fail.</returns>
 		public static ISymbolReader Create(IImageStream mdStream, byte[] pdbData) {
 			if (pdbData == null) {
-				if (mdStream != null)
-					mdStream.Dispose();
-				return null;
+			    mdStream?.Dispose();
+			    return null;
 			}
 			try {
 				return Create(mdStream, MemoryImageStream.Create(pdbData));
 			}
 			catch {
-				if (mdStream != null)
-					mdStream.Dispose();
-				throw;
+			    mdStream?.Dispose();
+			    throw;
 			}
 		}
 
@@ -190,24 +180,21 @@ namespace dnlib.DotNet.Pdb.Dss {
 				if (pdbStream == null || mdStream == null)
 					return null;
 
-				object mdDispObj;
-				Guid CLSID_CorMetaDataDispenser = new Guid(0xE5CB7A31, 0x7512, 0x11D2, 0x89, 0xCE, 0x0, 0x80, 0xC7, 0x92, 0xE5, 0xD8);
-				Guid IID_IMetaDataDispenser = new Guid(0x809C652E, 0x7396, 0x11D2, 0x97, 0x71, 0x00, 0xA0, 0xC9, 0xB4, 0xD5, 0x0C);
-				int hr = CoCreateInstance(ref CLSID_CorMetaDataDispenser, IntPtr.Zero, 1, ref IID_IMetaDataDispenser, out mdDispObj);
+                Guid CLSID_CorMetaDataDispenser = new Guid(0xE5CB7A31, 0x7512, 0x11D2, 0x89, 0xCE, 0x0, 0x80, 0xC7, 0x92, 0xE5, 0xD8);
+                Guid IID_IMetaDataDispenser = new Guid(0x809C652E, 0x7396, 0x11D2, 0x97, 0x71, 0x00, 0xA0, 0xC9, 0xB4, 0xD5, 0x0C);
+				int hr = CoCreateInstance(ref CLSID_CorMetaDataDispenser, IntPtr.Zero, 1, ref IID_IMetaDataDispenser, out object mdDispObj);
 				if (hr < 0)
 					return null;
 
-				object mdImportObj;
-				var mdDisp = (IMetaDataDispenser)mdDispObj;
-				Guid IID_IMetaDataImport = new Guid(0x7DAC8207, 0xD3AE, 0x4C75, 0x9B, 0x67, 0x92, 0x80, 0x1A, 0x49, 0x7D, 0x44);
+                var mdDisp = (IMetaDataDispenser)mdDispObj;
+                Guid IID_IMetaDataImport = new Guid(0x7DAC8207, 0xD3AE, 0x4C75, 0x9B, 0x67, 0x92, 0x80, 0x1A, 0x49, 0x7D, 0x44);
 				pinnedMd = new PinnedMetaData(mdStream);
-				mdDisp.OpenScopeOnMemory(pinnedMd.Address, (uint)pinnedMd.Size, 0x10, ref IID_IMetaDataImport, out mdImportObj);
+				mdDisp.OpenScopeOnMemory(pinnedMd.Address, (uint)pinnedMd.Size, 0x10, ref IID_IMetaDataImport, out object mdImportObj);
 				Marshal.FinalReleaseComObject(mdDispObj);
 
-				ISymUnmanagedReader symReader;
-				var binder = (ISymUnmanagedBinder)Activator.CreateInstance(Type.GetTypeFromCLSID(CLSID_CorSymBinder_SxS));
-				stream = new ImageStreamIStream(pdbStream, null) { UserData = pinnedMd };
-				hr = binder.GetReaderFromStream((IMetaDataImport)mdImportObj, stream, out symReader);
+                var binder = (ISymUnmanagedBinder)Activator.CreateInstance(Type.GetTypeFromCLSID(CLSID_CorSymBinder_SxS));
+                stream = new ImageStreamIStream(pdbStream, null) { UserData = pinnedMd };
+				hr = binder.GetReaderFromStream((IMetaDataImport)mdImportObj, stream, out ISymUnmanagedReader symReader);
 				Marshal.FinalReleaseComObject(mdImportObj);
 				Marshal.FinalReleaseComObject(binder);
 				if (hr >= 0) {
@@ -223,14 +210,10 @@ namespace dnlib.DotNet.Pdb.Dss {
 			}
 			finally {
 				if (error) {
-					if (stream != null)
-						stream.Dispose();
-					if (pinnedMd != null)
-						pinnedMd.Dispose();
-					if (mdStream != null)
-						mdStream.Dispose();
-					if (pdbStream != null)
-						pdbStream.Dispose();
+				    stream?.Dispose();
+				    pinnedMd?.Dispose();
+				    mdStream?.Dispose();
+				    pdbStream?.Dispose();
 				}
 			}
 			return null;

@@ -95,18 +95,14 @@ namespace dnlib.DotNet.Writer {
 			// A generic custom attribute isn't allowed by most .NET languages (eg. C#) but
 			// the CLR probably supports it.
 			var mrCtor = ca.Constructor as MemberRef;
-			if (mrCtor != null) {
-				var owner = mrCtor.Class as TypeSpec;
-				if (owner != null) {
-					var gis = owner.TypeSig as GenericInstSig;
-					if (gis != null) {
-						genericArguments = new GenericArguments();
-						genericArguments.PushTypeArgs(gis.GenericArguments);
-					}
-				}
-			}
+		    var owner = mrCtor?.Class as TypeSpec;
+            if (owner?.TypeSig is GenericInstSig gis)
+            {
+                genericArguments = new GenericArguments();
+                genericArguments.PushTypeArgs(gis.GenericArguments);
+            }
 
-			writer.Write((ushort)1);
+            writer.Write((ushort)1);
 
 			int numArgs = Math.Min(methodSig.Params.Count, ca.ConstructorArguments.Count);
 			for (int i = 0; i < numArgs; i++)
@@ -124,8 +120,8 @@ namespace dnlib.DotNet.Writer {
 				namedArgs = new CANamedArgument[0];
 			}
 			writer.WriteCompressedUInt32((uint)namedArgs.Count);
-			for (int i = 0; i < namedArgs.Count; i++)
-				Write(namedArgs[i]);
+			foreach (CANamedArgument t in namedArgs)
+			    Write(t);
 		}
 
 		TypeSig FixTypeSig(TypeSig type) {
@@ -148,17 +144,17 @@ namespace dnlib.DotNet.Writer {
 				return;
 			}
 
-			var arrayType = argType as SZArraySig;
-			if (arrayType != null) {
-				var argsArray = value.Value as IList<CAArgument>;
-				if (argsArray == null && value.Value != null)
-					helper.Error("CAArgument.Value is not null or an array");
-				WriteArrayValue(arrayType, argsArray);
-			}
-			else
-				WriteElem(argType, value);
+            if (argType is SZArraySig arrayType)
+            {
+                var argsArray = value.Value as IList<CAArgument>;
+                if (argsArray == null && value.Value != null)
+                    helper.Error("CAArgument.Value is not null or an array");
+                WriteArrayValue(arrayType, argsArray);
+            }
+            else
+                WriteElem(argType, value);
 
-			recursionCounter.Decrement();
+            recursionCounter.Decrement();
 		}
 
 		void WriteArrayValue(SZArraySig arrayType, IList<CAArgument> args) {
@@ -172,8 +168,8 @@ namespace dnlib.DotNet.Writer {
 			else {
 				writer.Write((uint)args.Count);
 				var arrayElementType = FixTypeSig(arrayType.Next);
-				for (int i = 0; i < args.Count; i++)
-					WriteValue(arrayElementType, args[i]);
+				foreach (CAArgument t in args)
+				    WriteValue(arrayElementType, t);
 			}
 		}
 
@@ -225,9 +221,8 @@ namespace dnlib.DotNet.Writer {
 		}
 
 		static ulong ToUInt64(object o) {
-			ulong result;
-			ToUInt64(o, out result);
-			return result;
+            ToUInt64(o, out ulong result);
+            return result;
 		}
 
 		static bool ToUInt64(object o, out ulong result) {
@@ -291,9 +286,8 @@ namespace dnlib.DotNet.Writer {
 		}
 
 		static double ToDouble(object o) {
-			double result;
-			ToDouble(o, out result);
-			return result;
+            ToDouble(o, out double result);
+            return result;
 		}
 
 		static bool ToDouble(object o, out double result) {
@@ -373,8 +367,7 @@ namespace dnlib.DotNet.Writer {
 				return;
 			}
 
-			TypeSig underlyingType;
-			ITypeDefOrRef tdr;
+		    ITypeDefOrRef tdr;
 			switch (argType.ElementType) {
 			case ElementType.Boolean:
 				if (!VerifyTypeAndValue(value, ElementType.Boolean))
@@ -471,7 +464,7 @@ namespace dnlib.DotNet.Writer {
 
 			case ElementType.ValueType:
 				tdr = ((TypeDefOrRefSig)argType).TypeDefOrRef;
-				underlyingType = GetEnumUnderlyingType(argType);
+				var underlyingType = GetEnumUnderlyingType(argType);
 				if (underlyingType != null)
 					WriteElem(underlyingType, value);
 				else if (tdr is TypeRef && TryWriteEnumUnderlyingTypeValue(value.Value)) {
@@ -485,16 +478,16 @@ namespace dnlib.DotNet.Writer {
 				tdr = ((TypeDefOrRefSig)argType).TypeDefOrRef;
 				if (CheckCorLibType(argType, "Type")) {
 					if (CheckCorLibType(value.Type, "Type")) {
-						var ts = value.Value as TypeSig;
-						if (ts != null)
-							WriteType(ts);
-						else if (value.Value == null)
-							WriteUTF8String(null);
-						else {
-							helper.Error("Custom attribute value is not a type");
-							WriteUTF8String(UTF8String.Empty);
-						}
-					}
+                            if (value.Value is TypeSig ts)
+                                WriteType(ts);
+                            else if (value.Value == null)
+                                WriteUTF8String(null);
+                            else
+                            {
+                                helper.Error("Custom attribute value is not a type");
+                                WriteUTF8String(UTF8String.Empty);
+                            }
+                        }
 					else {
 						helper.Error("Custom attribute value type is not System.Type");
 						WriteUTF8String(UTF8String.Empty);
@@ -570,9 +563,7 @@ namespace dnlib.DotNet.Writer {
 		/// <returns>The underlying type or <c>null</c> if we couldn't resolve the type ref</returns>
 		static TypeSig GetEnumUnderlyingType(TypeSig type) {
 			var td = GetEnumTypeDef(type);
-			if (td == null)
-				return null;
-			return td.GetEnumUnderlyingType().RemoveModifiers();
+		    return td?.GetEnumUnderlyingType().RemoveModifiers();
 		}
 
 		static TypeDef GetEnumTypeDef(TypeSig type) {
@@ -581,9 +572,7 @@ namespace dnlib.DotNet.Writer {
 			var td = GetTypeDef(type);
 			if (td == null)
 				return null;
-			if (!td.IsEnum)
-				return null;
-			return td;
+			return !td.IsEnum ? null : td;
 		}
 
 		/// <summary>
@@ -594,18 +583,18 @@ namespace dnlib.DotNet.Writer {
 		/// <returns>A <see cref="TypeDef"/> or <c>null</c> if we couldn't resolve the
 		/// <see cref="TypeRef"/> or if <paramref name="type"/> is a type spec</returns>
 		static TypeDef GetTypeDef(TypeSig type) {
-			var tdr = type as TypeDefOrRefSig;
-			if (tdr != null) {
-				var td = tdr.TypeDef;
-				if (td != null)
-					return td;
+            if (type is TypeDefOrRefSig tdr)
+            {
+                var td = tdr.TypeDef;
+                if (td != null)
+                    return td;
 
-				var tr = tdr.TypeRef;
-				if (tr != null)
-					return tr.Resolve();
-			}
+                var tr = tdr.TypeRef;
+                if (tr != null)
+                    return tr.Resolve();
+            }
 
-			return null;
+            return null;
 		}
 
 		void Write(CANamedArgument namedArg) {
@@ -728,7 +717,7 @@ namespace dnlib.DotNet.Writer {
 		}
 
 		static MethodSig GetMethodSig(ICustomAttributeType ctor) {
-			return ctor == null ? null : ctor.MethodSig;
+			return ctor?.MethodSig;
 		}
 
 		void WriteUTF8String(UTF8String s) {
@@ -742,10 +731,8 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void Dispose() {
-			if (outStream != null)
-				outStream.Dispose();
-			if (writer != null)
-				((IDisposable)writer).Dispose();
+		    outStream?.Dispose();
+		    ((IDisposable) writer)?.Dispose();
 		}
 	}
 }

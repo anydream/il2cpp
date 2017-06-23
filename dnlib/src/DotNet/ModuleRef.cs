@@ -9,63 +9,38 @@ namespace dnlib.DotNet {
 	/// A high-level representation of a row in the ModuleRef table
 	/// </summary>
 	public abstract class ModuleRef : IHasCustomAttribute, IMemberRefParent, IResolutionScope, IModule, IOwnerModule {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
-
-		/// <summary>
+	    /// <summary>
 		/// The owner module
 		/// </summary>
 		protected ModuleDef module;
 
 		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.ModuleRef, rid); }
-		}
+		public MDToken MDToken => new MDToken(Table.ModuleRef, Rid);
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public int HasCustomAttributeTag {
-			get { return 12; }
-		}
+	    /// <inheritdoc/>
+		public int HasCustomAttributeTag => 12;
 
-		/// <inheritdoc/>
-		public int MemberRefParentTag {
-			get { return 2; }
-		}
+	    /// <inheritdoc/>
+		public int MemberRefParentTag => 2;
 
-		/// <inheritdoc/>
-		public int ResolutionScopeTag {
-			get { return 1; }
-		}
+	    /// <inheritdoc/>
+		public int ResolutionScopeTag => 1;
 
-		/// <inheritdoc/>
-		public ScopeType ScopeType {
-			get { return ScopeType.ModuleRef; }
-		}
+	    /// <inheritdoc/>
+		public ScopeType ScopeType => ScopeType.ModuleRef;
 
-		/// <inheritdoc/>
-		public string ScopeName {
-			get { return FullName; }
-		}
+	    /// <inheritdoc/>
+		public string ScopeName => FullName;
 
-		/// <summary>
+	    /// <summary>
 		/// From column ModuleRef.Name
 		/// </summary>
-		public UTF8String Name {
-			get { return name; }
-			set { name = value; }
-		}
-		/// <summary>Name</summary>
-		protected UTF8String name;
+		public UTF8String Name { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all custom attributes
 		/// </summary>
 		public CustomAttributeCollection CustomAttributes {
@@ -83,16 +58,12 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public bool HasCustomAttributes {
-			get { return CustomAttributes.Count > 0; }
-		}
+		public bool HasCustomAttributes => CustomAttributes.Count > 0;
 
-		/// <inheritdoc/>
-		public ModuleDef Module {
-			get { return module; }
-		}
+	    /// <inheritdoc/>
+		public ModuleDef Module => module;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the definition module, i.e., the module which it references, or <c>null</c>
 		/// if the module can't be found.
 		/// </summary>
@@ -100,11 +71,11 @@ namespace dnlib.DotNet {
 			get {
 				if (module == null)
 					return null;
-				var n = name;
+				var n = Name;
 				if (UTF8String.CaseInsensitiveEquals(n, module.Name))
 					return module;
 				var asm = DefinitionAssembly;
-				return asm == null ? null : asm.FindModule(n);
+				return asm?.FindModule(n);
 			}
 		}
 
@@ -112,16 +83,12 @@ namespace dnlib.DotNet {
 		/// Gets the definition assembly, i.e., the assembly of the module it references, or
 		/// <c>null</c> if the assembly can't be found.
 		/// </summary>
-		public AssemblyDef DefinitionAssembly {
-			get { return module == null ? null : module.Assembly; }
-		}
+		public AssemblyDef DefinitionAssembly => module?.Assembly;
 
-		/// <inheritdoc/>
-		public string FullName {
-			get { return UTF8String.ToSystemStringOrEmpty(name); }
-		}
+	    /// <inheritdoc/>
+		public string FullName => UTF8String.ToSystemStringOrEmpty(Name);
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public override string ToString() {
 			return FullName;
 		}
@@ -146,7 +113,7 @@ namespace dnlib.DotNet {
 		/// <param name="name">Module name</param>
 		public ModuleRefUser(ModuleDef module, UTF8String name) {
 			this.module = module;
-			this.name = name;
+			this.Name = name;
 		}
 	}
 
@@ -157,16 +124,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.ModuleRef, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.ModuleRef, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -181,16 +144,16 @@ namespace dnlib.DotNet {
 		public ModuleRefMD(ModuleDefMD readerModule, uint rid) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.ModuleRefTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("ModuleRef rid {0} does not exist", rid));
+				throw new BadImageFormatException($"ModuleRef rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
+			this.OrigRid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
 			this.module = readerModule;
-			uint name = readerModule.TablesStream.ReadModuleRefRow2(origRid);
-			this.name = readerModule.StringsStream.ReadNoNull(name);
+			uint name = readerModule.TablesStream.ReadModuleRefRow2(OrigRid);
+			this.Name = readerModule.StringsStream.ReadNoNull(name);
 		}
 	}
 }

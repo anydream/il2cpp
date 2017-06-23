@@ -8,11 +8,9 @@
 		/// <summary>
 		/// Gets the <see cref="PublicKeyToken"/>
 		/// </summary>
-		public override PublicKeyToken Token {
-			get { return this; }
-		}
+		public override PublicKeyToken Token => this;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public PublicKeyToken()
 			: base() {
 		}
@@ -29,12 +27,10 @@
 
 		/// <inheritdoc/>
 		public override bool Equals(object obj) {
-			if ((object)this == obj)
+			if (this == obj)
 				return true;
 			var other = obj as PublicKeyToken;
-			if (other == null)
-				return false;
-			return Utils.Equals(Data, other.Data);
+			return other != null && Utils.Equals(Data, other.Data);
 		}
 
 		/// <inheritdoc/>

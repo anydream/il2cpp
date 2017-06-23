@@ -9,30 +9,27 @@ namespace dnlib.Utils {
 	/// A readonly list that gets initialized lazily
 	/// </summary>
 	/// <typeparam name="T">Any class type</typeparam>
-	[DebuggerDisplay("Count = {Length}")]
+	[DebuggerDisplay("Count = {" + nameof(Length) + "}")]
 	sealed class SimpleLazyList<T> where T : class {
 		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
 		readonly T[] elements;
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		readonly MFunc<uint, T> readElementByRID;
-		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		readonly uint length;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the length of this list
 		/// </summary>
-		public uint Length {
-			get { return length; }
-		}
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		public uint Length { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Access the list
 		/// </summary>
 		/// <param name="index">Index</param>
 		/// <returns>The element or <c>null</c> if <paramref name="index"/> is invalid</returns>
 		public T this[uint index] {
 			get {
-				if (index >= length)
+				if (index >= Length)
 					return null;
 				if (elements[index] == null)
 					Interlocked.CompareExchange(ref elements[index], readElementByRID(index + 1), null);
@@ -48,7 +45,7 @@ namespace dnlib.Utils {
 		/// be called more than once for each <c>rid</c> in rare cases. It must never return
 		/// <c>null</c>.</param>
 		public SimpleLazyList(uint length, MFunc<uint, T> readElementByRID) {
-			this.length = length;
+			this.Length = length;
 			this.readElementByRID = readElementByRID;
 			this.elements = new T[length];
 		}
@@ -58,23 +55,20 @@ namespace dnlib.Utils {
 	/// A readonly list that gets initialized lazily
 	/// </summary>
 	/// <typeparam name="T">Any class type</typeparam>
-	[DebuggerDisplay("Count = {Length}")]
+	[DebuggerDisplay("Count = {" + nameof(Length) + "}")]
 	sealed class SimpleLazyList2<T> where T : class, IContainsGenericParameter {
 		[DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
 		readonly T[] elements;
 		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 		readonly MFunc<uint, GenericParamContext, T> readElementByRID;
-		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-		readonly uint length;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the length of this list
 		/// </summary>
-		public uint Length {
-			get { return length; }
-		}
+		[DebuggerBrowsable(DebuggerBrowsableState.Never)]
+		public uint Length { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Access the list
 		/// </summary>
 		/// <param name="index">Index</param>
@@ -82,7 +76,7 @@ namespace dnlib.Utils {
 		/// <returns>The element or <c>null</c> if <paramref name="index"/> is invalid</returns>
 		public T this[uint index, GenericParamContext gpContext] {
 			get {
-				if (index >= length)
+				if (index >= Length)
 					return null;
 				if (elements[index] == null) {
 					var elem = readElementByRID(index + 1, gpContext);
@@ -103,7 +97,7 @@ namespace dnlib.Utils {
 		/// <param name="readElementByRID">Delegate instance that lazily reads an element. It might
 		/// be called more than once for each <c>rid</c>. It must never return <c>null</c>.</param>
 		public SimpleLazyList2(uint length, MFunc<uint, GenericParamContext, T> readElementByRID) {
-			this.length = length;
+			this.Length = length;
 			this.readElementByRID = readElementByRID;
 			this.elements = new T[length];
 		}

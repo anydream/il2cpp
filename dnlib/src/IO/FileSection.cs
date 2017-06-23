@@ -19,16 +19,12 @@ namespace dnlib.IO {
 		protected uint size;
 
 		/// <inheritdoc/>
-		public FileOffset StartOffset {
-			get { return startOffset; }
-		}
+		public FileOffset StartOffset => startOffset;
 
-		/// <inheritdoc/>
-		public FileOffset EndOffset {
-			get { return startOffset + size; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset EndOffset => startOffset + size;
 
-		/// <summary>
+	    /// <summary>
 		/// Set <see cref="startOffset"/> to <paramref name="reader"/>'s current position
 		/// </summary>
 		/// <param name="reader">The reader</param>

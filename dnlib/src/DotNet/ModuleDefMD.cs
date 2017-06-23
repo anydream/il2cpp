@@ -25,10 +25,8 @@ namespace dnlib.DotNet {
 	public sealed class ModuleDefMD : ModuleDefMD2, IInstructionOperandResolver, ISignatureReaderHelper {
 		/// <summary>The file that contains all .NET metadata</summary>
 		MetaData metaData;
-		IMethodDecrypter methodDecrypter;
-		IStringDecrypter stringDecrypter;
 
-		RandomRidList moduleRidList;
+	    RandomRidList moduleRidList;
 
 		SimpleLazyList<ModuleDefMD2> listModuleDefMD;
 		SimpleLazyList<TypeRefMD> listTypeRefMD;
@@ -59,62 +57,44 @@ namespace dnlib.DotNet {
 		/// <summary>
 		/// Gets/sets the method decrypter
 		/// </summary>
-		public IMethodDecrypter MethodDecrypter {
-			get { return methodDecrypter; }
-			set { methodDecrypter = value; }
-		}
+		public IMethodDecrypter MethodDecrypter { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the string decrypter
 		/// </summary>
-		public IStringDecrypter StringDecrypter {
-			get { return stringDecrypter; }
-			set { stringDecrypter = value; }
-		}
+		public IStringDecrypter StringDecrypter { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the .NET metadata interface
 		/// </summary>
-		public IMetaData MetaData {
-			get { return metaData; }
-		}
+		public IMetaData MetaData => metaData;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the #~ or #- tables stream
 		/// </summary>
-		public TablesStream TablesStream {
-			get { return metaData.TablesStream; }
-		}
+		public TablesStream TablesStream => metaData.TablesStream;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the #Strings stream
 		/// </summary>
-		public StringsStream StringsStream {
-			get { return metaData.StringsStream; }
-		}
+		public StringsStream StringsStream => metaData.StringsStream;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the #Blob stream
 		/// </summary>
-		public BlobStream BlobStream {
-			get { return metaData.BlobStream; }
-		}
+		public BlobStream BlobStream => metaData.BlobStream;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the #GUID stream
 		/// </summary>
-		public GuidStream GuidStream {
-			get { return metaData.GuidStream; }
-		}
+		public GuidStream GuidStream => metaData.GuidStream;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the #US stream
 		/// </summary>
-		public USStream USStream {
-			get { return metaData.USStream; }
-		}
+		public USStream USStream => metaData.USStream;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeTypes() {
 			var list = MetaData.GetNonNestedClassRidList();
 			var tmp = new LazyList<TypeDef>((int)list.Length, this, list, (list2, index) => ResolveTypeDef(((RidList)list2)[index]));
@@ -245,7 +225,7 @@ namespace dnlib.DotNet {
 		public static ModuleDefMD Load(System.Reflection.Module mod, ModuleCreationOptions options, ImageLayout imageLayout) {
 			IntPtr addr = Marshal.GetHINSTANCE(mod);
 			if (addr == new IntPtr(-1))
-				throw new InvalidOperationException(string.Format("Module {0} has no HINSTANCE", mod));
+				throw new InvalidOperationException($"Module {mod} has no HINSTANCE");
 			return Load(addr, options, imageLayout);
 		}
 
@@ -365,7 +345,7 @@ namespace dnlib.DotNet {
 		/// <exception cref="ArgumentNullException">If <paramref name="stream"/> is <c>null</c></exception>
 		public static ModuleDefMD Load(Stream stream, ModuleCreationOptions options) {
 			if (stream == null)
-				throw new ArgumentNullException("stream");
+				throw new ArgumentNullException(nameof(stream));
 			if (stream.Length > int.MaxValue)
 				throw new ArgumentException("Stream is too big");
 			var data = new byte[(int)stream.Length];
@@ -393,13 +373,12 @@ namespace dnlib.DotNet {
 		/// <exception cref="ArgumentNullException">If <paramref name="metaData"/> is <c>null</c></exception>
 		ModuleDefMD(MetaData metaData, ModuleCreationOptions options)
 			: base(null, 1) {
+
 #if DEBUG
-			if (metaData == null)
-				throw new ArgumentNullException("metaData");
 #endif
-			if (options == null)
+            if (options == null)
 				options = ModuleCreationOptions.Default;
-			this.metaData = metaData;
+			this.metaData = metaData ?? throw new ArgumentNullException(nameof(metaData));
 			this.context = options.Context;
 			Initialize();
 			InitializeFromRawRow();
@@ -438,14 +417,12 @@ namespace dnlib.DotNet {
 						return symReader;
 				}
 
-				var pdbData = options.PdbFileOrData as byte[];
-				if (pdbData != null)
-					return SymbolReaderCreator.Create(options.PdbImplementation, metaData, pdbData);
+                if (options.PdbFileOrData is byte[] pdbData)
+                    return SymbolReaderCreator.Create(options.PdbImplementation, metaData, pdbData);
 
-				var pdbStream = options.PdbFileOrData as IImageStream;
-				if (pdbStream != null)
-					return SymbolReaderCreator.Create(options.PdbImplementation, metaData, pdbStream);
-			}
+                if (options.PdbFileOrData is IImageStream pdbStream)
+                    return SymbolReaderCreator.Create(options.PdbImplementation, metaData, pdbStream);
+            }
 
 			if (options.TryToLoadPdbFromDisk && !string.IsNullOrEmpty(location))
 				return SymbolReaderCreator.Create(options.PdbImplementation, location);
@@ -620,8 +597,7 @@ namespace dnlib.DotNet {
 			int currentPriority = int.MinValue;
 			for (uint i = 1; i <= numAsmRefs; i++) {
 				var asmRef = ResolveAssemblyRef(i);
-				int priority;
-				if (!preferredCorLibs.TryGetValue(asmRef.FullName, out priority))
+				if (!preferredCorLibs.TryGetValue(asmRef.FullName, out int priority))
 					continue;
 				if (priority > currentPriority) {
 					currentPriority = priority;
@@ -702,9 +678,8 @@ namespace dnlib.DotNet {
 			base.Dispose(disposing);
 			if (disposing) {
 				var md = metaData;
-				if (md != null)
-					md.Dispose();
-				metaData = null;
+			    md?.Dispose();
+			    metaData = null;
 			}
 		}
 
@@ -1047,10 +1022,9 @@ namespace dnlib.DotNet {
 		/// <param name="gpContext">Generic parameter context</param>
 		/// <returns>A <see cref="ITypeDefOrRef"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public ITypeDefOrRef ResolveTypeDefOrRef(uint codedToken, GenericParamContext gpContext) {
-			uint token;
-			if (!CodedToken.TypeDefOrRef.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.TypeDefOrRef.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.TypeDef:		return ResolveTypeDef(rid);
 			case Table.TypeRef:		return ResolveTypeRef(rid);
@@ -1065,10 +1039,9 @@ namespace dnlib.DotNet {
 		/// <param name="codedToken">A <c>HasConstant</c> coded token</param>
 		/// <returns>A <see cref="IHasConstant"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IHasConstant ResolveHasConstant(uint codedToken) {
-			uint token;
-			if (!CodedToken.HasConstant.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.HasConstant.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.Field:	return ResolveField(rid);
 			case Table.Param:	return ResolveParam(rid);
@@ -1093,10 +1066,9 @@ namespace dnlib.DotNet {
 		/// <param name="gpContext">Generic parameter context</param>
 		/// <returns>A <see cref="IHasCustomAttribute"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IHasCustomAttribute ResolveHasCustomAttribute(uint codedToken, GenericParamContext gpContext) {
-			uint token;
-			if (!CodedToken.HasCustomAttribute.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.HasCustomAttribute.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.Method:		return ResolveMethod(rid);
 			case Table.Field:		return ResolveField(rid);
@@ -1130,10 +1102,9 @@ namespace dnlib.DotNet {
 		/// <param name="codedToken">A <c>HasFieldMarshal</c> coded token</param>
 		/// <returns>A <see cref="IHasFieldMarshal"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IHasFieldMarshal ResolveHasFieldMarshal(uint codedToken) {
-			uint token;
-			if (!CodedToken.HasFieldMarshal.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.HasFieldMarshal.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.Field:	return ResolveField(rid);
 			case Table.Param:	return ResolveParam(rid);
@@ -1147,10 +1118,9 @@ namespace dnlib.DotNet {
 		/// <param name="codedToken">A <c>HasDeclSecurity</c> coded token</param>
 		/// <returns>A <see cref="IHasDeclSecurity"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IHasDeclSecurity ResolveHasDeclSecurity(uint codedToken) {
-			uint token;
-			if (!CodedToken.HasDeclSecurity.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.HasDeclSecurity.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.TypeDef:		return ResolveTypeDef(rid);
 			case Table.Method:		return ResolveMethod(rid);
@@ -1175,10 +1145,9 @@ namespace dnlib.DotNet {
 		/// <param name="gpContext">Generic parameter context</param>
 		/// <returns>A <see cref="IMemberRefParent"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IMemberRefParent ResolveMemberRefParent(uint codedToken, GenericParamContext gpContext) {
-			uint token;
-			if (!CodedToken.MemberRefParent.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.MemberRefParent.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.TypeDef:		return ResolveTypeDef(rid);
 			case Table.TypeRef:		return ResolveTypeRef(rid);
@@ -1195,10 +1164,9 @@ namespace dnlib.DotNet {
 		/// <param name="codedToken">A <c>HasSemantic</c> coded token</param>
 		/// <returns>A <see cref="IHasSemantic"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IHasSemantic ResolveHasSemantic(uint codedToken) {
-			uint token;
-			if (!CodedToken.HasSemantic.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.HasSemantic.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.Event:		return ResolveEvent(rid);
 			case Table.Property:	return ResolveProperty(rid);
@@ -1222,10 +1190,9 @@ namespace dnlib.DotNet {
 		/// <param name="gpContext">Generic parameter context</param>
 		/// <returns>A <see cref="IMethodDefOrRef"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IMethodDefOrRef ResolveMethodDefOrRef(uint codedToken, GenericParamContext gpContext) {
-			uint token;
-			if (!CodedToken.MethodDefOrRef.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.MethodDefOrRef.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.Method:		return ResolveMethod(rid);
 			case Table.MemberRef:	return ResolveMemberRef(rid, gpContext);
@@ -1239,10 +1206,9 @@ namespace dnlib.DotNet {
 		/// <param name="codedToken">A <c>MemberForwarded</c> coded token</param>
 		/// <returns>A <see cref="IMemberForwarded"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IMemberForwarded ResolveMemberForwarded(uint codedToken) {
-			uint token;
-			if (!CodedToken.MemberForwarded.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.MemberForwarded.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.Field:	return ResolveField(rid);
 			case Table.Method:	return ResolveMethod(rid);
@@ -1256,10 +1222,9 @@ namespace dnlib.DotNet {
 		/// <param name="codedToken">An <c>Implementation</c> coded token</param>
 		/// <returns>A <see cref="IImplementation"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IImplementation ResolveImplementation(uint codedToken) {
-			uint token;
-			if (!CodedToken.Implementation.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.Implementation.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.File:			return ResolveFile(rid);
 			case Table.AssemblyRef:		return ResolveAssemblyRef(rid);
@@ -1284,10 +1249,9 @@ namespace dnlib.DotNet {
 		/// <param name="gpContext">Generic parameter context</param>
 		/// <returns>A <see cref="ICustomAttributeType"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public ICustomAttributeType ResolveCustomAttributeType(uint codedToken, GenericParamContext gpContext) {
-			uint token;
-			if (!CodedToken.CustomAttributeType.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.CustomAttributeType.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.Method:		return ResolveMethod(rid);
 			case Table.MemberRef:	return ResolveMemberRef(rid, gpContext);
@@ -1301,10 +1265,9 @@ namespace dnlib.DotNet {
 		/// <param name="codedToken">A <c>ResolutionScope</c> coded token</param>
 		/// <returns>A <see cref="IResolutionScope"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public IResolutionScope ResolveResolutionScope(uint codedToken) {
-			uint token;
-			if (!CodedToken.ResolutionScope.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.ResolutionScope.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.Module:		return ResolveModule(rid);
 			case Table.ModuleRef:	return ResolveModuleRef(rid);
@@ -1320,10 +1283,9 @@ namespace dnlib.DotNet {
 		/// <param name="codedToken">A <c>TypeOrMethodDef</c>> coded token</param>
 		/// <returns>A <see cref="ITypeOrMethodDef"/> or <c>null</c> if <paramref name="codedToken"/> is invalid</returns>
 		public ITypeOrMethodDef ResolveTypeOrMethodDef(uint codedToken) {
-			uint token;
-			if (!CodedToken.TypeOrMethodDef.Decode(codedToken, out token))
-				return null;
-			uint rid = MDToken.ToRID(token);
+            if (!CodedToken.TypeOrMethodDef.Decode(codedToken, out uint token))
+                return null;
+            uint rid = MDToken.ToRID(token);
 			switch (MDToken.ToTable(token)) {
 			case Table.TypeDef:	return ResolveTypeDef(rid);
 			case Table.Method:	return ResolveMethod(rid);
@@ -1630,26 +1592,23 @@ namespace dnlib.DotNet {
 			if (row == null)
 				return new EmbeddedResource(UTF8String.Empty, MemoryImageStream.CreateEmpty(), 0) { Rid = rid };
 
-			MDToken token;
-			if (!CodedToken.Implementation.Decode(row.Implementation, out token))
-				return new EmbeddedResource(UTF8String.Empty, MemoryImageStream.CreateEmpty(), 0) { Rid = rid };
+            if (!CodedToken.Implementation.Decode(row.Implementation, out MDToken token))
+                return new EmbeddedResource(UTF8String.Empty, MemoryImageStream.CreateEmpty(), 0) { Rid = rid };
 
-			var mr = ResolveManifestResource(rid);
+            var mr = ResolveManifestResource(rid);
 			if (mr == null)
 				return new EmbeddedResource(UTF8String.Empty, MemoryImageStream.CreateEmpty(), 0) { Rid = rid };
 
 			if (token.Rid == 0)
 				return new EmbeddedResource(mr.Name, CreateResourceStream(mr.Offset), mr.Flags) { Rid = rid, Offset = mr.Offset };
 
-			var file = mr.Implementation as FileDef;
-			if (file != null)
-				return new LinkedResource(mr.Name, file, mr.Flags) { Rid = rid, Offset = mr.Offset };
+            if (mr.Implementation is FileDef file)
+                return new LinkedResource(mr.Name, file, mr.Flags) { Rid = rid, Offset = mr.Offset };
 
-			var asmRef = mr.Implementation as AssemblyRef;
-			if (asmRef != null)
-				return new AssemblyLinkedResource(mr.Name, asmRef, mr.Flags) { Rid = rid, Offset = mr.Offset };
+            if (mr.Implementation is AssemblyRef asmRef)
+                return new AssemblyLinkedResource(mr.Name, asmRef, mr.Flags) { Rid = rid, Offset = mr.Offset };
 
-			return new EmbeddedResource(mr.Name, MemoryImageStream.CreateEmpty(), mr.Flags) { Rid = rid, Offset = mr.Offset };
+            return new EmbeddedResource(mr.Name, MemoryImageStream.CreateEmpty(), mr.Flags) { Rid = rid, Offset = mr.Offset };
 		}
 
 		/// <summary>
@@ -1692,13 +1651,12 @@ namespace dnlib.DotNet {
 				}
 			}
 			catch (AccessViolationException) {
-				if (imageStream != null)
-					imageStream.Dispose();
-				return MemoryImageStream.CreateEmpty();
+			    imageStream?.Dispose();
+			    return MemoryImageStream.CreateEmpty();
 			}
-			finally {
-				if (fs != null)
-					fs.Dispose();
+			finally
+			{
+			    fs?.Dispose();
 			}
 			return imageStream;
 		}
@@ -1847,13 +1805,11 @@ namespace dnlib.DotNet {
 		/// <param name="gpContext">Generic parameter context</param>
 		/// <returns>A <see cref="MethodBody"/> or <c>null</c> if none</returns>
 		internal MethodBody ReadMethodBody(MethodDefMD method, RVA rva, MethodImplAttributes implAttrs, GenericParamContext gpContext) {
-			MethodBody mb;
-			var mDec = methodDecrypter;
-			if (mDec != null && mDec.GetMethodBody(method.OrigRid, rva, method.Parameters, gpContext, out mb)) {
-				var cilBody = mb as CilBody;
-				if (cilBody != null)
-					return InitializeBodyFromPdb(cilBody, method.OrigRid);
-				return mb;
+            var mDec = MethodDecrypter;
+            if (mDec != null && mDec.GetMethodBody(method.OrigRid, rva, method.Parameters, gpContext, out MethodBody mb)) {
+                if (mb is CilBody cilBody)
+                    return InitializeBodyFromPdb(cilBody, method.OrigRid);
+                return mb;
 			}
 
 			if (rva == 0)
@@ -1873,9 +1829,8 @@ namespace dnlib.DotNet {
 		/// <param name="rid">Method rid</param>
 		/// <returns>Returns originak <paramref name="body"/> value</returns>
 		CilBody InitializeBodyFromPdb(CilBody body, uint rid) {
-			if (pdbState != null)
-				pdbState.InitializeDontCall(body, rid);
-			return body;
+		    pdbState?.InitializeDontCall(body, rid);
+		    return body;
 		}
 
 		/// <summary>
@@ -1884,13 +1839,11 @@ namespace dnlib.DotNet {
 		/// <param name="token">String token</param>
 		/// <returns>A non-null string</returns>
 		public string ReadUserString(uint token) {
-			var sDec = stringDecrypter;
-			if (sDec != null) {
-				var s = sDec.ReadUserString(token);
-				if (s != null)
-					return s;
-			}
-			return USStream.ReadNoNull(token & 0x00FFFFFF);
+			var sDec = StringDecrypter;
+		    var s = sDec?.ReadUserString(token);
+		    if (s != null)
+		        return s;
+		    return USStream.ReadNoNull(token & 0x00FFFFFF);
 		}
 
 		/// <summary>

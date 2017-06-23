@@ -11,38 +11,30 @@ namespace dnlib.W32Resources {
 	/// </summary>
 	public sealed class ResourceData : ResourceDirectoryEntry, IDisposable {
 		IBinaryReader reader;
-		uint codePage;
-		uint reserved;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the data reader. This instance owns the reader.
 		/// </summary>
 		public IBinaryReader Data {
-			get { return reader; }
-			set {
+			get => reader;
+	        set {
 				var oldValue = Interlocked.Exchange(ref reader, value);
-				if (oldValue != value && oldValue != null)
-					oldValue.Dispose();
+				if (oldValue != value)
+					oldValue?.Dispose();
 			}
 		}
 
 		/// <summary>
 		/// Gets/sets the code page
 		/// </summary>
-		public uint CodePage {
-			get { return codePage; }
-			set { codePage = value; }
-		}
+		public uint CodePage { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the reserved field
 		/// </summary>
-		public uint Reserved {
-			get { return reserved; }
-			set { reserved = value; }
-		}
+		public uint Reserved { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="name">Name</param>
@@ -70,8 +62,8 @@ namespace dnlib.W32Resources {
 		public ResourceData(ResourceName name, IBinaryReader reader, uint codePage, uint reserved)
 			: base(name) {
 			this.reader = reader;
-			this.codePage = codePage;
-			this.reserved = reserved;
+			this.CodePage = codePage;
+			this.Reserved = reserved;
 		}
 
 		/// <summary>
@@ -84,8 +76,7 @@ namespace dnlib.W32Resources {
 		/// <inheritdoc/>
 		public void Dispose() {
 			var oldValue = Interlocked.Exchange(ref reader, null);
-			if (oldValue != null)
-				oldValue.Dispose();
+		    oldValue?.Dispose();
 		}
 	}
 }

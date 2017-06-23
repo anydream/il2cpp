@@ -121,11 +121,9 @@ namespace dnlib.DotNet.MD {
 				long dirBaseOffs = GetHotHeapDirectoryBaseOffset();
 				for (long offs = dirBaseOffs; offs + 8 <= endOffset - 8; offs += 8) {
 					fullStream.Position = offs;
-					HeapType heapType;
-					long hotHeapOffset;
-					ReadHotHeapDirectory(fullStream, dirBaseOffs, out heapType, out hotHeapOffset);
+                    ReadHotHeapDirectory(fullStream, dirBaseOffs, out HeapType heapType, out long hotHeapOffset);
 
-					IImageStream dataStream = null;
+                    IImageStream dataStream = null;
 					HotHeapStream hotHeapStream = null;
 					try {
 						dataStream = fullStream.Clone();
@@ -134,11 +132,9 @@ namespace dnlib.DotNet.MD {
 						hotHeapStream = null;
 					}
 					catch {
-						if (hotHeapStream != null)
-							hotHeapStream.Dispose();
-						if (dataStream != null)
-							dataStream.Dispose();
-						throw;
+					    hotHeapStream?.Dispose();
+					    dataStream?.Dispose();
+					    throw;
 					}
 				}
 			}
@@ -191,16 +187,14 @@ namespace dnlib.DotNet.MD {
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				IDisposable id = fullStream;
-				if (id != null)
-					id.Dispose();
-				id = hotTableStream;
-				if (id != null)
-					id.Dispose();
-				var hhs = hotHeapStreams;
+			    id?.Dispose();
+			    id = hotTableStream;
+			    id?.Dispose();
+			    var hhs = hotHeapStreams;
 				if (hhs != null) {
-					foreach (var hs in hhs) {
-						if (hs != null)
-							hs.Dispose();
+					foreach (var hs in hhs)
+					{
+					    hs?.Dispose();
 					}
 				}
 			}
@@ -231,9 +225,8 @@ namespace dnlib.DotNet.MD {
 				return new HotTableStreamCLR20(stream, GetHotTableBaseOffset());
 			}
 			catch {
-				if (stream != null)
-					stream.Dispose();
-				throw;
+			    stream?.Dispose();
+			    throw;
 			}
 		}
 

@@ -9,28 +9,21 @@ namespace dnlib.DotNet.Writer {
 	/// Relocations directory
 	/// </summary>
 	public sealed class RelocDirectory : IChunk {
-		FileOffset offset;
-		RVA rva;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the <see cref="StartupStub"/>
 		/// </summary>
 		public StartupStub StartupStub { get; set; }
 
 		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 		}
 
 		/// <inheritdoc/>

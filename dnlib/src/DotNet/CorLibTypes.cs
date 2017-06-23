@@ -6,122 +6,65 @@ namespace dnlib.DotNet {
 	/// </summary>
 	public sealed class CorLibTypes : ICorLibTypes {
 		readonly ModuleDef module;
-		CorLibTypeSig typeVoid;
-		CorLibTypeSig typeBoolean;
-		CorLibTypeSig typeChar;
-		CorLibTypeSig typeSByte;
-		CorLibTypeSig typeByte;
-		CorLibTypeSig typeInt16;
-		CorLibTypeSig typeUInt16;
-		CorLibTypeSig typeInt32;
-		CorLibTypeSig typeUInt32;
-		CorLibTypeSig typeInt64;
-		CorLibTypeSig typeUInt64;
-		CorLibTypeSig typeSingle;
-		CorLibTypeSig typeDouble;
-		CorLibTypeSig typeString;
-		CorLibTypeSig typeTypedReference;
-		CorLibTypeSig typeIntPtr;
-		CorLibTypeSig typeUIntPtr;
-		CorLibTypeSig typeObject;
-		readonly AssemblyRef corLibAssemblyRef;
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Void {
-			get { return typeVoid; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Void { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Boolean {
-			get { return typeBoolean; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Boolean { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Char {
-			get { return typeChar; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Char { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig SByte {
-			get { return typeSByte; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig SByte { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Byte {
-			get { return typeByte; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Byte { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Int16 {
-			get { return typeInt16; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Int16 { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig UInt16 {
-			get { return typeUInt16; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig UInt16 { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Int32 {
-			get { return typeInt32; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Int32 { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig UInt32 {
-			get { return typeUInt32; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig UInt32 { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Int64 {
-			get { return typeInt64; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Int64 { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig UInt64 {
-			get { return typeUInt64; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig UInt64 { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Single {
-			get { return typeSingle; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Single { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Double {
-			get { return typeDouble; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Double { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig String {
-			get { return typeString; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig String { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig TypedReference {
-			get { return typeTypedReference; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig TypedReference { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig IntPtr {
-			get { return typeIntPtr; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig IntPtr { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig UIntPtr {
-			get { return typeUIntPtr; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig UIntPtr { get; private set; }
 
-		/// <inheritdoc/>
-		public CorLibTypeSig Object {
-			get { return typeObject; }
-		}
+	    /// <inheritdoc/>
+		public CorLibTypeSig Object { get; private set; }
 
-		/// <inheritdoc/>
-		public AssemblyRef AssemblyRef {
-			get { return corLibAssemblyRef; }
-		}
+	    /// <inheritdoc/>
+		public AssemblyRef AssemblyRef { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="module">The owner module</param>
@@ -137,7 +80,7 @@ namespace dnlib.DotNet {
 		/// assembly reference should be created</param>
 		public CorLibTypes(ModuleDef module, AssemblyRef corLibAssemblyRef) {
 			this.module = module;
-			this.corLibAssemblyRef = corLibAssemblyRef ?? CreateCorLibAssemblyRef();
+			this.AssemblyRef = corLibAssemblyRef ?? CreateCorLibAssemblyRef();
 			Initialize();
 		}
 
@@ -147,28 +90,28 @@ namespace dnlib.DotNet {
 
 		void Initialize() {
 			bool isCorLib = module.Assembly.IsCorLib();
-			typeVoid	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Void"),		ElementType.Void);
-			typeBoolean	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Boolean"),	ElementType.Boolean);
-			typeChar	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Char"),		ElementType.Char);
-			typeSByte	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "SByte"),		ElementType.I1);
-			typeByte	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Byte"),		ElementType.U1);
-			typeInt16	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Int16"),		ElementType.I2);
-			typeUInt16	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "UInt16"),	ElementType.U2);
-			typeInt32	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Int32"),		ElementType.I4);
-			typeUInt32	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "UInt32"),	ElementType.U4);
-			typeInt64	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Int64"),		ElementType.I8);
-			typeUInt64	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "UInt64"),	ElementType.U8);
-			typeSingle	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Single"),	ElementType.R4);
-			typeDouble	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Double"),	ElementType.R8);
-			typeString	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "String"),	ElementType.String);
-			typeTypedReference = new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "TypedReference"), ElementType.TypedByRef);
-			typeIntPtr	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "IntPtr"),	ElementType.I);
-			typeUIntPtr	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "UIntPtr"),	ElementType.U);
-			typeObject	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Object"),	ElementType.Object);
+			Void	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Void"),		ElementType.Void);
+			Boolean	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Boolean"),	ElementType.Boolean);
+			Char	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Char"),		ElementType.Char);
+			SByte	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "SByte"),		ElementType.I1);
+			Byte	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Byte"),		ElementType.U1);
+			Int16	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Int16"),		ElementType.I2);
+			UInt16	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "UInt16"),	ElementType.U2);
+			Int32	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Int32"),		ElementType.I4);
+			UInt32	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "UInt32"),	ElementType.U4);
+			Int64	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Int64"),		ElementType.I8);
+			UInt64	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "UInt64"),	ElementType.U8);
+			Single	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Single"),	ElementType.R4);
+			Double	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Double"),	ElementType.R8);
+			String	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "String"),	ElementType.String);
+			TypedReference = new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "TypedReference"), ElementType.TypedByRef);
+			IntPtr	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "IntPtr"),	ElementType.I);
+			UIntPtr	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "UIntPtr"),	ElementType.U);
+			Object	= new CorLibTypeSig(CreateCorLibTypeRef(isCorLib, "Object"),	ElementType.Object);
 		}
 
 		ITypeDefOrRef CreateCorLibTypeRef(bool isCorLib, string name) {
-			var tr = new TypeRefUser(module, "System", name, corLibAssemblyRef);
+			var tr = new TypeRefUser(module, "System", name, AssemblyRef);
 			if (isCorLib) {
 				var td = module.Find(tr);
 				if (td != null)
@@ -179,7 +122,7 @@ namespace dnlib.DotNet {
 
 		/// <inheritdoc/>
 		public TypeRef GetTypeRef(string @namespace, string name) {
-			return module.UpdateRowId(new TypeRefUser(module, @namespace, name, corLibAssemblyRef));
+			return module.UpdateRowId(new TypeRefUser(module, @namespace, name, AssemblyRef));
 		}
 	}
 }

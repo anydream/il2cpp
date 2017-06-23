@@ -351,12 +351,8 @@ namespace dnlib.DotNet.Emit {
 		/// <returns>All locals or <c>null</c> if there are none</returns>
 		IList<TypeSig> ReadLocals() {
 			var standAloneSig = opResolver.ResolveToken(localVarSigTok, gpContext) as StandAloneSig;
-			if (standAloneSig == null)
-				return null;
-			var localSig = standAloneSig.LocalSig;
-			if (localSig == null)
-				return null;
-			return localSig.Locals;
+		    var localSig = standAloneSig?.LocalSig;
+		    return localSig?.Locals;
 		}
 
 		/// <summary>
@@ -480,11 +476,13 @@ namespace dnlib.DotNet.Emit {
 		public CilBody CreateCilBody() {
 			// Set init locals if it's a tiny method or if the init locals bit is set (fat header)
 			bool initLocals = flags == 2 || (flags & 0x10) != 0;
-			var cilBody = new CilBody(initLocals, instructions, exceptionHandlers, locals);
-			cilBody.HeaderSize = headerSize;
-			cilBody.MaxStack = maxStack;
-			cilBody.LocalVarSigTok = localVarSigTok;
-			instructions = null;
+		    var cilBody = new CilBody(initLocals, instructions, exceptionHandlers, locals)
+		    {
+		        HeaderSize = headerSize,
+		        MaxStack = maxStack,
+		        LocalVarSigTok = localVarSigTok
+		    };
+		    instructions = null;
 			exceptionHandlers = null;
 			locals = null;
 			return cilBody;

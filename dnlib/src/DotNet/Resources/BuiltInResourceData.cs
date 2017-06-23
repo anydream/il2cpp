@@ -10,22 +10,15 @@ namespace dnlib.DotNet.Resources {
 	/// Built-in resource data
 	/// </summary>
 	public sealed class BuiltInResourceData : IResourceData {
-		readonly ResourceTypeCode code;
-		readonly object data;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets the data
 		/// </summary>
-		public object Data {
-			get { return data; }
-		}
+		public object Data { get; }
 
-		/// <inheritdoc/>
-		public ResourceTypeCode Code {
-			get { return code; }
-		}
+	    /// <inheritdoc/>
+		public ResourceTypeCode Code { get; }
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public FileOffset StartOffset { get; set; }
 
 		/// <inheritdoc/>
@@ -37,83 +30,83 @@ namespace dnlib.DotNet.Resources {
 		/// <param name="code">Type of data</param>
 		/// <param name="data">Data</param>
 		public BuiltInResourceData(ResourceTypeCode code, object data) {
-			this.code = code;
-			this.data = data;
+			this.Code = code;
+			this.Data = data;
 		}
 
 		/// <inheritdoc/>
 		public void WriteData(BinaryWriter writer, IFormatter formatter) {
-			switch (code) {
+			switch (Code) {
 			case ResourceTypeCode.Null:
 				break;
 
 			case ResourceTypeCode.String:
-				writer.Write((string)data);
+				writer.Write((string)Data);
 				break;
 
 			case ResourceTypeCode.Boolean:
-				writer.Write((bool)data);
+				writer.Write((bool)Data);
 				break;
 
 			case ResourceTypeCode.Char:
-				writer.Write((ushort)(char)data);
+				writer.Write((ushort)(char)Data);
 				break;
 
 			case ResourceTypeCode.Byte:
-				writer.Write((byte)data);
+				writer.Write((byte)Data);
 				break;
 
 			case ResourceTypeCode.SByte:
-				writer.Write((sbyte)data);
+				writer.Write((sbyte)Data);
 				break;
 
 			case ResourceTypeCode.Int16:
-				writer.Write((short)data);
+				writer.Write((short)Data);
 				break;
 
 			case ResourceTypeCode.UInt16:
-				writer.Write((ushort)data);
+				writer.Write((ushort)Data);
 				break;
 
 			case ResourceTypeCode.Int32:
-				writer.Write((int)data);
+				writer.Write((int)Data);
 				break;
 
 			case ResourceTypeCode.UInt32:
-				writer.Write((uint)data);
+				writer.Write((uint)Data);
 				break;
 
 			case ResourceTypeCode.Int64:
-				writer.Write((long)data);
+				writer.Write((long)Data);
 				break;
 
 			case ResourceTypeCode.UInt64:
-				writer.Write((ulong)data);
+				writer.Write((ulong)Data);
 				break;
 
 			case ResourceTypeCode.Single:
-				writer.Write((float)data);
+				writer.Write((float)Data);
 				break;
 
 			case ResourceTypeCode.Double:
-				writer.Write((double)data);
+				writer.Write((double)Data);
 				break;
 
 			case ResourceTypeCode.Decimal:
-				writer.Write((decimal)data);
+				writer.Write((decimal)Data);
 				break;
 
 			case ResourceTypeCode.DateTime:
-				writer.Write(((DateTime)data).ToBinary());
+				writer.Write(((DateTime)Data).ToBinary());
 				break;
 
 			case ResourceTypeCode.TimeSpan:
-				writer.Write(((TimeSpan)data).Ticks);
+				writer.Write(((TimeSpan)Data).Ticks);
 				break;
 
 			case ResourceTypeCode.ByteArray:
 			case ResourceTypeCode.Stream:
-				var ary = (byte[])data;
+				var ary = (byte[])Data;
 				writer.Write(ary.Length);
 				writer.Write(ary);
 				break;
@@ -125,7 +118,7 @@ namespace dnlib.DotNet.Resources {
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			switch (code) {
+			switch (Code) {
 			case ResourceTypeCode.Null:
 				return "null";
 
@@ -145,17 +138,17 @@ namespace dnlib.DotNet.Resources {
 			case ResourceTypeCode.Decimal:
 			case ResourceTypeCode.DateTime:
 			case ResourceTypeCode.TimeSpan:
-				return string.Format("{0}: '{1}'", code, data);
+				return $"{Code}: '{Data}'";
 
 			case ResourceTypeCode.ByteArray:
 			case ResourceTypeCode.Stream:
-				var ary = data as byte[];
+				var ary = Data as byte[];
 				if (ary != null)
-					return string.Format("{0}: Length: {1}", code, ary.Length);
-				return string.Format("{0}: '{1}'", code, data);
+					return $"{Code}: Length: {ary.Length}";
+				return $"{Code}: '{Data}'";
 
 			default:
-				return string.Format("{0}: '{1}'", code, data);
+				return $"{Code}: '{Data}'";
 			}
 		}
 	}

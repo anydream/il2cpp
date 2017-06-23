@@ -8,7 +8,7 @@ namespace dnlib.DotNet.Pdb {
 	/// <summary>
 	/// A PDB document
 	/// </summary>
-	[DebuggerDisplay("{Url}")]
+	[DebuggerDisplay("{" + nameof(Url) + "}")]
 	public sealed class PdbDocument {
 		/// <summary>
 		/// Gets/sets the document URL
@@ -52,7 +52,7 @@ namespace dnlib.DotNet.Pdb {
 		/// <param name="symDoc">A <see cref="ISymbolDocument"/> instance</param>
 		public PdbDocument(ISymbolDocument symDoc) {
 			if (symDoc == null)
-				throw new ArgumentNullException("symDoc");
+				throw new ArgumentNullException(nameof(symDoc));
 			this.Url = symDoc.URL;
 			this.Language = symDoc.Language;
 			this.LanguageVendor = symDoc.LanguageVendor;
@@ -87,9 +87,7 @@ namespace dnlib.DotNet.Pdb {
 		/// <inheritdoc/>
 		public override bool Equals(object obj) {
 			var other = obj as PdbDocument;
-			if (other == null)
-				return false;
-			return (Url ?? string.Empty).Equals(other.Url ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+			return other != null && (Url ?? string.Empty).Equals(other.Url ?? string.Empty, StringComparison.OrdinalIgnoreCase);
 		}
 	}
 }

@@ -11,35 +11,30 @@ namespace dnlib.DotNet.Resources {
 	/// Creates resource data
 	/// </summary>
 	public class ResourceDataCreator {
-		readonly ModuleDef module;
-		readonly ModuleDefMD moduleMD;
+	    readonly ModuleDefMD moduleMD;
 		readonly Dictionary<string, UserResourceType> dict = new Dictionary<string, UserResourceType>(StringComparer.Ordinal);
 		readonly Dictionary<string, string> asmNameToAsmFullName = new Dictionary<string, string>(StringComparer.Ordinal);
 
 		/// <summary>
 		/// Gets the owner module
 		/// </summary>
-		protected ModuleDef Module {
-			get { return module; }
-		}
+		protected ModuleDef Module { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="module">Owner module</param>
 		public ResourceDataCreator(ModuleDef module) {
-			this.module = module;
+			this.Module = module;
 			this.moduleMD = module as ModuleDefMD;
 		}
 
 		/// <summary>
 		/// Gets number of user data types
 		/// </summary>
-		public int Count {
-			get { return dict.Count; }
-		}
+		public int Count => dict.Count;
 
-		/// <summary>
+	    /// <summary>
 		/// Create null data
 		/// </summary>
 		/// <returns></returns>
@@ -225,10 +220,9 @@ namespace dnlib.DotNet.Resources {
 		/// <param name="value">Serialized data</param>
 		/// <returns></returns>
 		public BinaryResourceData CreateSerialized(byte[] value) {
-			string assemblyName, typeName;
-			if (!GetSerializedTypeAndAssemblyName(value, out assemblyName, out typeName))
-				throw new ApplicationException("Could not get serialized type name");
-			string fullName = string.Format("{0}, {1}", typeName, assemblyName);
+            if (!GetSerializedTypeAndAssemblyName(value, out string assemblyName, out string typeName))
+                throw new ApplicationException("Could not get serialized type name");
+            string fullName = $"{typeName}, {assemblyName}";
 			return new BinaryResourceData(CreateUserResourceType(fullName), value);
 		}
 
@@ -248,9 +242,11 @@ namespace dnlib.DotNet.Resources {
 
 		bool GetSerializedTypeAndAssemblyName(byte[] value, out string assemblyName, out string typeName) {
 			try {
-				var formatter = new BinaryFormatter();
-				formatter.Binder = new MyBinder();
-				formatter.Deserialize(new MemoryStream(value));
+                var formatter = new BinaryFormatter()
+                {
+                    Binder = new MyBinder()
+                };
+                formatter.Deserialize(new MemoryStream(value));
 			}
 			catch (MyBinder.OkException ex) {
 				assemblyName = ex.AssemblyName;
@@ -282,11 +278,10 @@ namespace dnlib.DotNet.Resources {
 		/// type in an existing assembly reference</param>
 		/// <returns></returns>
 		UserResourceType CreateUserResourceType(string fullName, bool useFullName) {
-			UserResourceType type;
-			if (dict.TryGetValue(fullName, out type))
-				return type;
+            if (dict.TryGetValue(fullName, out UserResourceType type))
+                return type;
 
-			var newFullName = useFullName ? fullName : GetRealTypeFullName(fullName);
+            var newFullName = useFullName ? fullName : GetRealTypeFullName(fullName);
 			type = new UserResourceType(newFullName, ResourceTypeCode.UserTypes + dict.Count);
 			dict[fullName] = type;
 			dict[newFullName] = type;
@@ -294,7 +289,7 @@ namespace dnlib.DotNet.Resources {
 		}
 
 		string GetRealTypeFullName(string fullName) {
-			var tr = TypeNameParser.ParseReflection(module, fullName, null);
+			var tr = TypeNameParser.ParseReflection(Module, fullName, null);
 			if (tr == null)
 				return fullName;
 			var asmRef = tr.DefinitionAssembly;
@@ -305,31 +300,25 @@ namespace dnlib.DotNet.Resources {
 
 			string assemblyName = GetRealAssemblyName(asmRef);
 			if (!string.IsNullOrEmpty(assemblyName))
-				newFullName = string.Format("{0}, {1}", tr.ReflectionFullName, assemblyName);
+				newFullName = $"{tr.ReflectionFullName}, {assemblyName}";
 
 			return newFullName;
 		}
 
 		string GetRealAssemblyName(IAssembly asm) {
 			string assemblyName = asm.FullName;
-			string newAsmName;
-			if (!asmNameToAsmFullName.TryGetValue(assemblyName, out newAsmName))
-				asmNameToAsmFullName[assemblyName] = newAsmName = TryGetRealAssemblyName(asm);
-			return newAsmName;
+            if (!asmNameToAsmFullName.TryGetValue(assemblyName, out string newAsmName))
+                asmNameToAsmFullName[assemblyName] = newAsmName = TryGetRealAssemblyName(asm);
+            return newAsmName;
 		}
 
 		string TryGetRealAssemblyName(IAssembly asm) {
 			var simpleName = asm.Name;
-			if (simpleName == module.CorLibTypes.AssemblyRef.Name)
-				return module.CorLibTypes.AssemblyRef.FullName;
+			if (simpleName == Module.CorLibTypes.AssemblyRef.Name)
+				return Module.CorLibTypes.AssemblyRef.FullName;
 
-			if (moduleMD != null) {
-				var asmRef = moduleMD.GetAssemblyRef(simpleName);
-				if (asmRef != null)
-					return asmRef.FullName;
-			}
-
-			return GetAssemblyFullName(simpleName);
+		    var asmRef = moduleMD?.GetAssemblyRef(simpleName);
+		    return asmRef != null ? asmRef.FullName : GetAssemblyFullName(simpleName);
 		}
 
 		/// <summary>

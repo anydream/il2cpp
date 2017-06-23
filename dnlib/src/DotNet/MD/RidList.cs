@@ -7,7 +7,7 @@ namespace dnlib.DotNet.MD {
 	/// <summary>
 	/// Stores a list of rids
 	/// </summary>
-	[DebuggerDisplay("Length = {Length}")]
+	[DebuggerDisplay("Length = {" + nameof(Length) + "}")]
 	public abstract class RidList {
 		/// <summary>
 		/// The empty <see cref="RidList"/>
@@ -43,47 +43,38 @@ namespace dnlib.DotNet.MD {
 	/// A <see cref="RidList"/> where the rids are contiguous
 	/// </summary>
 	sealed class ContiguousRidList : RidList {
-		readonly uint startRid;
-		readonly uint length;
+	    readonly uint length;
 
 		/// <summary>
 		/// Gets the start rid
 		/// </summary>
-		public uint StartRID {
-			get { return startRid; }
-		}
+		public uint StartRID { get; }
 
-		/// <inheritdoc/>
-		public override uint Length {
-			get { return length; }
-		}
+	    /// <inheritdoc/>
+		public override uint Length => length;
 
-		/// <inheritdoc/>
-		public override int Count {
-			get { return (int)length; }
-		}
+	    /// <inheritdoc/>
+		public override int Count => (int)length;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public override uint this[uint index] {
 			get {
 				if (index >= length)
 					return 0;
-				return startRid + index;
+				return StartRID + index;
 			}
 		}
 
 		/// <inheritdoc/>
-		public override uint this[int index] {
-			get { return this[(uint)index]; }
-		}
+		public override uint this[int index] => this[(uint)index];
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="startRid">First rid to return</param>
 		/// <param name="length">Number of rids to return</param>
 		public ContiguousRidList(uint startRid, uint length) {
-			this.startRid = startRid;
+			this.StartRID = startRid;
 			this.length = length;
 		}
 	}
@@ -96,16 +87,12 @@ namespace dnlib.DotNet.MD {
 		readonly IList<uint> indexToRid;
 
 		/// <inheritdoc/>
-		public override uint Length {
-			get { return (uint)indexToRid.Count; }
-		}
+		public override uint Length => (uint)indexToRid.Count;
 
-		/// <inheritdoc/>
-		public override int Count {
-			get { return indexToRid.Count; }
-		}
+	    /// <inheritdoc/>
+		public override int Count => indexToRid.Count;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public override uint this[uint index] {
 			get {
 				if (index >= (uint)indexToRid.Count)
@@ -115,11 +102,9 @@ namespace dnlib.DotNet.MD {
 		}
 
 		/// <inheritdoc/>
-		public override uint this[int index] {
-			get { return this[(uint)index]; }
-		}
+		public override uint this[int index] => this[(uint)index];
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public RandomRidList() {

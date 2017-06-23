@@ -5,22 +5,18 @@ using System.Diagnostics.SymbolStore;
 
 namespace dnlib.DotNet.Pdb.Dss {
 	sealed class SymbolDocumentWriter : ISymbolDocumentWriter {
-		readonly ISymUnmanagedDocumentWriter writer;
+	    public ISymUnmanagedDocumentWriter SymUnmanagedDocumentWriter { get; }
 
-		public ISymUnmanagedDocumentWriter SymUnmanagedDocumentWriter {
-			get { return writer; }
-		}
-
-		public SymbolDocumentWriter(ISymUnmanagedDocumentWriter writer) {
-			this.writer = writer;
+	    public SymbolDocumentWriter(ISymUnmanagedDocumentWriter writer) {
+			this.SymUnmanagedDocumentWriter = writer;
 		}
 
 		public void SetCheckSum(Guid algorithmId, byte[] checkSum) {
-			writer.SetCheckSum(algorithmId, (uint)(checkSum == null ? 0 : checkSum.Length), checkSum);
+			SymUnmanagedDocumentWriter.SetCheckSum(algorithmId, (uint)(checkSum?.Length ?? 0), checkSum);
 		}
 
 		public void SetSource(byte[] source) {
-			writer.SetSource((uint)source.Length, source);
+			SymUnmanagedDocumentWriter.SetSource((uint)source.Length, source);
 		}
 	}
 }
