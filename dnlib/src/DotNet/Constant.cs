@@ -86,10 +86,8 @@ namespace dnlib.DotNet {
 	/// Created from a row in the Constant table
 	/// </summary>
 	sealed class ConstantMD : Constant, IMDTokenProviderMD {
-		readonly uint origRid;
-
-		/// <inheritdoc/>
-		public uint OrigRid => origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
 	    /// <summary>
 		/// Constructor
@@ -105,9 +103,9 @@ namespace dnlib.DotNet {
 			if (readerModule.TablesStream.ConstantTable.IsInvalidRID(rid))
 				throw new BadImageFormatException($"Constant rid {rid} does not exist");
 #endif
-			this.origRid = rid;
+			this.OrigRid = rid;
 			this.Rid = rid;
-			uint value = readerModule.TablesStream.ReadConstantRow(origRid, out this.type);
+			uint value = readerModule.TablesStream.ReadConstantRow(OrigRid, out this.type);
 			this.Value = GetValue(this.type, readerModule.BlobStream.ReadNoNull(value));
 		}
 

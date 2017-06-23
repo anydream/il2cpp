@@ -1522,7 +1522,7 @@ namespace dnlib.DotNet {
 			if (readerModule == null)
 				throw new ArgumentNullException(nameof(readerModule));
 			if (rid != 1 && readerModule.TablesStream.ModuleTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("Module rid {0} does not exist", rid));
+				throw new BadImageFormatException($"Module rid {rid} does not exist");
 #endif
 			this.OrigRid = rid;
 			this.Rid = rid;

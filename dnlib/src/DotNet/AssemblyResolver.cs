@@ -22,12 +22,12 @@ namespace dnlib.DotNet {
 		static readonly ModuleDef nullModule = new ModuleDefUser();
 
 		// DLL files are searched before EXE files
-		static readonly string[] assemblyExtensions = new string[] { ".dll", ".exe" };
-		static readonly string[] winMDAssemblyExtensions = new string[] { ".winmd" };
+		static readonly string[] assemblyExtensions = { ".dll", ".exe" };
+		static readonly string[] winMDAssemblyExtensions = { ".winmd" };
 
 		static readonly List<GacInfo> gacInfos;
 		static readonly string[] extraMonoPaths;
-		static readonly string[] monoVerDirs = new string[] {
+		static readonly string[] monoVerDirs = {
 			// The "-api" dirs are reference assembly dirs.
 			"4.5", @"4.5\Facades", "4.5-api", @"4.5-api\Facades", "4.0", "4.0-api",
 			"3.5", "3.5-api", "3.0", "3.0-api", "2.0", "2.0-api",

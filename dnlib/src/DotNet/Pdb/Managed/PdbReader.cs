@@ -98,9 +98,9 @@ namespace dnlib.DotNet.Pdb.Managed {
 				ReadRootDirectory(new MsfStream(rootPages, rootSize), pages, pageSize);
 			}
 			finally {
-				foreach (var page in pages) {
-					if (page != null)
-						page.Dispose();
+				foreach (var page in pages)
+				{
+				    page?.Dispose();
 				}
 			}
 

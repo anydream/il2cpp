@@ -96,7 +96,7 @@ namespace dnlib.DotNet {
 		//		HResult (struct)		vs	Exception (class)
 		// See md/winmd/adapter.cpp WinMDAdapter::RewriteTypeInSignature() or check the types
 		// in a decompiler.
-		static readonly ProjectedClass[] ProjectedClasses = new ProjectedClass[] {
+		static readonly ProjectedClass[] ProjectedClasses = {
 			new ProjectedClass("Windows.Foundation.Metadata", "AttributeUsageAttribute", "System", "AttributeUsageAttribute", ClrAssembly.Mscorlib, ClrAssembly.SystemRuntime, false, false),
 			new ProjectedClass("Windows.Foundation.Metadata", "AttributeTargets", "System", "AttributeTargets", ClrAssembly.Mscorlib, ClrAssembly.SystemRuntime, true, true),
 
@@ -248,8 +248,8 @@ namespace dnlib.DotNet {
 			default: throw new InvalidOperationException();
 			}
 		}
-		static readonly byte[] contractPublicKeyToken = new byte[] { 0xB0, 0x3F, 0x5F, 0x7F, 0x11, 0xD5, 0x0A, 0x3A };
-		static readonly byte[] neutralPublicKey = new byte[] { 0xb7, 0x7a, 0x5c, 0x56, 0x19, 0x34, 0xe0, 0x89 };
+		static readonly byte[] contractPublicKeyToken = { 0xB0, 0x3F, 0x5F, 0x7F, 0x11, 0xD5, 0x0A, 0x3A };
+		static readonly byte[] neutralPublicKey = { 0xb7, 0x7a, 0x5c, 0x56, 0x19, 0x34, 0xe0, 0x89 };
 
 		/// <summary>
 		/// Converts WinMD type <paramref name="td"/> to a CLR type. Returns <c>null</c>

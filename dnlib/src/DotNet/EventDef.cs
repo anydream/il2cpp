@@ -50,14 +50,9 @@ namespace dnlib.DotNet {
 	    /// <summary>
 		/// From column Event.EventType
 		/// </summary>
-		public ITypeDefOrRef EventType {
-			get => eventType;
-	        set => eventType = value;
-	    }
-		/// <summary/>
-		protected ITypeDefOrRef eventType;
+		public ITypeDefOrRef EventType { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all custom attributes
 		/// </summary>
 		public CustomAttributeCollection CustomAttributes {
@@ -220,7 +215,7 @@ namespace dnlib.DotNet {
 		public string FullName {
 			get {
 				var dt = DeclaringType2;
-				return FullNameCreator.EventFullName(dt?.FullName, Name, eventType);
+				return FullNameCreator.EventFullName(dt?.FullName, Name, EventType);
 			}
 		}
 
@@ -331,7 +326,7 @@ namespace dnlib.DotNet {
 		/// <param name="flags">Flags</param>
 		public EventDefUser(UTF8String name, ITypeDefOrRef type, EventAttributes flags) {
 			this.Name = name;
-			this.eventType = type;
+			this.EventType = type;
 			this.attributes = (int)flags;
 		}
 	}
@@ -343,14 +338,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
-
-		/// <inheritdoc/>
-		public uint OrigRid => origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
 	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.Event, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.Event, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -369,13 +362,13 @@ namespace dnlib.DotNet {
 			if (readerModule.TablesStream.EventTable.IsInvalidRID(rid))
 				throw new BadImageFormatException($"Event rid {rid} does not exist");
 #endif
-			this.origRid = rid;
+			this.OrigRid = rid;
 			this.Rid = rid;
 			this.readerModule = readerModule;
-			uint eventType = readerModule.TablesStream.ReadEventRow(origRid, out this.attributes, out uint name);
+			uint eventType = readerModule.TablesStream.ReadEventRow(OrigRid, out this.attributes, out uint name);
 			this.Name = readerModule.StringsStream.ReadNoNull(name);
 			this.DeclaringType2 = readerModule.GetOwnerType(this);
-			this.eventType = readerModule.ResolveTypeDefOrRef(eventType, new GenericParamContext(DeclaringType2));
+			this.EventType = readerModule.ResolveTypeDefOrRef(eventType, new GenericParamContext(DeclaringType2));
 		}
 
 		internal EventDefMD InitializeAll() {

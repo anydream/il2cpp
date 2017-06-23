@@ -40,9 +40,7 @@ namespace dnlib.DotNet {
 					return module.CorLibTypes.AssemblyRef;
 			}
 
-			if (modAsm != null)
-				return module.UpdateRowId(new AssemblyRefUser(modAsm));
-			return AssemblyRef.CurrentAssembly;
+			return modAsm != null ? module.UpdateRowId(new AssemblyRefUser(modAsm)) : AssemblyRef.CurrentAssembly;
 		}
 	}
 
@@ -275,9 +273,9 @@ namespace dnlib.DotNet {
 
 		static IBinaryReader CloneBlobReader(IBinaryReader reader)
 		{
-		    if (reader == null)
-				return null;
-		    return reader is IImageStream imgStream ? imgStream.Clone() : MemoryImageStream.Create(reader.ReadAllBytes());
+		    return reader == null
+		        ? null
+		        : (reader is IImageStream imgStream ? imgStream.Clone() : MemoryImageStream.Create(reader.ReadAllBytes()));
 		}
 
 		List<CANamedArgument> ReadNamedArguments(int numNamedArgs) {
@@ -294,10 +292,9 @@ namespace dnlib.DotNet {
 			return SubstituteGenericParameter(type.RemoveModifiers()).RemoveModifiers();
 		}
 
-		TypeSig SubstituteGenericParameter(TypeSig type) {
-			if (genericArguments == null)
-				return type;
-			return genericArguments.Resolve(type);
+		TypeSig SubstituteGenericParameter(TypeSig type)
+		{
+		    return genericArguments == null ? type : genericArguments.Resolve(type);
 		}
 
 		CAArgument ReadFixedArg(TypeSig argType) {
@@ -410,11 +407,7 @@ namespace dnlib.DotNet {
 			case SerializationType.TaggedObject:
 				realArgType = ReadFieldOrPropType();
 				var arraySig = realArgType as SZArraySig;
-				if (arraySig != null)
-					result = ReadArrayArgument(arraySig);
-				else {
-                        result = ReadValue((SerializationType)realArgType.ElementType, realArgType, out TypeSig tmpType);
-                    }
+				result = arraySig != null ? ReadArrayArgument(arraySig) : ReadValue((SerializationType)realArgType.ElementType, realArgType, out TypeSig tmpType);
 				break;
 
 			// It's ET.Class if it's eg. a ctor System.Type arg type

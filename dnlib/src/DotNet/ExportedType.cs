@@ -484,7 +484,7 @@ namespace dnlib.DotNet {
 
 		static TypeDef Resolve(ModuleDef sourceModule, ExportedType et) {
 			for (int i = 0; i < MAX_LOOP_ITERS; i++) {
-				if (et == null || et.module == null)
+				if (et?.module == null)
 					break;
 				var resolver = et.module.Context.AssemblyResolver;
 				var etAsm = resolver.Resolve(et.DefinitionAssembly, sourceModule ?? et.module);

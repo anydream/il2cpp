@@ -20,22 +20,14 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// A high-level representation of a row in the Assembly table
 	/// </summary>
-	public abstract class AssemblyDef : IHasCustomAttribute, IHasDeclSecurity, IAssembly, IListListener<ModuleDef>, ITypeDefFinder, IDnlibDef {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
-
-		/// <inheritdoc/>
-		public MDToken MDToken => new MDToken(Table.Assembly, rid);
+	public abstract class AssemblyDef : IHasDeclSecurity, IAssembly, IListListener<ModuleDef>, ITypeDefFinder, IDnlibDef {
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.Assembly, Rid);
 
 	    /// <inheritdoc/>
-		public uint Rid {
-			get => rid;
-	        set => rid = value;
-	    }
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public int HasCustomAttributeTag => 14;
 
 	    /// <inheritdoc/>
@@ -92,24 +84,14 @@ namespace dnlib.DotNet {
 	    /// <summary>
 		/// From column Assembly.Name
 		/// </summary>
-		public UTF8String Name {
-			get => name;
-	        set => name = value;
-	    }
-		/// <summary>Name</summary>
-		protected UTF8String name;
+		public UTF8String Name { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// From column Assembly.Locale
 		/// </summary>
-		public UTF8String Culture {
-			get => culture;
-		    set => culture = value;
-		}
-		/// <summary>Name</summary>
-		protected UTF8String culture;
+		public UTF8String Culture { get; set; }
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public ThreadSafe.IList<DeclSecurity> DeclSecurities {
 			get {
 				if (declSecurities == null)
@@ -520,7 +502,7 @@ namespace dnlib.DotNet {
 		}
 
 		string GetFullName(PublicKeyBase pkBase) {
-			return Utils.GetAssemblyNameString(name, version, culture, pkBase, Attributes);
+			return Utils.GetAssemblyNameString(Name, version, Culture, pkBase, Attributes);
 		}
 
 		/// <summary>
@@ -593,7 +575,7 @@ namespace dnlib.DotNet {
 					continue;
 
 				var asmInfo = new AssemblyNameInfo(asmName);
-				if (asmInfo.Name != name)
+				if (asmInfo.Name != Name)
 					continue;
 				if (!PublicKeyBase.IsNullOrEmpty2(publicKey)) {
 					if (!PublicKey.Equals(asmInfo.PublicKeyOrToken as PublicKey))
@@ -770,10 +752,10 @@ namespace dnlib.DotNet {
 		/// <exception cref="ArgumentNullException">If any of the args is invalid</exception>
 		public AssemblyDefUser(UTF8String name, Version version, PublicKey publicKey, UTF8String locale) {
             this.modules = new LazyList<ModuleDef>(this);
-			this.name = name ?? throw new ArgumentNullException(nameof(name));
+			this.Name = name ?? throw new ArgumentNullException(nameof(name));
 			this.version = version ?? throw new ArgumentNullException(nameof(version));
 			this.publicKey = publicKey ?? new PublicKey();
-			this.culture = locale ?? throw new ArgumentNullException(nameof(locale));
+			this.Culture = locale ?? throw new ArgumentNullException(nameof(locale));
 			this.attributes = (int)AssemblyAttributes.None;
 		}
 
@@ -797,10 +779,10 @@ namespace dnlib.DotNet {
 			if (asmName == null)
 				throw new ArgumentNullException(nameof(asmName));
 			this.modules = new LazyList<ModuleDef>(this);
-			this.name = asmName.Name;
+			this.Name = asmName.Name;
 			this.version = asmName.Version ?? new Version(0, 0, 0, 0);
 			this.publicKey = asmName.PublicKeyOrToken as PublicKey ?? new PublicKey();
-			this.culture = asmName.Culture;
+			this.Culture = asmName.Culture;
 			this.attributes = (int)AssemblyAttributes.None;
 			this.hashAlgorithm = AssemblyHashAlgorithm.SHA1;
 		}
@@ -858,13 +840,13 @@ namespace dnlib.DotNet {
 				throw new BadImageFormatException($"Assembly rid {rid} does not exist");
 #endif
 			this.origRid = rid;
-			this.rid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
 			if (rid != 1)
 				this.modules = new LazyList<ModuleDef>(this);
             uint culture = readerModule.TablesStream.ReadAssemblyRow(origRid, out this.hashAlgorithm, out this.version, out this.attributes, out uint publicKey, out uint name);
-            this.name = readerModule.StringsStream.ReadNoNull(name);
-			this.culture = readerModule.StringsStream.ReadNoNull(culture);
+            this.Name = readerModule.StringsStream.ReadNoNull(name);
+			this.Culture = readerModule.StringsStream.ReadNoNull(culture);
 			this.publicKey = new PublicKey(readerModule.BlobStream.Read(publicKey));
 		}
 	}

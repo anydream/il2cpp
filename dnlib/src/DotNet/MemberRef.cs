@@ -427,14 +427,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
-
-		/// <inheritdoc/>
-		public uint OrigRid => origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
 	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.MemberRef, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.MemberRef, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -454,11 +452,11 @@ namespace dnlib.DotNet {
 			if (readerModule.TablesStream.MemberRefTable.IsInvalidRID(rid))
 				throw new BadImageFormatException($"MemberRef rid {rid} does not exist");
 #endif
-			this.origRid = rid;
+			this.OrigRid = rid;
 			this.Rid = rid;
 			this.readerModule = readerModule;
 			this.module = readerModule;
-            uint signature = readerModule.TablesStream.ReadMemberRefRow(origRid, out uint @class, out uint name);
+            uint signature = readerModule.TablesStream.ReadMemberRefRow(OrigRid, out uint @class, out uint name);
             this.Name = readerModule.StringsStream.ReadNoNull(name);
 			this.Class = readerModule.ResolveMemberRefParent(@class, gpContext);
 			this.Signature = readerModule.ReadSignature(signature, GetSignatureGenericParamContext(gpContext, this.Class));

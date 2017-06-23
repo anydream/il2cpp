@@ -147,7 +147,7 @@ namespace dnlib.DotNet.Pdb.Managed {
 		/// </summary>
 		/// <returns></returns>
 		public override string ToString() {
-			return string.Format("{0:X4}:{1:X8}", Section, Offset);
+			return $"{Section:X4}:{Offset:X8}";
 		}
 
 		/// <summary>

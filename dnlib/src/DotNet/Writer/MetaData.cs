@@ -1634,11 +1634,8 @@ namespace dnlib.DotNet.Writer {
 				}
 			}
 
-			if (tp == null)
-				Error("IMDTokenProvider is null");
-			else
-				Error("Invalid IMDTokenProvider");
-			return 0;
+		    Error(tp == null ? "IMDTokenProvider is null" : "Invalid IMDTokenProvider");
+		    return 0;
 		}
 
 		/// <summary>

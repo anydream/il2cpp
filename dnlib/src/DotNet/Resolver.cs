@@ -49,7 +49,7 @@ using dnlib.Threading;
 
             if (nonNestedResolutionScope is ModuleDef moduleDef)
                 return moduleDef.Find(typeRef) ??
-                    ResolveExportedType(new ModuleDef[] { moduleDef }, typeRef, sourceModule);
+                    ResolveExportedType(new[] { moduleDef }, typeRef, sourceModule);
 
             if (nonNestedResolutionScope is ModuleRef moduleRef)
             {

@@ -387,10 +387,8 @@ namespace dnlib.DotNet {
 	public sealed class Parameter : IVariable {
 		readonly ParameterList parameterList;
 		TypeSig typeSig;
-		readonly int paramIndex;
-		readonly int methodSigIndex;
 
-		/// <summary>
+	    /// <summary>
 		/// The hidden 'this' parameter's <see cref="MethodSigIndex"/>
 		/// </summary>
 		public const int HIDDEN_THIS_METHOD_SIG_INDEX = -2;
@@ -405,29 +403,29 @@ namespace dnlib.DotNet {
 		/// has index 0 and the remaining parameters in the method signature start from index 1.
 		/// The method return parameter has index <c>-1</c>.
 		/// </summary>
-		public int Index => paramIndex;
+		public int Index { get; }
 
 	    /// <summary>
 		/// Gets the index of the parameter in the method signature. See also
 		/// <see cref="HIDDEN_THIS_METHOD_SIG_INDEX"/> and <see cref="RETURN_TYPE_METHOD_SIG_INDEX"/>
 		/// </summary>
-		public int MethodSigIndex => methodSigIndex;
+		public int MethodSigIndex { get; }
 
 	    /// <summary>
 		/// <c>true</c> if it's a normal visible method parameter, i.e., it's not the hidden
 		/// 'this' parameter and it's not the method return type parameter.
 		/// </summary>
-		public bool IsNormalMethodParameter => methodSigIndex >= 0;
+		public bool IsNormalMethodParameter => MethodSigIndex >= 0;
 
 	    /// <summary>
 		/// <c>true</c> if it's the hidden 'this' parameter
 		/// </summary>
-		public bool IsHiddenThisParameter => methodSigIndex == HIDDEN_THIS_METHOD_SIG_INDEX;
+		public bool IsHiddenThisParameter => MethodSigIndex == HIDDEN_THIS_METHOD_SIG_INDEX;
 
 	    /// <summary>
 		/// <c>true</c> if it's the method return type parameter
 		/// </summary>
-		public bool IsReturnTypeParameter => methodSigIndex == RETURN_TYPE_METHOD_SIG_INDEX;
+		public bool IsReturnTypeParameter => MethodSigIndex == RETURN_TYPE_METHOD_SIG_INDEX;
 
 	    /// <summary>
 		/// Gets the parameter type
@@ -488,8 +486,8 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="paramIndex">Parameter index</param>
 		public Parameter(int paramIndex) {
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = paramIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = paramIndex;
 		}
 
 		/// <summary>
@@ -498,8 +496,8 @@ namespace dnlib.DotNet {
 		/// <param name="paramIndex">Parameter index</param>
 		/// <param name="type">Parameter type</param>
 		public Parameter(int paramIndex, TypeSig type) {
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = paramIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = paramIndex;
 			this.typeSig = type;
 		}
 
@@ -509,8 +507,8 @@ namespace dnlib.DotNet {
 		/// <param name="paramIndex">Parameter index (0 is hidden this param if it exists)</param>
 		/// <param name="methodSigIndex">Index in method signature</param>
 		public Parameter(int paramIndex, int methodSigIndex) {
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = methodSigIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = methodSigIndex;
 		}
 
 		/// <summary>
@@ -520,15 +518,15 @@ namespace dnlib.DotNet {
 		/// <param name="methodSigIndex">Index in method signature</param>
 		/// <param name="type">Parameter type</param>
 		public Parameter(int paramIndex, int methodSigIndex, TypeSig type) {
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = methodSigIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = methodSigIndex;
 			this.typeSig = type;
 		}
 
 		internal Parameter(ParameterList parameterList, int paramIndex, int methodSigIndex) {
 			this.parameterList = parameterList;
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = methodSigIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = methodSigIndex;
 		}
 
 		/// <summary>
@@ -543,7 +541,7 @@ namespace dnlib.DotNet {
 		public override string ToString()
 		{
 		    var name = Name;
-		    return string.IsNullOrEmpty(name) ? (IsReturnTypeParameter ? "RET_PARAM" : $"A_{paramIndex}") : name;
+		    return string.IsNullOrEmpty(name) ? (IsReturnTypeParameter ? "RET_PARAM" : $"A_{Index}") : name;
 		}
 	}
 }
