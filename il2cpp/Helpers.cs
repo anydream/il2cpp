@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
-using System.Linq;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
 
@@ -101,6 +103,56 @@ namespace il2cpp
 			return self.ToString();
 		}
 
+		public static string TypeGenericReplace(string sig, List<TypeX> tyGenArgs)
+		{
+			// 替换类型泛型为具体类型
+			if (tyGenArgs != null)
+			{
+				for (int i = 0; i < tyGenArgs.Count; ++i)
+				{
+					string from = "!" + i;
+					string to = tyGenArgs[i].ToString();
+					sig = TypeGenericReplace(sig, from, to);
+				}
+			}
+			return sig;
+		}
+
+		private static bool IsDigit(char ch)
+		{
+			return ch >= '0' && ch <= '9';
+		}
+
+		private static string TypeGenericReplace(string input, string from, string to)
+		{
+			int pos = 0;
+			for (;;)
+			{
+				pos = input.IndexOf(from, pos, StringComparison.Ordinal);
+				if (pos == -1)
+					break;
+
+				if (pos > 0 && input[pos - 1] == '!')
+				{
+					++pos;
+					continue;
+				}
+
+				if (pos < input.Length - from.Length)
+				{
+					if (IsDigit(input[pos + from.Length]))
+					{
+						++pos;
+						continue;
+					}
+				}
+
+				input = input.Substring(0, pos) + to + input.Substring(pos + from.Length);
+				pos += to.Length;
+			}
+			return input;
+		}
+
 		public static string PrettyName(this TypeDef self)
 		{
 			if (self.Namespace == "System")
@@ -160,6 +212,35 @@ namespace il2cpp
 		public static StringBuilder AppendFormatLine(this StringBuilder self, string format, params object[] args)
 		{
 			return self.AppendFormat(format, args).AppendLine();
+		}
+	}
+
+	public class UniqueList<T> : IEnumerable<T>
+	{
+		private readonly HashSet<T> Set_ = new HashSet<T>();
+		private readonly List<T> List_ = new List<T>();
+
+		public int Count => List_.Count;
+		public T this[int key] => List_[key];
+
+		public bool Add(T val)
+		{
+			if (Set_.Contains(val))
+				return false;
+
+			Set_.Add(val);
+			List_.Add(val);
+			return true;
+		}
+
+		public IEnumerator<T> GetEnumerator()
+		{
+			return List_.GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 	}
 }

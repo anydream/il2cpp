@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -7,35 +6,6 @@ using dnlib.DotNet;
 
 namespace il2cpp
 {
-	public class UniqueList<T> : IEnumerable<T>
-	{
-		private readonly HashSet<T> Set_ = new HashSet<T>();
-		private readonly List<T> List_ = new List<T>();
-
-		public int Count => List_.Count;
-		public T this[int key] => List_[key];
-
-		public bool Add(T val)
-		{
-			if (Set_.Contains(val))
-				return false;
-
-			Set_.Add(val);
-			List_.Add(val);
-			return true;
-		}
-
-		public IEnumerator<T> GetEnumerator()
-		{
-			return List_.GetEnumerator();
-		}
-
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-	}
-
 	// 方法包装
 	public class MethodX : GenericArgs, IEquatable<MethodX>
 	{

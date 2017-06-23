@@ -15,16 +15,7 @@ namespace il2cpp
 		public MethodSignature(MethodDef metDef, List<TypeX> tyGenArgs)
 		{
 			string sig = metDef.Signature.ToString();
-			// 替换类型泛型为具体类型
-			if (tyGenArgs != null)
-			{
-				for (int i = 0; i < tyGenArgs.Count; ++i)
-				{
-					string from = "!" + i;
-					string to = tyGenArgs[i].ToString();
-					sig = TypeGenericReplace(sig, from, to);
-				}
-			}
+			sig = Helpers.TypeGenericReplace(sig, tyGenArgs);
 			SignatureStr = metDef.Name + ": " + sig;
 		}
 
@@ -51,41 +42,6 @@ namespace il2cpp
 		public override string ToString()
 		{
 			return SignatureStr;
-		}
-
-		private static bool IsDigit(char ch)
-		{
-			return ch >= '0' && ch <= '9';
-		}
-
-		private static string TypeGenericReplace(string input, string from, string to)
-		{
-			int pos = 0;
-			for (;;)
-			{
-				pos = input.IndexOf(from, pos, StringComparison.Ordinal);
-				if (pos == -1)
-					break;
-
-				if (pos > 0 && input[pos - 1] == '!')
-				{
-					++pos;
-					continue;
-				}
-
-				if (pos < input.Length - from.Length)
-				{
-					if (IsDigit(input[pos + from.Length]))
-					{
-						++pos;
-						continue;
-					}
-				}
-
-				input = input.Substring(0, pos) + to + input.Substring(pos + from.Length);
-				pos += to.Length;
-			}
-			return input;
 		}
 	}
 
@@ -494,6 +450,7 @@ namespace il2cpp
 				foreach (var overInfo in metDef.Overrides)
 				{
 					string entry = overInfo.MethodDeclaration.ToString();
+					entry = Helpers.TypeGenericReplace(entry, GenArgs);
 					VTable.AddExplicit(entry, metDef);
 				}
 			}
