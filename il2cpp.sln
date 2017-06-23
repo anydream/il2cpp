@@ -3,14 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dnlib", "dnlib\src\dnlib.csproj", "{FDFC1237-143F-4919-8318-4926901F4639}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{D7AF26C0-D2CB-44E9-92F1-78624B7AB175}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "il2cpp", "il2cpp\il2cpp.csproj", "{A114005F-91FD-4852-8514-3CCEE68CD0C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{D7AF26C0-D2CB-44E9-92F1-78624B7AB175}"
-	ProjectSection(ProjectDependencies) = postProject
-		{CA183818-F70E-4B78-ACD7-3FC0E8A35C7C} = {CA183818-F70E-4B78-ACD7-3FC0E8A35C7C}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dnlib", "dnlib\src\dnlib.csproj", "{FDFC1237-143F-4919-8318-4926901F4639}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSILTester", "test\MSILTester\MSILTester.csproj", "{CA183818-F70E-4B78-ACD7-3FC0E8A35C7C}"
 EndProject
