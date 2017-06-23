@@ -13,10 +13,14 @@ namespace il2cpp
 		private readonly string SignatureStr;
 
 		public MethodSignature(MethodDef metDef, List<TypeX> tyGenArgs)
+			: this(metDef.Name, metDef.Signature.ToString(), tyGenArgs)
 		{
-			string sig = metDef.Signature.ToString();
+		}
+
+		public MethodSignature(string metName, string sig, List<TypeX> tyGenArgs)
+		{
 			sig = Helpers.TypeGenericReplace(sig, tyGenArgs);
-			SignatureStr = metDef.Name + ": " + sig;
+			SignatureStr = metName + ": " + sig;
 		}
 
 		public override int GetHashCode()
@@ -135,6 +139,7 @@ namespace il2cpp
 
 		public MethodDef FindImplMethod(string sig, MethodDef entry)
 		{
+			// 优先搜索显式覆盖映射
 			if (ExplicitVTable_.TryGetValue(sig, out MethodDef metDef))
 				return metDef;
 
@@ -478,12 +483,33 @@ namespace il2cpp
 				}
 			}
 
+			HashSet<MethodSignature> overMetSet = new HashSet<MethodSignature>();
+			// 强制替换显式覆盖的方法
+			foreach (var metDef in overMets)
+			{
+				foreach (var overInfo in metDef.Overrides)
+				{
+					string entry = overInfo.MethodDeclaration.ToString();
+					entry = Helpers.TypeGenericReplace(entry, GenArgs);
+					VTable.AddExplicit(entry, metDef);
+
+					overMetSet.Add(
+						new MethodSignature(overInfo.MethodDeclaration.Name,
+							overInfo.MethodDeclaration.MethodSig.ToString(),
+							GenArgs));
+				}
+			}
+
 			// 处理基类覆盖子类接口方法的情况
 			foreach (var kv in infMetMap)
 			{
-				var curr = BaseType;
+				// 过滤显式覆盖过的构型
+				if (overMetSet.Contains(kv.Key))
+					continue;
+
 				if (IsAbstract(kv.Value, out var targetMet))
 				{
+					var curr = BaseType;
 					Debug.Assert(curr != null);
 					while (!curr.MergeAbstract(kv.Key, targetMet, VTable))
 					{
@@ -495,17 +521,6 @@ namespace il2cpp
 
 			// 展平虚表
 			VTable.ExpandTable();
-
-			// 强制替换显式覆盖的方法
-			foreach (var metDef in overMets)
-			{
-				foreach (var overInfo in metDef.Overrides)
-				{
-					string entry = overInfo.MethodDeclaration.ToString();
-					entry = Helpers.TypeGenericReplace(entry, GenArgs);
-					VTable.AddExplicit(entry, metDef);
-				}
-			}
 		}
 	}
 }

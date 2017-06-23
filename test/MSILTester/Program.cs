@@ -412,7 +412,7 @@ TestIL.TestGenInfImpl/Inf`1<long*[]>
 		}
 	}
 
-	namespace SelectInfImpl
+	namespace ExplicitOverride
 	{
 		interface Inf<T>
 		{
@@ -464,61 +464,61 @@ TestIL.TestGenInfImpl/Inf`1<long*[]>
 	}
 
 	[TestClass(@"======
-TestIL.TestSelectInfImpl1
+TestIL.TestExplicitOverride1
 -> void Entry()
 
 object
 -> void .ctor()
 
-TestIL.SelectInfImpl.Cls
+TestIL.ExplicitOverride.Cls
 -> void .ctor()
 -> void Foo()
-   \ void Foo(): TestIL.SelectInfImpl.Cls
+   \ void Foo(): TestIL.ExplicitOverride.Cls
 --> int field1
 
 ======
 void
 System.ValueType
-TestIL.SelectInfImpl.Inf
+TestIL.ExplicitOverride.Inf
 short
 System.IComparable
 System.IFormattable
 System.IConvertible
 System.IComparable`1<short>
 System.IEquatable`1<short>
-TestIL.SelectInfImpl.Inf`1<short>
+TestIL.ExplicitOverride.Inf`1<short>
 uint
 System.IComparable`1<uint>
 System.IEquatable`1<uint>
-TestIL.SelectInfImpl.Inf`1<uint>
+TestIL.ExplicitOverride.Inf`1<uint>
 int
 System.IComparable`1<int>
 System.IEquatable`1<int>
 ")]
-	static class TestSelectInfImpl1
+	static class TestExplicitOverride1
 	{
 		public static void Entry()
 		{
-			var cls = new SelectInfImpl.Cls();
+			var cls = new ExplicitOverride.Cls();
 			cls.Foo();
 		}
 	}
 
 	[TestClass(@"======
-TestIL.TestSelectInfImpl2
+TestIL.TestExplicitOverride2
 -> void Entry()
 
 object
 -> void .ctor()
 
-TestIL.SelectInfImpl.Cls
+TestIL.ExplicitOverride.Cls
 -> void .ctor()
--> void TestIL.SelectInfImpl.Inf.Foo()
+-> void TestIL.ExplicitOverride.Inf.Foo()
 --> int field2
 
-TestIL.SelectInfImpl.Inf
+TestIL.ExplicitOverride.Inf
 -> void Foo() = 0
-   \ void TestIL.SelectInfImpl.Inf.Foo(): TestIL.SelectInfImpl.Cls
+   \ void TestIL.ExplicitOverride.Inf.Foo(): TestIL.ExplicitOverride.Cls
 
 ======
 void
@@ -529,45 +529,45 @@ System.IFormattable
 System.IConvertible
 System.IComparable`1<short>
 System.IEquatable`1<short>
-TestIL.SelectInfImpl.Inf`1<short>
+TestIL.ExplicitOverride.Inf`1<short>
 uint
 System.IComparable`1<uint>
 System.IEquatable`1<uint>
-TestIL.SelectInfImpl.Inf`1<uint>
+TestIL.ExplicitOverride.Inf`1<uint>
 int
 System.IComparable`1<int>
 System.IEquatable`1<int>
 ")]
-	static class TestSelectInfImpl2
+	static class TestExplicitOverride2
 	{
 		public static void Entry()
 		{
-			var cls = new SelectInfImpl.Cls();
-			SelectInfImpl.Inf inf = cls;
+			var cls = new ExplicitOverride.Cls();
+			ExplicitOverride.Inf inf = cls;
 			inf.Foo();
 		}
 	}
 
 	[TestClass(@"======
-TestIL.TestSelectInfImpl3
+TestIL.TestExplicitOverride3
 -> void Entry()
 
 object
 -> void .ctor()
 
-TestIL.SelectInfImpl.Cls
+TestIL.ExplicitOverride.Cls
 -> void .ctor()
--> void TestIL.SelectInfImpl.Inf<System.Int16>.Foo()
+-> void TestIL.ExplicitOverride.Inf<System.Int16>.Foo()
 --> int field3
 
-TestIL.SelectInfImpl.Inf`1<short>
+TestIL.ExplicitOverride.Inf`1<short>
 -> void Foo() = 0
-   \ void TestIL.SelectInfImpl.Inf<System.Int16>.Foo(): TestIL.SelectInfImpl.Cls
+   \ void TestIL.ExplicitOverride.Inf<System.Int16>.Foo(): TestIL.ExplicitOverride.Cls
 
 ======
 void
 System.ValueType
-TestIL.SelectInfImpl.Inf
+TestIL.ExplicitOverride.Inf
 short
 System.IComparable
 System.IFormattable
@@ -577,44 +577,44 @@ System.IEquatable`1<short>
 uint
 System.IComparable`1<uint>
 System.IEquatable`1<uint>
-TestIL.SelectInfImpl.Inf`1<uint>
+TestIL.ExplicitOverride.Inf`1<uint>
 int
 System.IComparable`1<int>
 System.IEquatable`1<int>
 ")]
-	static class TestSelectInfImpl3
+	static class TestExplicitOverride3
 	{
 		public static void Entry()
 		{
-			var cls = new SelectInfImpl.Cls();
-			SelectInfImpl.Inf<short> inf = cls;
+			var cls = new ExplicitOverride.Cls();
+			ExplicitOverride.Inf<short> inf = cls;
 			inf.Foo();
 		}
 	}
 
 	[TestClass(@"======
-TestIL.TestSelectInfImpl4
+TestIL.TestExplicitOverride4
 -> void Entry()
 
 object
 -> void .ctor()
 
-TestIL.SelectInfImpl.Sub1
+TestIL.ExplicitOverride.Sub1
 -> void .ctor()
--> void TestIL.SelectInfImpl.Inf<System.Int16>.Foo()
+-> void TestIL.ExplicitOverride.Inf<System.Int16>.Foo()
 
-TestIL.SelectInfImpl.Cls
+TestIL.ExplicitOverride.Cls
 -> void .ctor()
--> void TestIL.SelectInfImpl.Inf.Foo()
+-> void TestIL.ExplicitOverride.Inf.Foo()
 --> int field2
 
-TestIL.SelectInfImpl.Inf
+TestIL.ExplicitOverride.Inf
 -> void Foo() = 0
-   \ void TestIL.SelectInfImpl.Inf.Foo(): TestIL.SelectInfImpl.Cls
+   \ void TestIL.ExplicitOverride.Inf.Foo(): TestIL.ExplicitOverride.Cls
 
-TestIL.SelectInfImpl.Inf`1<short>
+TestIL.ExplicitOverride.Inf`1<short>
 -> void Foo() = 0
-   \ void TestIL.SelectInfImpl.Inf<System.Int16>.Foo(): TestIL.SelectInfImpl.Sub1
+   \ void TestIL.ExplicitOverride.Inf<System.Int16>.Foo(): TestIL.ExplicitOverride.Sub1
 
 ======
 void
@@ -628,53 +628,53 @@ System.IEquatable`1<short>
 uint
 System.IComparable`1<uint>
 System.IEquatable`1<uint>
-TestIL.SelectInfImpl.Inf`1<uint>
+TestIL.ExplicitOverride.Inf`1<uint>
 int
 System.IComparable`1<int>
 System.IEquatable`1<int>
 ")]
-	static class TestSelectInfImpl4
+	static class TestExplicitOverride4
 	{
 		public static void Entry()
 		{
-			var cls = new SelectInfImpl.Sub1();
-			SelectInfImpl.Inf<short> inf = cls;
+			var cls = new ExplicitOverride.Sub1();
+			ExplicitOverride.Inf<short> inf = cls;
 			inf.Foo();
-			SelectInfImpl.Inf inf2 = cls;
+			ExplicitOverride.Inf inf2 = cls;
 			inf2.Foo();
 		}
 	}
 
 	[TestClass(@"======
-TestIL.TestSelectInfImpl5
+TestIL.TestExplicitOverride5
 -> void Entry()
 
 object
 -> void .ctor()
 
-TestIL.SelectInfImpl.Sub1
+TestIL.ExplicitOverride.Sub1
 -> void .ctor()
 
-TestIL.SelectInfImpl.Cls
+TestIL.ExplicitOverride.Cls
 -> void .ctor()
 -> void Foo()
 --> int field1
 
-TestIL.SelectInfImpl.Inf`1<uint>
+TestIL.ExplicitOverride.Inf`1<uint>
 -> void Foo() = 0
-   \ void Foo(): TestIL.SelectInfImpl.Cls
+   \ void Foo(): TestIL.ExplicitOverride.Cls
 
 ======
 void
 System.ValueType
-TestIL.SelectInfImpl.Inf
+TestIL.ExplicitOverride.Inf
 short
 System.IComparable
 System.IFormattable
 System.IConvertible
 System.IComparable`1<short>
 System.IEquatable`1<short>
-TestIL.SelectInfImpl.Inf`1<short>
+TestIL.ExplicitOverride.Inf`1<short>
 uint
 System.IComparable`1<uint>
 System.IEquatable`1<uint>
@@ -682,44 +682,44 @@ int
 System.IComparable`1<int>
 System.IEquatable`1<int>
 ")]
-	static class TestSelectInfImpl5
+	static class TestExplicitOverride5
 	{
 		public static void Entry()
 		{
-			var cls = new SelectInfImpl.Sub1();
-			SelectInfImpl.Inf<uint> inf = cls;
+			var cls = new ExplicitOverride.Sub1();
+			ExplicitOverride.Inf<uint> inf = cls;
 			inf.Foo();
 		}
 	}
 
 	[TestClass(@"======
-TestIL.TestSelectInfImpl6
+TestIL.TestExplicitOverride6
 -> void Entry()
 
 object
 -> void .ctor()
 
-TestIL.SelectInfImpl.Sub2
+TestIL.ExplicitOverride.Sub2
 -> void .ctor()
--> void TestIL.SelectInfImpl.Inf<System.UInt32>.Foo()
+-> void TestIL.ExplicitOverride.Inf<System.UInt32>.Foo()
 
-TestIL.SelectInfImpl.Cls
+TestIL.ExplicitOverride.Cls
 -> void .ctor()
--> void TestIL.SelectInfImpl.Inf<System.Int16>.Foo()
+-> void TestIL.ExplicitOverride.Inf<System.Int16>.Foo()
 --> int field3
 
-TestIL.SelectInfImpl.Inf`1<short>
+TestIL.ExplicitOverride.Inf`1<short>
 -> void Foo() = 0
-   \ void TestIL.SelectInfImpl.Inf<System.Int16>.Foo(): TestIL.SelectInfImpl.Cls
+   \ void TestIL.ExplicitOverride.Inf<System.Int16>.Foo(): TestIL.ExplicitOverride.Cls
 
-TestIL.SelectInfImpl.Inf`1<uint>
+TestIL.ExplicitOverride.Inf`1<uint>
 -> void Foo() = 0
-   \ void TestIL.SelectInfImpl.Inf<System.UInt32>.Foo(): TestIL.SelectInfImpl.Sub2
+   \ void TestIL.ExplicitOverride.Inf<System.UInt32>.Foo(): TestIL.ExplicitOverride.Sub2
 
 ======
 void
 System.ValueType
-TestIL.SelectInfImpl.Inf
+TestIL.ExplicitOverride.Inf
 short
 System.IComparable
 System.IFormattable
@@ -733,16 +733,70 @@ int
 System.IComparable`1<int>
 System.IEquatable`1<int>
 ")]
-	static class TestSelectInfImpl6
+	static class TestExplicitOverride6
 	{
 		public static void Entry()
 		{
-			var cls = new SelectInfImpl.Sub2();
-			SelectInfImpl.Inf<uint> inf = cls;
+			var cls = new ExplicitOverride.Sub2();
+			ExplicitOverride.Inf<uint> inf = cls;
 			inf.Foo();
 
-			SelectInfImpl.Inf<short> inf2 = cls;
+			ExplicitOverride.Inf<short> inf2 = cls;
 			inf2.Foo();
+		}
+	}
+
+	[TestClass(@"======
+TestIL.TestExplicitOverride7
+-> void Entry()
+
+object
+-> void .ctor()
+
+TestIL.TestExplicitOverride7/Cls`1<TestIL.TestExplicitOverride7/Elem>
+-> void .ctor()
+-> TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem> TestIL.TestExplicitOverride7.Inf<TC>.Foo(TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem>)
+
+TestIL.TestExplicitOverride7/Inf`1<TestIL.TestExplicitOverride7/Elem>
+-> TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem> Foo(TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem>) = 0
+   \ TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem> TestIL.TestExplicitOverride7.Inf<TC>.Foo(TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem>): TestIL.TestExplicitOverride7/Cls`1<TestIL.TestExplicitOverride7/Elem>
+
+======
+void
+System.ValueType
+TestIL.TestExplicitOverride7/Elem
+TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem>
+")]
+	static class TestExplicitOverride7
+	{
+		interface IBla<TB>
+		{ }
+
+		interface Inf<TI>
+		{
+			IBla<TI> Foo(IBla<TI> n);
+		}
+
+		class Cls<TC> : Inf<TC>
+		{
+			IBla<TC> Inf<TC>.Foo(IBla<TC> n)
+			{
+				return n;
+			}
+
+			public IBla<TC> Foo(IBla<TC> n)
+			{
+				return n;
+			}
+		}
+
+		class Elem
+		{ }
+
+		public static void Entry()
+		{
+			Inf<Elem> inf = new Cls<Elem>();
+			inf.Foo(null);
 		}
 	}
 
@@ -832,10 +886,68 @@ System.IEquatable`1<int>
 		}
 	}
 
+	[TestClass(@"======
+TestIL.TestCrossOverride2
+-> void Entry()
+
+object
+-> void .ctor()
+
+TestIL.TestCrossOverride2/Cls
+-> void .ctor()
+
+TestIL.TestCrossOverride2/Base
+-> void .ctor()
+-> int Foo(short)
+
+TestIL.TestCrossOverride2/Inf`2<int,short>
+-> int Foo(short) = 0
+   \ int Foo(short): TestIL.TestCrossOverride2/Base
+
+======
+void
+System.ValueType
+int
+System.IComparable
+System.IFormattable
+System.IConvertible
+System.IComparable`1<int>
+System.IEquatable`1<int>
+short
+System.IComparable`1<short>
+System.IEquatable`1<short>
+")]
+	static class TestCrossOverride2
+	{
+		class Base
+		{
+			public int Foo(short n)
+			{
+				return n;
+			}
+		}
+
+		interface Inf<T1, T2>
+		{
+			T1 Foo(T2 n);
+		}
+
+		class Cls : Base, Inf<int, short>
+		{
+		}
+
+		public static void Entry()
+		{
+			Inf<int, short> inf = new Cls();
+			int n = inf.Foo(123);
+		}
+	}
+
 	class Program
 	{
 		static void Main()
 		{
+			TestExplicitOverride7.Entry();
 		}
 	}
 }
