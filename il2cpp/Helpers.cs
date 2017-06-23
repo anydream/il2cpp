@@ -3,9 +3,9 @@ using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 
-namespace ILFrontend
+namespace il2cpp
 {
-	internal static class Helpers
+	public static class Helpers
 	{
 		public static bool EqualsWithDecl(this MethodDef self, MethodDef other)
 		{

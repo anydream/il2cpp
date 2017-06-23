@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
 
-namespace ILFrontend
+namespace il2cpp
 {
-	internal interface IGenericResolver
+	public interface IGenericResolver
 	{
 		TypeX ResolveGenericSig(GenericSig genSig);
 	}
@@ -66,7 +66,7 @@ namespace ILFrontend
 		}
 	}
 
-	internal class GenericArgs
+	public class GenericArgs
 	{
 		// 泛型类型列表
 		private List<TypeX> GenArgs_;

@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
 
-namespace ILFrontend
+namespace il2cpp
 {
-	class UniqueList<T> : IEnumerable<T>
+	public class UniqueList<T> : IEnumerable<T>
 	{
 		private readonly HashSet<T> Set_ = new HashSet<T>();
 		private readonly List<T> List_ = new List<T>();
@@ -37,7 +37,7 @@ namespace ILFrontend
 	}
 
 	// 方法包装
-	internal class MethodX : GenericArgs, IEquatable<MethodX>
+	public class MethodX : GenericArgs, IEquatable<MethodX>
 	{
 		// 定义
 		public readonly MethodDef Def;

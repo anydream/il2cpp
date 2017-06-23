@@ -4,9 +4,9 @@ using System.Linq;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace ILFrontend
+namespace il2cpp
 {
-	internal class CodeMarker
+	public class CodeMarker
 	{
 		private ModuleDefMD Module_;
 		public ModuleDefMD Module => Module_;

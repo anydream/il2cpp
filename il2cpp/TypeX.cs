@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 
-namespace ILFrontend
+namespace il2cpp
 {
 	// 方法签名. 如果存在类型泛型则替换成具体类型
 	internal class MethodSignature : IEquatable<MethodSignature>
@@ -191,7 +191,7 @@ namespace ILFrontend
 	}
 
 	// 类型包装
-	internal class TypeX : GenericArgs, IEquatable<TypeX>
+	public class TypeX : GenericArgs, IEquatable<TypeX>
 	{
 		// 定义
 		public readonly TypeDef Def;

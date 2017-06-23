@@ -2,10 +2,10 @@
 using System.Diagnostics;
 using dnlib.DotNet;
 
-namespace ILFrontend
+namespace il2cpp
 {
 	// 字段包装
-	internal class FieldX : IEquatable<FieldX>
+	public class FieldX : IEquatable<FieldX>
 	{
 		// 定义
 		public readonly FieldDef Def;
