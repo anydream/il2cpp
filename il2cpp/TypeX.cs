@@ -107,7 +107,6 @@ namespace il2cpp
 			if (VTable_.TryGetValue(entry, out metDef))
 				return metDef;
 
-			Debug.Fail("FindImplMethod " + sig + ", " + entry);
 			return null;
 		}
 	}
