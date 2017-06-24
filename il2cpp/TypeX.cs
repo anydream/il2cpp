@@ -13,14 +13,14 @@ namespace il2cpp
 		private readonly string SignatureStr;
 
 		public MethodSignature(MethodDef metDef, List<TypeX> tyGenArgs)
-			: this(metDef.Name, metDef.Signature.ToString(), tyGenArgs)
 		{
+			SignatureStr = MakeSignature(metDef.Name, metDef.Signature.ToString(), tyGenArgs);
 		}
 
-		public MethodSignature(string metName, string sig, List<TypeX> tyGenArgs)
+		public static string MakeSignature(string metName, string sig, List<TypeX> tyGenArgs)
 		{
 			sig = Helpers.TypeGenericReplace(sig, tyGenArgs);
-			SignatureStr = metName + ": " + sig;
+			return metName + ": " + sig;
 		}
 
 		public override int GetHashCode()
@@ -73,13 +73,13 @@ namespace il2cpp
 		// 方法构型对应的虚表槽
 		private readonly Dictionary<MethodSignature, List<VirtualSlot>> VMap_ =
 			new Dictionary<MethodSignature, List<VirtualSlot>>();
-
 		// 展平的虚表
 		private readonly Dictionary<MethodDef, MethodDef> VTable_ =
 			new Dictionary<MethodDef, MethodDef>(MethodEqualityComparer.CompareDeclaringTypes);
-
 		// 显式覆盖的虚表
 		private readonly Dictionary<string, MethodDef> ExplicitVTable_ = new Dictionary<string, MethodDef>();
+		// 显式覆盖的构型
+		public readonly HashSet<string> ExplicitSignature = new HashSet<string>();
 
 		public VirtualTable Clone()
 		{
@@ -93,6 +93,8 @@ namespace il2cpp
 
 			foreach (var kv in ExplicitVTable_)
 				vtbl.ExplicitVTable_.Add(kv.Key, kv.Value);
+
+			vtbl.ExplicitSignature.UnionWith(ExplicitSignature);
 
 			return vtbl;
 		}
@@ -132,9 +134,10 @@ namespace il2cpp
 			}
 		}
 
-		public void AddExplicit(string entry, MethodDef impl)
+		public void AddExplicit(string entry, string sig, MethodDef impl)
 		{
 			ExplicitVTable_[entry] = impl;
+			ExplicitSignature.Add(sig);
 		}
 
 		public MethodDef FindImplMethod(string sig, MethodDef entry)
@@ -483,20 +486,20 @@ namespace il2cpp
 				}
 			}
 
-			HashSet<MethodSignature> overMetSet = new HashSet<MethodSignature>();
 			// 强制替换显式覆盖的方法
 			foreach (var metDef in overMets)
 			{
 				foreach (var overInfo in metDef.Overrides)
 				{
+					string sig = MethodSignature.MakeSignature(
+						overInfo.MethodDeclaration.Name,
+						overInfo.MethodDeclaration.MethodSig.ToString(),
+						GenArgs);
+
 					string entry = overInfo.MethodDeclaration.ToString();
 					entry = Helpers.TypeGenericReplace(entry, GenArgs);
-					VTable.AddExplicit(entry, metDef);
 
-					overMetSet.Add(
-						new MethodSignature(overInfo.MethodDeclaration.Name,
-							overInfo.MethodDeclaration.MethodSig.ToString(),
-							GenArgs));
+					VTable.AddExplicit(entry, sig, metDef);
 				}
 			}
 
@@ -504,7 +507,7 @@ namespace il2cpp
 			foreach (var kv in infMetMap)
 			{
 				// 过滤显式覆盖过的构型
-				if (overMetSet.Contains(kv.Key))
+				if (VTable.ExplicitSignature.Contains(kv.Key.ToString()))
 					continue;
 
 				if (IsAbstract(kv.Value, out var targetMet))

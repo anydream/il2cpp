@@ -943,6 +943,50 @@ System.IEquatable`1<short>
 		}
 	}
 
+	[TestClass(@"======
+TestIL.TestCrossOverride3
+-> void Entry()
+
+object
+-> void .ctor()
+
+TestIL.TestCrossOverride3/Derived
+-> void .ctor()
+
+TestIL.TestCrossOverride3/Base
+-> void .ctor()
+-> void TestIL.TestCrossOverride3.Inf.fun()
+
+TestIL.TestCrossOverride3/Inf
+-> void fun() = 0
+   \ void TestIL.TestCrossOverride3.Inf.fun(): TestIL.TestCrossOverride3/Base
+
+======
+void
+System.ValueType
+")]
+	static class TestCrossOverride3
+	{
+		interface Inf
+		{
+			void fun();
+		}
+
+		class Base : Inf
+		{
+			void Inf.fun() { }
+		}
+
+		class Derived : Base, Inf
+		{
+		}
+
+		public static void Entry()
+		{
+			(new Derived() as Inf).fun();
+		}
+	}
+
 	class Program
 	{
 		static void Main()
