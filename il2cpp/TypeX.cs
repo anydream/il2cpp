@@ -7,48 +7,6 @@ using dnlib.DotNet;
 
 namespace il2cpp
 {
-	// 方法签名. 如果存在类型泛型则替换成具体类型
-	internal class MethodSignature : IEquatable<MethodSignature>
-	{
-		private readonly string SignatureStr;
-
-		public MethodSignature(MethodDef metDef, List<TypeX> tyGenArgs)
-		{
-			SignatureStr = MakeSignature(metDef.Name, metDef.Signature.ToString(), tyGenArgs);
-		}
-
-		public static string MakeSignature(string metName, string sig, List<TypeX> tyGenArgs)
-		{
-			sig = Helpers.TypeGenericReplace(sig, tyGenArgs);
-			return metName + ": " + sig;
-		}
-
-		public override int GetHashCode()
-		{
-			return SignatureStr.GetHashCode();
-		}
-
-		public bool Equals(MethodSignature other)
-		{
-			Debug.Assert(other != null);
-
-			if (ReferenceEquals(this, other))
-				return true;
-
-			return SignatureStr == other.SignatureStr;
-		}
-
-		public override bool Equals(object obj)
-		{
-			return obj is MethodSignature other && Equals(other);
-		}
-
-		public override string ToString()
-		{
-			return SignatureStr;
-		}
-	}
-
 	// 虚表槽. 包含一系列入口方法和它们所对应的实现方法
 	internal class VirtualSlot
 	{
@@ -71,8 +29,8 @@ namespace il2cpp
 	internal class VirtualTable
 	{
 		// 方法构型对应的虚表槽
-		private readonly Dictionary<MethodSignature, List<VirtualSlot>> VMap_ =
-			new Dictionary<MethodSignature, List<VirtualSlot>>();
+		private readonly Dictionary<string, List<VirtualSlot>> VMap_ =
+			new Dictionary<string, List<VirtualSlot>>();
 		// 展平的虚表
 		private readonly Dictionary<MethodDef, MethodDef> VTable_ =
 			new Dictionary<MethodDef, MethodDef>(MethodEqualityComparer.CompareDeclaringTypes);
@@ -99,7 +57,7 @@ namespace il2cpp
 			return vtbl;
 		}
 
-		public void NewSlot(MethodSignature sig, VirtualSlot vslot)
+		public void NewSlot(string sig, VirtualSlot vslot)
 		{
 			if (!VMap_.TryGetValue(sig, out var slotList))
 			{
@@ -109,7 +67,7 @@ namespace il2cpp
 			slotList.Add(vslot);
 		}
 
-		public void ReuseSlot(MethodSignature sig, VirtualSlot vslot)
+		public void ReuseSlot(string sig, VirtualSlot vslot)
 		{
 			bool status = VMap_.TryGetValue(sig, out var slotList);
 			Debug.Assert(status);
@@ -376,7 +334,7 @@ namespace il2cpp
 			return VTable.FindImplMethod(sig, entry);
 		}
 
-		private void CollectInterfaceMethods(Dictionary<MethodSignature, HashSet<MethodDef>> infMetMap)
+		private void CollectInterfaceMethods(Dictionary<string, HashSet<MethodDef>> infMetMap)
 		{
 			Debug.Assert(Def.IsInterface);
 
@@ -388,7 +346,7 @@ namespace il2cpp
 
 			foreach (var metDef in Def.Methods)
 			{
-				var sig = new MethodSignature(metDef, GenArgs);
+				string sig = Helpers.MakeSignature(metDef, GenArgs);
 				if (!infMetMap.TryGetValue(sig, out var metSet))
 				{
 					metSet = new HashSet<MethodDef>(MethodEqualityComparer.CompareDeclaringTypes);
@@ -399,14 +357,13 @@ namespace il2cpp
 		}
 
 		private void MergeVTable(
-			Dictionary<MethodSignature, HashSet<MethodDef>> infMetMap,
-			MethodSignature sig, MethodDef metDef)
+			Dictionary<string, HashSet<MethodDef>> infMetMap,
+			string sig, MethodDef metDef)
 		{
 			// 合并接口相同构型的方法
 			if (!infMetMap.TryGetValue(sig, out var metSet))
 			{
 				metSet = new HashSet<MethodDef>();
-				infMetMap.Add(sig, metSet);
 			}
 			metSet.Add(metDef);
 
@@ -422,12 +379,12 @@ namespace il2cpp
 			}
 		}
 
-		private bool MergeAbstract(MethodSignature targetSig, MethodDef targetDef, VirtualTable targetVTable)
+		private bool MergeAbstract(string targetSig, MethodDef targetDef, VirtualTable targetVTable)
 		{
 			foreach (var metDef in Def.Methods)
 			{
-				var sig = new MethodSignature(metDef, GenArgs);
-				if (sig.Equals(targetSig))
+				string sig = Helpers.MakeSignature(metDef, GenArgs);
+				if (sig == targetSig)
 				{
 					targetVTable.NewSlot(targetSig, new VirtualSlot(new List<MethodDef> { targetDef }, metDef));
 					CrossOverrides.Add(targetDef);
@@ -442,8 +399,8 @@ namespace il2cpp
 			if (metSet.Count == 1)
 			{
 				metDef = metSet.First();
-				if (metDef.IsAbstract && metDef.DeclaringType.IsInterface)
-					return true;
+				Debug.Assert(metDef.IsAbstract && metDef.DeclaringType.IsInterface);
+				return true;
 			}
 			metDef = null;
 			return false;
@@ -463,7 +420,7 @@ namespace il2cpp
 				VTable = new VirtualTable();
 
 			// 收集接口方法
-			var infMetMap = new Dictionary<MethodSignature, HashSet<MethodDef>>();
+			var infMetMap = new Dictionary<string, HashSet<MethodDef>>();
 			if (HasInterfaces)
 			{
 				foreach (var inf in Interfaces_)
@@ -481,7 +438,7 @@ namespace il2cpp
 					overMets.Add(metDef);
 				else
 				{
-					var sig = new MethodSignature(metDef, GenArgs);
+					string sig = Helpers.MakeSignature(metDef, GenArgs);
 					MergeVTable(infMetMap, sig, metDef);
 				}
 			}
@@ -491,7 +448,7 @@ namespace il2cpp
 			{
 				foreach (var overInfo in metDef.Overrides)
 				{
-					string sig = MethodSignature.MakeSignature(
+					string sig = Helpers.MakeSignature(
 						overInfo.MethodDeclaration.Name,
 						overInfo.MethodDeclaration.MethodSig.ToString(),
 						GenArgs);
@@ -507,7 +464,7 @@ namespace il2cpp
 			foreach (var kv in infMetMap)
 			{
 				// 过滤显式覆盖过的构型
-				if (VTable.ExplicitSignature.Contains(kv.Key.ToString()))
+				if (VTable.ExplicitSignature.Contains(kv.Key))
 					continue;
 
 				if (IsAbstract(kv.Value, out var targetMet))

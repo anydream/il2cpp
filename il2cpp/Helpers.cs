@@ -153,6 +153,18 @@ namespace il2cpp
 			return input;
 		}
 
+		// 生成方法签名. 如果存在类型泛型则替换成具体类型
+		public static string MakeSignature(string metName, string sig, List<TypeX> tyGenArgs)
+		{
+			sig = TypeGenericReplace(sig, tyGenArgs);
+			return metName + ": " + sig;
+		}
+
+		public static string MakeSignature(MethodDef metDef, List<TypeX> tyGenArgs)
+		{
+			return MakeSignature(metDef.Name, metDef.Signature.ToString(), tyGenArgs);
+		}
+
 		public static string PrettyName(this TypeDef self)
 		{
 			if (self.Namespace == "System")
