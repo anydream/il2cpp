@@ -165,6 +165,20 @@ namespace il2cpp
 			return MakeSignature(metDef.Name, metDef.Signature.ToString(), tyGenArgs);
 		}
 
+		public static string GetMethodRefSig(MemberRef metRef)
+		{
+			Debug.Assert(metRef.IsMethodRef);
+			var parent = metRef.Class;
+			IList<TypeSig> typeGenArgs = null;
+			if (parent is TypeSpec)
+			{
+				var sig = ((TypeSpec)parent).TypeSig as GenericInstSig;
+				if (sig != null)
+					typeGenArgs = sig.GenericArguments;
+			}
+			return FullNameCreator.MethodFullName(null, null, metRef.MethodSig, typeGenArgs, null, null, null);
+		}
+
 		public static string PrettyName(this TypeDef self)
 		{
 			if (self.Namespace == "System")

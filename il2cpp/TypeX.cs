@@ -448,9 +448,21 @@ namespace il2cpp
 			{
 				foreach (var overInfo in metDef.Overrides)
 				{
+					string metSig = "";
+					if (overInfo.MethodDeclaration is MethodDef ometDef)
+					{
+						metSig = ometDef.Signature.ToString();
+					}
+					else if (overInfo.MethodDeclaration is MemberRef ometRef)
+					{
+						metSig = Helpers.GetMethodRefSig(ometRef);
+					}
+					else
+						Debug.Fail("MethodDeclaration");
+
 					string sig = Helpers.MakeSignature(
 						overInfo.MethodDeclaration.Name,
-						overInfo.MethodDeclaration.MethodSig.ToString(),
+						metSig,
 						GenArgs);
 
 					string entry = overInfo.MethodDeclaration.ToString();
