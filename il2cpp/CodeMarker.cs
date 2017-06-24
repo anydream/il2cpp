@@ -202,7 +202,14 @@ namespace il2cpp
 					foreach (var vmet in kv.Value)
 					{
 						MethodDef metDef = obj.GetImplMethod(vmet.ToString(true), vmet.Def);
-						Debug.Assert(metDef != null);
+						if (metDef == null)
+						{
+							// 解析失败的情况下, 检查虚方法与对象实例的版本
+							if (vmet.Def.Module.RuntimeVersion != obj.Def.Module.RuntimeVersion)
+								continue;
+							else
+								Debug.Fail("GetImplMethod failed. " + obj + ", " + vmet);
+						}
 
 						// 解析所属类型
 						TypeX declType = obj.GetImplType(metDef.DeclaringType, vmet.DeclType, vmet.Def);

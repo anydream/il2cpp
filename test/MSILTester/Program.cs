@@ -1060,6 +1060,91 @@ System.IEquatable`1<int>
 		}
 	}
 
+	[TestClass(@"======
+TestIL.TestCrossOverride5
+-> void Entry()
+
+object
+-> void .ctor()
+
+TestIL.TestCrossOverride5/Derived`2<long,ushort>
+-> void .ctor()
+
+TestIL.TestCrossOverride5/Base`2<ushort,long>
+-> void .ctor()
+-> int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int)
+-> int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int,long)
+
+TestIL.TestCrossOverride5/Inf`2<int,long>
+-> int fun(int) = 0
+   \ int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int): TestIL.TestCrossOverride5/Base`2<ushort,long>
+-> int fun(int,long) = 0
+   \ int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int,long): TestIL.TestCrossOverride5/Base`2<ushort,long>
+
+======
+void
+System.ValueType
+long
+System.IComparable
+System.IFormattable
+System.IConvertible
+System.IComparable`1<long>
+System.IEquatable`1<long>
+ushort
+System.IComparable`1<ushort>
+System.IEquatable`1<ushort>
+int
+System.IComparable`1<int>
+System.IEquatable`1<int>
+")]
+	static class TestCrossOverride5
+	{
+		interface Inf
+		{
+			int fun(int n);
+		}
+
+		interface Inf<TI, TI2>
+		{
+			TI fun(TI n);
+			TI fun(TI n, TI2 n2);
+		}
+
+		class Base<TB0, TB> : Inf<int, TB>
+		{
+			public virtual int fun(int n, long n1)
+			{
+				return n;
+			}
+
+			int Inf<int, TB>.fun(int n)
+			{
+				return n;
+			}
+
+			int Inf<int, TB>.fun(int n, TB n2)
+			{
+				return n;
+			}
+		}
+
+		class Derived<TD, TD1> : Base<TD1, TD>, Inf<int, TD>
+		{
+			public override int fun(int n, long n1)
+			{
+				return n;
+			}
+		}
+
+		public static void Entry()
+		{
+			var cls = new Derived<long, ushort>();
+			Inf<int, long> inf = cls;
+			inf.fun(123);
+			inf.fun(123, 456L);
+		}
+	}
+
 	class Program
 	{
 		static void Main()
