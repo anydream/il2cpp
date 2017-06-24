@@ -226,8 +226,8 @@ namespace il2cpp
 				return "";
 
 			StringBuilder sb = new StringBuilder();
-			foreach (var sig in ModifierList)
-				sb.Append(sig.ModifierToString(isPretty));
+			foreach (var mod in ModifierList)
+				sb.Append(mod.ModifierToString(isPretty));
 			return sb.ToString();
 		}
 
