@@ -175,10 +175,7 @@ namespace il2cpp
 
 			if (HasModifierList)
 			{
-				if (modList != null)
-					tyX.ModifierList = ModifierList.Concat(modList).ToList();
-				else
-					tyX.ModifierList = new List<NonLeafSig>(ModifierList);
+			    tyX.ModifierList = modList != null ? ModifierList.Concat(modList).ToList() : new List<NonLeafSig>(ModifierList);
 			}
 			else
 				tyX.ModifierList = modList;
@@ -211,12 +208,7 @@ namespace il2cpp
 			if (ModifierList.Count != other.ModifierList.Count)
 				return false;
 
-			for (int i = 0; i < ModifierList.Count; ++i)
-			{
-				if (!ModifierList[i].ModifierEquals(other.ModifierList[i]))
-					return false;
-			}
-			return true;
+		    return !ModifierList.Where((t, i) => !t.ModifierEquals(other.ModifierList[i])).Any();
 		}
 
 		public string ModifierToString(bool isPretty = false)
@@ -299,9 +291,7 @@ namespace il2cpp
 
 		public bool IsDerivedOrEqual(TypeX tyX)
 		{
-			if (Equals(tyX))
-				return true;
-			return BaseClasses.Contains(tyX);
+		    return Equals(tyX) || BaseClasses.Contains(tyX);
 		}
 
 		private bool IsExpiredType(TypeDef tyDef, TypeX vmetDecl, MethodDef vmetDef)

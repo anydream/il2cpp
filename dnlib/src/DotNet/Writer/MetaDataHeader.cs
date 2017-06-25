@@ -63,31 +63,21 @@ namespace dnlib.DotNet.Writer {
 	/// Meta data header. IMAGE_COR20_HEADER.MetaData points to this header.
 	/// </summary>
 	public sealed class MetaDataHeader : IChunk {
-		IList<IHeap> heaps;
-		readonly MetaDataHeaderOptions options;
+	    readonly MetaDataHeaderOptions options;
 		uint length;
-		FileOffset offset;
-		RVA rva;
 
-		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the heaps
 		/// </summary>
-		public IList<IHeap> Heaps {
-			get { return heaps; }
-			set { heaps = value; }
-		}
+		public IList<IHeap> Heaps { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public MetaDataHeader()
@@ -104,14 +94,14 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 
 			length = 16;
 			length += (uint)GetVersionString().Length;
 			length = Utils.AlignUp(length, 4);
 			length += 4;
-			foreach (var heap in heaps) {
+			foreach (var heap in Heaps) {
 				length += 8;
 				length += (uint)GetAsciizName(heap.Name).Length;
 				length = Utils.AlignUp(length, 4);
@@ -140,13 +130,13 @@ namespace dnlib.DotNet.Writer {
 			writer.WriteZeros(Utils.AlignUp(s.Length, 4) - s.Length);
 			writer.Write((byte)(options.StorageFlags ?? 0));
 			writer.Write(options.Reserved2 ?? 0);
-			writer.Write((ushort)heaps.Count);
-			foreach (var heap in heaps) {
-				writer.Write((uint)(heap.FileOffset - offset));
+			writer.Write((ushort)Heaps.Count);
+			foreach (var heap in Heaps) {
+				writer.Write((uint)(heap.FileOffset - FileOffset));
 				writer.Write(heap.GetFileLength());
 				writer.Write(s = GetAsciizName(heap.Name));
 				if (s.Length > 32)
-					throw new ModuleWriterException(string.Format("Heap name '{0}' is > 32 bytes", heap.Name));
+					throw new ModuleWriterException($"Heap name '{heap.Name}' is > 32 bytes");
 				writer.WriteZeros(Utils.AlignUp(s.Length, 4) - s.Length);
 			}
 		}

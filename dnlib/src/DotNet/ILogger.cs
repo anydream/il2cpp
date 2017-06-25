@@ -443,10 +443,11 @@ namespace dnlib.DotNet {
 		public DummyLogger(Type exceptionToThrow) {
 			if (exceptionToThrow != null) {
 				if (!exceptionToThrow.IsSubclassOf(typeof(Exception)))
-					throw new ArgumentException(string.Format("Not a System.Exception sub class: {0}", exceptionToThrow.GetType()));
+					throw new ArgumentException($"Not a System.Exception sub class: {exceptionToThrow}");
 				ctor = exceptionToThrow.GetConstructor(new Type[] { typeof(string) });
 				if (ctor == null)
-					throw new ArgumentException(string.Format("Exception type {0} doesn't have a public constructor that takes a string as the only argument", exceptionToThrow.GetType()));
+					throw new ArgumentException(
+					        $"Exception type {exceptionToThrow} doesn't have a public constructor that takes a string as the only argument");
 			}
 		}
 

@@ -15,16 +15,13 @@ namespace dnlib.DotNet.Pdb.Dss {
 		/// </summary>
 		/// <param name="reader">An unmanaged symbol reader</param>
 		public SymbolReader(ISymUnmanagedReader reader) {
-			if (reader == null)
-				throw new ArgumentNullException("reader");
-			this.reader = reader;
+		    this.reader = reader ?? throw new ArgumentNullException(nameof(reader));
 		}
 
 		public SymbolToken UserEntryPoint {
 			get {
-				uint token;
-				int hr = reader.GetUserEntryPoint(out token);
-				if (hr == E_FAIL)
+                int hr = reader.GetUserEntryPoint(out uint token);
+                if (hr == E_FAIL)
 					token = 0;
 				else
 					Marshal.ThrowExceptionForHR(hr);
@@ -33,15 +30,13 @@ namespace dnlib.DotNet.Pdb.Dss {
 		}
 
 		public ISymbolDocument GetDocument(string url, Guid language, Guid languageVendor, Guid documentType) {
-			ISymUnmanagedDocument document;
-			reader.GetDocument(url, language, languageVendor, documentType, out document);
-			return document == null ? null : new SymbolDocument(document);
+            reader.GetDocument(url, language, languageVendor, documentType, out ISymUnmanagedDocument document);
+            return document == null ? null : new SymbolDocument(document);
 		}
 
 		public ISymbolDocument[] GetDocuments() {
-			uint numDocs;
-			reader.GetDocuments(0, out numDocs, null);
-			var unDocs = new ISymUnmanagedDocument[numDocs];
+            reader.GetDocuments(0, out uint numDocs, null);
+            var unDocs = new ISymUnmanagedDocument[numDocs];
 			reader.GetDocuments((uint)unDocs.Length, out numDocs, unDocs);
 			var docs = new ISymbolDocument[numDocs];
 			for (uint i = 0; i < numDocs; i++)
@@ -50,9 +45,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 		}
 
 		public ISymbolVariable[] GetGlobalVariables() {
-			uint numVars;
-			reader.GetGlobalVariables(0, out numVars, null);
-			var unVars = new ISymUnmanagedVariable[numVars];
+            reader.GetGlobalVariables(0, out uint numVars, null);
+            var unVars = new ISymUnmanagedVariable[numVars];
 			reader.GetGlobalVariables((uint)unVars.Length, out numVars, unVars);
 			var vars = new ISymbolVariable[numVars];
 			for (uint i = 0; i < numVars; i++)
@@ -61,18 +55,16 @@ namespace dnlib.DotNet.Pdb.Dss {
 		}
 
 		public ISymbolMethod GetMethod(SymbolToken method) {
-			ISymUnmanagedMethod unMethod;
-			int hr = reader.GetMethod((uint)method.GetToken(), out unMethod);
-			if (hr == E_FAIL)
+            int hr = reader.GetMethod((uint)method.GetToken(), out ISymUnmanagedMethod unMethod);
+            if (hr == E_FAIL)
 				return null;
 			Marshal.ThrowExceptionForHR(hr);
 			return unMethod == null ? null : new SymbolMethod(unMethod);
 		}
 
 		public ISymbolMethod GetMethod(SymbolToken method, int version) {
-			ISymUnmanagedMethod unMethod;
-			int hr = reader.GetMethodByVersion((uint)method.GetToken(), version, out unMethod);
-			if (hr == E_FAIL)
+            int hr = reader.GetMethodByVersion((uint)method.GetToken(), version, out ISymUnmanagedMethod unMethod);
+            if (hr == E_FAIL)
 				return null;
 			Marshal.ThrowExceptionForHR(hr);
 			return unMethod == null ? null : new SymbolMethod(unMethod);
@@ -82,18 +74,16 @@ namespace dnlib.DotNet.Pdb.Dss {
 			var symDoc = document as SymbolDocument;
 			if (symDoc == null)
 				throw new ArgumentException("document is not a non-null SymbolDocument instance");
-			ISymUnmanagedMethod unMethod;
-			int hr = reader.GetMethodFromDocumentPosition(symDoc.SymUnmanagedDocument, (uint)line, (uint)column, out unMethod);
-			if (hr == E_FAIL)
+            int hr = reader.GetMethodFromDocumentPosition(symDoc.SymUnmanagedDocument, (uint)line, (uint)column, out ISymUnmanagedMethod unMethod);
+            if (hr == E_FAIL)
 				return null;
 			Marshal.ThrowExceptionForHR(hr);
 			return unMethod == null ? null : new SymbolMethod(unMethod);
 		}
 
 		public ISymbolNamespace[] GetNamespaces() {
-			uint numNss;
-			reader.GetNamespaces(0, out numNss, null);
-			var unNss = new ISymUnmanagedNamespace[numNss];
+            reader.GetNamespaces(0, out uint numNss, null);
+            var unNss = new ISymUnmanagedNamespace[numNss];
 			reader.GetNamespaces((uint)unNss.Length, out numNss, unNss);
 			var nss = new ISymbolNamespace[numNss];
 			for (uint i = 0; i < numNss; i++)
@@ -102,17 +92,15 @@ namespace dnlib.DotNet.Pdb.Dss {
 		}
 
 		public byte[] GetSymAttribute(SymbolToken parent, string name) {
-			uint bufSize;
-			reader.GetSymAttribute((uint)parent.GetToken(), name, 0, out bufSize, null);
-			var buffer = new byte[bufSize];
+            reader.GetSymAttribute((uint)parent.GetToken(), name, 0, out uint bufSize, null);
+            var buffer = new byte[bufSize];
 			reader.GetSymAttribute((uint)parent.GetToken(), name, (uint)buffer.Length, out bufSize, buffer);
 			return buffer;
 		}
 
 		public ISymbolVariable[] GetVariables(SymbolToken parent) {
-			uint numVars;
-			reader.GetVariables((uint)parent.GetToken(), 0, out numVars, null);
-			var unVars = new ISymUnmanagedVariable[numVars];
+            reader.GetVariables((uint)parent.GetToken(), 0, out uint numVars, null);
+            var unVars = new ISymUnmanagedVariable[numVars];
 			reader.GetVariables((uint)parent.GetToken(), (uint)unVars.Length, out numVars, unVars);
 			var vars = new ISymbolVariable[numVars];
 			for (uint i = 0; i < numVars; i++)

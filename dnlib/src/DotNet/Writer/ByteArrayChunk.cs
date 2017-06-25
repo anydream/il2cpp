@@ -9,28 +9,18 @@ namespace dnlib.DotNet.Writer {
 	/// Stores a byte array
 	/// </summary>
 	public sealed class ByteArrayChunk : IChunk {
-		readonly byte[] array;
-		FileOffset offset;
-		RVA rva;
+	    /// <inheritdoc/>
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// Gets the data
 		/// </summary>
-		public byte[] Data {
-			get { return array; }
-		}
+		public byte[] Data { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="array">The data. It will be owned by this instance and can't be modified by
@@ -39,18 +29,18 @@ namespace dnlib.DotNet.Writer {
 		/// it's never inserted as a <c>key</c> in a dictionary, then the contents can be modified,
 		/// but shouldn't be resized after <see cref="SetOffset"/> has been called.</param>
 		public ByteArrayChunk(byte[] array) {
-			this.array = array ?? new byte[0];
+			this.Data = array ?? new byte[0];
 		}
 
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 		}
 
 		/// <inheritdoc/>
 		public uint GetFileLength() {
-			return (uint)array.Length;
+			return (uint)Data.Length;
 		}
 
 		/// <inheritdoc/>
@@ -60,18 +50,18 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void WriteTo(BinaryWriter writer) {
-			writer.Write(array);
+			writer.Write(Data);
 		}
 
 		/// <inheritdoc/>
 		public override int GetHashCode() {
-			return Utils.GetHashCode(array);
+			return Utils.GetHashCode(Data);
 		}
 
 		/// <inheritdoc/>
 		public override bool Equals(object obj) {
 			var other = obj as ByteArrayChunk;
-			return other != null && Utils.Equals(array, other.array);
+			return other != null && Utils.Equals(Data, other.Data);
 		}
 	}
 }

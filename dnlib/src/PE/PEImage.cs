@@ -69,50 +69,37 @@ namespace dnlib.PE {
 		}
 
 		/// <inheritdoc/>
-		public bool IsFileImageLayout {
-			get { return peType is FilePEType; }
-		}
+		public bool IsFileImageLayout => peType is FilePEType;
 
-		/// <inheritdoc/>
-		public bool MayHaveInvalidAddresses {
-			get { return !IsFileImageLayout; }
-		}
+	    /// <inheritdoc/>
+		public bool MayHaveInvalidAddresses => !IsFileImageLayout;
 
-		/// <inheritdoc/>
-		public string FileName {
-			get { return imageStreamCreator.FileName; }
-		}
+	    /// <inheritdoc/>
+		public string FileName => imageStreamCreator.FileName;
 
-		/// <inheritdoc/>
-		public ImageDosHeader ImageDosHeader {
-			get { return peInfo.ImageDosHeader; }
-		}
+	    /// <inheritdoc/>
+		public ImageDosHeader ImageDosHeader => peInfo.ImageDosHeader;
 
-		/// <inheritdoc/>
-		public ImageNTHeaders ImageNTHeaders {
-			get { return peInfo.ImageNTHeaders; }
-		}
+	    /// <inheritdoc/>
+		public ImageNTHeaders ImageNTHeaders => peInfo.ImageNTHeaders;
 
-		/// <inheritdoc/>
-		public IList<ImageSectionHeader> ImageSectionHeaders {
-			get { return peInfo.ImageSectionHeaders; }
-		}
+	    /// <inheritdoc/>
+		public IList<ImageSectionHeader> ImageSectionHeaders => peInfo.ImageSectionHeaders;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public Win32Resources Win32Resources {
-			get { return win32Resources.Value; }
-			set {
+			get => win32Resources.Value;
+	        set {
 				IDisposable origValue = null;
 				if (win32Resources.IsValueInitialized) {
 					origValue = win32Resources.Value;
-					if (origValue == value)
+					if (Equals(origValue, value))
 						return;
 				}
 				win32Resources.Value = value;
 
-				if (origValue != null)
-					origValue.Dispose();
-			}
+	            origValue?.Dispose();
+	        }
 		}
 
 		/// <summary>
@@ -351,7 +338,7 @@ namespace dnlib.PE {
 		/// <inheritdoc/>
 		public IImageStream CreateStream(FileOffset offset) {
 			if ((long)offset > imageStreamCreator.Length)
-				throw new ArgumentOutOfRangeException("offset");
+				throw new ArgumentOutOfRangeException(nameof(offset));
 			long length = imageStreamCreator.Length - (long)offset;
 			return CreateStream(offset, length);
 		}
@@ -369,15 +356,14 @@ namespace dnlib.PE {
 		/// <inheritdoc/>
 		public void UnsafeDisableMemoryMappedIO() {
 			var creator = imageStreamCreator as MemoryMappedFileStreamCreator;
-			if (creator != null)
-				creator.UnsafeDisableMemoryMappedIO();
+		    creator?.UnsafeDisableMemoryMappedIO();
 		}
 
 		/// <inheritdoc/>
 		public bool IsMemoryMappedIO {
 			get {
 				var creator = imageStreamCreator as MemoryMappedFileStreamCreator;
-				return creator == null ? false : creator.IsMemoryMappedIO;
+				return creator?.IsMemoryMappedIO ?? false;
 			}
 		}
 	}

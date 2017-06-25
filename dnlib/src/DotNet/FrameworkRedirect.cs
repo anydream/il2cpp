@@ -308,16 +308,14 @@ namespace dnlib.DotNet {
 			if (!sourceModule.IsClr20 && !sourceModule.IsClr40)
 				return;
 
-			FrameworkRedirectInfo redirect;
-			if (!(sourceModule.IsClr20 ? frmRedir2 : frmRedir4).TryGetValue(assembly.Name, out redirect))
+			if (!(sourceModule.IsClr20 ? frmRedir2 : frmRedir4).TryGetValue(assembly.Name, out FrameworkRedirectInfo redirect))
 				return;
 			if (PublicKeyBase.TokenCompareTo(assembly.PublicKeyOrToken, redirect.publicKeyToken) != 0)
 				return;
 			if (Utils.CompareTo(assembly.Version, redirect.redirectVersion) == 0)
 				return;
 
-			assembly = new AssemblyNameInfo(assembly);
-			assembly.Version = redirect.redirectVersion;
+		    assembly = new AssemblyNameInfo(assembly) {Version = redirect.redirectVersion};
 		}
 	}
 }

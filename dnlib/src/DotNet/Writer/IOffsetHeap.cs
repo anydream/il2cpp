@@ -8,7 +8,7 @@ namespace dnlib.DotNet.Writer {
 	/// #GUID, #Blob, and #US.
 	/// </summary>
 	/// <typeparam name="TValue">Type of cooked data</typeparam>
-	public interface IOffsetHeap<TValue> {
+	public interface IOffsetHeap<in TValue> {
 		/// <summary>
 		/// Gets the size of the data as raw data when written to the heap
 		/// </summary>

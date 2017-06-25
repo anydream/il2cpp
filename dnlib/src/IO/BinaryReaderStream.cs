@@ -99,8 +99,8 @@ namespace dnlib.IO {
 		protected override void Dispose(bool disposing) {
 			if (disposing) {
 				var r = reader;
-				if (ownsReader && r != null)
-					r.Dispose();
+				if (ownsReader)
+					r?.Dispose();
 				reader = null;
 			}
 			base.Dispose(disposing);

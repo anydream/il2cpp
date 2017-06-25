@@ -31,8 +31,7 @@ namespace dnlib.DotNet.MD {
 			theLock.EnterWriteLock(); try {
 #endif
 			var reader = GetReader_NoLock(offset);
-			uint length;
-			if (!reader.ReadCompressedUInt32(out length))
+			if (!reader.ReadCompressedUInt32(out uint length))
 				return null;
 			if (reader.Position + length < length || reader.Position + length > reader.Length)
 				return null;

@@ -31,9 +31,8 @@ namespace dnlib.DotNet.MD {
 #if THREAD_SAFE
 			theLock.EnterWriteLock(); try {
 #endif
-			IImageStream reader;
-			int size = GetReader_NoLock(offset, out reader);
-			if (size < 0)
+            int size = GetReader_NoLock(offset, out IImageStream reader);
+            if (size < 0)
 				return null;
 			return reader.ReadBytes(size);
 #if THREAD_SAFE
@@ -60,9 +59,8 @@ namespace dnlib.DotNet.MD {
 #if THREAD_SAFE
 			theLock.EnterWriteLock(); try {
 #endif
-			IImageStream reader;
-			int size = GetReader_NoLock(offset, out reader);
-			if (size < 0)
+            int size = GetReader_NoLock(offset, out IImageStream reader);
+            if (size < 0)
 				return MemoryImageStream.CreateEmpty();
 			return reader.Create((FileOffset)reader.Position, size);
 #if THREAD_SAFE
@@ -75,10 +73,9 @@ namespace dnlib.DotNet.MD {
 			if (!IsValidOffset(offset))
 				return -1;
 			reader = GetReader_NoLock(offset);
-			uint length;
-			if (!reader.ReadCompressedUInt32(out length))
-				return -1;
-			if (reader.Position + length < length || reader.Position + length > reader.Length)
+            if (!reader.ReadCompressedUInt32(out uint length))
+                return -1;
+            if (reader.Position + length < length || reader.Position + length > reader.Length)
 				return -1;
 
 			return (int)length;	// length <= 0x1FFFFFFF so this cast does not make it negative

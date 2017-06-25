@@ -51,9 +51,9 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() {
-			if (hasher != null)
-				((IDisposable)hasher).Dispose();
+		public void Dispose()
+		{
+		    ((IDisposable) hasher)?.Dispose();
 		}
 
 		/// <summary>

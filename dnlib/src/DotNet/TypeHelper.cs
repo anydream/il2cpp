@@ -45,15 +45,13 @@ namespace dnlib.DotNet {
 
 			var cl = mr.Class;
 
-			var tdr = cl as ITypeDefOrRef;
-			if (tdr != null)
-				return tdr.ContainsGenericParameter;
+            if (cl is ITypeDefOrRef tdr)
+                return tdr.ContainsGenericParameter;
 
-			var md = cl as MethodDef;
-			if (md != null)
-				return TypeHelper.ContainsGenericParameter(md.Signature);
+            if (cl is MethodDef md)
+                return TypeHelper.ContainsGenericParameter(md.Signature);
 
-			return false;
+            return false;
 		}
 
 		/// <summary>
@@ -64,23 +62,19 @@ namespace dnlib.DotNet {
 		/// <returns><c>true</c> if <paramref name="callConv"/> contains a <see cref="GenericVar"/>
 		/// or a <see cref="GenericMVar"/>.</returns>
 		public static bool ContainsGenericParameter(CallingConventionSig callConv) {
-			var fs = callConv as FieldSig;
-			if (fs != null)
-				return ContainsGenericParameter(fs);
+            if (callConv is FieldSig fs)
+                return ContainsGenericParameter(fs);
 
-			var mbs = callConv as MethodBaseSig;
-			if (mbs != null)
-				return ContainsGenericParameter(mbs);
+            if (callConv is MethodBaseSig mbs)
+                return ContainsGenericParameter(mbs);
 
-			var ls = callConv as LocalSig;
-			if (ls != null)
-				return ContainsGenericParameter(ls);
+            if (callConv is LocalSig ls)
+                return ContainsGenericParameter(ls);
 
-			var gim = callConv as GenericInstMethodSig;
-			if (gim != null)
-				return ContainsGenericParameter(gim);
+            if (callConv is GenericInstMethodSig gim)
+                return ContainsGenericParameter(gim);
 
-			return false;
+            return false;
 		}
 
 		/// <summary>
@@ -135,27 +129,22 @@ namespace dnlib.DotNet {
 		/// <returns><c>true</c> if <paramref name="type"/> contains a <see cref="GenericVar"/> or a
 		/// <see cref="GenericMVar"/>.</returns>
 		public static bool ContainsGenericParameter(IType type) {
-			var td = type as TypeDef;
-			if (td != null)
-				return ContainsGenericParameter(td);
+            if (type is TypeDef td)
+                return ContainsGenericParameter(td);
 
-			var tr = type as TypeRef;
-			if (tr != null)
-				return ContainsGenericParameter(tr);
+            if (type is TypeRef tr)
+                return ContainsGenericParameter(tr);
 
-			var ts = type as TypeSpec;
-			if (ts != null)
-				return ContainsGenericParameter(ts);
+            if (type is TypeSpec ts)
+                return ContainsGenericParameter(ts);
 
-			var sig = type as TypeSig;
-			if (sig != null)
-				return ContainsGenericParameter(sig);
+            if (type is TypeSig sig)
+                return ContainsGenericParameter(sig);
 
-			var et = type as ExportedType;
-			if (et != null)
-				return ContainsGenericParameter(et);
+            if (type is ExportedType et)
+                return ContainsGenericParameter(et);
 
-			return false;
+            return false;
 		}
 
 		/// <summary>
@@ -321,23 +310,19 @@ namespace dnlib.DotNet {
 		}
 
 		bool ContainsGenericParameterInternal(CallingConventionSig callConv) {
-			var fs = callConv as FieldSig;
-			if (fs != null)
-				return ContainsGenericParameterInternal(fs);
+            if (callConv is FieldSig fs)
+                return ContainsGenericParameterInternal(fs);
 
-			var mbs = callConv as MethodBaseSig;
-			if (mbs != null)
-				return ContainsGenericParameterInternal(mbs);
+            if (callConv is MethodBaseSig mbs)
+                return ContainsGenericParameterInternal(mbs);
 
-			var ls = callConv as LocalSig;
-			if (ls != null)
-				return ContainsGenericParameterInternal(ls);
+            if (callConv is LocalSig ls)
+                return ContainsGenericParameterInternal(ls);
 
-			var gim = callConv as GenericInstMethodSig;
-			if (gim != null)
-				return ContainsGenericParameterInternal(gim);
+            if (callConv is GenericInstMethodSig gim)
+                return ContainsGenericParameterInternal(gim);
 
-			return false;
+            return false;
 		}
 
 		bool ContainsGenericParameterInternal(FieldSig fs) {

@@ -84,18 +84,18 @@ namespace dnlib.DotNet.Resources {
 
 			uint sig = reader.ReadUInt32();
 			if (sig != 0xBEEFCACE)
-				throw new ResourceReaderException(string.Format("Invalid resource sig: {0:X8}", sig));
+				throw new ResourceReaderException($"Invalid resource sig: {sig:X8}");
 			if (!CheckReaders())
 				throw new ResourceReaderException("Invalid resource reader");
 			int version = reader.ReadInt32();
 			if (version != 2)//TODO: Support version 1
-				throw new ResourceReaderException(string.Format("Invalid resource version: {0}", version));
+				throw new ResourceReaderException($"Invalid resource version: {version}");
 			int numResources = reader.ReadInt32();
 			if (numResources < 0)
-				throw new ResourceReaderException(string.Format("Invalid number of resources: {0}", numResources));
+				throw new ResourceReaderException($"Invalid number of resources: {numResources}");
 			int numUserTypes = reader.ReadInt32();
 			if (numUserTypes < 0)
-				throw new ResourceReaderException(string.Format("Invalid number of user types: {0}", numUserTypes));
+				throw new ResourceReaderException($"Invalid number of user types: {numUserTypes}");
 
 			var userTypes = new List<UserResourceType>();
 			for (int i = 0; i < numUserTypes; i++)
@@ -126,9 +126,8 @@ namespace dnlib.DotNet.Resources {
 			infos.Sort((a, b) => a.offset.CompareTo(b.offset));
 			for (int i = 0; i < infos.Count; i++) {
 				var info = infos[i];
-				var element = new ResourceElement();
-				element.Name = info.name;
-				reader.Position = info.offset;
+			    var element = new ResourceElement {Name = info.name};
+			    reader.Position = info.offset;
 				long nextDataOffset = i == infos.Count - 1 ? end : infos[i + 1].offset;
 				int size = (int)(nextDataOffset - info.offset);
 				element.ResourceData = ReadResourceData(userTypes, size);
@@ -149,7 +148,7 @@ namespace dnlib.DotNet.Resources {
 				this.offset = offset;
 			}
 			public override string ToString() {
-				return string.Format("{0:X8} - {1}", offset, name);
+				return $"{offset:X8} - {name}";
 			}
 		}
 
@@ -178,15 +177,13 @@ namespace dnlib.DotNet.Resources {
 			default:
 				int userTypeIndex = (int)(code - (uint)ResourceTypeCode.UserTypes);
 				if (userTypeIndex < 0 || userTypeIndex >= userTypes.Count)
-					throw new ResourceReaderException(string.Format("Invalid resource data code: {0}", code));
+					throw new ResourceReaderException($"Invalid resource data code: {code}");
 				var userType = userTypes[userTypeIndex];
 				var serializedData = reader.ReadBytes(size);
-				if (createResourceDataDelegate != null) {
-					var res = createResourceDataDelegate(resourceDataCreator, userType, serializedData);
-					if (res != null)
-						return res;
-				}
-				return resourceDataCreator.CreateSerialized(serializedData, userType);
+			    var res = createResourceDataDelegate?.Invoke(resourceDataCreator, userType, serializedData);
+			    if (res != null)
+			        return res;
+			    return resourceDataCreator.CreateSerialized(serializedData, userType);
 			}
 		}
 
@@ -204,10 +201,10 @@ namespace dnlib.DotNet.Resources {
 
 			int numReaders = reader.ReadInt32();
 			if (numReaders < 0)
-				throw new ResourceReaderException(string.Format("Invalid number of readers: {0}", numReaders));
+				throw new ResourceReaderException($"Invalid number of readers: {numReaders}");
 			int readersSize = reader.ReadInt32();
 			if (readersSize < 0)
-				throw new ResourceReaderException(string.Format("Invalid readers size: {0:X8}", readersSize));
+				throw new ResourceReaderException($"Invalid readers size: {readersSize:X8}");
 
 			for (int i = 0; i < numReaders; i++) {
 				var resourceReaderFullName = reader.ReadString();

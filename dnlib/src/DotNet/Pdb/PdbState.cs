@@ -13,7 +13,6 @@ namespace dnlib.DotNet.Pdb {
 	public sealed class PdbState {
 		readonly ISymbolReader reader;
 		readonly Dictionary<PdbDocument, PdbDocument> docDict = new Dictionary<PdbDocument, PdbDocument>();
-		MethodDef userEntryPoint;
 
 #if THREAD_SAFE
 		readonly Lock theLock = Lock.Create();
@@ -22,12 +21,9 @@ namespace dnlib.DotNet.Pdb {
 		/// <summary>
 		/// Gets/sets the user entry point method.
 		/// </summary>
-		public MethodDef UserEntryPoint {
-			get { return userEntryPoint; }
-			set { userEntryPoint = value; }
-		}
+		public MethodDef UserEntryPoint { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all PDB documents
 		/// </summary>
 		public IEnumerable<PdbDocument> Documents {
@@ -70,13 +66,9 @@ namespace dnlib.DotNet.Pdb {
 		/// <param name="reader">A <see cref="ISymbolReader"/> instance</param>
 		/// <param name="module">Owner module</param>
 		public PdbState(ISymbolReader reader, ModuleDefMD module) {
-			if (reader == null)
-				throw new ArgumentNullException("reader");
-			if (module == null)
-				throw new ArgumentNullException("module");
-			this.reader = reader;
+		    this.reader = reader ?? throw new ArgumentNullException(nameof(reader));
 
-			this.userEntryPoint = module.ResolveToken(reader.UserEntryPoint.GetToken()) as MethodDef;
+			this.UserEntryPoint = module?.ResolveToken(reader.UserEntryPoint.GetToken()) as MethodDef ?? throw new ArgumentNullException(nameof(module));
 
 			foreach (var doc in reader.GetDocuments())
 				Add_NoLock(new PdbDocument(doc));
@@ -99,10 +91,9 @@ namespace dnlib.DotNet.Pdb {
 		}
 
 		PdbDocument Add_NoLock(PdbDocument doc) {
-			PdbDocument orig;
-			if (docDict.TryGetValue(doc, out orig))
-				return orig;
-			docDict.Add(doc, doc);
+            if (docDict.TryGetValue(doc, out PdbDocument orig))
+                return orig;
+            docDict.Add(doc, doc);
 			return doc;
 		}
 
@@ -131,9 +122,8 @@ namespace dnlib.DotNet.Pdb {
 #if THREAD_SAFE
 			theLock.EnterWriteLock(); try {
 #endif
-			PdbDocument orig;
-			docDict.TryGetValue(doc, out orig);
-			return orig;
+            docDict.TryGetValue(doc, out PdbDocument orig);
+            return orig;
 #if THREAD_SAFE
 			} finally { theLock.ExitWriteLock(); }
 #endif

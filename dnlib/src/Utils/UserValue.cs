@@ -8,13 +8,12 @@ namespace dnlib.Utils {
 	/// Lazily returns the original value if the user hasn't overwritten the value
 	/// </summary>
 	/// <typeparam name="TValue">Value type</typeparam>
-	[DebuggerDisplay("{value}")]
+	[DebuggerDisplay("{" + nameof(value) + "}")]
 	struct UserValue<TValue> {
 #if THREAD_SAFE
 		Lock theLock;
 #endif
-		MFunc<TValue> readOriginalValue;
-		TValue value;
+	    TValue value;
 		bool isUserValue;
 		bool isValueInitialized;
 
@@ -30,11 +29,9 @@ namespace dnlib.Utils {
 		/// <summary>
 		/// Set a delegate instance that will return the original value
 		/// </summary>
-		public MFunc<TValue> ReadOriginalValue {
-			set { readOriginalValue = value; }
-		}
+		public MFunc<TValue> ReadOriginalValue { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the value
 		/// </summary>
 		/// <remarks>The getter returns the original value if the value hasn't been initialized.</remarks>
@@ -44,8 +41,8 @@ namespace dnlib.Utils {
 				if (theLock != null) theLock.EnterWriteLock(); try {
 #endif
 				if (!isValueInitialized) {
-					value = readOriginalValue();
-					readOriginalValue = null;
+					value = ReadOriginalValue();
+					ReadOriginalValue = null;
 					isValueInitialized = true;
 				}
 				return value;
@@ -58,7 +55,7 @@ namespace dnlib.Utils {
 				if (theLock != null) theLock.EnterWriteLock(); try {
 #endif
 				this.value = value;
-				readOriginalValue = null;
+				ReadOriginalValue = null;
 				isUserValue = true;
 				isValueInitialized = true;
 #if THREAD_SAFE

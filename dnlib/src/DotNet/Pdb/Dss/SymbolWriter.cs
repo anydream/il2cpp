@@ -20,12 +20,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 		/// <param name="writer">Writer</param>
 		/// <param name="pdbFileName">PDB file name</param>
 		public SymbolWriter(ISymUnmanagedWriter2 writer, string pdbFileName) {
-			if (writer == null)
-				throw new ArgumentNullException("writer");
-			if (pdbFileName == null)
-				throw new ArgumentNullException("pdbFileName");
-			this.writer = writer;
-			this.pdbFileName = pdbFileName;
+		    this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
+			this.pdbFileName = pdbFileName ?? throw new ArgumentNullException(nameof(pdbFileName));
 		}
 
 		/// <summary>
@@ -35,12 +31,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 		/// <param name="pdbFileName">PDB file name</param>
 		/// <param name="pdbStream">PDB output stream</param>
 		public SymbolWriter(ISymUnmanagedWriter2 writer, string pdbFileName, Stream pdbStream) {
-			if (writer == null)
-				throw new ArgumentNullException("writer");
-			if (pdbStream == null)
-				throw new ArgumentNullException("pdbStream");
-			this.writer = writer;
-			this.pdbStream = pdbStream;
+		    this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
+			this.pdbStream = pdbStream ?? throw new ArgumentNullException(nameof(pdbStream));
 			this.pdbFileName = pdbFileName;
 		}
 
@@ -64,9 +56,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 		}
 
 		public ISymbolDocumentWriter DefineDocument(string url, Guid language, Guid languageVendor, Guid documentType) {
-			ISymUnmanagedDocumentWriter unDocWriter;
-			writer.DefineDocument(url, ref language, ref languageVendor, ref documentType, out unDocWriter);
-			return unDocWriter == null ? null : new SymbolDocumentWriter(unDocWriter);
+            writer.DefineDocument(url, ref language, ref languageVendor, ref documentType, out ISymUnmanagedDocumentWriter unDocWriter);
+            return unDocWriter == null ? null : new SymbolDocumentWriter(unDocWriter);
 		}
 
 		public void DefineField(SymbolToken parent, string name, System.Reflection.FieldAttributes attributes, byte[] signature, SymAddressKind addrKind, int addr1, int addr2, int addr3) {
@@ -119,9 +110,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 		}
 
 		public int OpenScope(int startOffset) {
-			uint result;
-			writer.OpenScope((uint)startOffset, out result);
-			return (int)result;
+            writer.OpenScope((uint)startOffset, out uint result);
+            return (int)result;
 		}
 
 		public void SetMethodSourceRange(ISymbolDocumentWriter startDoc, int startLine, int startColumn, ISymbolDocumentWriter endDoc, int endLine, int endColumn) {
@@ -155,9 +145,8 @@ namespace dnlib.DotNet.Pdb.Dss {
 		}
 
 		public byte[] GetDebugInfo(out IMAGE_DEBUG_DIRECTORY pIDD) {
-			uint size;
-			writer.GetDebugInfo(out pIDD, 0, out size, null);
-			var buffer = new byte[size];
+            writer.GetDebugInfo(out pIDD, 0, out uint size, null);
+            var buffer = new byte[size];
 			writer.GetDebugInfo(out pIDD, size, out size, buffer);
 			return buffer;
 		}

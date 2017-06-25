@@ -260,9 +260,7 @@ namespace dnlib.DotNet.Emit {
 
 				case Code.Ldarga:
 					arg = instr.Operand as Parameter;
-					if (arg == null)
-						break;
-					if (byte.MinValue <= arg.Index && arg.Index <= byte.MaxValue)
+				    if (byte.MinValue <= arg?.Index && arg.Index <= byte.MaxValue)
 						instr.OpCode = OpCodes.Ldarga_S;
 					break;
 
@@ -362,17 +360,13 @@ namespace dnlib.DotNet.Emit {
 
 				case Code.Ldloca:
 					local = instr.Operand as Local;
-					if (local == null)
-						break;
-					if (byte.MinValue <= local.Index && local.Index <= byte.MaxValue)
+				    if (byte.MinValue <= local?.Index && local.Index <= byte.MaxValue)
 						instr.OpCode = OpCodes.Ldloca_S;
 					break;
 
 				case Code.Starg:
 					arg = instr.Operand as Parameter;
-					if (arg == null)
-						break;
-					if (byte.MinValue <= arg.Index && arg.Index <= byte.MaxValue)
+				    if (byte.MinValue <= arg?.Index && arg.Index <= byte.MaxValue)
 						instr.OpCode = OpCodes.Starg_S;
 					break;
 

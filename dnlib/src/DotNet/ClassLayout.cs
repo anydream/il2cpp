@@ -8,41 +8,26 @@ namespace dnlib.DotNet {
 	/// A high-level representation of a row in the ClassLayout table
 	/// </summary>
 	public abstract class ClassLayout : IMDTokenProvider {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.ClassLayout, Rid);
 
-		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.ClassLayout, rid); }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// From column ClassLayout.PackingSize
 		/// </summary>
 		public ushort PackingSize {
-			get { return packingSize; }
-			set { packingSize = value; }
-		}
+			get => packingSize;
+	        set => packingSize = value;
+	    }
 		/// <summary/>
 		protected ushort packingSize;
 
 		/// <summary>
 		/// From column ClassLayout.ClassSize
 		/// </summary>
-		public uint ClassSize {
-			get { return classSize; }
-			set { classSize = value; }
-		}
-		/// <summary/>
-		protected uint classSize;
+		public uint ClassSize { get; set; }
 	}
 
 	/// <summary>
@@ -62,7 +47,7 @@ namespace dnlib.DotNet {
 		/// <param name="classSize">ClassSize</param>
 		public ClassLayoutUser(ushort packingSize, uint classSize) {
 			this.packingSize = packingSize;
-			this.classSize = classSize;
+			this.ClassSize = classSize;
 		}
 	}
 
@@ -70,14 +55,10 @@ namespace dnlib.DotNet {
 	/// Created from a row in the ClassLayout table
 	/// </summary>
 	sealed class ClassLayoutMD : ClassLayout, IMDTokenProviderMD {
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="readerModule">The module which contains this <c>ClassLayout</c> row</param>
@@ -87,13 +68,13 @@ namespace dnlib.DotNet {
 		public ClassLayoutMD(ModuleDefMD readerModule, uint rid) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.ClassLayoutTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("ClassLayout rid {0} does not exist", rid));
+				throw new BadImageFormatException($"ClassLayout rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
-			this.classSize = readerModule.TablesStream.ReadClassLayoutRow(origRid, out this.packingSize);
+			this.OrigRid = rid;
+			this.Rid = rid;
+			this.ClassSize = readerModule.TablesStream.ReadClassLayoutRow(OrigRid, out this.packingSize);
 		}
 	}
 }

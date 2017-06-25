@@ -11,8 +11,8 @@ namespace dnlib.DotNet {
 	/// </summary>
 	static class TIAHelper {
 		struct Info : IEquatable<Info> {
-			public readonly UTF8String Scope;
-			public readonly UTF8String Identifier;
+		    private readonly UTF8String Scope;
+		    private readonly UTF8String Identifier;
 
 			public Info(UTF8String scope, UTF8String identifier) {
 				this.Scope = scope;
@@ -66,7 +66,7 @@ namespace dnlib.DotNet {
 			}
 			else {
 				var mod = td.Module;
-				var asm = mod == null ? null : mod.Assembly;
+				var asm = mod?.Assembly;
 				if (asm == null)
 					return null;
 				bool isTypeLib = asm.CustomAttributes.IsDefined("System.Runtime.InteropServices.ImportedFromTypeLibAttribute") ||
@@ -81,7 +81,7 @@ namespace dnlib.DotNet {
 					gca = td.CustomAttributes.Find("System.Runtime.InteropServices.GuidAttribute");
 				else {
 					var mod = td.Module;
-					var asm = mod == null ? null : mod.Assembly;
+					var asm = mod?.Assembly;
 					if (asm == null)
 						return null;
 					gca = asm.CustomAttributes.Find("System.Runtime.InteropServices.GuidAttribute");
@@ -98,13 +98,13 @@ namespace dnlib.DotNet {
 				if (UTF8String.IsNullOrEmpty(ns))
 					identifier = name;
 				else if (UTF8String.IsNullOrEmpty(name))
-					identifier = new UTF8String(Concat(ns.Data, (byte)'.', empty));
+					identifier = new UTF8String(Concat(ns.Data, (byte)'.', Empty));
 				else
 					identifier = new UTF8String(Concat(ns.Data, (byte)'.', name.Data));
 			}
 			return new Info(scope, identifier);
 		}
-		static readonly byte[] empty = new byte[0];
+		static readonly byte[] Empty = new byte[0];
 
 		static byte[] Concat(byte[] a, byte b, byte[] c) {
 			var data = new byte[a.Length + 1 + c.Length];
@@ -119,7 +119,7 @@ namespace dnlib.DotNet {
 		static bool CheckEquivalent(TypeDef td) {
 			Debug.Assert(td != null);
 
-			for (int i = 0; td != null && i < 1000; i++) {
+			for (int i = 0; i < 1000; i++) {
 				if (i != 0) {
 					var info = GetInfo(td);
 					if (info == null)
@@ -204,22 +204,17 @@ namespace dnlib.DotNet {
 		static bool DelegateEquals(TypeDef td1, TypeDef td2) {
 			var invoke1 = td1.FindMethod(InvokeString);
 			var invoke2 = td2.FindMethod(InvokeString);
-			if (invoke1 == null || invoke2 == null)
-				return false;
+			return invoke1 != null && invoke2 != null;
 
 			//TODO: Compare method signatures. Prevent infinite recursion...
-
-			return true;
 		}
 		static readonly UTF8String InvokeString = new UTF8String("Invoke");
 
-		static bool ValueTypeEquals(TypeDef td1, TypeDef td2, bool isEnum) {
-			if (td1.Methods.Count != 0 || td2.Methods.Count != 0)
-				return false;
+		static bool ValueTypeEquals(TypeDef td1, TypeDef td2, bool isEnum)
+		{
+		    return td1.Methods.Count == 0 && td2.Methods.Count == 0;
 
-			//TODO: Compare the fields. Prevent infinite recursion...
-
-			return true;
+		    //TODO: Compare the fields. Prevent infinite recursion...
 		}
 	}
 }

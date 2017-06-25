@@ -44,49 +44,47 @@ namespace dnlib.DotNet.MD {
 				uint count = table >= rowCounts.Count ? 0 : rowCounts[table];
 				return count > 0xFFFF ? 4 : 2;
 			}
-			else if (ColumnSize.TypeDefOrRef <= columnSize && columnSize <= ColumnSize.HasCustomDebugInformation) {
-				CodedToken info;
-				switch (columnSize) {
-				case ColumnSize.TypeDefOrRef:		info = CodedToken.TypeDefOrRef; break;
-				case ColumnSize.HasConstant:		info = CodedToken.HasConstant; break;
-				case ColumnSize.HasCustomAttribute:	info = CodedToken.HasCustomAttribute; break;
-				case ColumnSize.HasFieldMarshal:	info = CodedToken.HasFieldMarshal; break;
-				case ColumnSize.HasDeclSecurity:	info = CodedToken.HasDeclSecurity; break;
-				case ColumnSize.MemberRefParent:	info = CodedToken.MemberRefParent; break;
-				case ColumnSize.HasSemantic:		info = CodedToken.HasSemantic; break;
-				case ColumnSize.MethodDefOrRef:		info = CodedToken.MethodDefOrRef; break;
-				case ColumnSize.MemberForwarded:	info = CodedToken.MemberForwarded; break;
-				case ColumnSize.Implementation:		info = CodedToken.Implementation; break;
-				case ColumnSize.CustomAttributeType:info = CodedToken.CustomAttributeType; break;
-				case ColumnSize.ResolutionScope:	info = CodedToken.ResolutionScope; break;
-				case ColumnSize.TypeOrMethodDef:	info = CodedToken.TypeOrMethodDef; break;
-				case ColumnSize.HasCustomDebugInformation:info = CodedToken.HasCustomDebugInformation; break;
-				default: throw new InvalidOperationException(string.Format("Invalid ColumnSize: {0}", columnSize));
-				}
-				uint maxRows = 0;
-				foreach (var tableType in info.TableTypes) {
-					int index = (int)tableType;
-					var tableRows = index >= rowCounts.Count ? 0 : rowCounts[index];
-					if (tableRows > maxRows)
-						maxRows = tableRows;
-				}
-				// Can't overflow since maxRows <= 0x00FFFFFF and info.Bits < 8
-				uint finalRows = maxRows << info.Bits;
-				return finalRows > 0xFFFF ? 4 : 2;
-			}
-			else {
-				switch (columnSize) {
-				case ColumnSize.Byte:	return 1;
-				case ColumnSize.Int16:	return 2;
-				case ColumnSize.UInt16:	return 2;
-				case ColumnSize.Int32:	return 4;
-				case ColumnSize.UInt32:	return 4;
-				case ColumnSize.Strings:return bigStrings ? 4 : 2;
-				case ColumnSize.GUID:	return bigGuid ? 4 : 2;
-				case ColumnSize.Blob:	return bigBlob ? 4 : 2;
-				}
-			}
-			throw new InvalidOperationException(string.Format("Invalid ColumnSize: {0}", columnSize));
+		    if (ColumnSize.TypeDefOrRef <= columnSize && columnSize <= ColumnSize.HasCustomDebugInformation) {
+		        CodedToken info;
+		        switch (columnSize) {
+		            case ColumnSize.TypeDefOrRef:		info = CodedToken.TypeDefOrRef; break;
+		            case ColumnSize.HasConstant:		info = CodedToken.HasConstant; break;
+		            case ColumnSize.HasCustomAttribute:	info = CodedToken.HasCustomAttribute; break;
+		            case ColumnSize.HasFieldMarshal:	info = CodedToken.HasFieldMarshal; break;
+		            case ColumnSize.HasDeclSecurity:	info = CodedToken.HasDeclSecurity; break;
+		            case ColumnSize.MemberRefParent:	info = CodedToken.MemberRefParent; break;
+		            case ColumnSize.HasSemantic:		info = CodedToken.HasSemantic; break;
+		            case ColumnSize.MethodDefOrRef:		info = CodedToken.MethodDefOrRef; break;
+		            case ColumnSize.MemberForwarded:	info = CodedToken.MemberForwarded; break;
+		            case ColumnSize.Implementation:		info = CodedToken.Implementation; break;
+		            case ColumnSize.CustomAttributeType:info = CodedToken.CustomAttributeType; break;
+		            case ColumnSize.ResolutionScope:	info = CodedToken.ResolutionScope; break;
+		            case ColumnSize.TypeOrMethodDef:	info = CodedToken.TypeOrMethodDef; break;
+		            case ColumnSize.HasCustomDebugInformation:info = CodedToken.HasCustomDebugInformation; break;
+		            default: throw new InvalidOperationException($"Invalid ColumnSize: {columnSize}");
+		        }
+		        uint maxRows = 0;
+		        foreach (var tableType in info.TableTypes) {
+		            int index = (int)tableType;
+		            var tableRows = index >= rowCounts.Count ? 0 : rowCounts[index];
+		            if (tableRows > maxRows)
+		                maxRows = tableRows;
+		        }
+		        // Can't overflow since maxRows <= 0x00FFFFFF and info.Bits < 8
+		        uint finalRows = maxRows << info.Bits;
+		        return finalRows > 0xFFFF ? 4 : 2;
+		    }
+		    switch (columnSize) {
+		        case ColumnSize.Byte:	return 1;
+		        case ColumnSize.Int16:	return 2;
+		        case ColumnSize.UInt16:	return 2;
+		        case ColumnSize.Int32:	return 4;
+		        case ColumnSize.UInt32:	return 4;
+		        case ColumnSize.Strings:return bigStrings ? 4 : 2;
+		        case ColumnSize.GUID:	return bigGuid ? 4 : 2;
+		        case ColumnSize.Blob:	return bigBlob ? 4 : 2;
+		    }
+		    throw new InvalidOperationException($"Invalid ColumnSize: {columnSize}");
 		}
 
 		/// <summary>
@@ -96,8 +94,7 @@ namespace dnlib.DotNet.MD {
 		/// <param name="minorVersion">Minor table version</param>
 		/// <returns>All table infos (not completely initialized)</returns>
 		public TableInfo[] CreateTables(byte majorVersion, byte minorVersion) {
-			int maxPresentTables;
-			return CreateTables(majorVersion, minorVersion, out maxPresentTables);
+			return CreateTables(majorVersion, minorVersion, out int maxPresentTables);
 		}
 
 		/// <summary>

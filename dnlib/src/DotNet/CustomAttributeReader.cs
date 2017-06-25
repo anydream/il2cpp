@@ -40,9 +40,7 @@ namespace dnlib.DotNet {
 					return module.CorLibTypes.AssemblyRef;
 			}
 
-			if (modAsm != null)
-				return module.UpdateRowId(new AssemblyRefUser(modAsm));
-			return AssemblyRef.CurrentAssembly;
+			return modAsm != null ? module.UpdateRowId(new AssemblyRefUser(modAsm)) : AssemblyRef.CurrentAssembly;
 		}
 	}
 
@@ -241,23 +239,19 @@ namespace dnlib.DotNet {
 		}
 
 		CustomAttribute Read(ICustomAttributeType ctor) {
-			var methodSig = ctor == null ? null : ctor.MethodSig;
+			var methodSig = ctor?.MethodSig;
 			if (methodSig == null)
 				throw new CABlobParserException("ctor is null or not a method");
 
 			var mrCtor = ctor as MemberRef;
-			if (mrCtor != null) {
-				var owner = mrCtor.Class as TypeSpec;
-				if (owner != null) {
-					var gis = owner.TypeSig as GenericInstSig;
-					if (gis != null) {
-						genericArguments = new GenericArguments();
-						genericArguments.PushTypeArgs(gis.GenericArguments);
-					}
-				}
-			}
+		    var owner = mrCtor?.Class as TypeSpec;
+            if (owner?.TypeSig is GenericInstSig gis)
+            {
+                genericArguments = new GenericArguments();
+                genericArguments.PushTypeArgs(gis.GenericArguments);
+            }
 
-			bool isEmpty = methodSig.Params.Count == 0 && reader.Position == reader.Length;
+            bool isEmpty = methodSig.Params.Count == 0 && reader.Position == reader.Length;
 			if (!isEmpty && reader.ReadUInt16() != 1)
 				throw new CABlobParserException("Invalid CA blob prolog");
 
@@ -277,13 +271,11 @@ namespace dnlib.DotNet {
 			return new CustomAttribute(ctor, ctorArgs, namedArgs, CloneBlobReader(reader));
 		}
 
-		static IBinaryReader CloneBlobReader(IBinaryReader reader) {
-			if (reader == null)
-				return null;
-			var imgStream = reader as IImageStream;
-			if (imgStream != null)
-				return imgStream.Clone();
-			return MemoryImageStream.Create(reader.ReadAllBytes());
+		static IBinaryReader CloneBlobReader(IBinaryReader reader)
+		{
+		    return reader == null
+		        ? null
+		        : (reader is IImageStream imgStream ? imgStream.Clone() : MemoryImageStream.Create(reader.ReadAllBytes()));
 		}
 
 		List<CANamedArgument> ReadNamedArguments(int numNamedArgs) {
@@ -300,10 +292,9 @@ namespace dnlib.DotNet {
 			return SubstituteGenericParameter(type.RemoveModifiers()).RemoveModifiers();
 		}
 
-		TypeSig SubstituteGenericParameter(TypeSig type) {
-			if (genericArguments == null)
-				return type;
-			return genericArguments.Resolve(type);
+		TypeSig SubstituteGenericParameter(TypeSig type)
+		{
+		    return genericArguments == null ? type : genericArguments.Resolve(type);
 		}
 
 		CAArgument ReadFixedArg(TypeSig argType) {
@@ -311,13 +302,9 @@ namespace dnlib.DotNet {
 				throw new CABlobParserException("Too much recursion");
 			if (argType == null)
 				throw new CABlobParserException("null argType");
-			CAArgument result;
 
-			var arrayType = argType as SZArraySig;
-			if (arrayType != null)
-				result = ReadArrayArgument(arrayType);
-			else
-				result = ReadElem(argType);
+		    var arrayType = argType as SZArraySig;
+			var result = arrayType != null ? ReadArrayArgument(arrayType) : ReadElem(argType);
 
 			recursionCounter.Decrement();
 			return result;
@@ -326,9 +313,8 @@ namespace dnlib.DotNet {
 		CAArgument ReadElem(TypeSig argType) {
 			if (argType == null)
 				throw new CABlobParserException("null argType");
-			TypeSig realArgType;
-			var value = ReadValue((SerializationType)argType.ElementType, argType, out realArgType);
-			if (realArgType == null)
+            var value = ReadValue((SerializationType)argType.ElementType, argType, out TypeSig realArgType);
+            if (realArgType == null)
 				throw new CABlobParserException("Invalid arg type");
 
 			// One example when this is true is when prop/field type is object and
@@ -412,9 +398,7 @@ namespace dnlib.DotNet {
 
 			// It's ET.ValueType if it's eg. a ctor enum arg type
 			case (SerializationType)ElementType.ValueType:
-				if (argType == null)
-					throw new CABlobParserException("Invalid element type");
-				realArgType = argType;
+			    realArgType = argType ?? throw new CABlobParserException("Invalid element type");
 				result = ReadEnumValue(GetEnumUnderlyingType(argType));
 				break;
 
@@ -423,12 +407,7 @@ namespace dnlib.DotNet {
 			case SerializationType.TaggedObject:
 				realArgType = ReadFieldOrPropType();
 				var arraySig = realArgType as SZArraySig;
-				if (arraySig != null)
-					result = ReadArrayArgument(arraySig);
-				else {
-					TypeSig tmpType;
-					result = ReadValue((SerializationType)realArgType.ElementType, realArgType, out tmpType);
-				}
+				result = arraySig != null ? ReadArrayArgument(arraySig) : ReadValue((SerializationType)realArgType.ElementType, realArgType, out TypeSig tmpType);
 				break;
 
 			// It's ET.Class if it's eg. a ctor System.Type arg type
@@ -476,9 +455,8 @@ namespace dnlib.DotNet {
 			if (underlyingType != null) {
 				if (underlyingType.ElementType < ElementType.Boolean || underlyingType.ElementType > ElementType.U8)
 					throw new CABlobParserException("Invalid enum underlying type");
-				TypeSig realArgType;
-				return ReadValue((SerializationType)underlyingType.ElementType, underlyingType, out realArgType);
-			}
+                return ReadValue((SerializationType)underlyingType.ElementType, underlyingType, out TypeSig realArgType);
+            }
 
 			// We couldn't resolve the type ref. It should be an enum, but we don't know for sure.
 			// Most enums use Int32 as the underlying type. Assume that's true also in this case.
@@ -524,18 +502,18 @@ namespace dnlib.DotNet {
 		/// <returns>A <see cref="TypeDef"/> or <c>null</c> if we couldn't resolve the
 		/// <see cref="TypeRef"/> or if <paramref name="type"/> is a type spec</returns>
 		static TypeDef GetTypeDef(TypeSig type) {
-			var tdr = type as TypeDefOrRefSig;
-			if (tdr != null) {
-				var td = tdr.TypeDef;
-				if (td != null)
-					return td;
+            if (type is TypeDefOrRefSig tdr)
+            {
+                var td = tdr.TypeDef;
+                if (td != null)
+                    return td;
 
-				var tr = tdr.TypeRef;
-				if (tr != null)
-					return tr.Resolve();
-			}
+                var tr = tdr.TypeRef;
+                if (tr != null)
+                    return tr.Resolve();
+            }
 
-			return null;
+            return null;
 		}
 
 		CAArgument ReadArrayArgument(SZArraySig arrayType) {
@@ -606,18 +584,17 @@ namespace dnlib.DotNet {
 			if (reader.ReadByte() == 0xFF)
 				return null;
 			reader.Position--;
-			uint len;
-			if (!reader.ReadCompressedUInt32(out len))
-				throw new CABlobParserException("Could not read compressed UInt32");
-			if (len == 0)
+            if (!reader.ReadCompressedUInt32(out uint len))
+                throw new CABlobParserException("Could not read compressed UInt32");
+            if (len == 0)
 				return UTF8String.Empty;
 			return new UTF8String(reader.ReadBytes((int)len));
 		}
 
 		/// <inheritdoc/>
 		public void Dispose() {
-			if (ownReader && reader != null)
-				reader.Dispose();
+			if (ownReader)
+				reader?.Dispose();
 		}
 	}
 }

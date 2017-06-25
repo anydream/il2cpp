@@ -114,7 +114,7 @@ namespace dnlib.DotNet.Writer {
 		bool UpdateCanWrite(bool isValid, string field, ref bool canWriteMore) {
 			if (!canWriteMore) {
 				if (isValid)
-					helper.Error(string.Format("MarshalType field {0} is valid even though a previous field was invalid", field));
+					helper.Error($"MarshalType field {field} is valid even though a previous field was invalid");
 				return canWriteMore;
 			}
 
@@ -133,9 +133,9 @@ namespace dnlib.DotNet.Writer {
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() {
-			if (outStream != null)
-				outStream.Dispose();
+		public void Dispose()
+		{
+		    outStream?.Dispose();
 		}
 
 		bool IFullNameCreatorHelper.MustUseAssemblyName(IType type) {

@@ -15,32 +15,28 @@ namespace dnlib.DotNet.Emit {
 	/// <summary>
 	/// A collection of <see cref="Local"/>s
 	/// </summary>
-	[DebuggerDisplay("Count = {Count}")]
+	[DebuggerDisplay("Count = {" + nameof(Count) + "}")]
 	public sealed class LocalList : IListListener<Local>, ThreadSafe.IList<Local> {
 		readonly LazyList<Local> locals;
 
 		/// <summary>
 		/// Gets the number of locals
 		/// </summary>
-		public int Count {
-			get { return locals.Count; }
-		}
+		public int Count => locals.Count;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the list of locals
 		/// </summary>
-		public ThreadSafe.IList<Local> Locals {
-			get { return locals; }
-		}
+		public ThreadSafe.IList<Local> Locals => locals;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the N'th local
 		/// </summary>
 		/// <param name="index">The local index</param>
 		public Local this[int index] {
-			get { return locals[index]; }
-			set { locals[index] = value; }
-		}
+			get => locals[index];
+	        set => locals[index] = value;
+	    }
 
 		/// <summary>
 		/// Default constructor
@@ -130,11 +126,9 @@ namespace dnlib.DotNet.Emit {
 		}
 
 		/// <inheritdoc/>
-		public bool IsReadOnly {
-			get { return false; }
-		}
+		public bool IsReadOnly => false;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public bool Remove(Local item) {
 			return locals.Remove(item);
 		}
@@ -225,50 +219,33 @@ namespace dnlib.DotNet.Emit {
 	/// A method local
 	/// </summary>
 	public sealed class Local : IVariable {
-		TypeSig typeSig;
-		int index;
-		string name;
-		int pdbAttributes;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the type of the local
 		/// </summary>
-		public TypeSig Type {
-			get { return typeSig; }
-			set { typeSig = value; }
-		}
+		public TypeSig Type { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Local index
 		/// </summary>
-		public int Index {
-			get { return index; }
-			internal set { index = value; }
-		}
+		public int Index { get; internal set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the name
 		/// </summary>
-		public string Name {
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the PDB attributes. This seems to be a <c>CorSymVarFlag</c> enumeration.
 		/// It's <c>VAR_IS_COMP_GEN</c> (<c>1</c>) if it's a compiler-generated local.
 		/// </summary>
-		public int PdbAttributes {
-			get { return pdbAttributes; }
-			set { pdbAttributes = value; }
-		}
+		public int PdbAttributes { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="typeSig">The type</param>
 		public Local(TypeSig typeSig) {
-			this.typeSig = typeSig;
+			this.Type = typeSig;
 		}
 
 		/// <summary>
@@ -277,8 +254,8 @@ namespace dnlib.DotNet.Emit {
 		/// <param name="typeSig">The type</param>
 		/// <param name="name">Name of local</param>
 		public Local(TypeSig typeSig, string name) {
-			this.typeSig = typeSig;
-			this.name = name;
+			this.Type = typeSig;
+			this.Name = name;
 		}
 
 		/// <summary>
@@ -288,17 +265,15 @@ namespace dnlib.DotNet.Emit {
 		/// <param name="name">Name of local</param>
 		/// <param name="index">Index, should only be used if you don't add it to the locals list</param>
 		public Local(TypeSig typeSig, string name, int index) {
-			this.typeSig = typeSig;
-			this.name = name;
-			this.index = index;
+			this.Type = typeSig;
+			this.Name = name;
+			this.Index = index;
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			var n = name;
-			if (string.IsNullOrEmpty(n))
-				return string.Format("V_{0}", Index);
-			return n;
+			var n = Name;
+			return string.IsNullOrEmpty(n) ? $"V_{Index}" : n;
 		}
 	}
 }

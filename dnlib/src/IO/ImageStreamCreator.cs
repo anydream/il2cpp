@@ -76,9 +76,8 @@ namespace dnlib.IO {
 				return MemoryImageStream.Create(File.ReadAllBytes(fileName));
 			}
 			catch {
-				if (creator != null)
-					creator.Dispose();
-				throw;
+			    creator?.Dispose();
+			    throw;
 			}
 		}
 	}

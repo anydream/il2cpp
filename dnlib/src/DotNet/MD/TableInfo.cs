@@ -7,52 +7,38 @@ namespace dnlib.DotNet.MD {
 	/// <summary>
 	/// Info about one MD table
 	/// </summary>
-	[DebuggerDisplay("{rowSize} {name}")]
+	[DebuggerDisplay("{RowSize} {Name}")]
 	public sealed class TableInfo {
-		readonly Table table;
-		int rowSize;
-		readonly IList<ColumnInfo> columns;
-		readonly string name;
-
-		/// <summary>
+	    /// <summary>
 		/// Returns the table type
 		/// </summary>
-		public Table Table {
-			get { return table; }
-		}
+		public Table Table { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the total size of a row in bytes
 		/// </summary>
-		public int RowSize {
-			get { return rowSize; }
-			internal set { rowSize = value; }
-		}
+		public int RowSize { get; internal set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns all the columns
 		/// </summary>
-		public IList<ColumnInfo> Columns {
-			get { return columns; }
-		}
+		public IList<ColumnInfo> Columns { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the name of the table
 		/// </summary>
-		public string Name {
-			get { return name; }
-		}
+		public string Name { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="table">Table type</param>
 		/// <param name="name">Table name</param>
 		/// <param name="columns">All columns</param>
 		public TableInfo(Table table, string name, IList<ColumnInfo> columns) {
-			this.table = table;
-			this.name = name;
-			this.columns = columns;
+			this.Table = table;
+			this.Name = name;
+			this.Columns = columns;
 		}
 
 		/// <summary>
@@ -63,10 +49,10 @@ namespace dnlib.DotNet.MD {
 		/// <param name="columns">All columns</param>
 		/// <param name="rowSize">Row size</param>
 		public TableInfo(Table table, string name, IList<ColumnInfo> columns, int rowSize) {
-			this.table = table;
-			this.name = name;
-			this.columns = columns;
-			this.rowSize = rowSize;
+			this.Table = table;
+			this.Name = name;
+			this.Columns = columns;
+			this.RowSize = rowSize;
 		}
 	}
 }

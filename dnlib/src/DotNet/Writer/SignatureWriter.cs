@@ -318,10 +318,8 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void Dispose() {
-			if (outStream != null)
-				outStream.Dispose();
-			if (writer != null)
-				((IDisposable)writer).Dispose();
+		    outStream?.Dispose();
+		    ((IDisposable) writer)?.Dispose();
 		}
 	}
 }

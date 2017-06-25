@@ -151,7 +151,7 @@ namespace dnlib.PE {
 		/// <returns>The <see cref="ResourceData"/> or <c>null</c> if none found</returns>
 		public static ResourceData FindWin32ResourceData(this IPEImage self, ResourceName type, ResourceName name, ResourceName langId) {
 			var w32Resources = self.Win32Resources;
-			return w32Resources == null ? null : w32Resources.Find(type, name, langId);
+			return w32Resources?.Find(type, name, langId);
 		}
 	}
 }

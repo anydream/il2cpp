@@ -17,31 +17,22 @@ namespace dnlib.DotNet.Writer {
 		readonly List<MethodBody> tinyMethods;
 		readonly List<MethodBody> fatMethods;
 		readonly bool shareBodies;
-		FileOffset offset;
-		RVA rva;
-		uint length;
+	    uint length;
 		bool setOffsetCalled;
 		readonly bool alignFatBodies;
-		uint savedBytes;
 
-		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the number of bytes saved by re-using method bodies
 		/// </summary>
-		public uint SavedBytes {
-			get { return savedBytes; }
-		}
+		public uint SavedBytes { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="shareBodies"><c>true</c> if bodies can be shared</param>
@@ -66,12 +57,12 @@ namespace dnlib.DotNet.Writer {
 				throw new InvalidOperationException("SetOffset() has already been called");
 			if (shareBodies) {
 				var dict = methodBody.IsFat ? fatMethodsDict : tinyMethodsDict;
-				MethodBody cached;
-				if (dict.TryGetValue(methodBody, out cached)) {
-					savedBytes += (uint)methodBody.GetSizeOfMethodBody();
-					return cached;
-				}
-				dict[methodBody] = methodBody;
+                if (dict.TryGetValue(methodBody, out MethodBody cached))
+                {
+                    SavedBytes += (uint)methodBody.GetSizeOfMethodBody();
+                    return cached;
+                }
+                dict[methodBody] = methodBody;
 			}
 			var list = methodBody.IsFat ? fatMethods : tinyMethods;
 			list.Add(methodBody);
@@ -81,8 +72,8 @@ namespace dnlib.DotNet.Writer {
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
 			setOffsetCalled = true;
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 
 			tinyMethodsDict = null;
 			fatMethodsDict = null;
@@ -122,7 +113,7 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void WriteTo(BinaryWriter writer) {
-			var rva2 = rva;
+			var rva2 = RVA;
 			foreach (var mb in tinyMethods) {
 				mb.VerifyWriteTo(writer);
 				rva2 += mb.GetFileLength();

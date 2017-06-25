@@ -16,67 +16,43 @@ namespace dnlib.DotNet {
 	/// A high-level representation of a row in the Event table
 	/// </summary>
 	public abstract class EventDef : IHasCustomAttribute, IHasSemantic, IFullName, IMemberDef {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
-
 #if THREAD_SAFE
 		readonly Lock theLock = Lock.Create();
 #endif
 
 		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.Event, rid); }
-		}
+		public MDToken MDToken => new MDToken(Table.Event, Rid);
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public int HasCustomAttributeTag {
-			get { return 10; }
-		}
+	    /// <inheritdoc/>
+		public int HasCustomAttributeTag => 10;
 
-		/// <inheritdoc/>
-		public int HasSemanticTag {
-			get { return 0; }
-		}
+	    /// <inheritdoc/>
+		public int HasSemanticTag => 0;
 
-		/// <summary>
+	    /// <summary>
 		/// From column Event.EventFlags
 		/// </summary>
 		public EventAttributes Attributes {
-			get { return (EventAttributes)attributes; }
-			set { attributes = (int)value; }
-		}
+			get => (EventAttributes)attributes;
+	        set => attributes = (int)value;
+	    }
 		/// <summary/>
 		protected int attributes;
 
 		/// <summary>
 		/// From column Event.Name
 		/// </summary>
-		public UTF8String Name {
-			get { return name; }
-			set { name = value; }
-		}
-		/// <summary>Name</summary>
-		protected UTF8String name;
+		public UTF8String Name { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// From column Event.EventType
 		/// </summary>
-		public ITypeDefOrRef EventType {
-			get { return eventType; }
-			set { eventType = value; }
-		}
-		/// <summary/>
-		protected ITypeDefOrRef eventType;
+		public ITypeDefOrRef EventType { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all custom attributes
 		/// </summary>
 		public CustomAttributeCollection CustomAttributes {
@@ -188,66 +164,48 @@ namespace dnlib.DotNet {
 		/// <summary>
 		/// <c>true</c> if there are no methods attached to this event
 		/// </summary>
-		public bool IsEmpty {
-			get {
-				// The first property access initializes the other fields we access here
-				return AddMethod == null &&
-					removeMethod == null &&
-					invokeMethod == null &&
-					otherMethods.Count == 0;
-			}
-		}
+		public bool IsEmpty => AddMethod == null &&
+		                       removeMethod == null &&
+		                       invokeMethod == null &&
+		                       otherMethods.Count == 0;
 
-		/// <inheritdoc/>
-		public bool HasCustomAttributes {
-			get { return CustomAttributes.Count > 0; }
-		}
+	    /// <inheritdoc/>
+		public bool HasCustomAttributes => CustomAttributes.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="OtherMethods"/> is not empty
 		/// </summary>
-		public bool HasOtherMethods {
-			get { return OtherMethods.Count > 0; }
-		}
+		public bool HasOtherMethods => OtherMethods.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the declaring type (owner type)
 		/// </summary>
 		public TypeDef DeclaringType {
-			get { return declaringType2; }
-			set {
+			get => DeclaringType2;
+	        set {
 				var currentDeclaringType = DeclaringType2;
 				if (currentDeclaringType == value)
 					return;
-				if (currentDeclaringType != null)
-					currentDeclaringType.Events.Remove(this);	// Will set DeclaringType2 = null
-				if (value != null)
-					value.Events.Add(this);	// Will set DeclaringType2 = value
-			}
+	            currentDeclaringType?.Events.Remove(this);	// Will set DeclaringType2 = null
+	            value?.Events.Add(this);	// Will set DeclaringType2 = value
+	        }
 		}
 
 		/// <inheritdoc/>
-		ITypeDefOrRef IMemberRef.DeclaringType {
-			get { return declaringType2; }
-		}
+		ITypeDefOrRef IMemberRef.DeclaringType => DeclaringType2;
 
-		/// <summary>
+	    /// <summary>
 		/// Called by <see cref="DeclaringType"/> and should normally not be called by any user
 		/// code. Use <see cref="DeclaringType"/> instead. Only call this if you must set the
 		/// declaring type without inserting it in the declaring type's method list.
 		/// </summary>
-		public TypeDef DeclaringType2 {
-			get { return declaringType2; }
-			set { declaringType2 = value; }
-		}
-		/// <summary/>
-		protected TypeDef declaringType2;
+		public TypeDef DeclaringType2 { get; set; }
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public ModuleDef Module {
 			get {
-				var dt = declaringType2;
-				return dt == null ? null : dt.Module;
+				var dt = DeclaringType2;
+				return dt?.Module;
 			}
 		}
 
@@ -256,64 +214,38 @@ namespace dnlib.DotNet {
 		/// </summary>
 		public string FullName {
 			get {
-				var dt = declaringType2;
-				return FullNameCreator.EventFullName(dt == null ? null : dt.FullName, name, eventType, null, null);
+				var dt = DeclaringType2;
+				return FullNameCreator.EventFullName(dt?.FullName, Name, EventType);
 			}
 		}
 
-		bool IIsTypeOrMethod.IsType {
-			get { return false; }
-		}
+		bool IIsTypeOrMethod.IsType => false;
 
-		bool IIsTypeOrMethod.IsMethod {
-			get { return false; }
-		}
+	    bool IIsTypeOrMethod.IsMethod => false;
 
-		bool IMemberRef.IsField {
-			get { return false; }
-		}
+	    bool IMemberRef.IsField => false;
 
-		bool IMemberRef.IsTypeSpec {
-			get { return false; }
-		}
+	    bool IMemberRef.IsTypeSpec => false;
 
-		bool IMemberRef.IsTypeRef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsTypeRef => false;
 
-		bool IMemberRef.IsTypeDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsTypeDef => false;
 
-		bool IMemberRef.IsMethodSpec {
-			get { return false; }
-		}
+	    bool IMemberRef.IsMethodSpec => false;
 
-		bool IMemberRef.IsMethodDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsMethodDef => false;
 
-		bool IMemberRef.IsMemberRef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsMemberRef => false;
 
-		bool IMemberRef.IsFieldDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsFieldDef => false;
 
-		bool IMemberRef.IsPropertyDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsPropertyDef => false;
 
-		bool IMemberRef.IsEventDef {
-			get { return true; }
-		}
+	    bool IMemberRef.IsEventDef => true;
 
-		bool IMemberRef.IsGenericParam {
-			get { return false; }
-		}
+	    bool IMemberRef.IsGenericParam => false;
 
-		/// <summary>
+	    /// <summary>
 		/// Set or clear flags in <see cref="attributes"/>
 		/// </summary>
 		/// <param name="set"><c>true</c> if flags should be set, <c>false</c> if flags should
@@ -341,16 +273,16 @@ namespace dnlib.DotNet {
 		/// Gets/sets the <see cref="EventAttributes.SpecialName"/> bit
 		/// </summary>
 		public bool IsSpecialName {
-			get { return ((EventAttributes)attributes & EventAttributes.SpecialName) != 0; }
-			set { ModifyAttributes(value, EventAttributes.SpecialName); }
+			get => ((EventAttributes)attributes & EventAttributes.SpecialName) != 0;
+		    set => ModifyAttributes(value, EventAttributes.SpecialName);
 		}
 
 		/// <summary>
 		/// Gets/sets the <see cref="EventAttributes.RTSpecialName"/> bit
 		/// </summary>
 		public bool IsRuntimeSpecialName {
-			get { return ((EventAttributes)attributes & EventAttributes.RTSpecialName) != 0; }
-			set { ModifyAttributes(value, EventAttributes.RTSpecialName); }
+			get => ((EventAttributes)attributes & EventAttributes.RTSpecialName) != 0;
+		    set => ModifyAttributes(value, EventAttributes.RTSpecialName);
 		}
 
 		/// <inheritdoc/>
@@ -393,8 +325,8 @@ namespace dnlib.DotNet {
 		/// <param name="type">Type</param>
 		/// <param name="flags">Flags</param>
 		public EventDefUser(UTF8String name, ITypeDefOrRef type, EventAttributes flags) {
-			this.name = name;
-			this.eventType = type;
+			this.Name = name;
+			this.EventType = type;
 			this.attributes = (int)flags;
 		}
 	}
@@ -406,16 +338,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.Event, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.Event, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -430,18 +358,17 @@ namespace dnlib.DotNet {
 		public EventDefMD(ModuleDefMD readerModule, uint rid) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.EventTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("Event rid {0} does not exist", rid));
+				throw new BadImageFormatException($"Event rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
+			this.OrigRid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
-			uint name;
-			uint eventType = readerModule.TablesStream.ReadEventRow(origRid, out this.attributes, out name);
-			this.name = readerModule.StringsStream.ReadNoNull(name);
-			this.declaringType2 = readerModule.GetOwnerType(this);
-			this.eventType = readerModule.ResolveTypeDefOrRef(eventType, new GenericParamContext(declaringType2));
+			uint eventType = readerModule.TablesStream.ReadEventRow(OrigRid, out this.attributes, out uint name);
+			this.Name = readerModule.StringsStream.ReadNoNull(name);
+			this.DeclaringType2 = readerModule.GetOwnerType(this);
+			this.EventType = readerModule.ResolveTypeDefOrRef(eventType, new GenericParamContext(DeclaringType2));
 		}
 
 		internal EventDefMD InitializeAll() {
@@ -460,7 +387,7 @@ namespace dnlib.DotNet {
 		/// <inheritdoc/>
 		protected override void InitializeEventMethods_NoLock() {
 			ThreadSafe.IList<MethodDef> newOtherMethods;
-			var dt = declaringType2 as TypeDefMD;
+			var dt = DeclaringType2 as TypeDefMD;
 			if (dt == null)
 				newOtherMethods = ThreadSafeListCreator.Create<MethodDef>();
 			else

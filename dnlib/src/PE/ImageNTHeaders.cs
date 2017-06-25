@@ -8,32 +8,22 @@ namespace dnlib.PE {
 	/// Represents the IMAGE_NT_HEADERS PE section
 	/// </summary>
 	public sealed class ImageNTHeaders : FileSection {
-		readonly uint signature;
-		readonly ImageFileHeader imageFileHeader;
-		readonly IImageOptionalHeader imageOptionalHeader;
-
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_NT_HEADERS.Signature field
 		/// </summary>
-		public uint Signature {
-			get { return signature; }
-		}
+		public uint Signature { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_NT_HEADERS.FileHeader field
 		/// </summary>
-		public ImageFileHeader FileHeader {
-			get { return imageFileHeader; }
-		}
+		public ImageFileHeader FileHeader { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_NT_HEADERS.OptionalHeader field
 		/// </summary>
-		public IImageOptionalHeader OptionalHeader {
-			get { return imageOptionalHeader; }
-		}
+		public IImageOptionalHeader OptionalHeader { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="reader">PE file reader pointing to the start of this section</param>
@@ -41,11 +31,11 @@ namespace dnlib.PE {
 		/// <exception cref="BadImageFormatException">Thrown if verification fails</exception>
 		public ImageNTHeaders(IImageStream reader, bool verify) {
 			SetStartOffset(reader);
-			this.signature = reader.ReadUInt32();
-			if (verify && this.signature != 0x4550)
+			this.Signature = reader.ReadUInt32();
+			if (verify && this.Signature != 0x4550)
 				throw new BadImageFormatException("Invalid NT headers signature");
-			this.imageFileHeader = new ImageFileHeader(reader, verify);
-			this.imageOptionalHeader = CreateImageOptionalHeader(reader, verify);
+			this.FileHeader = new ImageFileHeader(reader, verify);
+			this.OptionalHeader = CreateImageOptionalHeader(reader, verify);
 			SetEndoffset(reader);
 		}
 
@@ -60,8 +50,8 @@ namespace dnlib.PE {
 			ushort magic = reader.ReadUInt16();
 			reader.Position -= 2;
 			switch (magic) {
-			case 0x010B: return new ImageOptionalHeader32(reader, imageFileHeader.SizeOfOptionalHeader, verify);
-			case 0x020B: return new ImageOptionalHeader64(reader, imageFileHeader.SizeOfOptionalHeader, verify);
+			case 0x010B: return new ImageOptionalHeader32(reader, FileHeader.SizeOfOptionalHeader, verify);
+			case 0x020B: return new ImageOptionalHeader64(reader, FileHeader.SizeOfOptionalHeader, verify);
 			default: throw new BadImageFormatException("Invalid optional header magic");
 			}
 		}

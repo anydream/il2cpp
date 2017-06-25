@@ -166,16 +166,12 @@ namespace dnlib.DotNet {
 		/// <param name="asm">The assembly</param>
 		public static bool IsCorLib(this IAssembly asm) {
 			var asmDef = asm as AssemblyDef;
-			if (asmDef != null) {
-				var manifestModule = asmDef.ManifestModule;
-				if (manifestModule != null) {
-					var isCorModule = manifestModule.IsCoreLibraryModule;
-					if (isCorModule != null)
-						return isCorModule.Value;
-				}
-			}
+		    var manifestModule = asmDef?.ManifestModule;
+		    var isCorModule = manifestModule?.IsCoreLibraryModule;
+		    if (isCorModule != null)
+		        return isCorModule.Value;
 
-			string asmName;
+		    string asmName;
 			return asm != null &&
 				UTF8String.IsNullOrEmpty(asm.Culture) &&
 				((asmName = UTF8String.ToSystemStringOrEmpty(asm.Name)).Equals("mscorlib", StringComparison.OrdinalIgnoreCase) ||
@@ -190,11 +186,10 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="asm">The assembly</param>
 		/// <returns>A new <see cref="AssemblyRef"/> instance</returns>
-		public static AssemblyRef ToAssemblyRef(this IAssembly asm) {
-			if (asm == null)
-				return null;
-			// Always create a new one, even if it happens to be an AssemblyRef
-			return new AssemblyRefUser(asm.Name, asm.Version, asm.PublicKeyOrToken, asm.Culture) { Attributes = asm.Attributes };
+		public static AssemblyRef ToAssemblyRef(this IAssembly asm)
+		{
+		    return asm == null ? null : new AssemblyRefUser(asm.Name, asm.Version, asm.PublicKeyOrToken, asm.Culture) { Attributes = asm.Attributes };
+		    // Always create a new one, even if it happens to be an AssemblyRef
 		}
 
 		/// <summary>
@@ -210,28 +205,23 @@ namespace dnlib.DotNet {
 				return null;
 
 			var module = type.Module;
-			if (module != null) {
-				var corLibType = module.CorLibTypes.GetCorLibTypeSig(type);
-				if (corLibType != null)
-					return corLibType;
-			}
+		    var corLibType = module?.CorLibTypes.GetCorLibTypeSig(type);
+		    if (corLibType != null)
+		        return corLibType;
 
-			var td = type as TypeDef;
-			if (td != null)
-				return CreateClassOrValueType(type, checkValueType ? td.IsValueType : false);
+            if (type is TypeDef td)
+                return CreateClassOrValueType(type, checkValueType && td.IsValueType);
 
-			var tr = type as TypeRef;
-			if (tr != null) {
-				if (checkValueType)
-					td = tr.Resolve();
-				return CreateClassOrValueType(type, td == null ? false : td.IsValueType);
-			}
+            if (type is TypeRef tr)
+            {
+                td = null;
+                if (checkValueType)
+                    td = tr.Resolve();
+                return CreateClassOrValueType(type, td?.IsValueType ?? false);
+            }
 
-			var ts = type as TypeSpec;
-			if (ts != null)
-				return ts.TypeSig;
-
-			return null;
+            var ts = type as TypeSpec;
+		    return ts?.TypeSig;
 		}
 
 		static TypeSig CreateClassOrValueType(ITypeDefOrRef type, bool isValueType) {
@@ -248,7 +238,7 @@ namespace dnlib.DotNet {
 		/// <see cref="TypeDefOrRefSig"/></returns>
 		public static TypeDefOrRefSig TryGetTypeDefOrRefSig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as TypeDefOrRefSig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as TypeDefOrRefSig;
 		}
 
 		/// <summary>
@@ -259,7 +249,7 @@ namespace dnlib.DotNet {
 		/// <see cref="ClassOrValueTypeSig"/></returns>
 		public static ClassOrValueTypeSig TryGetClassOrValueTypeSig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as ClassOrValueTypeSig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as ClassOrValueTypeSig;
 		}
 
 		/// <summary>
@@ -270,7 +260,7 @@ namespace dnlib.DotNet {
 		/// <see cref="ValueTypeSig"/></returns>
 		public static ValueTypeSig TryGetValueTypeSig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as ValueTypeSig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as ValueTypeSig;
 		}
 
 		/// <summary>
@@ -281,7 +271,7 @@ namespace dnlib.DotNet {
 		/// <see cref="ClassSig"/></returns>
 		public static ClassSig TryGetClassSig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as ClassSig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as ClassSig;
 		}
 
 		/// <summary>
@@ -292,7 +282,7 @@ namespace dnlib.DotNet {
 		/// <see cref="GenericSig"/></returns>
 		public static GenericSig TryGetGenericSig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as GenericSig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as GenericSig;
 		}
 
 		/// <summary>
@@ -303,7 +293,7 @@ namespace dnlib.DotNet {
 		/// <see cref="GenericVar"/></returns>
 		public static GenericVar TryGetGenericVar(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as GenericVar;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as GenericVar;
 		}
 
 		/// <summary>
@@ -314,7 +304,7 @@ namespace dnlib.DotNet {
 		/// <see cref="GenericMVar"/></returns>
 		public static GenericMVar TryGetGenericMVar(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as GenericMVar;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as GenericMVar;
 		}
 
 		/// <summary>
@@ -325,7 +315,7 @@ namespace dnlib.DotNet {
 		/// <see cref="GenericInstSig"/></returns>
 		public static GenericInstSig TryGetGenericInstSig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as GenericInstSig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as GenericInstSig;
 		}
 
 		/// <summary>
@@ -336,7 +326,7 @@ namespace dnlib.DotNet {
 		/// <see cref="PtrSig"/></returns>
 		public static PtrSig TryGetPtrSig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as PtrSig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as PtrSig;
 		}
 
 		/// <summary>
@@ -347,7 +337,7 @@ namespace dnlib.DotNet {
 		/// <see cref="ByRefSig"/></returns>
 		public static ByRefSig TryGetByRefSig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as ByRefSig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as ByRefSig;
 		}
 
 		/// <summary>
@@ -358,7 +348,7 @@ namespace dnlib.DotNet {
 		/// <see cref="ArraySig"/></returns>
 		public static ArraySig TryGetArraySig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as ArraySig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as ArraySig;
 		}
 
 		/// <summary>
@@ -369,7 +359,7 @@ namespace dnlib.DotNet {
 		/// <see cref="SZArraySig"/></returns>
 		public static SZArraySig TryGetSZArraySig(this ITypeDefOrRef type) {
 			var ts = type as TypeSpec;
-			return ts == null ? null : ts.TypeSig.RemovePinnedAndModifiers() as SZArraySig;
+			return ts?.TypeSig.RemovePinnedAndModifiers() as SZArraySig;
 		}
 
 		/// <summary>
@@ -393,28 +383,27 @@ namespace dnlib.DotNet {
 		/// <paramref name="throwOnResolveFailure"/> is <c>true</c> and we couldn't resolve
 		/// a <see cref="TypeRef"/></returns>
 		public static ITypeDefOrRef GetBaseType(this ITypeDefOrRef tdr, bool throwOnResolveFailure = false) {
-			var td = tdr as TypeDef;
-			if (td != null)
-				return td.BaseType;
+            if (tdr is TypeDef td)
+                return td.BaseType;
 
-			var tr = tdr as TypeRef;
-			if (tr != null) {
-				td = throwOnResolveFailure ? tr.ResolveThrow() : tr.Resolve();
-				return td == null ? null : td.BaseType;
-			}
+            if (tdr is TypeRef tr)
+            {
+                td = throwOnResolveFailure ? tr.ResolveThrow() : tr.Resolve();
+                return td?.BaseType;
+            }
 
-			var ts = tdr as TypeSpec;
+            var ts = tdr as TypeSpec;
 			if (ts == null)
 				return null;
 
 			var git = ts.TypeSig.ToGenericInstSig();
 			if (git != null) {
 				var genType = git.GenericType;
-				tdr = genType == null ? null : genType.TypeDefOrRef;
+				tdr = genType?.TypeDefOrRef;
 			}
 			else {
 				var sig = ts.TypeSig.ToTypeDefOrRefSig();
-				tdr = sig == null ? null : sig.TypeDefOrRef;
+				tdr = sig?.TypeDefOrRef;
 			}
 
 			td = tdr as TypeDef;
@@ -424,7 +413,7 @@ namespace dnlib.DotNet {
 			tr = tdr as TypeRef;
 			if (tr != null) {
 				td = throwOnResolveFailure ? tr.ResolveThrow() : tr.Resolve();
-				return td == null ? null : td.BaseType;
+				return td?.BaseType;
 			}
 
 			return null;
@@ -437,15 +426,13 @@ namespace dnlib.DotNet {
 		/// <returns>A <see cref="TypeDef"/> or <c>null</c> if input was <c>null</c> or if we
 		/// couldn't resolve the reference.</returns>
 		public static TypeDef ResolveTypeDef(this ITypeDefOrRef tdr) {
-			var td = tdr as TypeDef;
-			if (td != null)
-				return td;
+            if (tdr is TypeDef td)
+                return td;
 
-			var tr = tdr as TypeRef;
-			if (tr != null)
-				return tr.Resolve();
+            if (tdr is TypeRef tr)
+                return tr.Resolve();
 
-			if (tdr == null)
+            if (tdr == null)
 				return null;
 			tdr = tdr.ScopeType;
 
@@ -454,10 +441,7 @@ namespace dnlib.DotNet {
 				return td;
 
 			tr = tdr as TypeRef;
-			if (tr != null)
-				return tr.Resolve();
-
-			return null;
+		    return tr?.Resolve();
 		}
 
 		/// <summary>
@@ -467,15 +451,13 @@ namespace dnlib.DotNet {
 		/// <returns>A <see cref="TypeDef"/> instance.</returns>
 		/// <exception cref="TypeResolveException">If the type couldn't be resolved</exception>
 		public static TypeDef ResolveTypeDefThrow(this ITypeDefOrRef tdr) {
-			var td = tdr as TypeDef;
-			if (td != null)
-				return td;
+            if (tdr is TypeDef td)
+                return td;
 
-			var tr = tdr as TypeRef;
-			if (tr != null)
-				return tr.ResolveThrow();
+            if (tdr is TypeRef tr)
+                return tr.ResolveThrow();
 
-			if (tdr == null)
+            if (tdr == null)
 				throw new TypeResolveException("Can't resolve a null pointer");
 			tdr = tdr.ScopeType;
 
@@ -487,7 +469,7 @@ namespace dnlib.DotNet {
 			if (tr != null)
 				return tr.ResolveThrow();
 
-			throw new TypeResolveException(string.Format("Could not resolve type: {0} ({1})", tdr, tdr == null ? null : tdr.DefinitionAssembly));
+			throw new TypeResolveException($"Could not resolve type: {tdr} ({tdr?.DefinitionAssembly})");
 		}
 
 		/// <summary>
@@ -499,15 +481,11 @@ namespace dnlib.DotNet {
 		/// <c>null</c> or if it wasn't possible to resolve it (the field doesn't exist or its
 		/// assembly couldn't be loaded)</returns>
 		public static FieldDef ResolveFieldDef(this IField field) {
-			var fd = field as FieldDef;
-			if (fd != null)
-				return fd;
+            if (field is FieldDef fd)
+                return fd;
 
-			var mr = field as MemberRef;
-			if (mr != null)
-				return mr.ResolveField();
-
-			return null;
+            var mr = field as MemberRef;
+		    return mr?.ResolveField();
 		}
 
 		/// <summary>
@@ -517,15 +495,13 @@ namespace dnlib.DotNet {
 		/// <param name="field">Field to resolve</param>
 		/// <returns>The <see cref="FieldDef"/></returns>
 		public static FieldDef ResolveFieldDefThrow(this IField field) {
-			var fd = field as FieldDef;
-			if (fd != null)
-				return fd;
+            if (field is FieldDef fd)
+                return fd;
 
-			var mr = field as MemberRef;
-			if (mr != null)
-				return mr.ResolveFieldThrow();
+            if (field is MemberRef mr)
+                return mr.ResolveFieldThrow();
 
-			throw new MemberRefResolveException(string.Format("Could not resolve field: {0}", field));
+            throw new MemberRefResolveException($"Could not resolve field: {field}");
 		}
 
 		/// <summary>
@@ -539,26 +515,24 @@ namespace dnlib.DotNet {
 		/// <c>null</c> or if it wasn't possible to resolve it (the method doesn't exist or its
 		/// assembly couldn't be loaded)</returns>
 		public static MethodDef ResolveMethodDef(this IMethod method) {
-			var md = method as MethodDef;
-			if (md != null)
-				return md;
+            if (method is MethodDef md)
+                return md;
 
-			var mr = method as MemberRef;
-			if (mr != null)
-				return mr.ResolveMethod();
+            if (method is MemberRef mr)
+                return mr.ResolveMethod();
 
-			var ms = method as MethodSpec;
-			if (ms != null) {
-				md = ms.Method as MethodDef;
-				if (md != null)
-					return md;
+            if (method is MethodSpec ms)
+            {
+                md = ms.Method as MethodDef;
+                if (md != null)
+                    return md;
 
-				mr = ms.Method as MemberRef;
-				if (mr != null)
-					return mr.ResolveMethod();
-			}
+                mr = ms.Method as MemberRef;
+                if (mr != null)
+                    return mr.ResolveMethod();
+            }
 
-			return null;
+            return null;
 		}
 
 		/// <summary>
@@ -570,26 +544,24 @@ namespace dnlib.DotNet {
 		/// <param name="method">Method to resolve</param>
 		/// <returns>The <see cref="MethodDef"/></returns>
 		public static MethodDef ResolveMethodDefThrow(this IMethod method) {
-			var md = method as MethodDef;
-			if (md != null)
-				return md;
+            if (method is MethodDef md)
+                return md;
 
-			var mr = method as MemberRef;
-			if (mr != null)
-				return mr.ResolveMethodThrow();
+            if (method is MemberRef mr)
+                return mr.ResolveMethodThrow();
 
-			var ms = method as MethodSpec;
-			if (ms != null) {
-				md = ms.Method as MethodDef;
-				if (md != null)
-					return md;
+            if (method is MethodSpec ms)
+            {
+                md = ms.Method as MethodDef;
+                if (md != null)
+                    return md;
 
-				mr = ms.Method as MemberRef;
-				if (mr != null)
-					return mr.ResolveMethodThrow();
-			}
+                mr = ms.Method as MemberRef;
+                if (mr != null)
+                    return mr.ResolveMethodThrow();
+            }
 
-			throw new MemberRefResolveException(string.Format("Could not resolve method: {0}", method));
+            throw new MemberRefResolveException($"Could not resolve method: {method}");
 		}
 
 		/// <summary>
@@ -597,27 +569,22 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="mr">Member reference</param>
 		/// <returns></returns>
-		static internal IAssembly GetDefinitionAssembly(this MemberRef mr) {
+		internal static IAssembly GetDefinitionAssembly(this MemberRef mr) {
 			if (mr == null)
 				return null;
 			var parent = mr.Class;
 
-			var tdr = parent as ITypeDefOrRef;
-			if (tdr != null)
-				return tdr.DefinitionAssembly;
+            if (parent is ITypeDefOrRef tdr)
+                return tdr.DefinitionAssembly;
 
-			if (parent is ModuleRef) {
+            if (parent is ModuleRef) {
 				var mod = mr.Module;
-				return mod == null ? null : mod.Assembly;
+				return mod?.Assembly;
 			}
 
 			var md = parent as MethodDef;
-			if (md != null) {
-				var declType = md.DeclaringType;
-				return declType == null ? null : declType.DefinitionAssembly;
-			}
-
-			return null;
+		    var declType = md?.DeclaringType;
+		    return declType?.DefinitionAssembly;
 		}
 	}
 
@@ -841,7 +808,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// TypeDefOrRef coded token interface
 	/// </summary>
-	public interface ITypeDefOrRef : ICodedToken, IHasCustomAttribute, IMemberRefParent, IType, ITokenOperand, IMemberRef {
+	public interface ITypeDefOrRef : IMemberRefParent, IType, ITokenOperand, IMemberRef {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -851,7 +818,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// HasConstant coded token interface
 	/// </summary>
-	public interface IHasConstant : ICodedToken, IHasCustomAttribute, IFullName {
+	public interface IHasConstant : IHasCustomAttribute, IFullName {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -886,7 +853,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// HasFieldMarshal coded token interface
 	/// </summary>
-	public interface IHasFieldMarshal : ICodedToken, IHasCustomAttribute, IHasConstant, IFullName {
+	public interface IHasFieldMarshal : IHasConstant {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -906,7 +873,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// HasDeclSecurity coded token interface
 	/// </summary>
-	public interface IHasDeclSecurity : ICodedToken, IHasCustomAttribute, IFullName {
+	public interface IHasDeclSecurity : IHasCustomAttribute, IFullName {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -926,7 +893,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// MemberRefParent coded token interface
 	/// </summary>
-	public interface IMemberRefParent : ICodedToken, IHasCustomAttribute, IFullName {
+	public interface IMemberRefParent : IHasCustomAttribute, IFullName {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -936,7 +903,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// HasSemantic coded token interface
 	/// </summary>
-	public interface IHasSemantic : ICodedToken, IHasCustomAttribute, IFullName, IMemberRef {
+	public interface IHasSemantic : IHasCustomAttribute, IMemberRef {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -946,7 +913,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// MethodDefOrRef coded token interface
 	/// </summary>
-	public interface IMethodDefOrRef : ICodedToken, IHasCustomAttribute, ICustomAttributeType, IMethod {
+	public interface IMethodDefOrRef : ICustomAttributeType {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -956,7 +923,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// MemberForwarded coded token interface
 	/// </summary>
-	public interface IMemberForwarded : ICodedToken, IHasCustomAttribute, IFullName, IMemberRef {
+	public interface IMemberForwarded : IHasCustomAttribute, IMemberRef {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -976,7 +943,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// Implementation coded token interface
 	/// </summary>
-	public interface IImplementation : ICodedToken, IHasCustomAttribute, IFullName {
+	public interface IImplementation : IHasCustomAttribute, IFullName {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -986,7 +953,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// CustomAttributeType coded token interface
 	/// </summary>
-	public interface ICustomAttributeType : ICodedToken, IHasCustomAttribute, IMethod {
+	public interface ICustomAttributeType : IHasCustomAttribute, IMethod {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -996,7 +963,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// ResolutionScope coded token interface
 	/// </summary>
-	public interface IResolutionScope : ICodedToken, IHasCustomAttribute, IFullName {
+	public interface IResolutionScope : IHasCustomAttribute, IFullName {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -1006,7 +973,7 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// TypeOrMethodDef coded token interface
 	/// </summary>
-	public interface ITypeOrMethodDef : ICodedToken, IHasCustomAttribute, IHasDeclSecurity, IMemberRefParent, IFullName, IMemberRef, IGenericParameterProvider {
+	public interface ITypeOrMethodDef : IHasCustomAttribute, IHasDeclSecurity, IMemberRefParent, IFullName, IMemberRef, IGenericParameterProvider {
 		/// <summary>
 		/// The coded token tag
 		/// </summary>
@@ -1031,10 +998,9 @@ namespace dnlib.DotNet {
 		public static ITypeDefOrRef ToTypeDefOrRef(this TypeSig sig) {
 			if (sig == null)
 				return null;
-			var tdrSig = sig as TypeDefOrRefSig;
-			if (tdrSig != null)
-				return tdrSig.TypeDefOrRef;
-			var module = sig.Module;
+            if (sig is TypeDefOrRefSig tdrSig)
+                return tdrSig.TypeDefOrRef;
+            var module = sig.Module;
 			if (module == null)
 				return new TypeSpecUser(sig);
 			return module.UpdateRowId(new TypeSpecUser(sig));

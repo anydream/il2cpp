@@ -17,10 +17,8 @@ namespace dnlib.DotNet.Writer {
 		uint virtualSize;
 		/// <summary><c>true</c> if <see cref="SetOffset"/> has been called</summary>
 		protected bool setOffsetCalled;
-		FileOffset offset;
-		RVA rva;
 
-		/// <summary>
+	    /// <summary>
 		/// Helper struct
 		/// </summary>
 		protected struct Elem {
@@ -67,20 +65,16 @@ namespace dnlib.DotNet.Writer {
 		}
 
 		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public virtual void SetOffset(FileOffset offset, RVA rva) {
 			setOffsetCalled = true;
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 			length = 0;
 			virtualSize = 0;
 			foreach (var elem in chunks) {
@@ -110,7 +104,7 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void WriteTo(BinaryWriter writer) {
-			FileOffset offset2 = offset;
+			FileOffset offset2 = FileOffset;
 			foreach (var elem in chunks) {
 				int paddingF = (int)offset2.AlignUp(elem.alignment) - (int)offset2;
 				writer.WriteZeros(paddingF);

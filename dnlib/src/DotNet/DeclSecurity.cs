@@ -19,34 +19,22 @@ namespace dnlib.DotNet {
 	/// </summary>
 	[DebuggerDisplay("{Action} Count={SecurityAttributes.Count}")]
 	public abstract class DeclSecurity : IHasCustomAttribute {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.DeclSecurity, Rid);
 
-		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.DeclSecurity, rid); }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
+	    /// <inheritdoc/>
+		public int HasCustomAttributeTag => 8;
 
-		/// <inheritdoc/>
-		public int HasCustomAttributeTag {
-			get { return 8; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// From column DeclSecurity.Action
 		/// </summary>
 		public SecurityAction Action {
-			get { return action; }
-			set { action = value; }
-		}
+			get => action;
+	        set => action = value;
+	    }
 		/// <summary/>
 		protected SecurityAction action;
 
@@ -85,18 +73,14 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public bool HasCustomAttributes {
-			get { return CustomAttributes.Count > 0; }
-		}
+		public bool HasCustomAttributes => CustomAttributes.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="SecurityAttributes"/> is not empty
 		/// </summary>
-		public bool HasSecurityAttributes {
-			get { return SecurityAttributes.Count > 0; }
-		}
+		public bool HasSecurityAttributes => SecurityAttributes.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the blob data or <c>null</c> if there's none
 		/// </summary>
 		/// <returns>Blob data or <c>null</c></returns>
@@ -130,9 +114,7 @@ namespace dnlib.DotNet {
 			if ((object)utf8 != null)
 				return utf8;
 			var s = arg.Value as string;
-			if (s != null)
-				return s;
-			return null;
+		    return s;
 		}
 	}
 
@@ -169,15 +151,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
-		readonly uint permissionSet;
+	    readonly uint permissionSet;
 
 		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeSecurityAttributes() {
 			var gpContext = new GenericParamContext();
 			var tmp = DeclSecurityReader.Read(readerModule, permissionSet, gpContext);
@@ -186,7 +165,7 @@ namespace dnlib.DotNet {
 
 		/// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.DeclSecurity, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.DeclSecurity, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -201,14 +180,14 @@ namespace dnlib.DotNet {
 		public DeclSecurityMD(ModuleDefMD readerModule, uint rid) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.DeclSecurityTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("DeclSecurity rid {0} does not exist", rid));
+				throw new BadImageFormatException($"DeclSecurity rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
+			this.OrigRid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
-			this.permissionSet = readerModule.TablesStream.ReadDeclSecurityRow(origRid, out this.action);
+			this.permissionSet = readerModule.TablesStream.ReadDeclSecurityRow(OrigRid, out this.action);
 		}
 
 		/// <inheritdoc/>

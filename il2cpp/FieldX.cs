@@ -47,12 +47,12 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return string.Format("{0} {1}", FieldType?.ToString() ?? "<?>", Def.Name);
+			return $"{FieldType?.ToString() ?? "<?>"} {Def.Name}";
 		}
 
 		public string PrettyName()
 		{
-			return string.Format("{0} {1}", FieldType?.PrettyName() ?? "<?>", Def.Name);
+			return $"{FieldType?.PrettyName() ?? "<?>"} {Def.Name}";
 		}
 	}
 }

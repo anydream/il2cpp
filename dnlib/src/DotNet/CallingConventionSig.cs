@@ -31,106 +31,77 @@ namespace dnlib.DotNet {
 		/// </summary>
 		protected CallingConvention callingConvention;
 
-		byte[] extraData;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the extra data found after the signature
 		/// </summary>
-		public byte[] ExtraData {
-			get { return extraData; }
-			set { extraData = value; }
-		}
+		public byte[] ExtraData { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.Default"/> is set
 		/// </summary>
-		public bool IsDefault {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.Default; }
-		}
+		public bool IsDefault => (callingConvention & CallingConvention.Mask) == CallingConvention.Default;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.C"/> is set
 		/// </summary>
-		public bool IsC {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.C; }
-		}
+		public bool IsC => (callingConvention & CallingConvention.Mask) == CallingConvention.C;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.StdCall"/> is set
 		/// </summary>
-		public bool IsStdCall {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.StdCall; }
-		}
+		public bool IsStdCall => (callingConvention & CallingConvention.Mask) == CallingConvention.StdCall;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.ThisCall"/> is set
 		/// </summary>
-		public bool IsThisCall {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.ThisCall; }
-		}
+		public bool IsThisCall => (callingConvention & CallingConvention.Mask) == CallingConvention.ThisCall;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.FastCall"/> is set
 		/// </summary>
-		public bool IsFastCall {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.FastCall; }
-		}
+		public bool IsFastCall => (callingConvention & CallingConvention.Mask) == CallingConvention.FastCall;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.VarArg"/> is set
 		/// </summary>
-		public bool IsVarArg {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.VarArg; }
-		}
+		public bool IsVarArg => (callingConvention & CallingConvention.Mask) == CallingConvention.VarArg;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.Field"/> is set
 		/// </summary>
-		public bool IsField {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.Field; }
-		}
+		public bool IsField => (callingConvention & CallingConvention.Mask) == CallingConvention.Field;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.LocalSig"/> is set
 		/// </summary>
-		public bool IsLocalSig {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.LocalSig; }
-		}
+		public bool IsLocalSig => (callingConvention & CallingConvention.Mask) == CallingConvention.LocalSig;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.Property"/> is set
 		/// </summary>
-		public bool IsProperty {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.Property; }
-		}
+		public bool IsProperty => (callingConvention & CallingConvention.Mask) == CallingConvention.Property;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.Unmanaged"/> is set
 		/// </summary>
-		public bool IsUnmanaged {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.Unmanaged; }
-		}
+		public bool IsUnmanaged => (callingConvention & CallingConvention.Mask) == CallingConvention.Unmanaged;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.GenericInst"/> is set
 		/// </summary>
-		public bool IsGenericInst {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.GenericInst; }
-		}
+		public bool IsGenericInst => (callingConvention & CallingConvention.Mask) == CallingConvention.GenericInst;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if <see cref="CallingConvention.NativeVarArg"/> is set
 		/// </summary>
-		public bool IsNativeVarArg {
-			get { return (callingConvention & CallingConvention.Mask) == CallingConvention.NativeVarArg; }
-		}
+		public bool IsNativeVarArg => (callingConvention & CallingConvention.Mask) == CallingConvention.NativeVarArg;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the <see cref="CallingConvention.Generic"/> bit
 		/// </summary>
 		public bool Generic {
-			get { return (callingConvention & CallingConvention.Generic) != 0; }
-			set {
+			get => (callingConvention & CallingConvention.Generic) != 0;
+	        set {
 				if (value)
 					callingConvention |= CallingConvention.Generic;
 				else
@@ -142,8 +113,8 @@ namespace dnlib.DotNet {
 		/// Gets/sets the <see cref="CallingConvention.HasThis"/> bit
 		/// </summary>
 		public bool HasThis {
-			get { return (callingConvention & CallingConvention.HasThis) != 0; }
-			set {
+			get => (callingConvention & CallingConvention.HasThis) != 0;
+		    set {
 				if (value)
 					callingConvention |= CallingConvention.HasThis;
 				else
@@ -155,8 +126,8 @@ namespace dnlib.DotNet {
 		/// Gets/sets the <see cref="CallingConvention.ExplicitThis"/> bit
 		/// </summary>
 		public bool ExplicitThis {
-			get { return (callingConvention & CallingConvention.ExplicitThis) != 0; }
-			set {
+			get => (callingConvention & CallingConvention.ExplicitThis) != 0;
+		    set {
 				if (value)
 					callingConvention |= CallingConvention.ExplicitThis;
 				else
@@ -168,8 +139,8 @@ namespace dnlib.DotNet {
 		/// Gets/sets the <see cref="CallingConvention.ReservedByCLR"/> bit
 		/// </summary>
 		public bool ReservedByCLR {
-			get { return (callingConvention & CallingConvention.ReservedByCLR) != 0; }
-			set {
+			get => (callingConvention & CallingConvention.ReservedByCLR) != 0;
+		    set {
 				if (value)
 					callingConvention |= CallingConvention.ReservedByCLR;
 				else
@@ -180,19 +151,15 @@ namespace dnlib.DotNet {
 		/// <summary>
 		/// <c>true</c> if there's an implicit <c>this</c> parameter
 		/// </summary>
-		public bool ImplicitThis {
-			get { return HasThis && !ExplicitThis; }
-		}
+		public bool ImplicitThis => HasThis && !ExplicitThis;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if this <see cref="CallingConventionSig"/> contains a
 		/// <see cref="GenericVar"/> or a <see cref="GenericMVar"/>.
 		/// </summary>
-		public bool ContainsGenericParameter {
-			get { return TypeHelper.ContainsGenericParameter(this); }
-		}
+		public bool ContainsGenericParameter => TypeHelper.ContainsGenericParameter(this);
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		protected CallingConventionSig() {
@@ -218,17 +185,12 @@ namespace dnlib.DotNet {
 	/// A field signature
 	/// </summary>
 	public sealed class FieldSig : CallingConventionSig {
-		TypeSig type;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the field type
 		/// </summary>
-		public TypeSig Type {
-			get { return type; }
-			set { type = value; }
-		}
+		public TypeSig Type { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public FieldSig() {
@@ -241,7 +203,7 @@ namespace dnlib.DotNet {
 		/// <param name="type">Field type</param>
 		public FieldSig(TypeSig type) {
 			this.callingConvention = CallingConvention.Field;
-			this.type = type;
+			this.Type = type;
 		}
 
 		/// <summary>
@@ -251,19 +213,19 @@ namespace dnlib.DotNet {
 		/// <param name="callingConvention">The calling convention (must have Field set)</param>
 		internal FieldSig(CallingConvention callingConvention, TypeSig type) {
 			this.callingConvention = callingConvention;
-			this.type = type;
+			this.Type = type;
 		}
 
 		/// <summary>
 		/// Clone this
 		/// </summary>
 		public FieldSig Clone() {
-			return new FieldSig(callingConvention, type);
+			return new FieldSig(callingConvention, Type);
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return FullNameCreator.FullName(type == null ? null : type, false, null, null, null, null);
+			return FullNameCreator.FullName(Type, false);
 		}
 	}
 
@@ -284,40 +246,38 @@ namespace dnlib.DotNet {
 		/// Gets/sets the calling convention
 		/// </summary>
 		public CallingConvention CallingConvention {
-			get { return callingConvention; }
-			set { callingConvention = value; }
+			get => callingConvention;
+		    set => callingConvention = value;
 		}
 
 		/// <summary>
 		/// Gets/sets the return type
 		/// </summary>
 		public TypeSig RetType {
-			get { return retType; }
-			set { retType = value; }
+			get => retType;
+		    set => retType = value;
 		}
 
 		/// <summary>
 		/// Gets the parameters. This is never <c>null</c>
 		/// </summary>
-		public ThreadSafe.IList<TypeSig> Params {
-			get { return parameters; }
-		}
+		public ThreadSafe.IList<TypeSig> Params => parameters;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the generic param count
 		/// </summary>
 		public uint GenParamCount {
-			get { return genParamCount; }
-			set { genParamCount = value; }
-		}
+			get => genParamCount;
+	        set => genParamCount = value;
+	    }
 
 		/// <summary>
 		/// Gets the parameters that are present after the sentinel. Note that this is <c>null</c>
 		/// if there's no sentinel. It can still be empty even if it's not <c>null</c>.
 		/// </summary>
 		public ThreadSafe.IList<TypeSig> ParamsAfterSentinel {
-			get { return paramsAfterSentinel; }
-			set { paramsAfterSentinel = value; }
+			get => paramsAfterSentinel;
+		    set => paramsAfterSentinel = value;
 		}
 	}
 
@@ -325,18 +285,13 @@ namespace dnlib.DotNet {
 	/// A method signature
 	/// </summary>
 	public sealed class MethodSig : MethodBaseSig {
-		uint origToken;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the original token. It's set when reading calli instruction operands
 		/// and it's a hint to the module writer if it tries to re-use the same token.
 		/// </summary>
-		public uint OriginalToken {
-			get { return origToken; }
-			set { origToken = value; }
-		}
+		public uint OriginalToken { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Creates a static MethodSig
 		/// </summary>
 		/// <param name="retType">Return type</param>
@@ -672,7 +627,7 @@ namespace dnlib.DotNet {
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return FullNameCreator.MethodBaseSigFullName(this, null);
+			return FullNameCreator.MethodBaseSigFullName(this);
 		}
 	}
 
@@ -887,7 +842,7 @@ namespace dnlib.DotNet {
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return FullNameCreator.MethodBaseSigFullName(this, null);
+			return FullNameCreator.MethodBaseSigFullName(this);
 		}
 	}
 
@@ -895,21 +850,17 @@ namespace dnlib.DotNet {
 	/// A local variables signature
 	/// </summary>
 	public sealed class LocalSig : CallingConventionSig {
-		readonly ThreadSafe.IList<TypeSig> locals;
-
-		/// <summary>
+	    /// <summary>
 		/// All local types. This is never <c>null</c>.
 		/// </summary>
-		public ThreadSafe.IList<TypeSig> Locals {
-			get { return locals; }
-		}
+		public ThreadSafe.IList<TypeSig> Locals { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public LocalSig() {
 			this.callingConvention = CallingConvention.LocalSig;
-			this.locals = ThreadSafeListCreator.Create<TypeSig>();
+			this.Locals = ThreadSafeListCreator.Create<TypeSig>();
 		}
 
 		/// <summary>
@@ -919,7 +870,7 @@ namespace dnlib.DotNet {
 		/// <param name="count">Number of locals</param>
 		internal LocalSig(CallingConvention callingConvention, uint count) {
 			this.callingConvention = callingConvention;
-			this.locals = ThreadSafeListCreator.Create<TypeSig>((int)count);
+			this.Locals = ThreadSafeListCreator.Create<TypeSig>((int)count);
 		}
 
 		/// <summary>
@@ -928,7 +879,7 @@ namespace dnlib.DotNet {
 		/// <param name="local1">Local type #1</param>
 		public LocalSig(TypeSig local1) {
 			this.callingConvention = CallingConvention.LocalSig;
-			this.locals = ThreadSafeListCreator.Create<TypeSig>(local1);
+			this.Locals = ThreadSafeListCreator.Create<TypeSig>(local1);
 		}
 
 		/// <summary>
@@ -938,7 +889,7 @@ namespace dnlib.DotNet {
 		/// <param name="local2">Local type #2</param>
 		public LocalSig(TypeSig local1, TypeSig local2) {
 			this.callingConvention = CallingConvention.LocalSig;
-			this.locals = ThreadSafeListCreator.Create<TypeSig>(local1, local2);
+			this.Locals = ThreadSafeListCreator.Create<TypeSig>(local1, local2);
 		}
 
 		/// <summary>
@@ -949,7 +900,7 @@ namespace dnlib.DotNet {
 		/// <param name="local3">Local type #3</param>
 		public LocalSig(TypeSig local1, TypeSig local2, TypeSig local3) {
 			this.callingConvention = CallingConvention.LocalSig;
-			this.locals = ThreadSafeListCreator.Create<TypeSig>(local1, local2, local3);
+			this.Locals = ThreadSafeListCreator.Create<TypeSig>(local1, local2, local3);
 		}
 
 		/// <summary>
@@ -958,7 +909,7 @@ namespace dnlib.DotNet {
 		/// <param name="locals">All locals</param>
 		public LocalSig(params TypeSig[] locals) {
 			this.callingConvention = CallingConvention.LocalSig;
-			this.locals = ThreadSafeListCreator.Create<TypeSig>(locals);
+			this.Locals = ThreadSafeListCreator.Create<TypeSig>(locals);
 		}
 
 		/// <summary>
@@ -967,7 +918,7 @@ namespace dnlib.DotNet {
 		/// <param name="locals">All locals</param>
 		public LocalSig(IList<TypeSig> locals) {
 			this.callingConvention = CallingConvention.LocalSig;
-			this.locals = ThreadSafeListCreator.Create<TypeSig>(locals);
+			this.Locals = ThreadSafeListCreator.Create<TypeSig>(locals);
 		}
 
 		/// <summary>
@@ -977,14 +928,14 @@ namespace dnlib.DotNet {
 		/// <param name="dummy">Dummy</param>
 		internal LocalSig(IList<TypeSig> locals, bool dummy) {
 			this.callingConvention = CallingConvention.LocalSig;
-			this.locals = ThreadSafeListCreator.MakeThreadSafe(locals);
+			this.Locals = ThreadSafeListCreator.MakeThreadSafe(locals);
 		}
 
 		/// <summary>
 		/// Clone this
 		/// </summary>
 		public LocalSig Clone() {
-			return new LocalSig(locals);
+			return new LocalSig(Locals);
 		}
 	}
 
@@ -992,21 +943,17 @@ namespace dnlib.DotNet {
 	/// An instantiated generic method signature
 	/// </summary>
 	public sealed class GenericInstMethodSig : CallingConventionSig {
-		readonly ThreadSafe.IList<TypeSig> genericArgs;
-
-		/// <summary>
+	    /// <summary>
 		/// Gets the generic arguments (must be instantiated types, i.e., closed types)
 		/// </summary>
-		public ThreadSafe.IList<TypeSig> GenericArguments {
-			get { return genericArgs; }
-		}
+		public ThreadSafe.IList<TypeSig> GenericArguments { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public GenericInstMethodSig() {
 			this.callingConvention = CallingConvention.GenericInst;
-			this.genericArgs = ThreadSafeListCreator.Create<TypeSig>();
+			this.GenericArguments = ThreadSafeListCreator.Create<TypeSig>();
 		}
 
 		/// <summary>
@@ -1016,7 +963,7 @@ namespace dnlib.DotNet {
 		/// <param name="size">Number of generic args</param>
 		internal GenericInstMethodSig(CallingConvention callingConvention, uint size) {
 			this.callingConvention = callingConvention;
-			this.genericArgs = ThreadSafeListCreator.Create<TypeSig>((int)size);
+			this.GenericArguments = ThreadSafeListCreator.Create<TypeSig>((int)size);
 		}
 
 		/// <summary>
@@ -1025,7 +972,7 @@ namespace dnlib.DotNet {
 		/// <param name="arg1">Generic arg #1</param>
 		public GenericInstMethodSig(TypeSig arg1) {
 			this.callingConvention = CallingConvention.GenericInst;
-			this.genericArgs = ThreadSafeListCreator.Create<TypeSig>(arg1);
+			this.GenericArguments = ThreadSafeListCreator.Create<TypeSig>(arg1);
 		}
 
 		/// <summary>
@@ -1035,7 +982,7 @@ namespace dnlib.DotNet {
 		/// <param name="arg2">Generic arg #2</param>
 		public GenericInstMethodSig(TypeSig arg1, TypeSig arg2) {
 			this.callingConvention = CallingConvention.GenericInst;
-			this.genericArgs = ThreadSafeListCreator.Create<TypeSig>(arg1, arg2);
+			this.GenericArguments = ThreadSafeListCreator.Create<TypeSig>(arg1, arg2);
 		}
 
 		/// <summary>
@@ -1046,7 +993,7 @@ namespace dnlib.DotNet {
 		/// <param name="arg3">Generic arg #3</param>
 		public GenericInstMethodSig(TypeSig arg1, TypeSig arg2, TypeSig arg3) {
 			this.callingConvention = CallingConvention.GenericInst;
-			this.genericArgs = ThreadSafeListCreator.Create<TypeSig>(arg1, arg2, arg3);
+			this.GenericArguments = ThreadSafeListCreator.Create<TypeSig>(arg1, arg2, arg3);
 		}
 
 		/// <summary>
@@ -1055,7 +1002,7 @@ namespace dnlib.DotNet {
 		/// <param name="args">Generic args</param>
 		public GenericInstMethodSig(params TypeSig[] args) {
 			this.callingConvention = CallingConvention.GenericInst;
-			this.genericArgs = ThreadSafeListCreator.Create<TypeSig>(args);
+			this.GenericArguments = ThreadSafeListCreator.Create<TypeSig>(args);
 		}
 
 		/// <summary>
@@ -1064,14 +1011,14 @@ namespace dnlib.DotNet {
 		/// <param name="args">Generic args</param>
 		public GenericInstMethodSig(IList<TypeSig> args) {
 			this.callingConvention = CallingConvention.GenericInst;
-			this.genericArgs = ThreadSafeListCreator.Create<TypeSig>(args);
+			this.GenericArguments = ThreadSafeListCreator.Create<TypeSig>(args);
 		}
 
 		/// <summary>
 		/// Clone this
 		/// </summary>
 		public GenericInstMethodSig Clone() {
-			return new GenericInstMethodSig(genericArgs);
+			return new GenericInstMethodSig(GenericArguments);
 		}
 	}
 
@@ -1082,7 +1029,7 @@ namespace dnlib.DotNet {
 		/// <param name="sig">this</param>
 		/// <returns>Field type or <c>null</c> if none</returns>
 		public static TypeSig GetFieldType(this FieldSig sig) {
-			return sig == null ? null : sig.Type;
+			return sig?.Type;
 		}
 
 		/// <summary>
@@ -1091,7 +1038,7 @@ namespace dnlib.DotNet {
 		/// <param name="sig">this</param>
 		/// <returns>Return type or <c>null</c> if none</returns>
 		public static TypeSig GetRetType(this MethodBaseSig sig) {
-			return sig == null ? null : sig.RetType;
+			return sig?.RetType;
 		}
 
 		/// <summary>
@@ -1109,7 +1056,7 @@ namespace dnlib.DotNet {
 		/// <param name="sig">this</param>
 		/// <returns>Parameter count</returns>
 		public static int GetParamCount(this MethodBaseSig sig) {
-			return sig == null ? 0 : sig.Params.Count;
+			return sig?.Params.Count ?? 0;
 		}
 
 		/// <summary>
@@ -1118,7 +1065,7 @@ namespace dnlib.DotNet {
 		/// <param name="sig">this</param>
 		/// <returns>Generic parameter count</returns>
 		public static uint GetGenParamCount(this MethodBaseSig sig) {
-			return sig == null ? 0 : sig.GenParamCount;
+			return sig?.GenParamCount ?? 0;
 		}
 
 		/// <summary>
@@ -1127,7 +1074,7 @@ namespace dnlib.DotNet {
 		/// <param name="sig">this</param>
 		/// <returns>Parameters after sentinel or <c>null</c> if none</returns>
 		public static IList<TypeSig> GetParamsAfterSentinel(this MethodBaseSig sig) {
-			return sig == null ? null : sig.ParamsAfterSentinel;
+			return sig?.ParamsAfterSentinel;
 		}
 
 		/// <summary>
@@ -1155,7 +1102,7 @@ namespace dnlib.DotNet {
 		/// <returns>The type's <see cref="CallingConventionSig.IsDefault"/> property or
 		/// <c>false</c> if input is<c>null</c></returns>
 		public static bool GetIsDefault(this CallingConventionSig sig) {
-			return sig == null ? false : sig.IsDefault;
+			return sig?.IsDefault ?? false;
 		}
 	}
 }

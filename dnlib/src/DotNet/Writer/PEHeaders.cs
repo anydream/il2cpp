@@ -171,19 +171,12 @@ namespace dnlib.DotNet.Writer {
 	/// DOS and PE headers
 	/// </summary>
 	public sealed class PEHeaders : IChunk {
-		IList<PESection> sections;
-		readonly PEHeadersOptions options;
-		FileOffset offset;
-		RVA rva;
-		uint length;
-		readonly uint sectionAlignment;
-		readonly uint fileAlignment;
-		ulong imageBase;
-		long startOffset;
+	    readonly PEHeadersOptions options;
+	    uint length;
+	    long startOffset;
 		long checkSumOffset;
-		bool isExeFile;
 
-		// Copied from Partition II.25.2.1
+	    // Copied from Partition II.25.2.1
 		static readonly byte[] dosHeader = new byte[0x80] {
 			0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00,
 			0x04, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
@@ -241,51 +234,35 @@ namespace dnlib.DotNet.Writer {
 		/// <summary>
 		/// Gets the image base
 		/// </summary>
-		public ulong ImageBase {
-			get { return imageBase; }
-		}
+		public ulong ImageBase { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets a value indicating whether this is a EXE or a DLL file
 		/// </summary>
-		public bool IsExeFile {
-			get { return isExeFile; }
-			set { isExeFile = value; }
-		}
+		public bool IsExeFile { get; set; }
 
-		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the section alignment
 		/// </summary>
-		public uint SectionAlignment {
-			get { return sectionAlignment; }
-		}
+		public uint SectionAlignment { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the file alignment
 		/// </summary>
-		public uint FileAlignment {
-			get { return fileAlignment; }
-		}
+		public uint FileAlignment { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the <see cref="PESection"/>s
 		/// </summary>
-		public IList<PESection> PESections {
-			get { return sections; }
-			set { sections = value; }
-		}
+		public IList<PESection> PESections { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Default constructor
 		/// </summary>
 		public PEHeaders()
@@ -298,24 +275,24 @@ namespace dnlib.DotNet.Writer {
 		/// <param name="options">Options</param>
 		public PEHeaders(PEHeadersOptions options) {
 			this.options = options ?? new PEHeadersOptions();
-			this.sectionAlignment = this.options.SectionAlignment ?? 0x2000;
-			this.fileAlignment = this.options.FileAlignment ?? 0x200;
+			this.SectionAlignment = this.options.SectionAlignment ?? 0x2000;
+			this.FileAlignment = this.options.FileAlignment ?? 0x200;
 		}
 
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 
 			length = (uint)dosHeader.Length;
 			length += 4 + 0x14;
 			length += Use32BitOptionalHeader() ? 0xE0U : 0xF0;
-			length += (uint)sections.Count * 0x28;
+			length += (uint)PESections.Count * 0x28;
 
 			if (Use32BitOptionalHeader())
-				imageBase = options.ImageBase ?? 0x00400000;
+				ImageBase = options.ImageBase ?? 0x00400000;
 			else
-				imageBase = options.ImageBase ?? 0x0000000140000000;
+				ImageBase = options.ImageBase ?? 0x0000000140000000;
 		}
 
 		/// <inheritdoc/>
@@ -345,14 +322,14 @@ namespace dnlib.DotNet.Writer {
 
 			// Image file header
 			writer.Write((ushort)GetMachine());
-			writer.Write((ushort)sections.Count);
+			writer.Write((ushort)PESections.Count);
 			writer.Write(options.TimeDateStamp ?? PEHeadersOptions.CreateNewTimeDateStamp());
 			writer.Write(options.PointerToSymbolTable ?? 0);
 			writer.Write(options.NumberOfSymbols ?? 0);
 			writer.Write((ushort)(Use32BitOptionalHeader() ? 0xE0U : 0xF0));
 			writer.Write((ushort)GetCharacteristics());
 
-			var sectionSizes = new SectionSizes(fileAlignment, sectionAlignment, length, () => GetSectionSizeInfos());
+			var sectionSizes = new SectionSizes(FileAlignment, SectionAlignment, length, GetSectionSizeInfos);
 
 			// Image optional header
 			uint ep = StartupStub == null ? 0 : (uint)StartupStub.EntryPointRVA;
@@ -366,9 +343,9 @@ namespace dnlib.DotNet.Writer {
 				writer.Write(ep);
 				writer.Write(sectionSizes.BaseOfCode);
 				writer.Write(sectionSizes.BaseOfData);
-				writer.Write((uint)imageBase);
-				writer.Write(sectionAlignment);
-				writer.Write(fileAlignment);
+				writer.Write((uint)ImageBase);
+				writer.Write(SectionAlignment);
+				writer.Write(FileAlignment);
 				writer.Write(options.MajorOperatingSystemVersion ?? 4);
 				writer.Write(options.MinorOperatingSystemVersion ?? 0);
 				writer.Write(options.MajorImageVersion ?? 0);
@@ -398,9 +375,9 @@ namespace dnlib.DotNet.Writer {
 				writer.Write(sectionSizes.SizeOfUninitdData);
 				writer.Write(ep);
 				writer.Write(sectionSizes.BaseOfCode);
-				writer.Write(imageBase);
-				writer.Write(sectionAlignment);
-				writer.Write(fileAlignment);
+				writer.Write(ImageBase);
+				writer.Write(SectionAlignment);
+				writer.Write(FileAlignment);
 				writer.Write(options.MajorOperatingSystemVersion ?? 4);
 				writer.Write(options.MinorOperatingSystemVersion ?? 0);
 				writer.Write(options.MajorImageVersion ?? 0);
@@ -440,9 +417,9 @@ namespace dnlib.DotNet.Writer {
 			writer.WriteDataDirectory(null);	// Reserved
 
 			// Sections
-			uint rva = Utils.AlignUp(sectionSizes.SizeOfHeaders, sectionAlignment);
-			foreach (var section in sections)
-				rva += section.WriteHeaderTo(writer, fileAlignment, sectionAlignment, rva);
+			uint rva = Utils.AlignUp(sectionSizes.SizeOfHeaders, SectionAlignment);
+			foreach (var section in PESections)
+				rva += section.WriteHeaderTo(writer, FileAlignment, SectionAlignment, rva);
 		}
 
 		/// <summary>

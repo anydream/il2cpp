@@ -9,41 +9,26 @@ namespace dnlib.DotNet {
 	/// A high-level representation of a row in the Constant table
 	/// </summary>
 	public abstract class Constant : IMDTokenProvider {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.Constant, Rid);
 
-		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.Constant, rid); }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// From column Constant.Type
 		/// </summary>
 		public ElementType Type {
-			get { return type; }
-			set { type = value; }
-		}
+			get => type;
+	        set => type = value;
+	    }
 		/// <summary/>
 		protected ElementType type;
 
 		/// <summary>
 		/// From column Constant.Value
 		/// </summary>
-		public object Value {
-			get { return value; }
-			set { this.value = value; }
-		}
-		/// <summary/>
-		protected object value;
+		public object Value { get; set; }
 	}
 
 	/// <summary>
@@ -62,7 +47,7 @@ namespace dnlib.DotNet {
 		/// <param name="value">Value</param>
 		public ConstantUser(object value) {
 			this.type = GetElementType(value);
-			this.value = value;
+			this.Value = value;
 		}
 
 		/// <summary>
@@ -72,7 +57,7 @@ namespace dnlib.DotNet {
 		/// <param name="type">Type</param>
 		public ConstantUser(object value, ElementType type) {
 			this.type = type;
-			this.value = value;
+			this.Value = value;
 		}
 
 		static ElementType GetElementType(object value) {
@@ -101,14 +86,10 @@ namespace dnlib.DotNet {
 	/// Created from a row in the Constant table
 	/// </summary>
 	sealed class ConstantMD : Constant, IMDTokenProviderMD {
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="readerModule">The module which contains this <c>Constant</c> row</param>
@@ -118,14 +99,14 @@ namespace dnlib.DotNet {
 		public ConstantMD(ModuleDefMD readerModule, uint rid) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.ConstantTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("Constant rid {0} does not exist", rid));
+				throw new BadImageFormatException($"Constant rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
-			uint value = readerModule.TablesStream.ReadConstantRow(origRid, out this.type);
-			this.value = GetValue(this.type, readerModule.BlobStream.ReadNoNull(value));
+			this.OrigRid = rid;
+			this.Rid = rid;
+			uint value = readerModule.TablesStream.ReadConstantRow(OrigRid, out this.type);
+			this.Value = GetValue(this.type, readerModule.BlobStream.ReadNoNull(value));
 		}
 
 		static object GetValue(ElementType etype, byte[] data) {

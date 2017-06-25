@@ -7,44 +7,33 @@ namespace dnlib.W32Resources {
 	/// A Win32 resource name. It can be either an integer or a string.
 	/// </summary>
 	public struct ResourceName : IComparable<ResourceName>, IEquatable<ResourceName> {
-		readonly int id;
-		readonly string name;
-
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="Id"/> is valid
 		/// </summary>
-		public bool HasId {
-			get { return name == null; }
-		}
+		public bool HasId => Name == null;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="Name"/> is valid
 		/// </summary>
-		public bool HasName {
-			get { return name != null; }
-		}
+		public bool HasName => Name != null;
 
-		/// <summary>
+	    /// <summary>
 		/// The ID. It's only valid if <see cref="HasId"/> is <c>true</c>
 		/// </summary>
-		public int Id {
-			get { return id; }
-		}
+		public int Id { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// The name. It's only valid if <see cref="HasName"/> is <c>true</c>
 		/// </summary>
-		public string Name {
-			get { return name; }
-		}
+		public string Name { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="id">ID</param>
 		public ResourceName(int id) {
-			this.id = id;
-			this.name = null;
+			this.Id = id;
+			this.Name = null;
 		}
 
 		/// <summary>
@@ -52,8 +41,8 @@ namespace dnlib.W32Resources {
 		/// </summary>
 		/// <param name="name">Name</param>
 		public ResourceName(string name) {
-			this.id = 0;
-			this.name = name;
+			this.Id = 0;
+			this.Name = name;
 		}
 
 		/// <summary>Converts input to a <see cref="ResourceName"/></summary>
@@ -103,9 +92,9 @@ namespace dnlib.W32Resources {
 				return HasName ? -1 : 1;
 			}
 			if (HasId)
-				return id.CompareTo(other.id);
+				return Id.CompareTo(other.Id);
 			else
-				return name.ToUpperInvariant().CompareTo(other.name.ToUpperInvariant());
+				return Name.ToUpperInvariant().CompareTo(other.Name.ToUpperInvariant());
 		}
 
 		/// <inheritdoc/>
@@ -123,13 +112,13 @@ namespace dnlib.W32Resources {
 		/// <inheritdoc/>
 		public override int GetHashCode() {
 			if (HasId)
-				return id;
-			return name.GetHashCode();
+				return Id;
+			return Name.GetHashCode();
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return HasId ? id.ToString() : name;
+			return HasId ? Id.ToString() : Name;
 		}
 	}
 }

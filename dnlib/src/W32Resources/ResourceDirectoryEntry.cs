@@ -11,8 +11,8 @@
 		/// Gets/sets the name
 		/// </summary>
 		public ResourceName Name {
-			get { return name; }
-			set { name = value; }
+			get => name;
+		    set => name = value;
 		}
 
 		/// <summary>

@@ -67,9 +67,8 @@ namespace dnlib.DotNet {
 
 		void Process() {
 			while (stack.Count != 0) {
-				if (cancellationToken != null)
-					cancellationToken.ThrowIfCancellationRequested();
-				var o = stack.Pop();
+			    cancellationToken?.ThrowIfCancellationRequested();
+			    var o = stack.Pop();
 				LoadObj(o);
 			}
 		}
@@ -90,61 +89,61 @@ namespace dnlib.DotNet {
 		}
 
 		void LoadObj(object o) {
-			var ts = o as TypeSig;
-			if (ts != null) {
-				Load(ts);
-				return;
-			}
+            if (o is TypeSig ts)
+            {
+                Load(ts);
+                return;
+            }
 
-			var mdt = o as IMDTokenProvider;
-			if (mdt != null) {
-				Load(mdt);
-				return;
-			}
+            if (o is IMDTokenProvider mdt)
+            {
+                Load(mdt);
+                return;
+            }
 
-			var ca = o as CustomAttribute;
-			if (ca != null) {
-				Load(ca);
-				return;
-			}
+            if (o is CustomAttribute ca)
+            {
+                Load(ca);
+                return;
+            }
 
-			var sa = o as SecurityAttribute;
-			if (sa != null) {
-				Load(sa);
-				return;
-			}
+            if (o is SecurityAttribute sa)
+            {
+                Load(sa);
+                return;
+            }
 
-			var na = o as CANamedArgument;
-			if (na != null) {
-				Load(na);
-				return;
-			}
+            if (o is CANamedArgument na)
+            {
+                Load(na);
+                return;
+            }
 
-			var p = o as Parameter;
-			if (p != null) {
-				Load(p);
-				return;
-			}
+            if (o is Parameter p)
+            {
+                Load(p);
+                return;
+            }
 
-			var scope = o as PdbScope;
-			if (scope != null) {
-				Load(scope);
-				return;
-			}
+            if (o is PdbScope scope)
+            {
+                Load(scope);
+                return;
+            }
 
-			var rd = o as ResourceDirectory;
-			if (rd != null) {
-				Load(rd);
-				return;
-			}
+            if (o is ResourceDirectory rd)
+            {
+                Load(rd);
+                return;
+            }
 
-			var rdata = o as ResourceData;
-			if (rdata != null) {
-				Load(rdata);
-				return;
-			}
+            if (o is ResourceData rdata)
+            {
+                Load(rdata);
+                return;
+            }
 
-			Debug.Fail("Unknown type");
+            Debug.Fail("Unknown type");
 		}
 
 		void Load(TypeSig ts) {
@@ -658,18 +657,18 @@ namespace dnlib.DotNet {
 				return;
 			}
 
-			var list = obj as IList<CAArgument>;
-			if (list != null) {
-				Add(list);
-				return;
-			}
+            if (obj is IList<CAArgument> list)
+            {
+                Add(list);
+                return;
+            }
 
-			var md = obj as IMDTokenProvider;
-			if (md != null) {
-				Add(md);
-				return;
-			}
-		}
+            if (obj is IMDTokenProvider md)
+            {
+                Add(md);
+                return;
+            }
+        }
 
 		void Load(CAArgument obj) {
 			Add(obj.Type);
@@ -693,9 +692,7 @@ namespace dnlib.DotNet {
 		}
 
 		void Load(ResourceData obj) {
-			if (obj == null)
-				return;
-			var data = obj.Data;
+		    var data = obj?.Data;
 			if (data != null && !(data is MemoryImageStream))
 				obj.Data = MemoryImageStream.Create(data.ReadAllBytes());
 		}
@@ -859,31 +856,31 @@ namespace dnlib.DotNet {
 		}
 
 		void Add(CallingConventionSig sig) {
-			var msig = sig as MethodBaseSig;
-			if (msig != null) {
-				Add(msig);
-				return;
-			}
+            if (sig is MethodBaseSig msig)
+            {
+                Add(msig);
+                return;
+            }
 
-			var fsig = sig as FieldSig;
-			if (fsig != null) {
-				Add(fsig);
-				return;
-			}
+            if (sig is FieldSig fsig)
+            {
+                Add(fsig);
+                return;
+            }
 
-			var lsig = sig as LocalSig;
-			if (lsig != null) {
-				Add(lsig);
-				return;
-			}
+            if (sig is LocalSig lsig)
+            {
+                Add(lsig);
+                return;
+            }
 
-			var gsig = sig as GenericInstMethodSig;
-			if (gsig != null) {
-				Add(gsig);
-				return;
-			}
+            if (sig is GenericInstMethodSig gsig)
+            {
+                Add(gsig);
+                return;
+            }
 
-			Debug.Assert(sig == null);
+            Debug.Assert(sig == null);
 		}
 
 		void Add(MethodBaseSig msig) {
@@ -923,19 +920,19 @@ namespace dnlib.DotNet {
 		}
 
 		void Add(MethodBody mb) {
-			var cilBody = mb as CilBody;
-			if (cilBody != null) {
-				Add(cilBody);
-				return;
-			}
+            if (mb is CilBody cilBody)
+            {
+                Add(cilBody);
+                return;
+            }
 
-			var nb = mb as NativeMethodBody;
-			if (nb != null) {
-				Add(nb);
-				return;
-			}
+            if (mb is NativeMethodBody nb)
+            {
+                Add(nb);
+                return;
+            }
 
-			Debug.Assert(mb == null, "Unknown method body");
+            Debug.Assert(mb == null, "Unknown method body");
 		}
 
 		void Add(NativeMethodBody body) {
@@ -957,30 +954,30 @@ namespace dnlib.DotNet {
 			if (instr == null)
 				return;
 
-			var mdt = instr.Operand as IMDTokenProvider;
-			if (mdt != null) {
-				Add(mdt);
-				return;
-			}
+            if (instr.Operand is IMDTokenProvider mdt)
+            {
+                Add(mdt);
+                return;
+            }
 
-			var p = instr.Operand as Parameter;
-			if (p != null) {
-				Add(p);
-				return;
-			}
+            if (instr.Operand is Parameter p)
+            {
+                Add(p);
+                return;
+            }
 
-			var l = instr.Operand as Local;
-			if (l != null) {
-				Add(l);
-				return;
-			}
+            if (instr.Operand is Local l)
+            {
+                Add(l);
+                return;
+            }
 
-			var csig = instr.Operand as CallingConventionSig;
-			if (csig != null) {
-				Add(csig);
-				return;
-			}
-		}
+            if (instr.Operand is CallingConventionSig csig)
+            {
+                Add(csig);
+                return;
+            }
+        }
 
 		void Add(ExceptionHandler eh) {
 			if (eh == null)

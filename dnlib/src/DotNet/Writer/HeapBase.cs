@@ -10,48 +10,38 @@ namespace dnlib.DotNet.Writer {
 	/// </summary>
 	public abstract class HeapBase : IHeap {
 		internal const uint ALIGNMENT = 4;
-		FileOffset offset;
-		RVA rva;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="SetReadOnly"/> has been called
 		/// </summary>
 		protected bool isReadOnly;
 
 		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public abstract string Name { get; }
 
 		/// <inheritdoc/>
-		public bool IsEmpty {
-			get { return GetRawLength() <= 1; }
-		}
+		public bool IsEmpty => GetRawLength() <= 1;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if offsets require 4 bytes instead of 2 bytes.
 		/// </summary>
-		public bool IsBig {
-			get { return GetFileLength() > 0xFFFF; }
-		}
+		public bool IsBig => GetFileLength() > 0xFFFF;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public void SetReadOnly() {
 			isReadOnly = true;
 		}
 
 		/// <inheritdoc/>
 		public virtual void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 		}
 
 		/// <inheritdoc/>

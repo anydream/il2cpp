@@ -9,21 +9,15 @@ namespace dnlib.DotNet.Writer {
 	/// Strong name signature chunk
 	/// </summary>
 	public sealed class StrongNameSignature : IChunk {
-		FileOffset offset;
-		RVA rva;
-		int size;
+	    int size;
 
 		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="size">Size of strong name signature</param>
@@ -33,8 +27,8 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 		}
 
 		/// <inheritdoc/>

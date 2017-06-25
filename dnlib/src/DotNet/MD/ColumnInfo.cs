@@ -9,52 +9,44 @@ namespace dnlib.DotNet.MD {
 	/// <summary>
 	/// Info about one column in a MD table
 	/// </summary>
-	[DebuggerDisplay("{offset} {size} {name}")]
+	[DebuggerDisplay("{offset} {size} {Name}")]
 	public sealed class ColumnInfo {
 		readonly byte index;
 		byte offset;
-		readonly ColumnSize columnSize;
-		byte size;
-		readonly string name;
+	    byte size;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the column index
 		/// </summary>
-		public int Index {
-			get { return index; }
-		}
+		public int Index => index;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the column offset within the table row
 		/// </summary>
 		public int Offset {
-			get { return offset; }
-			internal set { offset = (byte)value; }
+			get => offset;
+		    internal set => offset = (byte)value;
 		}
 
 		/// <summary>
 		/// Returns the column size
 		/// </summary>
 		public int Size {
-			get { return size; }
-			internal set { size = (byte)value; }
+			get => size;
+		    internal set => size = (byte)value;
 		}
 
 		/// <summary>
 		/// Returns the column name
 		/// </summary>
-		public string Name {
-			get { return name; }
-		}
+		public string Name { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the ColumnSize enum value
 		/// </summary>
-		public ColumnSize ColumnSize {
-			get { return columnSize; }
-		}
+		public ColumnSize ColumnSize { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="index">Column index</param>
@@ -62,8 +54,8 @@ namespace dnlib.DotNet.MD {
 		/// <param name="columnSize">Column size</param>
 		public ColumnInfo(byte index, string name, ColumnSize columnSize) {
 			this.index = index;
-			this.name = name;
-			this.columnSize = columnSize;
+			this.Name = name;
+			this.ColumnSize = columnSize;
 		}
 
 		/// <summary>
@@ -76,8 +68,8 @@ namespace dnlib.DotNet.MD {
 		/// <param name="size">Size of column</param>
 		public ColumnInfo(byte index, string name, ColumnSize columnSize, byte offset, byte size) {
 			this.index = index;
-			this.name = name;
-			this.columnSize = columnSize;
+			this.Name = name;
+			this.ColumnSize = columnSize;
 			this.offset = offset;
 			this.size = size;
 		}

@@ -15,10 +15,9 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// A list of all method parameters
 	/// </summary>
-	[DebuggerDisplay("Count = {Count}")]
+	[DebuggerDisplay("Count = {" + nameof(Count) + "}")]
 	public sealed class ParameterList : ThreadSafe.IList<Parameter> {
-		readonly MethodDef method;
-		readonly List<Parameter> parameters;
+	    readonly List<Parameter> parameters;
 		readonly Parameter hiddenThisParameter;
 		ParamDef hiddenThisParamDef;
 		readonly Parameter returnParameter;
@@ -30,11 +29,9 @@ namespace dnlib.DotNet {
 		/// <summary>
 		/// Gets the owner method
 		/// </summary>
-		public MethodDef Method {
-			get { return method; }
-		}
+		public MethodDef Method { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the number of parameters, including a possible hidden 'this' parameter
 		/// </summary>
 		public int Count {
@@ -104,7 +101,7 @@ namespace dnlib.DotNet {
 		/// <param name="method">The method with all parameters</param>
 		/// <param name="declaringType"><paramref name="method"/>'s declaring type</param>
 		public ParameterList(MethodDef method, TypeDef declaringType) {
-			this.method = method;
+			this.Method = method;
 			this.parameters = new List<Parameter>();
 			this.methodSigIndexBase = -1;
 			this.hiddenThisParameter = new Parameter(this, 0, Parameter.HIDDEN_THIS_METHOD_SIG_INDEX);
@@ -139,7 +136,7 @@ namespace dnlib.DotNet {
 #if THREAD_SAFE
 			theLock.EnterWriteLock(); try {
 #endif
-			var sig = method.MethodSig;
+			var sig = Method.MethodSig;
 			if (sig == null) {
 				methodSigIndexBase = -1;
 				parameters.Clear();
@@ -205,7 +202,7 @@ namespace dnlib.DotNet {
 			else
 				return hiddenThisParamDef;
 
-			foreach (var paramDef in method.ParamDefs.GetSafeEnumerable()) {
+			foreach (var paramDef in Method.ParamDefs.GetSafeEnumerable()) {
 				if (paramDef != null && paramDef.Sequence == seq)
 					return paramDef;
 			}
@@ -213,7 +210,7 @@ namespace dnlib.DotNet {
 		}
 
 		internal void TypeUpdated(Parameter param, bool noParamsLock) {
-			var sig = method.MethodSig;
+			var sig = Method.MethodSig;
 			if (sig == null)
 				return;
 			int index = param.MethodSigIndex;
@@ -240,14 +237,14 @@ namespace dnlib.DotNet {
 			}
 			int seq = param.IsReturnTypeParameter ? 0 : param.MethodSigIndex + 1;
 			paramDef = UpdateRowId_NoLock(new ParamDefUser(UTF8String.Empty, (ushort)seq, 0));
-			method.ParamDefs.Add(paramDef);
+			Method.ParamDefs.Add(paramDef);
 #if THREAD_SAFE
 			} finally { theLock.ExitWriteLock(); }
 #endif
 		}
 
 		ParamDef UpdateRowId_NoLock(ParamDef pd) {
-			var dt = method.DeclaringType;
+			var dt = Method.DeclaringType;
 			if (dt == null)
 				return pd;
 			var module = dt.Module;
@@ -303,11 +300,9 @@ namespace dnlib.DotNet {
 #endif
 		}
 
-		bool ICollection<Parameter>.IsReadOnly {
-			get { return true; }
-		}
+		bool ICollection<Parameter>.IsReadOnly => true;
 
-		bool ICollection<Parameter>.Remove(Parameter item) {
+	    bool ICollection<Parameter>.Remove(Parameter item) {
 			throw new NotSupportedException();
 		}
 
@@ -392,10 +387,8 @@ namespace dnlib.DotNet {
 	public sealed class Parameter : IVariable {
 		readonly ParameterList parameterList;
 		TypeSig typeSig;
-		readonly int paramIndex;
-		readonly int methodSigIndex;
 
-		/// <summary>
+	    /// <summary>
 		/// The hidden 'this' parameter's <see cref="MethodSigIndex"/>
 		/// </summary>
 		public const int HIDDEN_THIS_METHOD_SIG_INDEX = -2;
@@ -410,50 +403,39 @@ namespace dnlib.DotNet {
 		/// has index 0 and the remaining parameters in the method signature start from index 1.
 		/// The method return parameter has index <c>-1</c>.
 		/// </summary>
-		public int Index {
-			get { return paramIndex; }
-		}
+		public int Index { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the index of the parameter in the method signature. See also
 		/// <see cref="HIDDEN_THIS_METHOD_SIG_INDEX"/> and <see cref="RETURN_TYPE_METHOD_SIG_INDEX"/>
 		/// </summary>
-		public int MethodSigIndex {
-			get { return methodSigIndex; }
-		}
+		public int MethodSigIndex { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if it's a normal visible method parameter, i.e., it's not the hidden
 		/// 'this' parameter and it's not the method return type parameter.
 		/// </summary>
-		public bool IsNormalMethodParameter {
-			get { return methodSigIndex >= 0; }
-		}
+		public bool IsNormalMethodParameter => MethodSigIndex >= 0;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if it's the hidden 'this' parameter
 		/// </summary>
-		public bool IsHiddenThisParameter {
-			get { return methodSigIndex == HIDDEN_THIS_METHOD_SIG_INDEX; }
-		}
+		public bool IsHiddenThisParameter => MethodSigIndex == HIDDEN_THIS_METHOD_SIG_INDEX;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if it's the method return type parameter
 		/// </summary>
-		public bool IsReturnTypeParameter {
-			get { return methodSigIndex == RETURN_TYPE_METHOD_SIG_INDEX; }
-		}
+		public bool IsReturnTypeParameter => MethodSigIndex == RETURN_TYPE_METHOD_SIG_INDEX;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the parameter type
 		/// </summary>
 		public TypeSig Type {
-			get { return typeSig; }
-			set {
+			get => typeSig;
+	        set {
 				typeSig = value;
-				if (parameterList != null)
-					parameterList.TypeUpdated(this, false);
-			}
+	            parameterList?.TypeUpdated(this, false);
+	        }
 		}
 
 		/// <summary>
@@ -465,32 +447,25 @@ namespace dnlib.DotNet {
 		/// <param name="type"></param>
 		internal void SetType(bool noParamsLock, TypeSig type) {
 			typeSig = type;
-			if (parameterList != null)
-				parameterList.TypeUpdated(this, noParamsLock);
+		    parameterList?.TypeUpdated(this, noParamsLock);
 		}
 
 		/// <summary>
 		/// Gets the owner method
 		/// </summary>
-		public MethodDef Method {
-			get { return parameterList == null ? null : parameterList.Method; }
-		}
+		public MethodDef Method => parameterList?.Method;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the <see cref="dnlib.DotNet.ParamDef"/> or <c>null</c> if not present
 		/// </summary>
-		public ParamDef ParamDef {
-			get { return parameterList == null ? null : parameterList.FindParamDef(this); }
-		}
+		public ParamDef ParamDef => parameterList?.FindParamDef(this);
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if it has a <see cref="dnlib.DotNet.ParamDef"/>
 		/// </summary>
-		public bool HasParamDef {
-			get { return ParamDef != null; }
-		}
+		public bool HasParamDef => ParamDef != null;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the name from <see cref="ParamDef"/>. If <see cref="ParamDef"/> is <c>null</c>,
 		/// an empty string is returned.
 		/// </summary>
@@ -511,8 +486,8 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="paramIndex">Parameter index</param>
 		public Parameter(int paramIndex) {
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = paramIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = paramIndex;
 		}
 
 		/// <summary>
@@ -521,8 +496,8 @@ namespace dnlib.DotNet {
 		/// <param name="paramIndex">Parameter index</param>
 		/// <param name="type">Parameter type</param>
 		public Parameter(int paramIndex, TypeSig type) {
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = paramIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = paramIndex;
 			this.typeSig = type;
 		}
 
@@ -532,8 +507,8 @@ namespace dnlib.DotNet {
 		/// <param name="paramIndex">Parameter index (0 is hidden this param if it exists)</param>
 		/// <param name="methodSigIndex">Index in method signature</param>
 		public Parameter(int paramIndex, int methodSigIndex) {
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = methodSigIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = methodSigIndex;
 		}
 
 		/// <summary>
@@ -543,34 +518,30 @@ namespace dnlib.DotNet {
 		/// <param name="methodSigIndex">Index in method signature</param>
 		/// <param name="type">Parameter type</param>
 		public Parameter(int paramIndex, int methodSigIndex, TypeSig type) {
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = methodSigIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = methodSigIndex;
 			this.typeSig = type;
 		}
 
 		internal Parameter(ParameterList parameterList, int paramIndex, int methodSigIndex) {
 			this.parameterList = parameterList;
-			this.paramIndex = paramIndex;
-			this.methodSigIndex = methodSigIndex;
+			this.Index = paramIndex;
+			this.MethodSigIndex = methodSigIndex;
 		}
 
 		/// <summary>
 		/// Creates a <see cref="dnlib.DotNet.ParamDef"/> if it doesn't already exist
 		/// </summary>
-		public void CreateParamDef() {
-			if (parameterList != null)
-				parameterList.CreateParamDef(this);
+		public void CreateParamDef()
+		{
+		    parameterList?.CreateParamDef(this);
 		}
 
 		/// <inheritdoc/>
-		public override string ToString() {
-			var name = Name;
-			if (string.IsNullOrEmpty(name)) {
-				if (IsReturnTypeParameter)
-					return "RET_PARAM";
-				return string.Format("A_{0}", paramIndex);
-			}
-			return name;
+		public override string ToString()
+		{
+		    var name = Name;
+		    return string.IsNullOrEmpty(name) ? (IsReturnTypeParameter ? "RET_PARAM" : $"A_{Index}") : name;
 		}
 	}
 }

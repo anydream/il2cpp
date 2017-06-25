@@ -207,7 +207,7 @@ namespace dnlib.Threading {
 	/// <param name="index">Index of <paramref name="value"/></param>
 	/// <param name="value">Value at <paramref name="index"/> in the collection</param>
 	/// <returns><c>false</c> to break out of the iterator loop and return</returns>
-	public delegate bool EnumerableIterateDelegate<T>(int index, T value);
+	public delegate bool EnumerableIterateDelegate<in T>(int index, T value);
 
 	/// <summary>
 	/// Called by <see cref="Extensions.IterateAll{T}(IEnumerable{T},EnumerableIterateAllDelegate{T})"/>
@@ -216,7 +216,7 @@ namespace dnlib.Threading {
 	/// <param name="index">Index of <paramref name="value"/></param>
 	/// <param name="value">Value at <paramref name="index"/> in the collection</param>
 	/// <returns><c>false</c> to break out of the iterator loop and return</returns>
-	public delegate void EnumerableIterateAllDelegate<T>(int index, T value);
+	public delegate void EnumerableIterateAllDelegate<in T>(int index, T value);
 
 	public static partial class Extensions {
 		/// <summary>
@@ -489,9 +489,8 @@ namespace dnlib.Threading {
 		/// <returns>The value in the list or <paramref name="defaultValue"/> if
 		/// <paramref name="index"/> was invalid</returns>
 		public static T Get<T>(this IList<T> list, int index, T defaultValue) {
-			T value;
-			return list.Get(index, out value) ? value : defaultValue;
-		}
+            return list.Get(index, out T value) ? value : defaultValue;
+        }
 
 		/// <summary>
 		/// Writes an element to the list. If <paramref name="list"/> implements
@@ -817,12 +816,9 @@ namespace dnlib.Threading {
 		/// <typeparam name="T">Type to store in list</typeparam>
 		/// <param name="coll">A collection</param>
 		/// <returns>A list enumerable</returns>
-		public static IEnumerable<T> GetSafeEnumerable<T>(this IEnumerable<T> coll) {
-			var list = coll as IList<T>;
-			if (list != null)
-				return GetSafeEnumerable(list);
-
-			return coll;
+		public static IEnumerable<T> GetSafeEnumerable<T>(this IEnumerable<T> coll)
+		{
+		    return coll is IList<T> list ? GetSafeEnumerable(list) : coll;
 		}
 	}
 }

@@ -18,11 +18,9 @@ namespace dnlib.DotNet.Writer {
 		Dictionary<uint, byte[]> userRawData;
 
 		/// <inheritdoc/>
-		public override string Name {
-			get { return "#Blob"; }
-		}
+		public override string Name => "#Blob";
 
-		/// <summary>
+	    /// <summary>
 		/// Populates blobs from an existing <see cref="BlobStream"/> (eg. to preserve
 		/// blob offsets)
 		/// </summary>
@@ -48,13 +46,13 @@ namespace dnlib.DotNet.Writer {
 			reader.Position = 1;
 			while (reader.Position < reader.Length) {
 				uint offset = (uint)reader.Position;
-				uint len;
-				if (!reader.ReadCompressedUInt32(out len)) {
-					if (offset == reader.Position)
-						reader.Position++;
-					continue;
-				}
-				if (len == 0 || reader.Position + len > reader.Length)
+                if (!reader.ReadCompressedUInt32(out uint len))
+                {
+                    if (offset == reader.Position)
+                        reader.Position++;
+                    continue;
+                }
+                if (len == 0 || reader.Position + len > reader.Length)
 					continue;
 
 				var data = reader.ReadBytes((int)len);
@@ -74,10 +72,9 @@ namespace dnlib.DotNet.Writer {
 			if (data == null || data.Length == 0)
 				return 0;
 
-			uint offset;
-			if (cachedDict.TryGetValue(data, out offset))
-				return offset;
-			return AddToCache(data);
+            if (cachedDict.TryGetValue(data, out uint offset))
+                return offset;
+            return AddToCache(data);
 		}
 
 		/// <summary>
@@ -114,17 +111,18 @@ namespace dnlib.DotNet.Writer {
 			uint offset = originalData != null ? (uint)originalData.Length : 1;
 			foreach (var data in cached) {
 				int rawLen = GetRawDataSize(data);
-				byte[] rawData;
-				if (userRawData != null && userRawData.TryGetValue(offset, out rawData)) {
-					if (rawData.Length != rawLen)
-						throw new InvalidOperationException("Invalid length of raw data");
-					writer.Write(rawData);
-				}
-				else {
-					writer.WriteCompressedUInt32((uint)data.Length);
-					writer.Write(data);
-				}
-				offset += (uint)rawLen;
+                if (userRawData != null && userRawData.TryGetValue(offset, out byte[] rawData))
+                {
+                    if (rawData.Length != rawLen)
+                        throw new InvalidOperationException("Invalid length of raw data");
+                    writer.Write(rawData);
+                }
+                else
+                {
+                    writer.WriteCompressedUInt32((uint)data.Length);
+                    writer.Write(data);
+                }
+                offset += (uint)rawLen;
 			}
 		}
 
@@ -135,11 +133,9 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void SetRawData(uint offset, byte[] rawData) {
-			if (rawData == null)
-				throw new ArgumentNullException("rawData");
-			if (userRawData == null)
+            if (userRawData == null)
 				userRawData = new Dictionary<uint, byte[]>();
-			userRawData[offset] = rawData;
+			userRawData[offset] = rawData ?? throw new ArgumentNullException(nameof(rawData));
 		}
 
 		/// <inheritdoc/>

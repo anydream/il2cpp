@@ -16,11 +16,7 @@ namespace dnlib.DotNet.Pdb {
 	/// </summary>
 	[DebuggerDisplay("{Start} - {End}")]
 	public sealed class PdbScope {
-		readonly ThreadSafe.IList<PdbScope> scopes = ThreadSafeListCreator.Create<PdbScope>();
-		readonly ThreadSafe.IList<Local> locals = ThreadSafeListCreator.Create<Local>();
-		readonly ThreadSafe.IList<string> namespaces = ThreadSafeListCreator.Create<string>();
-
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the first instruction
 		/// </summary>
 		public Instruction Start { get; set; }
@@ -33,43 +29,31 @@ namespace dnlib.DotNet.Pdb {
 		/// <summary>
 		/// Gets all child scopes
 		/// </summary>
-		public ThreadSafe.IList<PdbScope> Scopes {
-			get { return scopes; }
-		}
+		public ThreadSafe.IList<PdbScope> Scopes { get; } = ThreadSafeListCreator.Create<PdbScope>();
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="Scopes"/> is not empty
 		/// </summary>
-		public bool HasScopes {
-			get { return scopes.Count > 0; }
-		}
+		public bool HasScopes => Scopes.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all locals in this scope
 		/// </summary>
-		public ThreadSafe.IList<Local> Variables {
-			get { return locals; }
-		}
+		public ThreadSafe.IList<Local> Variables { get; } = ThreadSafeListCreator.Create<Local>();
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="Variables"/> is not empty
 		/// </summary>
-		public bool HasVariables {
-			get { return locals.Count > 0; }
-		}
+		public bool HasVariables => Variables.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all namespaces
 		/// </summary>
-		public ThreadSafe.IList<string> Namespaces {
-			get { return namespaces; }
-		}
+		public ThreadSafe.IList<string> Namespaces { get; } = ThreadSafeListCreator.Create<string>();
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="Namespaces"/> is not empty
 		/// </summary>
-		public bool HasNamespaces {
-			get { return namespaces.Count > 0; }
-		}
+		public bool HasNamespaces => Namespaces.Count > 0;
 	}
 }

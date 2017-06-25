@@ -13,30 +13,21 @@ namespace dnlib.DotNet.Writer {
 	public sealed class NetResources : IChunk {
 		readonly List<ByteArrayChunk> resources = new List<ByteArrayChunk>();
 		readonly uint alignment;
-		uint length;
-		bool setOffsetCalled;
-		FileOffset offset;
-		RVA rva;
+	    bool setOffsetCalled;
 
-		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return offset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset FileOffset { get; private set; }
 
-		/// <inheritdoc/>
-		public RVA RVA {
-			get { return rva; }
-		}
+	    /// <inheritdoc/>
+		public RVA RVA { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets offset of next resource. This offset is relative to the start of
 		/// the .NET resources and is always aligned.
 		/// </summary>
-		public uint NextOffset {
-			get { return length; }
-		}
+		public uint NextOffset { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="alignment">Alignment of all resources</param>
@@ -53,7 +44,7 @@ namespace dnlib.DotNet.Writer {
 			if (setOffsetCalled)
 				throw new InvalidOperationException("SetOffset() has already been called");
 			var rawData = stream.ReadAllBytes();
-			length = Utils.AlignUp(length + 4 + (uint)rawData.Length, alignment);
+			NextOffset = Utils.AlignUp(NextOffset + 4 + (uint)rawData.Length, alignment);
 			var data = new ByteArrayChunk(rawData);
 			resources.Add(data);
 			return data;
@@ -62,8 +53,8 @@ namespace dnlib.DotNet.Writer {
 		/// <inheritdoc/>
 		public void SetOffset(FileOffset offset, RVA rva) {
 			setOffsetCalled = true;
-			this.offset = offset;
-			this.rva = rva;
+			this.FileOffset = offset;
+			this.RVA = rva;
 			foreach (var resource in resources) {
 				resource.SetOffset(offset + 4, rva + 4);
 				uint len = 4 + resource.GetFileLength();
@@ -74,7 +65,7 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public uint GetFileLength() {
-			return length;
+			return NextOffset;
 		}
 
 		/// <inheritdoc/>
@@ -84,7 +75,7 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void WriteTo(BinaryWriter writer) {
-			RVA rva2 = rva;
+			RVA rva2 = RVA;
 			foreach (var resourceData in resources) {
 				writer.Write(resourceData.GetFileLength());
 				resourceData.VerifyWriteTo(writer);

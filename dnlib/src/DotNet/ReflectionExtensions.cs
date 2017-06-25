@@ -15,10 +15,10 @@ namespace dnlib.DotNet {
 		public static bool IsSZArray(this Type self) {
 			if (self == null || !self.IsArray)
 				return false;
-			var prop = self.GetType().GetProperty("IsSzArray", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+			var prop = self.GetProperty("IsSzArray", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 			if (prop != null)
 				return (bool)prop.GetValue(self, new object[0]);
-			return (self.Name ?? string.Empty).EndsWith("[]");
+			return self.Name.EndsWith("[]");
 		}
 
 		/// <summary>

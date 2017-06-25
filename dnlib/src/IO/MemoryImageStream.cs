@@ -54,31 +54,23 @@ namespace dnlib.IO {
 		/// <summary>
 		/// Gets the data
 		/// </summary>
-		internal byte[] DataArray {
-			get { return data; }
-		}
+		internal byte[] DataArray => data;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the start of the data in <see cref="DataArray"/> used by this stream
 		/// </summary>
-		internal int DataOffset {
-			get { return dataOffset; }
-		}
+		internal int DataOffset => dataOffset;
 
-		/// <inheritdoc/>
-		public FileOffset FileOffset {
-			get { return fileOffset; }
-		}
+	    /// <inheritdoc/>
+		public FileOffset FileOffset => fileOffset;
 
-		/// <inheritdoc/>
-		public long Length {
-			get { return dataEnd - dataOffset; }
-		}
+	    /// <inheritdoc/>
+		public long Length => dataEnd - dataOffset;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public long Position {
-			get { return position - dataOffset; }
-			set {
+			get => position - dataOffset;
+	        set {
 				long newPos = dataOffset + value;
 				if (newPos < dataOffset || newPos > int.MaxValue)
 					newPos = int.MaxValue;
@@ -95,11 +87,11 @@ namespace dnlib.IO {
 
 		/// <inheritdoc/>
 		public IImageStream Create(FileOffset offset, long length) {
-			if ((long)offset < 0 || length < 0)
-				return MemoryImageStream.CreateEmpty();
+			if (offset < 0 || length < 0)
+				return CreateEmpty();
 
-			int offs = (int)Math.Min((long)Length, (long)offset);
-			int len = (int)Math.Min((long)Length - offs, length);
+			int offs = (int)Math.Min(Length, (long)offset);
+			int len = (int)Math.Min(Length - offs, length);
 			return new MemoryImageStream((FileOffset)((long)fileOffset + (long)offset), data, dataOffset + offs, len);
 		}
 

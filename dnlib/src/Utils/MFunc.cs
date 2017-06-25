@@ -1,8 +1,8 @@
 // dnlib: See LICENSE.txt for more info
 
 ﻿namespace dnlib.Utils {
-	delegate T MFunc<T>();
-	delegate U MFunc<T, U>(T t);
+	delegate T MFunc<out T>();
+	delegate U MFunc<in T, out U>(T t);
 
 	/// <summary>
 	/// Same as Func delegate
@@ -13,5 +13,5 @@
 	/// <param name="t"></param>
 	/// <param name="u"></param>
 	/// <returns></returns>
-	public delegate V MFunc<T, U, V>(T t, U u);
+	public delegate V MFunc<in T, in U, out V>(T t, U u);
 }

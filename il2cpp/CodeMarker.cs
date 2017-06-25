@@ -214,9 +214,8 @@ namespace il2cpp
 						// 解析所属类型
 						TypeX declType = obj.GetImplType(metDef.DeclaringType, vmet.DeclType, vmet.Def);
 						// 创建方法包装
-						MethodX resMetX = new MethodX(metDef, declType);
-						resMetX.GenArgs = vmet.GenArgs;
-						resMetX = TryAppendMethod(resMetX);
+					    MethodX resMetX = new MethodX(metDef, declType) {GenArgs = vmet.GenArgs};
+					    resMetX = TryAppendMethod(resMetX);
 
 						// 添加覆盖的方法
 						vmet.OverrideImpls.Add(resMetX);
@@ -346,12 +345,8 @@ namespace il2cpp
 			var metGenArgs = metSpec.GenericInstMethodSig?.GenericArguments;
 			if (metGenArgs != null)
 			{
-				List<TypeX> genArgs = new List<TypeX>();
-				foreach (var p in metGenArgs)
-					genArgs.Add(ResolveTypeSig(p, genResolver));
-
-				metX.GenArgs = genArgs;
-			}
+			    metX.GenArgs = metGenArgs.Select(p => ResolveTypeSig(p, genResolver)).ToList();
+            }
 
 			return TryAppendMethod(metX);
 		}
@@ -446,16 +441,11 @@ namespace il2cpp
 
 					case GenericInstSig genInstSig:
 						{
-							// 解析泛型类型参数 Class<...>
-							List<TypeX> genArgs = new List<TypeX>();
-							foreach (var p in genInstSig.GenericArguments)
-								genArgs.Add(ResolveTypeSig(p, genResolver));
-
-							// 解析泛型类型
+						    // 解析泛型类型
 							TypeX tyX = _ResolveTypeSigImpl(genInstSig.GenericType, genResolver);
 							tyX.ModifierList = ModifierListReverse(modList);
-							tyX.GenArgs = genArgs;
-							return tyX;
+							tyX.GenArgs = genInstSig.GenericArguments.Select(p => ResolveTypeSig(p, genResolver)).ToList();
+                            return tyX;
 						}
 
 					case GenericSig genSig:

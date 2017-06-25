@@ -27,9 +27,8 @@ namespace dnlib.DotNet.MD {
 				return Load(peImage = new PEImage(fileName));
 			}
 			catch {
-				if (peImage != null)
-					peImage.Dispose();
-				throw;
+			    peImage?.Dispose();
+			    throw;
 			}
 		}
 
@@ -44,9 +43,8 @@ namespace dnlib.DotNet.MD {
 				return Load(peImage = new PEImage(data));
 			}
 			catch {
-				if (peImage != null)
-					peImage.Dispose();
-				throw;
+			    peImage?.Dispose();
+			    throw;
 			}
 		}
 
@@ -63,18 +61,16 @@ namespace dnlib.DotNet.MD {
 				return Load(peImage = new PEImage(addr, ImageLayout.Memory, true));
 			}
 			catch {
-				if (peImage != null)
-					peImage.Dispose();
-				peImage = null;
+			    peImage?.Dispose();
+			    peImage = null;
 			}
 
 			try {
 				return Load(peImage = new PEImage(addr, ImageLayout.File, true));
 			}
 			catch {
-				if (peImage != null)
-					peImage.Dispose();
-				throw;
+			    peImage?.Dispose();
+			    throw;
 			}
 		}
 
@@ -90,9 +86,8 @@ namespace dnlib.DotNet.MD {
 				return Load(peImage = new PEImage(addr, imageLayout, true));
 			}
 			catch {
-				if (peImage != null)
-					peImage.Dispose();
-				throw;
+			    peImage?.Dispose();
+			    throw;
 			}
 		}
 
@@ -171,15 +166,12 @@ namespace dnlib.DotNet.MD {
 				return md;
 			}
 			catch {
-				if (md != null)
-					md.Dispose();
-				throw;
+			    md?.Dispose();
+			    throw;
 			}
 			finally {
-				if (cor20HeaderStream != null)
-					cor20HeaderStream.Dispose();
-				if (mdHeaderStream != null)
-					mdHeaderStream.Dispose();
+			    cor20HeaderStream?.Dispose();
+			    mdHeaderStream?.Dispose();
 			}
 		}
 

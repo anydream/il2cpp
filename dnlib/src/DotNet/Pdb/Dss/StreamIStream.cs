@@ -30,9 +30,7 @@ namespace dnlib.DotNet.Pdb.Dss {
 		/// <param name="stream">Source stream</param>
 		/// <param name="name">Name of original file or <c>null</c> if unknown.</param>
 		public StreamIStream(Stream stream, string name) {
-			if (stream == null)
-				throw new ArgumentNullException("stream");
-			this.stream = stream;
+		    this.stream = stream ?? throw new ArgumentNullException(nameof(stream));
 			this.name = name ?? string.Empty;
 		}
 
@@ -133,16 +131,18 @@ namespace dnlib.DotNet.Pdb.Dss {
 
 		/// <inheritdoc/>
 		public void Stat(out System.Runtime.InteropServices.ComTypes.STATSTG pstatstg, int grfStatFlag) {
-			var s = new System.Runtime.InteropServices.ComTypes.STATSTG();
+		    var s = new System.Runtime.InteropServices.ComTypes.STATSTG
+		    {
+		        cbSize = stream.Length,
+		        clsid = Guid.Empty,
+		        grfLocksSupported = 0,
+		        grfMode = 2,
+		        grfStateBits = 0
+		    };
 
-			// s.atime = ???;
-			s.cbSize = stream.Length;
-			s.clsid = Guid.Empty;
-			// s.ctime = ???;
-			s.grfLocksSupported = 0;
-			s.grfMode = 2;
-			s.grfStateBits = 0;
-			// s.mtime = ???;
+		    // s.atime = ???;
+		    // s.ctime = ???;
+		    // s.mtime = ???;
 			if ((grfStatFlag & (int)STATFLAG.NONAME) == 0)
 				s.pwcsName = name;
 			s.reserved = 0;

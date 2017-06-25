@@ -54,21 +54,15 @@ namespace dnlib.DotNet {
 		RecursionCounter recursionCounter;
 		ImporterOptions options;
 
-		bool TryToUseTypeDefs {
-			get { return (options & ImporterOptions.TryToUseTypeDefs) != 0; }
-		}
+		bool TryToUseTypeDefs => (options & ImporterOptions.TryToUseTypeDefs) != 0;
 
-		bool TryToUseMethodDefs {
-			get { return (options & ImporterOptions.TryToUseMethodDefs) != 0; }
-		}
+	    bool TryToUseMethodDefs => (options & ImporterOptions.TryToUseMethodDefs) != 0;
 
-		bool TryToUseFieldDefs {
-			get { return (options & ImporterOptions.TryToUseFieldDefs) != 0; }
-		}
+	    bool TryToUseFieldDefs => (options & ImporterOptions.TryToUseFieldDefs) != 0;
 
-		bool FixSignature {
-			get { return (options & ImporterOptions.FixSignature) != 0; }
-			set {
+	    bool FixSignature {
+			get => (options & ImporterOptions.FixSignature) != 0;
+	        set {
 				if (value)
 					options |= ImporterOptions.FixSignature;
 				else
@@ -251,11 +245,10 @@ namespace dnlib.DotNet {
 			if (mr == null)
 				return null;
 
-			var td = mr.Class as TypeDef;
-			if (td != null)
-				return td;
+            if (mr.Class is TypeDef td)
+                return td;
 
-			td = TryResolve(mr.Class as TypeRef) as TypeDef;
+            td = TryResolve(mr.Class as TypeRef) as TypeDef;
 			if (td != null)
 				return td;
 
@@ -267,20 +260,17 @@ namespace dnlib.DotNet {
 		}
 
 		bool IsThisModule(TypeRef tr) {
-			if (tr == null)
-				return false;
-			var scopeType = tr.ScopeType.GetNonNestedTypeRefScope() as TypeRef;
+		    var scopeType = tr?.ScopeType.GetNonNestedTypeRefScope() as TypeRef;
 			if (scopeType == null)
 				return false;
 
 			if (module == scopeType.ResolutionScope)
 				return true;
 
-			var modRef = scopeType.ResolutionScope as ModuleRef;
-			if (modRef != null)
-				return IsThisModule(modRef);
+            if (scopeType.ResolutionScope is ModuleRef modRef)
+                return IsThisModule(modRef);
 
-			var asmRef = scopeType.ResolutionScope as AssemblyRef;
+            var asmRef = scopeType.ResolutionScope as AssemblyRef;
 			return Equals(module.Assembly, asmRef);
 		}
 
@@ -395,11 +385,7 @@ namespace dnlib.DotNet {
 			return ImportInternal(methodBase, forceFixSignature);
 		}
 
-		IMethod ImportInternal(MethodBase methodBase) {
-			return ImportInternal(methodBase, false);
-		}
-
-		IMethod ImportInternal(MethodBase methodBase, bool forceFixSignature) {
+	    IMethod ImportInternal(MethodBase methodBase, bool forceFixSignature = false) {
 			if (methodBase == null)
 				return null;
 
@@ -426,13 +412,7 @@ namespace dnlib.DotNet {
 				return methodSpec;
 			}
 			else {
-				IMemberRefParent parent;
-				if (methodBase.DeclaringType == null) {
-					// It's the global type. We can reference it with a ModuleRef token.
-					parent = GetModuleParent(methodBase.Module);
-				}
-				else
-					parent = Import(methodBase.DeclaringType);
+			    var parent = methodBase.DeclaringType == null ? GetModuleParent(methodBase.Module) : Import(methodBase.DeclaringType);
 				if (parent == null)
 					return null;
 
@@ -463,10 +443,7 @@ namespace dnlib.DotNet {
 			var sig = new MethodSig(GetCallingConvention(mb));
 
 			var mi = mb as MethodInfo;
-			if (mi != null)
-				sig.RetType = ImportAsTypeSig(mi.ReturnParameter, mb.DeclaringType);
-			else
-				sig.RetType = module.CorLibTypes.Void;
+			sig.RetType = mi != null ? ImportAsTypeSig(mi.ReturnParameter, mb.DeclaringType) : module.CorLibTypes.Void;
 
 			foreach (var p in mb.GetParameters())
 				sig.Params.Add(ImportAsTypeSig(p, mb.DeclaringType));
@@ -556,13 +533,7 @@ namespace dnlib.DotNet {
 				//TODO:
 			}
 
-			IMemberRefParent parent;
-			if (fieldInfo.DeclaringType == null) {
-				// It's the global type. We can reference it with a ModuleRef token.
-				parent = GetModuleParent(fieldInfo.Module);
-			}
-			else
-				parent = Import(fieldInfo.DeclaringType);
+		    var parent = fieldInfo.DeclaringType == null ? GetModuleParent(fieldInfo.Module) : Import(fieldInfo.DeclaringType);
 			if (parent == null)
 				return null;
 
@@ -653,15 +624,11 @@ namespace dnlib.DotNet {
 				return null;
 			if (!recursionCounter.Increment())
 				return null;
-			TypeRef result;
 
-			var declType = type.DeclaringType;
-			if (declType != null)
-				result = module.UpdateRowId(new TypeRefUser(module, type.Namespace, type.Name, Import2(declType)));
-			else
-				result = module.UpdateRowId(new TypeRefUser(module, type.Namespace, type.Name, CreateScopeReference(type.DefinitionAssembly, type.Module)));
+		    var declType = type.DeclaringType;
+		    TypeRef result = module.UpdateRowId(declType != null ? new TypeRefUser(module, type.Namespace, type.Name, Import2(declType)) : new TypeRefUser(module, type.Namespace, type.Name, CreateScopeReference(type.DefinitionAssembly, type.Module)));
 
-			recursionCounter.Decrement();
+		    recursionCounter.Decrement();
 			return result;
 		}
 
@@ -669,7 +636,7 @@ namespace dnlib.DotNet {
 			if (defAsm == null)
 				return null;
 			var modAsm = module.Assembly;
-			if (defMod != null && defAsm != null && modAsm != null) {
+			if (defMod != null && modAsm != null) {
 				if (UTF8String.CaseInsensitiveEquals(modAsm.Name, defAsm.Name)) {
 					if (UTF8String.CaseInsensitiveEquals(module.Name, defMod.Name))
 						return module;
@@ -696,15 +663,11 @@ namespace dnlib.DotNet {
 				return null;
 			if (!recursionCounter.Increment())
 				return null;
-			TypeRef result;
 
-			var declaringType = type.DeclaringType;
-			if (declaringType != null)
-				result = module.UpdateRowId(new TypeRefUser(module, type.Namespace, type.Name, Import2(declaringType)));
-			else
-				result = module.UpdateRowId(new TypeRefUser(module, type.Namespace, type.Name, CreateScopeReference(type.DefinitionAssembly, type.Module)));
+		    var declaringType = type.DeclaringType;
+		    TypeRef result = module.UpdateRowId(declaringType != null ? new TypeRefUser(module, type.Namespace, type.Name, Import2(declaringType)) : new TypeRefUser(module, type.Namespace, type.Name, CreateScopeReference(type.DefinitionAssembly, type.Module)));
 
-			recursionCounter.Decrement();
+		    recursionCounter.Decrement();
 			return result;
 		}
 
@@ -1019,7 +982,7 @@ namespace dnlib.DotNet {
 				return null;
 			if (type.IsGlobalModuleType) {
 				var om = type.Module;
-				return module.UpdateRowId(new ModuleRefUser(module, om == null ? null : om.Name));
+				return module.UpdateRowId(new ModuleRefUser(module, om?.Name));
 			}
 			return Import(type);
 		}
@@ -1085,27 +1048,26 @@ namespace dnlib.DotNet {
 		}
 
 		IMemberRefParent Import(IMemberRefParent parent) {
-			var tdr = parent as ITypeDefOrRef;
-			if (tdr != null) {
-				var td = tdr as TypeDef;
-				if (td != null && td.IsGlobalModuleType) {
-					var om = td.Module;
-					return module.UpdateRowId(new ModuleRefUser(module, om == null ? null : om.Name));
-				}
-				return Import(tdr);
-			}
+            if (parent is ITypeDefOrRef tdr)
+            {
+                if (tdr is TypeDef td && td.IsGlobalModuleType)
+                {
+                    var om = td.Module;
+                    return module.UpdateRowId(new ModuleRefUser(module, om?.Name));
+                }
+                return Import(tdr);
+            }
 
-			var modRef = parent as ModuleRef;
-			if (modRef != null)
-				return module.UpdateRowId(new ModuleRefUser(module, modRef.Name));
+            if (parent is ModuleRef modRef)
+                return module.UpdateRowId(new ModuleRefUser(module, modRef.Name));
 
-			var method = parent as MethodDef;
-			if (method != null) {
-				var dt = method.DeclaringType;
-				return dt == null || dt.Module != module ? null : method;
-			}
+            if (parent is MethodDef method)
+            {
+                var dt = method.DeclaringType;
+                return dt == null || dt.Module != module ? null : method;
+            }
 
-			return null;
+            return null;
 		}
 	}
 }

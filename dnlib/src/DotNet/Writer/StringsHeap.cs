@@ -18,11 +18,9 @@ namespace dnlib.DotNet.Writer {
 		Dictionary<uint, byte[]> userRawData;
 
 		/// <inheritdoc/>
-		public override string Name {
-			get { return "#Strings"; }
-		}
+		public override string Name => "#Strings";
 
-		/// <summary>
+	    /// <summary>
 		/// Populates strings from an existing <see cref="StringsStream"/> (eg. to preserve
 		/// string offsets)
 		/// </summary>
@@ -73,11 +71,10 @@ namespace dnlib.DotNet.Writer {
 			if (UTF8String.IsNullOrEmpty(s))
 				return 0;
 
-			uint offset;
-			if (cachedDict.TryGetValue(s, out offset))
-				return offset;
+            if (cachedDict.TryGetValue(s, out uint offset))
+                return offset;
 
-			return AddToCache(s);
+            return AddToCache(s);
 		}
 
 		/// <summary>
@@ -118,17 +115,18 @@ namespace dnlib.DotNet.Writer {
 
 			uint offset = originalData != null ? (uint)originalData.Length : 1;
 			foreach (var s in cached) {
-				byte[] rawData;
-				if (userRawData != null && userRawData.TryGetValue(offset, out rawData)) {
-					if (rawData.Length != s.Data.Length + 1)
-						throw new InvalidOperationException("Invalid length of raw data");
-					writer.Write(rawData);
-				}
-				else {
-					writer.Write(s.Data);
-					writer.Write((byte)0);
-				}
-				offset += (uint)s.Data.Length + 1;
+                if (userRawData != null && userRawData.TryGetValue(offset, out byte[] rawData))
+                {
+                    if (rawData.Length != s.Data.Length + 1)
+                        throw new InvalidOperationException("Invalid length of raw data");
+                    writer.Write(rawData);
+                }
+                else
+                {
+                    writer.Write(s.Data);
+                    writer.Write((byte)0);
+                }
+                offset += (uint)s.Data.Length + 1;
 			}
 		}
 
@@ -139,11 +137,9 @@ namespace dnlib.DotNet.Writer {
 
 		/// <inheritdoc/>
 		public void SetRawData(uint offset, byte[] rawData) {
-			if (rawData == null)
-				throw new ArgumentNullException("rawData");
-			if (userRawData == null)
+            if (userRawData == null)
 				userRawData = new Dictionary<uint, byte[]>();
-			userRawData[offset] = rawData;
+			userRawData[offset] = rawData ?? throw new ArgumentNullException(nameof(rawData));
 		}
 
 		/// <inheritdoc/>

@@ -9,34 +9,24 @@ namespace dnlib.DotNet.MD {
 	/// <summary>
 	/// A metadata stream header
 	/// </summary>
-	[DebuggerDisplay("O:{offset} L:{streamSize} {name}")]
+	[DebuggerDisplay("O:{Offset} L:{StreamSize} {Name}")]
 	public sealed class StreamHeader : FileSection {
-		readonly uint offset;
-		readonly uint streamSize;
-		readonly string name;
-
-		/// <summary>
+	    /// <summary>
 		/// The offset of the stream relative to the start of the MetaData header
 		/// </summary>
-		public uint Offset {
-			get { return offset; }
-		}
+		public uint Offset { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// The size of the stream
 		/// </summary>
-		public uint StreamSize {
-			get { return streamSize; }
-		}
+		public uint StreamSize { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// The name of the stream
 		/// </summary>
-		public string Name {
-			get { return name; }
-		}
+		public string Name { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="reader">PE file reader pointing to the start of this section</param>
@@ -44,11 +34,11 @@ namespace dnlib.DotNet.MD {
 		/// <exception cref="BadImageFormatException">Thrown if verification fails</exception>
 		public StreamHeader(IImageStream reader, bool verify) {
 			SetStartOffset(reader);
-			this.offset = reader.ReadUInt32();
-			this.streamSize = reader.ReadUInt32();
-			this.name = ReadString(reader, 32, verify);
+			this.Offset = reader.ReadUInt32();
+			this.StreamSize = reader.ReadUInt32();
+			this.Name = ReadString(reader, 32, verify);
 			SetEndoffset(reader);
-			if (verify && offset + size < offset)
+			if (verify && Offset + size < Offset)
 				throw new BadImageFormatException("Invalid stream header");
 		}
 

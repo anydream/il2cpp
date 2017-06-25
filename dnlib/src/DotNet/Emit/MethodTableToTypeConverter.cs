@@ -41,11 +41,10 @@ namespace dnlib.DotNet.Emit {
 		/// <param name="address">Address of type</param>
 		/// <returns>The <see cref="Type"/> or <c>null</c></returns>
 		public static Type Convert(IntPtr address) {
-			Type type;
 #if THREAD_SAFE
 			theLock.EnterWriteLock(); try {
 #endif
-			if (addrToType.TryGetValue(address, out type))
+			if (addrToType.TryGetValue(address, out Type type))
 				return type;
 
 			type = GetTypeNET20(address) ?? GetTypeUsingTypeBuilder(address);
@@ -115,7 +114,7 @@ namespace dnlib.DotNet.Emit {
 		}
 
 		static string GetNextTypeName() {
-			return string.Format("Type{0}", numNewTypes++);
+			return $"Type{numNewTypes++}";
 		}
 
 		static byte[] GetLocalSignature(IntPtr mtAddr) {

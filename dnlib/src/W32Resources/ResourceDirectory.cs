@@ -19,15 +19,7 @@ namespace dnlib.W32Resources {
 	/// A Win32 resource directory (see IMAGE_RESOURCE_DIRECTORY in the Windows SDK)
 	/// </summary>
 	public abstract class ResourceDirectory : ResourceDirectoryEntry, IDisposable {
-		/// <summary>See <see cref="Characteristics"/></summary>
-		protected uint characteristics;
-		/// <summary>See <see cref="TimeDateStamp"/></summary>
-		protected uint timeDateStamp;
-		/// <summary>See <see cref="MajorVersion"/></summary>
-		protected ushort majorVersion;
-		/// <summary>See <see cref="MinorVersion"/></summary>
-		protected ushort minorVersion;
-		/// <summary>See <see cref="Directories"/></summary>
+	    /// <summary>See <see cref="Directories"/></summary>
 		protected ILazyList<ResourceDirectory> directories;
 		/// <summary>See <see cref="Data"/></summary>
 		protected ILazyList<ResourceData> data;
@@ -35,50 +27,34 @@ namespace dnlib.W32Resources {
 		/// <summary>
 		/// Gets/sets the characteristics
 		/// </summary>
-		public uint Characteristics {
-			get { return characteristics; }
-			set { characteristics = value; }
-		}
+		public uint Characteristics { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the time date stamp
 		/// </summary>
-		public uint TimeDateStamp {
-			get { return timeDateStamp; }
-			set { timeDateStamp = value; }
-		}
+		public uint TimeDateStamp { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the major version number
 		/// </summary>
-		public ushort MajorVersion {
-			get { return majorVersion; }
-			set { majorVersion = value; }
-		}
+		public ushort MajorVersion { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the minor version number
 		/// </summary>
-		public ushort MinorVersion {
-			get { return minorVersion; }
-			set { minorVersion = value; }
-		}
+		public ushort MinorVersion { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all directory entries
 		/// </summary>
-		public ThreadSafe.IList<ResourceDirectory> Directories {
-			get { return directories; }
-		}
+		public ThreadSafe.IList<ResourceDirectory> Directories => directories;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all resource data
 		/// </summary>
-		public ThreadSafe.IList<ResourceData> Data {
-			get { return data; }
-		}
+		public ThreadSafe.IList<ResourceData> Data => data;
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="name">Name</param>
@@ -185,7 +161,7 @@ namespace dnlib.W32Resources {
 			}
 
 			public override string ToString() {
-				return string.Format("{0:X8} {1}", offset, name);
+				return $"{offset:X8} {name}";
 			}
 		}
 
@@ -214,10 +190,10 @@ namespace dnlib.W32Resources {
 				return;
 			}
 
-			characteristics = reader.ReadUInt32();
-			timeDateStamp = reader.ReadUInt32();
-			majorVersion = reader.ReadUInt16();
-			minorVersion = reader.ReadUInt16();
+			Characteristics = reader.ReadUInt32();
+			TimeDateStamp = reader.ReadUInt32();
+			MajorVersion = reader.ReadUInt16();
+			MinorVersion = reader.ReadUInt16();
 			ushort numNamed = reader.ReadUInt16();
 			ushort numIds = reader.ReadUInt16();
 
@@ -235,10 +211,7 @@ namespace dnlib.W32Resources {
 				uint nameOrId = reader.ReadUInt32();
 				uint dataOrDirectory = reader.ReadUInt32();
 				ResourceName name;
-				if ((nameOrId & 0x80000000) != 0)
-					name = new ResourceName(ReadString(reader, nameOrId & 0x7FFFFFFF) ?? string.Empty);
-				else
-					name = new ResourceName((int)nameOrId);
+				name = (nameOrId & 0x80000000) != 0 ? new ResourceName(ReadString(reader, nameOrId & 0x7FFFFFFF) ?? string.Empty) : new ResourceName((int)nameOrId);
 
 				if ((dataOrDirectory & 0x80000000) == 0)
 					dataInfos.Add(new EntryInfo(name, dataOrDirectory));

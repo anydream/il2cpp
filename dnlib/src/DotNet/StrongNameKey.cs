@@ -66,41 +66,29 @@ namespace dnlib.DotNet {
 	/// </summary>
 	public sealed class StrongNamePublicKey {
 		const uint RSA1_SIG = 0x31415352;
-		SignatureAlgorithm signatureAlgorithm;
-		AssemblyHashAlgorithm hashAlgorithm;
-		byte[] modulus;
-		byte[] publicExponent;
+	    byte[] publicExponent;
 
 		/// <summary>
 		/// Gets/sets the signature algorithm
 		/// </summary>
-		public SignatureAlgorithm SignatureAlgorithm {
-			get { return signatureAlgorithm; }
-			set { signatureAlgorithm = value; }
-		}
+		public SignatureAlgorithm SignatureAlgorithm { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the hash algorithm
 		/// </summary>
-		public AssemblyHashAlgorithm HashAlgorithm {
-			get { return hashAlgorithm; }
-			set { hashAlgorithm = value; }
-		}
+		public AssemblyHashAlgorithm HashAlgorithm { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the modulus
 		/// </summary>
-		public byte[] Modulus {
-			get { return modulus; }
-			set { modulus = value; }
-		}
+		public byte[] Modulus { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the public exponent
 		/// </summary>
 		public byte[] PublicExponent {
-			get { return publicExponent; }
-			set {
+			get => publicExponent;
+	        set {
 				if (value == null || value.Length != 4)
 					throw new ArgumentException("PublicExponent must be exactly 4 bytes");
 				publicExponent = value;
@@ -140,9 +128,9 @@ namespace dnlib.DotNet {
 		/// <param name="hashAlgorithm">Hash algorithm</param>
 		/// <param name="signatureAlgorithm">Signature algorithm</param>
 		public StrongNamePublicKey(byte[] modulus, byte[] publicExponent, AssemblyHashAlgorithm hashAlgorithm, SignatureAlgorithm signatureAlgorithm) {
-			this.signatureAlgorithm = signatureAlgorithm;
-			this.hashAlgorithm = hashAlgorithm;
-			this.modulus = modulus;
+			this.SignatureAlgorithm = signatureAlgorithm;
+			this.HashAlgorithm = hashAlgorithm;
+			this.Modulus = modulus;
 			this.publicExponent = publicExponent;
 		}
 
@@ -194,8 +182,8 @@ namespace dnlib.DotNet {
 		void Initialize(BinaryReader reader) {
 			try {
 				// Read PublicKeyBlob
-				signatureAlgorithm = (SignatureAlgorithm)reader.ReadUInt32();
-				hashAlgorithm = (AssemblyHashAlgorithm)reader.ReadUInt32();
+				SignatureAlgorithm = (SignatureAlgorithm)reader.ReadUInt32();
+				HashAlgorithm = (AssemblyHashAlgorithm)reader.ReadUInt32();
 				/*int pkLen = */reader.ReadInt32();
 
 				// Read PUBLICKEYSTRUC
@@ -213,7 +201,7 @@ namespace dnlib.DotNet {
 				uint bitLength = reader.ReadUInt32();
 				publicExponent = reader.ReadBytesReverse(4);
 
-				modulus = reader.ReadBytesReverse((int)(bitLength / 8));
+				Modulus = reader.ReadBytesReverse((int)(bitLength / 8));
 			}
 			catch (IOException ex) {
 				throw new InvalidKeyException("Invalid public key", ex);
@@ -224,7 +212,7 @@ namespace dnlib.DotNet {
 		/// Creates a public key blob
 		/// </summary>
 		public byte[] CreatePublicKey() {
-			return CreatePublicKey(signatureAlgorithm, hashAlgorithm, modulus, publicExponent);
+			return CreatePublicKey(SignatureAlgorithm, HashAlgorithm, Modulus, publicExponent);
 		}
 
 		internal static byte[] CreatePublicKey(SignatureAlgorithm sigAlg, AssemblyHashAlgorithm hashAlg, byte[] modulus, byte[] publicExponent) {
@@ -275,13 +263,12 @@ namespace dnlib.DotNet {
 		/// Gets the public key
 		/// </summary>
 		public byte[] PublicKey {
-			get {
+			get
+			{
 #if THREAD_SAFE
 				theLock.EnterWriteLock(); try {
 #endif
-				if (publicKey == null)
-					publicKey = CreatePublicKey_NoLock();
-				return publicKey;
+			    return publicKey ?? (publicKey = CreatePublicKey_NoLock());
 #if THREAD_SAFE
 				} finally { theLock.ExitWriteLock(); }
 #endif
@@ -370,12 +357,10 @@ namespace dnlib.DotNet {
 #endif
 			}
 			set {
-				if (value == null)
-					throw new ArgumentNullException("value");
 #if THREAD_SAFE
 				theLock.EnterWriteLock(); try {
 #endif
-				modulus = value;
+				modulus = value ?? throw new ArgumentNullException(nameof(value));
 #if THREAD_SAFE
 				} finally { theLock.ExitWriteLock(); }
 #endif
@@ -396,12 +381,10 @@ namespace dnlib.DotNet {
 #endif
 			}
 			set {
-				if (value == null)
-					throw new ArgumentNullException("value");
 #if THREAD_SAFE
 				theLock.EnterWriteLock(); try {
 #endif
-				prime1 = value;
+                prime1 = value ?? throw new ArgumentNullException(nameof(value));
 #if THREAD_SAFE
 				} finally { theLock.ExitWriteLock(); }
 #endif
@@ -422,12 +405,10 @@ namespace dnlib.DotNet {
 #endif
 			}
 			set {
-				if (value == null)
-					throw new ArgumentNullException("value");
 #if THREAD_SAFE
 				theLock.EnterWriteLock(); try {
 #endif
-				prime2 = value;
+                prime2 = value ?? throw new ArgumentNullException(nameof(value));
 #if THREAD_SAFE
 				} finally { theLock.ExitWriteLock(); }
 #endif
@@ -448,12 +429,10 @@ namespace dnlib.DotNet {
 #endif
 			}
 			set {
-				if (value == null)
-					throw new ArgumentNullException("value");
 #if THREAD_SAFE
 				theLock.EnterWriteLock(); try {
 #endif
-				exponent1 = value;
+				exponent1 = value ?? throw new ArgumentNullException(nameof(value));
 #if THREAD_SAFE
 				} finally { theLock.ExitWriteLock(); }
 #endif
@@ -474,12 +453,10 @@ namespace dnlib.DotNet {
 #endif
 			}
 			set {
-				if (value == null)
-					throw new ArgumentNullException("value");
 #if THREAD_SAFE
 				theLock.EnterWriteLock(); try {
 #endif
-				exponent2 = value;
+				exponent2 = value ?? throw new ArgumentNullException(nameof(value));
 #if THREAD_SAFE
 				} finally { theLock.ExitWriteLock(); }
 #endif
@@ -500,12 +477,10 @@ namespace dnlib.DotNet {
 #endif
 			}
 			set {
-				if (value == null)
-					throw new ArgumentNullException("value");
 #if THREAD_SAFE
 				theLock.EnterWriteLock(); try {
 #endif
-				coefficient = value;
+				coefficient = value ?? throw new ArgumentNullException(nameof(value));
 #if THREAD_SAFE
 				} finally { theLock.ExitWriteLock(); }
 #endif
@@ -526,12 +501,10 @@ namespace dnlib.DotNet {
 #endif
 			}
 			set {
-				if (value == null)
-					throw new ArgumentNullException("value");
 #if THREAD_SAFE
 				theLock.EnterWriteLock(); try {
 #endif
-				privateExponent = value;
+				privateExponent = value ?? throw new ArgumentNullException(nameof(value));
 #if THREAD_SAFE
 				} finally { theLock.ExitWriteLock(); }
 #endif

@@ -31,15 +31,9 @@ namespace dnlib.DotNet.Pdb {
 		/// <param name="pdbState">PDB state</param>
 		/// <param name="metaData">Meta data</param>
 		public PdbWriter(ISymbolWriter2 writer, PdbState pdbState, MetaData metaData) {
-			if (writer == null)
-				throw new ArgumentNullException("writer");
-			if (pdbState == null)
-				throw new ArgumentNullException("pdbState");
-			if (metaData == null)
-				throw new ArgumentNullException("metaData");
-			this.writer = writer;
-			this.pdbState = pdbState;
-			this.metaData = metaData;
+		    this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
+			this.pdbState = pdbState ?? throw new ArgumentNullException(nameof(pdbState));
+			this.metaData = metaData ?? throw new ArgumentNullException(nameof(metaData));
 			this.module = metaData.Module;
 			writer.Initialize(metaData);
 		}
@@ -50,10 +44,9 @@ namespace dnlib.DotNet.Pdb {
 		/// <param name="pdbDoc">PDB document</param>
 		/// <returns>A <see cref="ISymbolDocumentWriter"/> instance</returns>
 		ISymbolDocumentWriter Add(PdbDocument pdbDoc) {
-			ISymbolDocumentWriter docWriter;
-			if (pdbDocs.TryGetValue(pdbDoc, out docWriter))
-				return docWriter;
-			docWriter = writer.DefineDocument(pdbDoc.Url, pdbDoc.Language, pdbDoc.LanguageVendor, pdbDoc.DocumentType);
+            if (pdbDocs.TryGetValue(pdbDoc, out ISymbolDocumentWriter docWriter))
+                return docWriter;
+            docWriter = writer.DefineDocument(pdbDoc.Url, pdbDoc.Language, pdbDoc.LanguageVendor, pdbDoc.DocumentType);
 			docWriter.SetCheckSum(pdbDoc.CheckSumAlgorithmId, pdbDoc.CheckSum);
 			pdbDocs.Add(pdbDoc, docWriter);
 			return docWriter;
@@ -120,13 +113,13 @@ namespace dnlib.DotNet.Pdb {
 					for (int i = 0; i < instrs.Count; i++, instrOffset += instr.GetSize()) {
 						instr = instrs[i];
 						var seqp = instr.SequencePoint;
-						if (seqp == null || seqp.Document == null)
+						if (seqp?.Document == null)
 							continue;
 						if (checkedPdbDocs.ContainsKey(seqp.Document))
 							continue;
 						if (currPdbDoc == null)
 							currPdbDoc = seqp.Document;
-						else if (currPdbDoc != seqp.Document) {
+						else if (!Equals(currPdbDoc, seqp.Document)) {
 							otherDocsAvailable = true;
 							continue;
 						}
@@ -154,8 +147,7 @@ namespace dnlib.DotNet.Pdb {
 
 					if (!otherDocsAvailable)
 						break;
-					if (currPdbDoc != null)
-						checkedPdbDocs.Add(currPdbDoc, true);
+					checkedPdbDocs.Add(currPdbDoc, true);
 				}
 			}
 		}

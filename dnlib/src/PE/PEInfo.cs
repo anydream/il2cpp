@@ -8,32 +8,22 @@ namespace dnlib.PE {
 	/// Reads all PE sections from a PE stream
 	/// </summary>
 	sealed class PEInfo {
-		readonly ImageDosHeader imageDosHeader;
-		readonly ImageNTHeaders imageNTHeaders;
-		readonly ImageSectionHeader[] imageSectionHeaders;
-
-		/// <summary>
+	    /// <summary>
 		/// Returns the DOS header
 		/// </summary>
-		public ImageDosHeader ImageDosHeader {
-			get { return imageDosHeader; }
-		}
+		public ImageDosHeader ImageDosHeader { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the NT headers
 		/// </summary>
-		public ImageNTHeaders ImageNTHeaders {
-			get { return imageNTHeaders; }
-		}
+		public ImageNTHeaders ImageNTHeaders { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the section headers
 		/// </summary>
-		public ImageSectionHeader[] ImageSectionHeaders {
-			get { return imageSectionHeaders; }
-		}
+		public ImageSectionHeader[] ImageSectionHeaders { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="reader">PE file reader pointing to the start of this section</param>
@@ -41,17 +31,17 @@ namespace dnlib.PE {
 		/// <exception cref="BadImageFormatException">Thrown if verification fails</exception>
 		public PEInfo(IImageStream reader, bool verify) {
 			reader.Position = 0;
-			this.imageDosHeader = new ImageDosHeader(reader, verify);
+			this.ImageDosHeader = new ImageDosHeader(reader, verify);
 
-			if (verify && this.imageDosHeader.NTHeadersOffset == 0)
+			if (verify && this.ImageDosHeader.NTHeadersOffset == 0)
 				throw new BadImageFormatException("Invalid NT headers offset");
-			reader.Position = this.imageDosHeader.NTHeadersOffset;
-			this.imageNTHeaders = new ImageNTHeaders(reader, verify);
+			reader.Position = this.ImageDosHeader.NTHeadersOffset;
+			this.ImageNTHeaders = new ImageNTHeaders(reader, verify);
 
-			reader.Position = (long)this.imageNTHeaders.OptionalHeader.StartOffset + this.imageNTHeaders.FileHeader.SizeOfOptionalHeader;
-			this.imageSectionHeaders = new ImageSectionHeader[this.imageNTHeaders.FileHeader.NumberOfSections];
-			for (int i = 0; i < this.imageSectionHeaders.Length; i++)
-				this.imageSectionHeaders[i] = new ImageSectionHeader(reader, verify);
+			reader.Position = (long)this.ImageNTHeaders.OptionalHeader.StartOffset + this.ImageNTHeaders.FileHeader.SizeOfOptionalHeader;
+			this.ImageSectionHeaders = new ImageSectionHeader[this.ImageNTHeaders.FileHeader.NumberOfSections];
+			for (int i = 0; i < this.ImageSectionHeaders.Length; i++)
+				this.ImageSectionHeaders[i] = new ImageSectionHeader(reader, verify);
 		}
 
 		/// <summary>
@@ -61,7 +51,7 @@ namespace dnlib.PE {
 		/// <param name="offset">The file offset</param>
 		/// <returns></returns>
 		public ImageSectionHeader ToImageSectionHeader(FileOffset offset) {
-			foreach (var section in imageSectionHeaders) {
+			foreach (var section in ImageSectionHeaders) {
 				if ((long)offset >= section.PointerToRawData && (long)offset < section.PointerToRawData + section.SizeOfRawData)
 					return section;
 			}
@@ -75,7 +65,7 @@ namespace dnlib.PE {
 		/// <param name="rva">The RVA</param>
 		/// <returns></returns>
 		public ImageSectionHeader ToImageSectionHeader(RVA rva) {
-			foreach (var section in imageSectionHeaders) {
+			foreach (var section in ImageSectionHeaders) {
 				if (rva >= section.VirtualAddress && rva < section.VirtualAddress + Math.Max(section.VirtualSize, section.SizeOfRawData))
 					return section;
 			}
@@ -119,7 +109,7 @@ namespace dnlib.PE {
 			var optHdr = ImageNTHeaders.OptionalHeader;
 			uint alignment = optHdr.SectionAlignment;
 			ulong len = alignUp(optHdr.SizeOfHeaders, alignment);
-			foreach (var section in imageSectionHeaders) {
+			foreach (var section in ImageSectionHeaders) {
 				ulong len2 = alignUp((ulong)section.VirtualAddress + Math.Max(section.VirtualSize, section.SizeOfRawData), alignment);
 				if (len2 > len)
 					len = len2;

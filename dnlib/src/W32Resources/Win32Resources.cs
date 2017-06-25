@@ -24,9 +24,7 @@ namespace dnlib.W32Resources {
 		/// <returns>The <see cref="ResourceDirectory"/> or <c>null</c> if none found</returns>
 		public ResourceDirectory Find(ResourceName type) {
 			var dir = Root;
-			if (dir == null)
-				return null;
-			return dir.FindDirectory(type);
+		    return dir?.FindDirectory(type);
 		}
 
 		/// <summary>
@@ -37,9 +35,7 @@ namespace dnlib.W32Resources {
 		/// <returns>The <see cref="ResourceDirectory"/> or <c>null</c> if none found</returns>
 		public ResourceDirectory Find(ResourceName type, ResourceName name) {
 			var dir = Find(type);
-			if (dir == null)
-				return null;
-			return dir.FindDirectory(name);
+		    return dir?.FindDirectory(name);
 		}
 
 		/// <summary>
@@ -51,9 +47,7 @@ namespace dnlib.W32Resources {
 		/// <returns>The <see cref="ResourceData"/> or <c>null</c> if none found</returns>
 		public ResourceData Find(ResourceName type, ResourceName name, ResourceName langId) {
 			var dir = Find(type, name);
-			if (dir == null)
-				return null;
-			return dir.FindData(langId);
+		    return dir?.FindData(langId);
 		}
 
 		/// <inheritdoc/>
@@ -81,11 +75,11 @@ namespace dnlib.W32Resources {
 
 		/// <inheritdoc/>
 		public override ResourceDirectory Root {
-			get { return root; }
-			set {
+			get => root;
+		    set {
 				var oldValue = Interlocked.Exchange(ref root, value);
-				if (oldValue != value && oldValue != null)
-					oldValue.Dispose();
+				if (oldValue != value)
+					oldValue?.Dispose();
 			}
 		}
 	}
@@ -106,13 +100,7 @@ namespace dnlib.W32Resources {
 		/// </summary>
 		IImageStream dataReader;
 
-		/// <summary>
-		/// This reader only reads the directory entries and data headers. The data is read
-		/// by <see cref="dataReader"/>
-		/// </summary>
-		IBinaryReader rsrcReader;
-
-		UserValue<ResourceDirectory> root;
+	    UserValue<ResourceDirectory> root;
 
 #if THREAD_SAFE
 		internal readonly Lock theLock = Lock.Create();
@@ -120,29 +108,26 @@ namespace dnlib.W32Resources {
 
 		/// <inheritdoc/>
 		public override ResourceDirectory Root {
-			get { return root.Value; }
-			set {
+			get => root.Value;
+		    set {
 				IDisposable origValue = null;
 				if (root.IsValueInitialized) {
 					origValue = root.Value;
-					if (origValue == value)
+					if (Equals(origValue, value))
 						return;
 				}
 				root.Value = value;
 
-				if (origValue != null)
-					origValue.Dispose();
-			}
+		        origValue?.Dispose();
+		    }
 		}
 
 		/// <summary>
 		/// Gets the resource reader
 		/// </summary>
-		internal IBinaryReader ResourceReader {
-			get { return rsrcReader; }
-		}
+		internal IBinaryReader ResourceReader { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="rvaConverter"><see cref="RVA"/>/<see cref="FileOffset"/> converter</param>
@@ -157,7 +142,7 @@ namespace dnlib.W32Resources {
 				rsrcReader = dataReader.Clone();	// Must not be the same readers
 			this.rvaConverter = rvaConverter;
 			this.dataReader = dataReader;
-			this.rsrcReader = rsrcReader;
+			this.ResourceReader = rsrcReader;
 			Initialize();
 		}
 
@@ -180,25 +165,25 @@ namespace dnlib.W32Resources {
 			this.rvaConverter = peImage;
 			this.dataReader = peImage.CreateFullStream();
 			if (rsrcReader != null)
-				this.rsrcReader = rsrcReader;
+				this.ResourceReader = rsrcReader;
 			else {
 				var dataDir = peImage.ImageNTHeaders.OptionalHeader.DataDirectories[2];
 				if (dataDir.VirtualAddress != 0 && dataDir.Size != 0)
-					this.rsrcReader = peImage.CreateStream(dataDir.VirtualAddress, dataDir.Size);
+					this.ResourceReader = peImage.CreateStream(dataDir.VirtualAddress, dataDir.Size);
 				else
-					this.rsrcReader = MemoryImageStream.CreateEmpty();
+					this.ResourceReader = MemoryImageStream.CreateEmpty();
 			}
 			Initialize();
 		}
 
 		void Initialize() {
 			root.ReadOriginalValue = () => {
-				if (rsrcReader == null)
+				if (ResourceReader == null)
 					return null;	// It's disposed
-				long oldPos = rsrcReader.Position;
-				rsrcReader.Position = 0;
-				var dir = new ResourceDirectoryPE(0, new ResourceName("root"), this, rsrcReader);
-				rsrcReader.Position = oldPos;
+				long oldPos = ResourceReader.Position;
+				ResourceReader.Position = 0;
+				var dir = new ResourceDirectoryPE(0, new ResourceName("root"), this, ResourceReader);
+				ResourceReader.Position = oldPos;
 				return dir;
 			};
 #if THREAD_SAFE
@@ -237,12 +222,10 @@ namespace dnlib.W32Resources {
 #if THREAD_SAFE
 			theLock.EnterWriteLock(); try {
 #endif
-			if (dataReader != null)
-				dataReader.Dispose();
-			if (rsrcReader != null)
-				rsrcReader.Dispose();
-			dataReader = null;
-			rsrcReader = null;
+		    dataReader?.Dispose();
+		    ResourceReader?.Dispose();
+		    dataReader = null;
+			ResourceReader = null;
 #if THREAD_SAFE
 			} finally { theLock.ExitWriteLock(); }
 #endif

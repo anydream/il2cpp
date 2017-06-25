@@ -527,10 +527,9 @@ namespace dnlib.IO {
 		/// <param name="reader">The reader</param>
 		/// <returns>The value</returns>
 		public static uint ReadCompressedUInt32(this IBinaryReader reader) {
-			uint val;
-			if (!reader.ReadCompressedUInt32(out val))
-				throw new IOException("Could not read a compressed UInt32");
-			return val;
+            if (!reader.ReadCompressedUInt32(out uint val))
+                throw new IOException("Could not read a compressed UInt32");
+            return val;
 		}
 
 		/// <summary>
@@ -539,10 +538,9 @@ namespace dnlib.IO {
 		/// <param name="reader">The reader</param>
 		/// <returns>The value</returns>
 		public static int ReadCompressedInt32(this IBinaryReader reader) {
-			int val;
-			if (!reader.ReadCompressedInt32(out val))
-				throw new IOException("Could not read a compressed Int32");
-			return val;
+            if (!reader.ReadCompressedInt32(out int val))
+                throw new IOException("Could not read a compressed Int32");
+            return val;
 		}
 
 		/// <summary>

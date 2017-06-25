@@ -18,66 +18,43 @@ namespace dnlib.DotNet {
 	/// A high-level representation of a row in the GenericParam table
 	/// </summary>
 	[DebuggerDisplay("{Name.String}")]
-	public abstract class GenericParam : IHasCustomAttribute, IMemberDef, IListListener<GenericParamConstraint> {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
+	public abstract class GenericParam : IMemberDef, IListListener<GenericParamConstraint> {
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.GenericParam, Rid);
 
-		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.GenericParam, rid); }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
+	    /// <inheritdoc/>
+		public int HasCustomAttributeTag => 19;
 
-		/// <inheritdoc/>
-		public int HasCustomAttributeTag {
-			get { return 19; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// Gets the owner type/method
 		/// </summary>
-		public ITypeOrMethodDef Owner {
-			get { return owner; }
-			internal set { owner = value; }
-		}
-		/// <summary/>
-		protected ITypeOrMethodDef owner;
+		public ITypeOrMethodDef Owner { get; protected internal set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the declaring type or <c>null</c> if none or if <see cref="Owner"/> is
 		/// not a <see cref="TypeDef"/>
 		/// </summary>
-		public TypeDef DeclaringType {
-			get { return owner as TypeDef; }
-		}
+		public TypeDef DeclaringType => Owner as TypeDef;
 
-		/// <inheritdoc/>
-		ITypeDefOrRef IMemberRef.DeclaringType {
-			get { return owner as TypeDef; }
-		}
+	    /// <inheritdoc/>
+		ITypeDefOrRef IMemberRef.DeclaringType => Owner as TypeDef;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the declaring method or <c>null</c> if none or if <see cref="Owner"/> is
 		/// not a <see cref="MethodDef"/>
 		/// </summary>
-		public MethodDef DeclaringMethod {
-			get { return owner as MethodDef; }
-		}
+		public MethodDef DeclaringMethod => Owner as MethodDef;
 
-		/// <summary>
+	    /// <summary>
 		/// From column GenericParam.Number
 		/// </summary>
 		public ushort Number {
-			get { return number; }
-			set { number = value; }
-		}
+			get => number;
+	        set => number = value;
+	    }
 		/// <summary/>
 		protected ushort number;
 
@@ -85,8 +62,8 @@ namespace dnlib.DotNet {
 		/// From column GenericParam.Flags
 		/// </summary>
 		public GenericParamAttributes Flags {
-			get { return (GenericParamAttributes)attributes; }
-			set { attributes = (int)value; }
+			get => (GenericParamAttributes)attributes;
+		    set => attributes = (int)value;
 		}
 		/// <summary>Attributes</summary>
 		protected int attributes;
@@ -94,24 +71,14 @@ namespace dnlib.DotNet {
 		/// <summary>
 		/// From column GenericParam.Name
 		/// </summary>
-		public UTF8String Name {
-			get { return name; }
-			set { name = value; }
-		}
-		/// <summary>Name</summary>
-		protected UTF8String name;
+		public UTF8String Name { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// From column GenericParam.Kind (v1.1 only)
 		/// </summary>
-		public ITypeDefOrRef Kind {
-			get { return kind; }
-			set { kind = value; }
-		}
-		/// <summary/>
-		protected ITypeDefOrRef kind;
+		public ITypeDefOrRef Kind { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the generic param constraints
 		/// </summary>
 		public ThreadSafe.IList<GenericParamConstraint> GenericParamConstraints {
@@ -146,83 +113,51 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public bool HasCustomAttributes {
-			get { return CustomAttributes.Count > 0; }
-		}
+		public bool HasCustomAttributes => CustomAttributes.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="GenericParamConstraints"/> is not empty
 		/// </summary>
-		public bool HasGenericParamConstraints {
-			get { return GenericParamConstraints.Count > 0; }
-		}
+		public bool HasGenericParamConstraints => GenericParamConstraints.Count > 0;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public ModuleDef Module {
 			get {
-				var dt = owner;
-				return dt == null ? null : dt.Module;
+				var dt = Owner;
+				return dt?.Module;
 			}
 		}
 
 		/// <inheritdoc/>
-		public string FullName {
-			get { return UTF8String.ToSystemStringOrEmpty(name); }
-		}
+		public string FullName => UTF8String.ToSystemStringOrEmpty(Name);
 
-		bool IIsTypeOrMethod.IsType {
-			get { return false; }
-		}
+	    bool IIsTypeOrMethod.IsType => false;
 
-		bool IIsTypeOrMethod.IsMethod {
-			get { return false; }
-		}
+	    bool IIsTypeOrMethod.IsMethod => false;
 
-		bool IMemberRef.IsField {
-			get { return false; }
-		}
+	    bool IMemberRef.IsField => false;
 
-		bool IMemberRef.IsTypeSpec {
-			get { return false; }
-		}
+	    bool IMemberRef.IsTypeSpec => false;
 
-		bool IMemberRef.IsTypeRef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsTypeRef => false;
 
-		bool IMemberRef.IsTypeDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsTypeDef => false;
 
-		bool IMemberRef.IsMethodSpec {
-			get { return false; }
-		}
+	    bool IMemberRef.IsMethodSpec => false;
 
-		bool IMemberRef.IsMethodDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsMethodDef => false;
 
-		bool IMemberRef.IsMemberRef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsMemberRef => false;
 
-		bool IMemberRef.IsFieldDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsFieldDef => false;
 
-		bool IMemberRef.IsPropertyDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsPropertyDef => false;
 
-		bool IMemberRef.IsEventDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsEventDef => false;
 
-		bool IMemberRef.IsGenericParam {
-			get { return true; }
-		}
+	    bool IMemberRef.IsGenericParam => true;
 
-		/// <summary>
+	    /// <summary>
 		/// Modify <see cref="attributes"/> property: <see cref="attributes"/> =
 		/// (<see cref="attributes"/> &amp; <paramref name="andMask"/>) | <paramref name="orMask"/>.
 		/// </summary>
@@ -268,68 +203,60 @@ namespace dnlib.DotNet {
 		/// Gets/sets variance (non, contra, co)
 		/// </summary>
 		public GenericParamAttributes Variance {
-			get { return (GenericParamAttributes)attributes & GenericParamAttributes.VarianceMask; }
-			set { ModifyAttributes(~GenericParamAttributes.VarianceMask, value & GenericParamAttributes.VarianceMask); }
+			get => (GenericParamAttributes)attributes & GenericParamAttributes.VarianceMask;
+		    set => ModifyAttributes(~GenericParamAttributes.VarianceMask, value & GenericParamAttributes.VarianceMask);
 		}
 
 		/// <summary>
 		/// <c>true</c> if <see cref="GenericParamAttributes.NonVariant"/> is set
 		/// </summary>
-		public bool IsNonVariant {
-			get { return Variance == GenericParamAttributes.NonVariant; }
-		}
+		public bool IsNonVariant => Variance == GenericParamAttributes.NonVariant;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="GenericParamAttributes.Covariant"/> is set
 		/// </summary>
-		public bool IsCovariant {
-			get { return Variance == GenericParamAttributes.Covariant; }
-		}
+		public bool IsCovariant => Variance == GenericParamAttributes.Covariant;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="GenericParamAttributes.Contravariant"/> is set
 		/// </summary>
-		public bool IsContravariant {
-			get { return Variance == GenericParamAttributes.Contravariant; }
-		}
+		public bool IsContravariant => Variance == GenericParamAttributes.Contravariant;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the special constraint
 		/// </summary>
 		public GenericParamAttributes SpecialConstraint {
-			get { return (GenericParamAttributes)attributes & GenericParamAttributes.SpecialConstraintMask; }
-			set { ModifyAttributes(~GenericParamAttributes.SpecialConstraintMask, value & GenericParamAttributes.SpecialConstraintMask); }
-		}
+			get => (GenericParamAttributes)attributes & GenericParamAttributes.SpecialConstraintMask;
+	        set => ModifyAttributes(~GenericParamAttributes.SpecialConstraintMask, value & GenericParamAttributes.SpecialConstraintMask);
+	    }
 
 		/// <summary>
 		/// <c>true</c> if there are no special constraints
 		/// </summary>
-		public bool HasNoSpecialConstraint {
-			get { return ((GenericParamAttributes)attributes & GenericParamAttributes.SpecialConstraintMask) == GenericParamAttributes.NoSpecialConstraint; }
-		}
+		public bool HasNoSpecialConstraint => ((GenericParamAttributes)attributes & GenericParamAttributes.SpecialConstraintMask) == GenericParamAttributes.NoSpecialConstraint;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets/sets the <see cref="GenericParamAttributes.ReferenceTypeConstraint"/> bit
 		/// </summary>
 		public bool HasReferenceTypeConstraint {
-			get { return ((GenericParamAttributes)attributes & GenericParamAttributes.ReferenceTypeConstraint) != 0; }
-			set { ModifyAttributes(value, GenericParamAttributes.ReferenceTypeConstraint); }
-		}
+			get => ((GenericParamAttributes)attributes & GenericParamAttributes.ReferenceTypeConstraint) != 0;
+	        set => ModifyAttributes(value, GenericParamAttributes.ReferenceTypeConstraint);
+	    }
 
 		/// <summary>
 		/// Gets/sets the <see cref="GenericParamAttributes.NotNullableValueTypeConstraint"/> bit
 		/// </summary>
 		public bool HasNotNullableValueTypeConstraint {
-			get { return ((GenericParamAttributes)attributes & GenericParamAttributes.NotNullableValueTypeConstraint) != 0; }
-			set { ModifyAttributes(value, GenericParamAttributes.NotNullableValueTypeConstraint); }
+			get => ((GenericParamAttributes)attributes & GenericParamAttributes.NotNullableValueTypeConstraint) != 0;
+		    set => ModifyAttributes(value, GenericParamAttributes.NotNullableValueTypeConstraint);
 		}
 
 		/// <summary>
 		/// Gets/sets the <see cref="GenericParamAttributes.DefaultConstructorConstraint"/> bit
 		/// </summary>
 		public bool HasDefaultConstructorConstraint {
-			get { return ((GenericParamAttributes)attributes & GenericParamAttributes.DefaultConstructorConstraint) != 0; }
-			set { ModifyAttributes(value, GenericParamAttributes.DefaultConstructorConstraint); }
+			get => ((GenericParamAttributes)attributes & GenericParamAttributes.DefaultConstructorConstraint) != 0;
+		    set => ModifyAttributes(value, GenericParamAttributes.DefaultConstructorConstraint);
 		}
 
 		/// <inheritdoc/>
@@ -368,12 +295,12 @@ namespace dnlib.DotNet {
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			var o = owner;
+			var o = Owner;
 			if (o is TypeDef)
-				return string.Format("!{0}", number);
+				return $"!{number}";
 			if (o is MethodDef)
-				return string.Format("!!{0}", number);
-			return string.Format("??{0}", number);
+				return $"!!{number}";
+			return $"??{number}";
 		}
 	}
 
@@ -414,7 +341,7 @@ namespace dnlib.DotNet {
 			this.genericParamConstraints = new LazyList<GenericParamConstraint>(this);
 			this.number = number;
 			this.attributes = (int)flags;
-			this.name = name;
+			this.Name = name;
 		}
 	}
 
@@ -425,32 +352,26 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.GenericParam, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.GenericParam, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
 
 		/// <inheritdoc/>
 		protected override void InitializeGenericParamConstraints() {
-			var list = readerModule.MetaData.GetGenericParamConstraintRidList(origRid);
-			var tmp = new LazyList<GenericParamConstraint>((int)list.Length, this, list, (list2, index) => readerModule.ResolveGenericParamConstraint(((RidList)list2)[index], GetGenericParamContext(owner)));
+			var list = readerModule.MetaData.GetGenericParamConstraintRidList(OrigRid);
+			var tmp = new LazyList<GenericParamConstraint>((int)list.Length, this, list, (list2, index) => readerModule.ResolveGenericParamConstraint(((RidList)list2)[index], GetGenericParamContext(Owner)));
 			Interlocked.CompareExchange(ref genericParamConstraints, tmp, null);
 		}
 
-		static GenericParamContext GetGenericParamContext(ITypeOrMethodDef tmOwner) {
-			var md = tmOwner as MethodDef;
-			if (md != null)
-				return GenericParamContext.Create(md);
-			return new GenericParamContext(tmOwner as TypeDef);
+		static GenericParamContext GetGenericParamContext(ITypeOrMethodDef tmOwner)
+		{
+		    return tmOwner is MethodDef md ? GenericParamContext.Create(md) : new GenericParamContext(tmOwner as TypeDef);
 		}
 
 		/// <summary>
@@ -463,19 +384,18 @@ namespace dnlib.DotNet {
 		public GenericParamMD(ModuleDefMD readerModule, uint rid) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.GenericParamTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("GenericParam rid {0} does not exist", rid));
+				throw new BadImageFormatException($"GenericParam rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
+			this.OrigRid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
-			uint name;
-			uint kind = readerModule.TablesStream.ReadGenericParamRow(origRid, out this.number, out this.attributes, out name);
-			this.name = readerModule.StringsStream.ReadNoNull(name);
-			this.owner = readerModule.GetOwner(this);
+			uint kind = readerModule.TablesStream.ReadGenericParamRow(OrigRid, out this.number, out this.attributes, out uint name);
+			this.Name = readerModule.StringsStream.ReadNoNull(name);
+			this.Owner = readerModule.GetOwner(this);
 			if (kind != 0)
-				this.kind = readerModule.ResolveTypeDefOrRef(kind, GetGenericParamContext(owner));
+				this.Kind = readerModule.ResolveTypeDefOrRef(kind, GetGenericParamContext(Owner));
 		}
 
 		internal GenericParamMD InitializeAll() {
@@ -493,7 +413,7 @@ namespace dnlib.DotNet {
 		internal override void OnLazyAdd2(int index, ref GenericParamConstraint value) {
 			if (value.Owner != this) {
 				// More than one owner... This module has invalid metadata.
-				value = readerModule.ForceUpdateRowId(readerModule.ReadGenericParamConstraint(value.Rid, GetGenericParamContext(owner)).InitializeAll());
+				value = readerModule.ForceUpdateRowId(readerModule.ReadGenericParamConstraint(value.Rid, GetGenericParamContext(Owner)).InitializeAll());
 				value.Owner = this;
 			}
 		}

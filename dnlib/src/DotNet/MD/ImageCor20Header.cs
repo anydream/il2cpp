@@ -9,111 +9,72 @@ namespace dnlib.DotNet.MD {
 	/// Represents the IMAGE_COR20_HEADER structure
 	/// </summary>
 	public sealed class ImageCor20Header : FileSection {
-		readonly uint cb;
-		readonly ushort majorRuntimeVersion;
-		readonly ushort minorRuntimeVersion;
-		readonly ImageDataDirectory metaData;
-		readonly ComImageFlags flags;
-		readonly uint entryPointToken_or_RVA;
-		readonly ImageDataDirectory resources;
-		readonly ImageDataDirectory strongNameSignature;
-		readonly ImageDataDirectory codeManagerTable;
-		readonly ImageDataDirectory vtableFixups;
-		readonly ImageDataDirectory exportAddressTableJumps;
-		readonly ImageDataDirectory managedNativeHeader;
-
-		/// <summary>
+	    /// <summary>
 		/// Returns <c>true</c> if it has a native header
 		/// </summary>
-		public bool HasNativeHeader {
-			get { return (flags & ComImageFlags.ILLibrary) != 0; }
-		}
+		public bool HasNativeHeader => (Flags & ComImageFlags.ILLibrary) != 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.cb field
 		/// </summary>
-		public uint CB {
-			get { return cb; }
-		}
+		public uint CB { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.MajorRuntimeVersion field
 		/// </summary>
-		public ushort MajorRuntimeVersion {
-			get { return majorRuntimeVersion; }
-		}
+		public ushort MajorRuntimeVersion { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.MinorRuntimeVersion field
 		/// </summary>
-		public ushort MinorRuntimeVersion {
-			get { return minorRuntimeVersion; }
-		}
+		public ushort MinorRuntimeVersion { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.MetaData field
 		/// </summary>
-		public ImageDataDirectory MetaData {
-			get { return metaData; }
-		}
+		public ImageDataDirectory MetaData { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.Flags field
 		/// </summary>
-		public ComImageFlags Flags {
-			get { return flags; }
-		}
+		public ComImageFlags Flags { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.EntryPointToken/EntryPointTokenRVA field
 		/// </summary>
-		public uint EntryPointToken_or_RVA {
-			get { return entryPointToken_or_RVA; }
-		}
+		public uint EntryPointToken_or_RVA { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.Resources field
 		/// </summary>
-		public ImageDataDirectory Resources {
-			get { return resources; }
-		}
+		public ImageDataDirectory Resources { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.StrongNameSignature field
 		/// </summary>
-		public ImageDataDirectory StrongNameSignature {
-			get { return strongNameSignature; }
-		}
+		public ImageDataDirectory StrongNameSignature { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.CodeManagerTable field
 		/// </summary>
-		public ImageDataDirectory CodeManagerTable {
-			get { return codeManagerTable; }
-		}
+		public ImageDataDirectory CodeManagerTable { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.VTableFixups field
 		/// </summary>
-		public ImageDataDirectory VTableFixups {
-			get { return vtableFixups; }
-		}
+		public ImageDataDirectory VTableFixups { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.ExportAddressTableJumps field
 		/// </summary>
-		public ImageDataDirectory ExportAddressTableJumps {
-			get { return exportAddressTableJumps; }
-		}
+		public ImageDataDirectory ExportAddressTableJumps { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Returns the IMAGE_COR20_HEADER.ManagedNativeHeader field
 		/// </summary>
-		public ImageDataDirectory ManagedNativeHeader {
-			get { return managedNativeHeader; }
-		}
+		public ImageDataDirectory ManagedNativeHeader { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="reader">PE file reader pointing to the start of this section</param>
@@ -121,20 +82,20 @@ namespace dnlib.DotNet.MD {
 		/// <exception cref="BadImageFormatException">Thrown if verification fails</exception>
 		public ImageCor20Header(IImageStream reader, bool verify) {
 			SetStartOffset(reader);
-			this.cb = reader.ReadUInt32();
-			if (verify && this.cb < 0x48)
+			this.CB = reader.ReadUInt32();
+			if (verify && this.CB < 0x48)
 				throw new BadImageFormatException("Invalid IMAGE_COR20_HEADER.cb value");
-			this.majorRuntimeVersion = reader.ReadUInt16();
-			this.minorRuntimeVersion = reader.ReadUInt16();
-			this.metaData = new ImageDataDirectory(reader, verify);
-			this.flags = (ComImageFlags)reader.ReadUInt32();
-			this.entryPointToken_or_RVA = reader.ReadUInt32();
-			this.resources = new ImageDataDirectory(reader, verify);
-			this.strongNameSignature = new ImageDataDirectory(reader, verify);
-			this.codeManagerTable = new ImageDataDirectory(reader, verify);
-			this.vtableFixups = new ImageDataDirectory(reader, verify);
-			this.exportAddressTableJumps = new ImageDataDirectory(reader, verify);
-			this.managedNativeHeader = new ImageDataDirectory(reader, verify);
+			this.MajorRuntimeVersion = reader.ReadUInt16();
+			this.MinorRuntimeVersion = reader.ReadUInt16();
+			this.MetaData = new ImageDataDirectory(reader, verify);
+			this.Flags = (ComImageFlags)reader.ReadUInt32();
+			this.EntryPointToken_or_RVA = reader.ReadUInt32();
+			this.Resources = new ImageDataDirectory(reader, verify);
+			this.StrongNameSignature = new ImageDataDirectory(reader, verify);
+			this.CodeManagerTable = new ImageDataDirectory(reader, verify);
+			this.VTableFixups = new ImageDataDirectory(reader, verify);
+			this.ExportAddressTableJumps = new ImageDataDirectory(reader, verify);
+			this.ManagedNativeHeader = new ImageDataDirectory(reader, verify);
 			SetEndoffset(reader);
 		}
 	}

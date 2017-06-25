@@ -11,8 +11,7 @@ namespace dnlib.DotNet.MD {
 	/// Stores some/all heap data
 	/// </summary>
 	abstract class HotHeapStream : IDisposable {
-		readonly HeapType heapType;
-		protected readonly IImageStream reader;
+	    protected readonly IImageStream reader;
 		protected readonly long baseOffset;
 		protected bool invalid;
 		protected long posData;
@@ -24,18 +23,16 @@ namespace dnlib.DotNet.MD {
 		/// <summary>
 		/// Gets the heap type
 		/// </summary>
-		public HeapType HeapType {
-			get { return heapType; }
-		}
+		public HeapType HeapType { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Constructor
 		/// </summary>
 		/// <param name="heapType">Heap type</param>
 		/// <param name="reader">Data stream</param>
 		/// <param name="baseOffset">Offset in <paramref name="reader"/> of start of data</param>
 		protected HotHeapStream(HeapType heapType, IImageStream reader, long baseOffset) {
-			this.heapType = heapType;
+			this.HeapType = heapType;
 			this.reader = reader;
 			this.baseOffset = baseOffset;
 		}
@@ -53,8 +50,7 @@ namespace dnlib.DotNet.MD {
 		/// be <c>(index - 1) * 16</c></param>
 		/// <returns>The reader (owned by us) or <c>null</c> if the data isn't present</returns>
 		public IImageStream GetBlobReader(uint originalHeapOffset) {
-			long dataOffset;
-			if (GetBlobOffset(originalHeapOffset, out dataOffset)) {
+			if (GetBlobOffset(originalHeapOffset, out long dataOffset)) {
 				reader.Position = dataOffset;
 				return reader;
 			}
@@ -100,9 +96,9 @@ namespace dnlib.DotNet.MD {
 		/// </summary>
 		/// <param name="disposing"><c>true</c> if called by <see cref="Dispose()"/></param>
 		protected virtual void Dispose(bool disposing) {
-			if (disposing) {
-				if (reader != null)
-					reader.Dispose();
+			if (disposing)
+			{
+			    reader?.Dispose();
 			}
 		}
 	}
@@ -122,7 +118,8 @@ namespace dnlib.DotNet.MD {
 		}
 
 		/// <inheritdoc/>
-		[HandleProcessCorruptedStateExceptions, SecurityCritical]	// Req'd on .NET 4.0
+		[HandleProcessCorruptedStateExceptions, SecurityCritical]
+		 // Req'd on .NET 4.0
 		public override void Initialize(long mask) {
 			try {
 				offsetMask = mask;

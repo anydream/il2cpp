@@ -11,26 +11,23 @@ namespace dnlib.DotNet {
 		/// Max recursion count. If this is reached, we won't continue, and will use a default value.
 		/// </summary>
 		public const int MAX_RECURSION_COUNT = 100;
-		int counter;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the recursion counter
 		/// </summary>
-		public int Counter {
-			get { return counter; }
-		}
+		public int Counter { get; private set; }
 
-		/// <summary>
-		/// Increments <see cref="counter"/> if it's not too high. <c>ALL</c> instance methods
+	    /// <summary>
+		/// Increments <see cref="Counter"/> if it's not too high. <c>ALL</c> instance methods
 		/// that can be called recursively must call this method and <see cref="Decrement"/>
 		/// (if this method returns <c>true</c>)
 		/// </summary>
 		/// <returns><c>true</c> if it was incremented and caller can continue, <c>false</c> if
 		/// it was <c>not</c> incremented and the caller must return to its caller.</returns>
 		public bool Increment() {
-			if (counter >= MAX_RECURSION_COUNT)
+			if (Counter >= MAX_RECURSION_COUNT)
 				return false;
-			counter++;
+			Counter++;
 			return true;
 		}
 
@@ -40,15 +37,15 @@ namespace dnlib.DotNet {
 		/// </summary>
 		public void Decrement() {
 #if DEBUG
-			if (counter <= 0)
+			if (Counter <= 0)
 				throw new InvalidOperationException("recursionCounter <= 0");
 #endif
-			counter--;
+			Counter--;
 		}
 
 		/// <inheritdoc/>
 		public override string ToString() {
-			return counter.ToString();
+			return Counter.ToString();
 		}
 	}
 }

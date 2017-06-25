@@ -9,48 +9,26 @@ namespace dnlib.DotNet {
 	/// A high-level representation of a row in the MethodSpec table
 	/// </summary>
 	public abstract class MethodSpec : IHasCustomAttribute, IMethod, IContainsGenericParameter {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.MethodSpec, Rid);
 
-		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.MethodSpec, rid); }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
+	    /// <inheritdoc/>
+		public int HasCustomAttributeTag => 21;
 
-		/// <inheritdoc/>
-		public int HasCustomAttributeTag {
-			get { return 21; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// From column MethodSpec.Method
 		/// </summary>
-		public IMethodDefOrRef Method {
-			get { return method; }
-			set { method = value; }
-		}
-		/// <summary/>
-		protected IMethodDefOrRef method;
+		public IMethodDefOrRef Method { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// From column MethodSpec.Instantiation
 		/// </summary>
-		public CallingConventionSig Instantiation {
-			get { return instantiation; }
-			set { instantiation = value; }
-		}
-		/// <summary/>
-		protected CallingConventionSig instantiation;
+		public CallingConventionSig Instantiation { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all custom attributes
 		/// </summary>
 		public CustomAttributeCollection CustomAttributes {
@@ -68,18 +46,16 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public bool HasCustomAttributes {
-			get { return CustomAttributes.Count > 0; }
-		}
+		public bool HasCustomAttributes => CustomAttributes.Count > 0;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		MethodSig IMethod.MethodSig {
 			get {
-				var m = method;
-				return m == null ? null : m.MethodSig;
+				var m = Method;
+				return m?.MethodSig;
 			}
 			set {
-				var m = method;
+				var m = Method;
 				if (m != null)
 					m.MethodSig = value;
 			}
@@ -88,11 +64,11 @@ namespace dnlib.DotNet {
 		/// <inheritdoc/>
 		public UTF8String Name {
 			get {
-				var m = method;
+				var m = Method;
 				return m == null ? UTF8String.Empty : m.Name;
 			}
 			set {
-				var m = method;
+				var m = Method;
 				if (m != null)
 					m.Name = value;
 			}
@@ -101,8 +77,8 @@ namespace dnlib.DotNet {
 		/// <inheritdoc/>
 		public ITypeDefOrRef DeclaringType {
 			get {
-				var m = method;
-				return m == null ? null : m.DeclaringType;
+				var m = Method;
+				return m?.DeclaringType;
 			}
 		}
 
@@ -110,23 +86,23 @@ namespace dnlib.DotNet {
 		/// Gets/sets the generic instance method sig
 		/// </summary>
 		public GenericInstMethodSig GenericInstMethodSig {
-			get { return instantiation as GenericInstMethodSig; }
-			set { instantiation = value; }
+			get => Instantiation as GenericInstMethodSig;
+		    set => Instantiation = value;
 		}
 
 		/// <inheritdoc/>
 		int IGenericParameterProvider.NumberOfGenericParameters {
 			get {
 				var sig = GenericInstMethodSig;
-				return sig == null ? 0 : sig.GenericArguments.Count;
+				return sig?.GenericArguments.Count ?? 0;
 			}
 		}
 
 		/// <inheritdoc/>
 		public ModuleDef Module {
 			get {
-				var m = method;
-				return m == null ? null : m.Module;
+				var m = Method;
+				return m?.Module;
 			}
 		}
 
@@ -136,86 +112,56 @@ namespace dnlib.DotNet {
 		public string FullName {
 			get {
 				var gims = GenericInstMethodSig;
-				var methodGenArgs = gims == null ? null : gims.GenericArguments;
-				var m = method;
-				var methodDef = m as MethodDef;
-				if (methodDef != null) {
-					var declaringType = methodDef.DeclaringType;
-					return FullNameCreator.MethodFullName(declaringType == null ? null : declaringType.FullName, methodDef.Name, methodDef.MethodSig, null, methodGenArgs, null, null);
-				}
+				var methodGenArgs = gims?.GenericArguments;
+				var m = Method;
+                if (m is MethodDef methodDef)
+                {
+                    var declaringType = methodDef.DeclaringType;
+                    return FullNameCreator.MethodFullName(declaringType?.FullName, methodDef.Name, methodDef.MethodSig, null, methodGenArgs);
+                }
 
-				var memberRef = m as MemberRef;
-				if (memberRef != null) {
-					var methodSig = memberRef.MethodSig;
-					if (methodSig != null) {
-						var tsOwner = memberRef.Class as TypeSpec;
-						var gis = tsOwner == null ? null : tsOwner.TypeSig as GenericInstSig;
-						var typeGenArgs = gis == null ? null : gis.GenericArguments;
-						return FullNameCreator.MethodFullName(memberRef.GetDeclaringTypeFullName(), memberRef.Name, methodSig, typeGenArgs, methodGenArgs, null, null);
-					}
-				}
+                var memberRef = m as MemberRef;
+			    var methodSig = memberRef?.MethodSig;
+			    if (methodSig != null) {
+			        var tsOwner = memberRef.Class as TypeSpec;
+			        var gis = tsOwner?.TypeSig as GenericInstSig;
+			        var typeGenArgs = gis?.GenericArguments;
+			        return FullNameCreator.MethodFullName(memberRef.GetDeclaringTypeFullName(), memberRef.Name, methodSig, typeGenArgs, methodGenArgs);
+			    }
 
-				return string.Empty;
+			    return string.Empty;
 			}
 		}
 
-		bool IIsTypeOrMethod.IsType {
-			get { return false; }
-		}
+		bool IIsTypeOrMethod.IsType => false;
 
-		bool IIsTypeOrMethod.IsMethod {
-			get { return true; }
-		}
+	    bool IIsTypeOrMethod.IsMethod => true;
 
-		bool IMemberRef.IsField {
-			get { return false; }
-		}
+	    bool IMemberRef.IsField => false;
 
-		bool IMemberRef.IsTypeSpec {
-			get { return false; }
-		}
+	    bool IMemberRef.IsTypeSpec => false;
 
-		bool IMemberRef.IsTypeRef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsTypeRef => false;
 
-		bool IMemberRef.IsTypeDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsTypeDef => false;
 
-		bool IMemberRef.IsMethodSpec {
-			get { return true; }
-		}
+	    bool IMemberRef.IsMethodSpec => true;
 
-		bool IMemberRef.IsMethodDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsMethodDef => false;
 
-		bool IMemberRef.IsMemberRef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsMemberRef => false;
 
-		bool IMemberRef.IsFieldDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsFieldDef => false;
 
-		bool IMemberRef.IsPropertyDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsPropertyDef => false;
 
-		bool IMemberRef.IsEventDef {
-			get { return false; }
-		}
+	    bool IMemberRef.IsEventDef => false;
 
-		bool IMemberRef.IsGenericParam {
-			get { return false; }
-		}
+	    bool IMemberRef.IsGenericParam => false;
 
-		bool IContainsGenericParameter.ContainsGenericParameter {
-			get { return TypeHelper.ContainsGenericParameter(this); }
-		}
+	    bool IContainsGenericParameter.ContainsGenericParameter => TypeHelper.ContainsGenericParameter(this);
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public override string ToString() {
 			return FullName;
 		}
@@ -245,8 +191,8 @@ namespace dnlib.DotNet {
 		/// <param name="method">The generic method</param>
 		/// <param name="sig">The instantiated method sig</param>
 		public MethodSpecUser(IMethodDefOrRef method, GenericInstMethodSig sig) {
-			this.method = method;
-			this.instantiation = sig;
+			this.Method = method;
+			this.Instantiation = sig;
 		}
 	}
 
@@ -257,16 +203,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.MethodSpec, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.MethodSpec, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -282,17 +224,16 @@ namespace dnlib.DotNet {
 		public MethodSpecMD(ModuleDefMD readerModule, uint rid, GenericParamContext gpContext) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.MethodSpecTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("MethodSpec rid {0} does not exist", rid));
+				throw new BadImageFormatException($"MethodSpec rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
+			this.OrigRid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
-			uint method;
-			uint instantiation = readerModule.TablesStream.ReadMethodSpecRow(origRid, out method);
-			this.method = readerModule.ResolveMethodDefOrRef(method, gpContext);
-			this.instantiation = readerModule.ReadSignature(instantiation, gpContext);
+			uint instantiation = readerModule.TablesStream.ReadMethodSpecRow(OrigRid, out uint method);
+			this.Method = readerModule.ResolveMethodDefOrRef(method, gpContext);
+			this.Instantiation = readerModule.ReadSignature(instantiation, gpContext);
 		}
 	}
 }

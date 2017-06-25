@@ -110,23 +110,23 @@ namespace dnlib.DotNet {
 
 			var sig = typeSig;
 
-			var genericMVar = sig as GenericMVar;
-			if (genericMVar != null) {
-				var newSig = methodArgsStack.Resolve(genericMVar.Number);
-				if (newSig == null || newSig == sig)
-					return sig;
-				return newSig;
-			}
+            if (sig is GenericMVar genericMVar)
+            {
+                var newSig = methodArgsStack.Resolve(genericMVar.Number);
+                if (newSig == null || newSig == sig)
+                    return sig;
+                return newSig;
+            }
 
-			var genericVar = sig as GenericVar;
-			if (genericVar != null) {
-				var newSig = typeArgsStack.Resolve(genericVar.Number);
-				if (newSig == null || newSig == sig)
-					return sig;
-				return newSig;
-			}
+            if (sig is GenericVar genericVar)
+            {
+                var newSig = typeArgsStack.Resolve(genericVar.Number);
+                if (newSig == null || newSig == sig)
+                    return sig;
+                return newSig;
+            }
 
-			return sig;
+            return sig;
 		}
 	}
 }

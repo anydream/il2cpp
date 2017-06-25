@@ -11,34 +11,22 @@ namespace dnlib.DotNet {
 	/// </summary>
 	[DebuggerDisplay("{Offset} {Name.String} {Implementation}")]
 	public abstract class ManifestResource : IHasCustomAttribute {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.ManifestResource, Rid);
 
-		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.ManifestResource, rid); }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
+	    /// <inheritdoc/>
+		public int HasCustomAttributeTag => 18;
 
-		/// <inheritdoc/>
-		public int HasCustomAttributeTag {
-			get { return 18; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// From column ManifestResource.Offset
 		/// </summary>
 		public uint Offset {
-			get { return offset; }
-			set { offset = value; }
-		}
+			get => offset;
+	        set => offset = value;
+	    }
 		/// <summary/>
 		protected uint offset;
 
@@ -46,8 +34,8 @@ namespace dnlib.DotNet {
 		/// From column ManifestResource.Flags
 		/// </summary>
 		public ManifestResourceAttributes Flags {
-			get { return (ManifestResourceAttributes)attributes; }
-			set { attributes = (int)value; }
+			get => (ManifestResourceAttributes)attributes;
+		    set => attributes = (int)value;
 		}
 		/// <summary>Attributes</summary>
 		protected int attributes;
@@ -55,24 +43,14 @@ namespace dnlib.DotNet {
 		/// <summary>
 		/// From column ManifestResource.Name
 		/// </summary>
-		public UTF8String Name {
-			get { return name; }
-			set { name = value; }
-		}
-		/// <summary>Name</summary>
-		protected UTF8String name;
+		public UTF8String Name { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// From column ManifestResource.Implementation
 		/// </summary>
-		public IImplementation Implementation {
-			get { return implementation; }
-			set { implementation = value; }
-		}
-		/// <summary/>
-		protected IImplementation implementation;
+		public IImplementation Implementation { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all custom attributes
 		/// </summary>
 		public CustomAttributeCollection CustomAttributes {
@@ -90,11 +68,9 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public bool HasCustomAttributes {
-			get { return CustomAttributes.Count > 0; }
-		}
+		public bool HasCustomAttributes => CustomAttributes.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Modify <see cref="attributes"/> property: <see cref="attributes"/> =
 		/// (<see cref="attributes"/> &amp; <paramref name="andMask"/>) | <paramref name="orMask"/>.
 		/// </summary>
@@ -116,23 +92,19 @@ namespace dnlib.DotNet {
 		/// Gets/sets the visibility
 		/// </summary>
 		public ManifestResourceAttributes Visibility {
-			get { return (ManifestResourceAttributes)attributes & ManifestResourceAttributes.VisibilityMask; }
-			set { ModifyAttributes(~ManifestResourceAttributes.VisibilityMask, value & ManifestResourceAttributes.VisibilityMask); }
+			get => (ManifestResourceAttributes)attributes & ManifestResourceAttributes.VisibilityMask;
+		    set => ModifyAttributes(~ManifestResourceAttributes.VisibilityMask, value & ManifestResourceAttributes.VisibilityMask);
 		}
 
 		/// <summary>
 		/// <c>true</c> if <see cref="ManifestResourceAttributes.Public"/> is set
 		/// </summary>
-		public bool IsPublic {
-			get { return ((ManifestResourceAttributes)attributes & ManifestResourceAttributes.VisibilityMask) == ManifestResourceAttributes.Public; }
-		}
+		public bool IsPublic => ((ManifestResourceAttributes)attributes & ManifestResourceAttributes.VisibilityMask) == ManifestResourceAttributes.Public;
 
-		/// <summary>
+	    /// <summary>
 		/// <c>true</c> if <see cref="ManifestResourceAttributes.Private"/> is set
 		/// </summary>
-		public bool IsPrivate {
-			get { return ((ManifestResourceAttributes)attributes & ManifestResourceAttributes.VisibilityMask) == ManifestResourceAttributes.Private; }
-		}
+		public bool IsPrivate => ((ManifestResourceAttributes)attributes & ManifestResourceAttributes.VisibilityMask) == ManifestResourceAttributes.Private;
 	}
 
 	/// <summary>
@@ -172,8 +144,8 @@ namespace dnlib.DotNet {
 		/// <param name="flags">Flags</param>
 		/// <param name="offset">Offset</param>
 		public ManifestResourceUser(UTF8String name, IImplementation implementation, ManifestResourceAttributes flags, uint offset) {
-			this.name = name;
-			this.implementation = implementation;
+			this.Name = name;
+			this.Implementation = implementation;
 			this.attributes = (int)flags;
 			this.offset = offset;
 		}
@@ -186,16 +158,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.ManifestResource, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.ManifestResource, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -210,17 +178,16 @@ namespace dnlib.DotNet {
 		public ManifestResourceMD(ModuleDefMD readerModule, uint rid) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.ManifestResourceTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("ManifestResource rid {0} does not exist", rid));
+				throw new BadImageFormatException($"ManifestResource rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
+			this.OrigRid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
-			uint name;
-			uint implementation = readerModule.TablesStream.ReadManifestResourceRow(origRid, out this.offset, out this.attributes, out name);
-			this.name = readerModule.StringsStream.ReadNoNull(name);
-			this.implementation = readerModule.ResolveImplementation(implementation);
+			uint implementation = readerModule.TablesStream.ReadManifestResourceRow(OrigRid, out this.offset, out this.attributes, out uint name);
+			this.Name = readerModule.StringsStream.ReadNoNull(name);
+			this.Implementation = readerModule.ResolveImplementation(implementation);
 		}
 	}
 }

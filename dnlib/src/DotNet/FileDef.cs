@@ -8,64 +8,40 @@ namespace dnlib.DotNet {
 	/// <summary>
 	/// A high-level representation of a row in the File table
 	/// </summary>
-	public abstract class FileDef : IHasCustomAttribute, IImplementation, IManagedEntryPoint {
-		/// <summary>
-		/// The row id in its table
-		/// </summary>
-		protected uint rid;
+	public abstract class FileDef : IImplementation, IManagedEntryPoint {
+	    /// <inheritdoc/>
+		public MDToken MDToken => new MDToken(Table.File, Rid);
 
-		/// <inheritdoc/>
-		public MDToken MDToken {
-			get { return new MDToken(Table.File, rid); }
-		}
+	    /// <inheritdoc/>
+		public uint Rid { get; set; }
 
-		/// <inheritdoc/>
-		public uint Rid {
-			get { return rid; }
-			set { rid = value; }
-		}
+	    /// <inheritdoc/>
+		public int HasCustomAttributeTag => 16;
 
-		/// <inheritdoc/>
-		public int HasCustomAttributeTag {
-			get { return 16; }
-		}
+	    /// <inheritdoc/>
+		public int ImplementationTag => 0;
 
-		/// <inheritdoc/>
-		public int ImplementationTag {
-			get { return 0; }
-		}
-
-		/// <summary>
+	    /// <summary>
 		/// From column File.Flags
 		/// </summary>
 		public FileAttributes Flags {
-			get { return (FileAttributes)attributes; }
-			set { attributes = (int)value; }
-		}
+			get => (FileAttributes)attributes;
+	        set => attributes = (int)value;
+	    }
 		/// <summary>Attributes</summary>
 		protected int attributes;
 
 		/// <summary>
 		/// From column File.Name
 		/// </summary>
-		public UTF8String Name {
-			get { return name; }
-			set { name = value; }
-		}
-		/// <summary>Name</summary>
-		protected UTF8String name;
+		public UTF8String Name { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// From column File.HashValue
 		/// </summary>
-		public byte[] HashValue {
-			get { return hashValue; }
-			set { hashValue = value; }
-		}
-		/// <summary/>
-		protected byte[] hashValue;
+		public byte[] HashValue { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets all custom attributes
 		/// </summary>
 		public CustomAttributeCollection CustomAttributes {
@@ -83,11 +59,9 @@ namespace dnlib.DotNet {
 		}
 
 		/// <inheritdoc/>
-		public bool HasCustomAttributes {
-			get { return CustomAttributes.Count > 0; }
-		}
+		public bool HasCustomAttributes => CustomAttributes.Count > 0;
 
-		/// <summary>
+	    /// <summary>
 		/// Set or clear flags in <see cref="attributes"/>
 		/// </summary>
 		/// <param name="set"><c>true</c> if flags should be set, <c>false</c> if flags should
@@ -115,24 +89,22 @@ namespace dnlib.DotNet {
 		/// Gets/sets the <see cref="FileAttributes.ContainsMetaData"/> bit
 		/// </summary>
 		public bool ContainsMetaData {
-			get { return ((FileAttributes)attributes & FileAttributes.ContainsNoMetaData) == 0; }
-			set { ModifyAttributes(!value, FileAttributes.ContainsNoMetaData); }
+			get => ((FileAttributes)attributes & FileAttributes.ContainsNoMetaData) == 0;
+		    set => ModifyAttributes(!value, FileAttributes.ContainsNoMetaData);
 		}
 
 		/// <summary>
 		/// Gets/sets the <see cref="FileAttributes.ContainsNoMetaData"/> bit
 		/// </summary>
 		public bool ContainsNoMetaData {
-			get { return ((FileAttributes)attributes & FileAttributes.ContainsNoMetaData) != 0; }
-			set { ModifyAttributes(value, FileAttributes.ContainsNoMetaData); }
+			get => ((FileAttributes)attributes & FileAttributes.ContainsNoMetaData) != 0;
+		    set => ModifyAttributes(value, FileAttributes.ContainsNoMetaData);
 		}
 
 		/// <inheritdoc/>
-		public string FullName {
-			get { return UTF8String.ToSystemStringOrEmpty(name); }
-		}
+		public string FullName => UTF8String.ToSystemStringOrEmpty(Name);
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public override string ToString() {
 			return FullName;
 		}
@@ -155,9 +127,9 @@ namespace dnlib.DotNet {
 		/// <param name="flags">Flags</param>
 		/// <param name="hashValue">File hash</param>
 		public FileDefUser(UTF8String name, FileAttributes flags, byte[] hashValue) {
-			this.name = name;
+			this.Name = name;
 			this.attributes = (int)flags;
-			this.hashValue = hashValue;
+			this.HashValue = hashValue;
 		}
 	}
 
@@ -168,16 +140,12 @@ namespace dnlib.DotNet {
 		/// <summary>The module where this instance is located</summary>
 		readonly ModuleDefMD readerModule;
 
-		readonly uint origRid;
+	    /// <inheritdoc/>
+		public uint OrigRid { get; }
 
-		/// <inheritdoc/>
-		public uint OrigRid {
-			get { return origRid; }
-		}
-
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		protected override void InitializeCustomAttributes() {
-			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.File, origRid);
+			var list = readerModule.MetaData.GetCustomAttributeRidList(Table.File, OrigRid);
 			var tmp = new CustomAttributeCollection((int)list.Length, list, (list2, index) => readerModule.ReadCustomAttribute(((RidList)list2)[index]));
 			Interlocked.CompareExchange(ref customAttributes, tmp, null);
 		}
@@ -192,17 +160,16 @@ namespace dnlib.DotNet {
 		public FileDefMD(ModuleDefMD readerModule, uint rid) {
 #if DEBUG
 			if (readerModule == null)
-				throw new ArgumentNullException("readerModule");
+				throw new ArgumentNullException(nameof(readerModule));
 			if (readerModule.TablesStream.FileTable.IsInvalidRID(rid))
-				throw new BadImageFormatException(string.Format("File rid {0} does not exist", rid));
+				throw new BadImageFormatException($"File rid {rid} does not exist");
 #endif
-			this.origRid = rid;
-			this.rid = rid;
+			this.OrigRid = rid;
+			this.Rid = rid;
 			this.readerModule = readerModule;
-			uint name;
-			uint hashValue = readerModule.TablesStream.ReadFileRow(origRid, out this.attributes, out name);
-			this.name = readerModule.StringsStream.ReadNoNull(name);
-			this.hashValue = readerModule.BlobStream.Read(hashValue);
+			uint hashValue = readerModule.TablesStream.ReadFileRow(OrigRid, out this.attributes, out uint name);
+			this.Name = readerModule.StringsStream.ReadNoNull(name);
+			this.HashValue = readerModule.BlobStream.Read(hashValue);
 		}
 	}
 }

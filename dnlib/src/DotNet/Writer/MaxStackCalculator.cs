@@ -22,9 +22,8 @@ namespace dnlib.DotNet.Writer {
 		/// <param name="exceptionHandlers">All exception handlers</param>
 		/// <returns>Max stack value</returns>
 		public static uint GetMaxStack(IList<Instruction> instructions, IList<ExceptionHandler> exceptionHandlers) {
-			uint maxStack;
-			new MaxStackCalculator(instructions, exceptionHandlers).Calculate(out maxStack);
-			return maxStack;
+            new MaxStackCalculator(instructions, exceptionHandlers).Calculate(out uint maxStack);
+            return maxStack;
 		}
 
 		/// <summary>
@@ -76,8 +75,7 @@ namespace dnlib.DotNet.Writer {
 						errors++;
 				}
 				else {
-					int pushes, pops;
-					instr.CalculateStackUsage(out pushes, out pops);
+                    instr.CalculateStackUsage(out int pushes, out int pops);
 					if (pops == -1)
 						stack = 0;
 					else {
@@ -107,12 +105,12 @@ namespace dnlib.DotNet.Writer {
 
 				case FlowControl.Cond_Branch:
 					if (instr.OpCode.Code == Code.Switch) {
-						var targets = instr.Operand as IList<Instruction>;
-						if (targets != null) {
-							foreach (var target in targets)
-								WriteStack(target, stack);
-						}
-					}
+                            if (instr.Operand is IList<Instruction> targets)
+                            {
+                                foreach (var target in targets)
+                                    WriteStack(target, stack);
+                            }
+                        }
 					else
 						WriteStack(instr.Operand as Instruction, stack);
 					break;
@@ -136,13 +134,13 @@ namespace dnlib.DotNet.Writer {
 				errors++;
 				return stack;
 			}
-			int stack2;
-			if (stackHeights.TryGetValue(instr, out stack2)) {
-				if (stack != stack2)
-					errors++;
-				return stack2;
-			}
-			stackHeights[instr] = stack;
+            if (stackHeights.TryGetValue(instr, out int stack2))
+            {
+                if (stack != stack2)
+                    errors++;
+                return stack2;
+            }
+            stackHeights[instr] = stack;
 			return stack;
 		}
 	}

@@ -13,11 +13,9 @@ namespace dnlib.DotNet.MD {
 	/// </summary>
 	sealed class CompressedMetaData : MetaData {
 		/// <inheritdoc/>
-		public override bool IsCompressed {
-			get { return true; }
-		}
+		public override bool IsCompressed => true;
 
-		/// <inheritdoc/>
+	    /// <inheritdoc/>
 		public CompressedMetaData(IPEImage peImage, ImageCor20Header cor20Header, MetaDataHeader mdHeader)
 			: base(peImage, cor20Header, mdHeader) {
 		}
@@ -126,15 +124,11 @@ namespace dnlib.DotNet.MD {
 				}
 			}
 			finally {
-				if (imageStream != null)
-					imageStream.Dispose();
-				if (fullStream != null)
-					fullStream.Dispose();
-				if (dns != null)
-					dns.Dispose();
-				if (hotStream != null)
-					hotStream.Dispose();
-				newAllStreams.Reverse();
+			    imageStream?.Dispose();
+			    fullStream?.Dispose();
+			    dns?.Dispose();
+			    hotStream?.Dispose();
+			    newAllStreams.Reverse();
 				allStreams = ThreadSafeListCreator.MakeThreadSafe(newAllStreams);
 			}
 
@@ -251,14 +245,13 @@ namespace dnlib.DotNet.MD {
 		/// <returns>A new <see cref="RidList"/> instance</returns>
 		RidList GetRidList(MDTable tableSource, uint tableSourceRid, int colIndex, MDTable tableDest) {
 			var column = tableSource.TableInfo.Columns[colIndex];
-			uint startRid, nextListRid;
-			bool hasNext;
+            bool hasNext;
 #if THREAD_SAFE
 			tablesStream.theLock.EnterWriteLock(); try {
 #endif
-			if (!tablesStream.ReadColumn_NoLock(tableSource, tableSourceRid, column, out startRid))
+            if (!tablesStream.ReadColumn_NoLock(tableSource, tableSourceRid, column, out uint startRid))
 				return RidList.Empty;
-			hasNext = tablesStream.ReadColumn_NoLock(tableSource, tableSourceRid + 1, column, out nextListRid);
+			hasNext = tablesStream.ReadColumn_NoLock(tableSource, tableSourceRid + 1, column, out uint nextListRid);
 #if THREAD_SAFE
 			} finally { tablesStream.theLock.ExitWriteLock(); }
 #endif
@@ -279,10 +272,9 @@ namespace dnlib.DotNet.MD {
 			uint ridLo = 1, ridHi = tableSource.Rows;
 			while (ridLo <= ridHi) {
 				uint rid = (ridLo + ridHi) / 2;
-				uint key2;
-				if (!tablesStream.ReadColumn_NoLock(tableSource, rid, keyColumn, out key2))
-					break;	// Never happens since rid is valid
-				if (key == key2)
+                if (!tablesStream.ReadColumn_NoLock(tableSource, rid, keyColumn, out uint key2))
+                    break;  // Never happens since rid is valid
+                if (key == key2)
 					return rid;
 				if (key2 > key)
 					ridHi = rid - 1;

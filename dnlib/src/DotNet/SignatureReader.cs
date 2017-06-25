@@ -346,8 +346,7 @@ namespace dnlib.DotNet {
 		/// <returns>A new <see cref="TypeSig"/> instance or <c>null</c> if
 		/// <paramref name="signature"/> is invalid.</returns>
 		public static TypeSig ReadTypeSig(ISignatureReaderHelper helper, ICorLibTypes corLibTypes, IBinaryReader signature, GenericParamContext gpContext) {
-			byte[] extraData;
-			return ReadTypeSig(helper, corLibTypes, signature, gpContext, out extraData);
+			return ReadTypeSig(helper, corLibTypes, signature, gpContext, out byte[] extraData);
 		}
 
 		/// <summary>
@@ -504,17 +503,15 @@ namespace dnlib.DotNet {
 
 		T ReadSig<T>(T methodSig) where T : MethodBaseSig {
 			if (methodSig.Generic) {
-				uint count;
-				if (!reader.ReadCompressedUInt32(out count))
-					return null;
-				methodSig.GenParamCount = count;
+                if (!reader.ReadCompressedUInt32(out uint count))
+                    return null;
+                methodSig.GenParamCount = count;
 			}
 
-			uint numParams;
-			if (!reader.ReadCompressedUInt32(out numParams))
-				return null;
+            if (!reader.ReadCompressedUInt32(out uint numParams))
+                return null;
 
-			methodSig.RetType = ReadType();
+            methodSig.RetType = ReadType();
 
 			var parameters = methodSig.Params;
 			for (uint i = 0; i < numParams; i++) {
@@ -537,10 +534,9 @@ namespace dnlib.DotNet {
 		/// <param name="callingConvention">First byte of signature</param>
 		/// <returns>A new <see cref="LocalSig"/> instance</returns>
 		LocalSig ReadLocalSig(CallingConvention callingConvention) {
-			uint count;
-			if (!reader.ReadCompressedUInt32(out count))
-				return null;
-			var sig = new LocalSig(callingConvention, count);
+            if (!reader.ReadCompressedUInt32(out uint count))
+                return null;
+            var sig = new LocalSig(callingConvention, count);
 			var locals = sig.Locals;
 			for (uint i = 0; i < count; i++)
 				locals.Add(ReadType());
@@ -553,10 +549,9 @@ namespace dnlib.DotNet {
 		/// <param name="callingConvention">First byte of signature</param>
 		/// <returns>A new <see cref="GenericInstMethodSig"/> instance</returns>
 		GenericInstMethodSig ReadGenericInstMethod(CallingConvention callingConvention) {
-			uint count;
-			if (!reader.ReadCompressedUInt32(out count))
-				return null;
-			var sig = new GenericInstMethodSig(callingConvention, count);
+            if (!reader.ReadCompressedUInt32(out uint count))
+                return null;
+            var sig = new GenericInstMethodSig(callingConvention, count);
 			var args = sig.GenericArguments;
 			for (uint i = 0; i < count; i++)
 				args.Add(ReadType());
@@ -653,29 +648,24 @@ namespace dnlib.DotNet {
 					break;
 				var sizes = new List<uint>((int)num);
 				for (uint i = 0; i < num; i++) {
-					uint size;
-					if (!reader.ReadCompressedUInt32(out size))
-						goto exit;
-					sizes.Add(size);
+                        if (!reader.ReadCompressedUInt32(out uint size))
+                            goto exit;
+                        sizes.Add(size);
 				}
 				if (!reader.ReadCompressedUInt32(out num))
 					break;
 				var lowerBounds = new List<int>((int)num);
 				for (uint i = 0; i < num; i++) {
-					int size;
-					if (!reader.ReadCompressedInt32(out size))
-						goto exit;
-					lowerBounds.Add(size);
+                        if (!reader.ReadCompressedInt32(out int size))
+                            goto exit;
+                        lowerBounds.Add(size);
 				}
 				result = new ArraySig(nextType, rank, sizes, lowerBounds);
 				break;
 
 			case ElementType.Internal:
 				IntPtr address;
-				if (IntPtr.Size == 4)
-					address = new IntPtr(reader.ReadInt32());
-				else
-					address = new IntPtr(reader.ReadInt64());
+				address = IntPtr.Size == 4 ? new IntPtr(reader.ReadInt32()) : new IntPtr(reader.ReadInt64());
 				result = helper.ConvertRTInternalAddress(address);
 				break;
 
@@ -695,16 +685,15 @@ exit:
 		/// </summary>
 		/// <returns>A <see cref="ITypeDefOrRef"/> instance</returns>
 		ITypeDefOrRef ReadTypeDefOrRef() {
-			uint codedToken;
-			if (!reader.ReadCompressedUInt32(out codedToken))
-				return null;
-			return helper.ResolveTypeDefOrRef(codedToken, gpContext);
+            if (!reader.ReadCompressedUInt32(out uint codedToken))
+                return null;
+            return helper.ResolveTypeDefOrRef(codedToken, gpContext);
 		}
 
 		/// <inheritdoc/>
-		public void Dispose() {
-			if (reader != null)
-				reader.Dispose();
+		public void Dispose()
+		{
+		    reader?.Dispose();
 		}
 	}
 }
