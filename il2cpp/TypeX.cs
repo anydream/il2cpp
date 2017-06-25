@@ -234,7 +234,8 @@ namespace il2cpp
 		{
 			return Def.TypeHashCode() ^
 				   GenericHashCode() ^
-				   ModifierHashCode();
+				   ModifierHashCode() ^
+				   Def.Module.RuntimeVersion.GetHashCode();
 		}
 
 		public bool Equals(TypeX other)
@@ -246,7 +247,8 @@ namespace il2cpp
 
 			return Def.TypeEquals(other.Def) &&
 				   GenericEquals(other) &&
-				   ModifierEquals(other);
+				   ModifierEquals(other) &&
+				   Def.Module.RuntimeVersion == other.Def.Module.RuntimeVersion;
 		}
 
 		public override bool Equals(object obj)
@@ -368,7 +370,8 @@ namespace il2cpp
 
 			var vslot = new VirtualSlot(metSet.ToList(), metDef);
 
-			if (metDef.IsNewSlot)
+			if (metDef.IsNewSlot ||
+				Def.FullName == "System.Object")
 			{
 				VTable.NewSlot(sig, vslot);
 			}

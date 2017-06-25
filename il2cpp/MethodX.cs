@@ -39,7 +39,8 @@ namespace il2cpp
 		{
 			return Def.GetHashNoDecl() ^
 				   DeclType.GetHashCode() ^
-				   GenericHashCode();
+				   GenericHashCode() ^
+				   Def.Module.RuntimeVersion.GetHashCode();
 		}
 
 		public bool Equals(MethodX other)
@@ -51,7 +52,8 @@ namespace il2cpp
 
 			return Def.EqualsNoDecl(other.Def) &&
 				   DeclType.Equals(other.DeclType) &&
-				   GenericEquals(other);
+				   GenericEquals(other) &&
+				   Def.Module.RuntimeVersion == other.Def.Module.RuntimeVersion;
 		}
 
 		public override bool Equals(object obj)
