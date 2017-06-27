@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using dnlib.DotNet;
 
 namespace il2cpp
 {
-	class TypeSigDuplicator
+	internal class TypeSigDuplicator
 	{
 		public TypeSig Replace(GenericVar genVar)
 		{
@@ -77,14 +78,41 @@ namespace il2cpp
 			}
 		}
 
-		private static IList<uint> Duplicate(IList<uint> lst)
+		public IList<TypeSig> Duplicate(IList<TypeSig> lst)
+		{
+			return lst?.Select(Duplicate).ToList();
+		}
+
+		protected static IList<uint> Duplicate(IList<uint> lst)
 		{
 			return lst == null ? null : new List<uint>(lst);
 		}
 
-		private static IList<int> Duplicate(IList<int> lst)
+		protected static IList<int> Duplicate(IList<int> lst)
 		{
 			return lst == null ? null : new List<int>(lst);
+		}
+	}
+
+	internal class MethodSigDuplicator : TypeSigDuplicator
+	{
+		public MethodBaseSig Duplicate(MethodBaseSig metSig)
+		{
+			if (metSig is PropertySig propSig)
+			{
+				return new PropertySig(
+					propSig.HasThis,
+					Duplicate(propSig.RetType),
+					Duplicate(propSig.Params).ToArray());
+			}
+			else
+			{
+				return new MethodSig(
+					metSig.CallingConvention,
+					metSig.GenParamCount,
+					Duplicate(metSig.RetType),
+					Duplicate(metSig.Params));
+			}
 		}
 	}
 }
