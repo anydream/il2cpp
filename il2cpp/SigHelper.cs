@@ -38,6 +38,10 @@ namespace il2cpp
 
 			switch (typeSig.ElementType)
 			{
+				case ElementType.Class:
+				case ElementType.ValueType:
+					return typeSig;
+
 				case ElementType.Ptr:
 					return new PtrSig(Duplicate(typeSig.Next));
 
@@ -72,6 +76,12 @@ namespace il2cpp
 						if (result != null)
 							return result;
 						return new GenericMVar(genMVar.Number, genMVar.OwnerMethod);
+					}
+
+				case ElementType.GenericInst:
+					{
+						GenericInstSig genSig = typeSig as GenericInstSig;
+						return new GenericInstSig(genSig.GenericType, Duplicate(genSig.GenericArguments));
 					}
 
 				case ElementType.CModReqd:
