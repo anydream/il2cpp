@@ -49,6 +49,7 @@
     <Compile Include="Helpers.cs" />
     <Compile Include="MethodX.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SigHelper.cs" />
     <Compile Include="TypeX.cs" />
   </ItemGroup>
   <ItemGroup>

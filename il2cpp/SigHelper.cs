@@ -5,17 +5,31 @@ using dnlib.DotNet;
 
 namespace il2cpp
 {
-	internal class TypeSigDuplicator
+	internal class GenericReplacer
 	{
+		public readonly TypeDef OwnerType;
+		public readonly IList<TypeSig> TypeGenArgs;
+		public readonly MethodDef OwnerMethod;
+		public readonly IList<TypeSig> MethodGenArgs;
+
 		public TypeSig Replace(GenericVar genVar)
 		{
+			if (genVar.OwnerType == OwnerType)
+				return TypeGenArgs[(int)genVar.Number];
 			return genVar;
 		}
 
 		public TypeSig Replace(GenericMVar genMVar)
 		{
+			if (genMVar.OwnerMethod == OwnerMethod)
+				return MethodGenArgs[(int)genMVar.Number];
 			return genMVar;
 		}
+	}
+
+	internal class TypeSigDuplicator
+	{
+		public GenericReplacer GenReplacer;
 
 		public TypeSig Duplicate(TypeSig typeSig)
 		{
@@ -45,7 +59,7 @@ namespace il2cpp
 				case ElementType.Var:
 					{
 						GenericVar genVar = typeSig as GenericVar;
-						TypeSig result = Replace(genVar);
+						TypeSig result = GenReplacer.Replace(genVar);
 						if (result != null)
 							return result;
 						return new GenericVar(genVar.Number, genVar.OwnerType);
@@ -54,7 +68,7 @@ namespace il2cpp
 				case ElementType.MVar:
 					{
 						GenericMVar genMVar = typeSig as GenericMVar;
-						TypeSig result = Replace(genMVar);
+						TypeSig result = GenReplacer.Replace(genMVar);
 						if (result != null)
 							return result;
 						return new GenericMVar(genMVar.Number, genMVar.OwnerMethod);
