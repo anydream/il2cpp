@@ -7,14 +7,51 @@ using il2cpp2;
 
 namespace test
 {
+	static class Helper
+	{
+		public static StringBuilder AppendFormatLine(this StringBuilder self, string format, params object[] args)
+		{
+			return self.AppendFormat(format, args).AppendLine();
+		}
+	}
+
 	internal class Program
 	{
+		private static string PrintAllTypes(IList<TypeX> allTypes)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.AppendLine("======");
+
+			foreach (var type in allTypes)
+			{
+				sb.AppendLine(type.ToString());
+
+				foreach (var met in type.Methods)
+				{
+					sb.AppendFormatLine("-> {0}", met.ToString());
+				}
+
+				foreach (var fld in type.Fields)
+				{
+					sb.AppendFormatLine("--> {0}", fld.ToString());
+				}
+
+				sb.AppendLine();
+			}
+
+			sb.AppendLine("======");
+
+			return sb.ToString();
+		}
+
 		private static void Main(string[] args)
 		{
 			TypeManager typeMgr = new TypeManager();
 			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
-			typeMgr.AnalyzeMethod(typeMgr.Module.EntryPoint);
+			typeMgr.ResolveMethod(typeMgr.Module.EntryPoint);
 			typeMgr.Process();
+			string result = PrintAllTypes(typeMgr.Types);
+			Console.WriteLine(result);
 		}
 	}
 

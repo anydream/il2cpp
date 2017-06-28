@@ -78,9 +78,11 @@ namespace il2cpp2
 		public IList<TypeX> Interfaces => Interfaces_ ?? (Interfaces_ = new List<TypeX>());
 		public bool HasInterfaces => Interfaces_ != null && Interfaces_.Count > 0;
 		// 方法映射
-		public readonly Dictionary<MethodX, MethodX> Methods = new Dictionary<MethodX, MethodX>();
+		private readonly Dictionary<MethodX, MethodX> MethodMap = new Dictionary<MethodX, MethodX>();
+		public IList<MethodX> Methods => new List<MethodX>(MethodMap.Keys);
 		// 字段映射
-		public readonly Dictionary<FieldX, FieldX> Fields = new Dictionary<FieldX, FieldX>();
+		private readonly Dictionary<FieldX, FieldX> FieldMap = new Dictionary<FieldX, FieldX>();
+		public IList<FieldX> Fields => new List<FieldX>(FieldMap.Keys);
 		// 运行时类型
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
 
@@ -115,9 +117,9 @@ namespace il2cpp2
 
 		public bool AddMethod(MethodX metX)
 		{
-			if (!Methods.ContainsKey(metX))
+			if (!MethodMap.ContainsKey(metX))
 			{
-				Methods.Add(metX, metX);
+				MethodMap.Add(metX, metX);
 				return true;
 			}
 			return false;
@@ -125,9 +127,9 @@ namespace il2cpp2
 
 		public bool AddField(FieldX fldX)
 		{
-			if (!Fields.ContainsKey(fldX))
+			if (!FieldMap.ContainsKey(fldX))
 			{
-				Fields.Add(fldX, fldX);
+				FieldMap.Add(fldX, fldX);
 				return true;
 			}
 			return false;
@@ -245,7 +247,8 @@ namespace il2cpp2
 		// 主模块
 		public ModuleDefMD Module { get; private set; }
 		// 类型映射
-		public readonly Dictionary<TypeX, TypeX> Types = new Dictionary<TypeX, TypeX>();
+		private readonly Dictionary<TypeX, TypeX> TypeMap = new Dictionary<TypeX, TypeX>();
+		public IList<TypeX> Types => new List<TypeX>(TypeMap.Keys);
 		// 待处理方法队列
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
 
@@ -253,7 +256,7 @@ namespace il2cpp2
 		public void Reset()
 		{
 			Module = null;
-			Types.Clear();
+			TypeMap.Clear();
 			PendingMets.Clear();
 		}
 
@@ -344,10 +347,10 @@ namespace il2cpp2
 		// 添加类型
 		private TypeX AddType(TypeX tyX)
 		{
-			if (Types.TryGetValue(tyX, out var otyX))
+			if (TypeMap.TryGetValue(tyX, out var otyX))
 				return otyX;
 
-			Types.Add(tyX, tyX);
+			TypeMap.Add(tyX, tyX);
 			ExpandType(tyX);
 
 			return tyX;
