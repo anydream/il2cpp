@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using dnlib.DotNet;
 
-namespace il2cpp
+namespace il2cpp2
 {
 	internal class GenericReplacer
 	{
@@ -11,6 +11,22 @@ namespace il2cpp
 		public readonly IList<TypeSig> TypeGenArgs;
 		public readonly MethodDef OwnerMethod;
 		public readonly IList<TypeSig> MethodGenArgs;
+
+		public GenericReplacer()
+		{
+		}
+
+		public GenericReplacer(TypeDef typeDef, IList<TypeSig> genArgs)
+		{
+			OwnerType = typeDef;
+			TypeGenArgs = genArgs;
+		}
+
+		public GenericReplacer(MethodDef metDef, IList<TypeSig> genArgs)
+		{
+			OwnerMethod = metDef;
+			MethodGenArgs = genArgs;
+		}
 
 		public TypeSig Replace(GenericVar genVar)
 		{
@@ -120,22 +136,26 @@ namespace il2cpp
 
 	internal class MethodSigDuplicator : TypeSigDuplicator
 	{
-		public MethodBaseSig Duplicate(MethodBaseSig metSig)
+		public CallingConventionSig Duplicate(CallingConventionSig ccSig)
 		{
-			if (metSig is PropertySig propSig)
+			switch (ccSig)
 			{
-				return new PropertySig(
-					propSig.HasThis,
-					Duplicate(propSig.RetType),
-					Duplicate(propSig.Params).ToArray());
-			}
-			else
-			{
-				return new MethodSig(
-					metSig.CallingConvention,
-					metSig.GenParamCount,
-					Duplicate(metSig.RetType),
-					Duplicate(metSig.Params));
+				case PropertySig propSig:
+					return new PropertySig(
+						propSig.HasThis,
+						Duplicate(propSig.RetType),
+						Duplicate(propSig.Params).ToArray());
+
+				case MethodSig metSig:
+					return new MethodSig(
+						metSig.CallingConvention,
+						metSig.GenParamCount,
+						Duplicate(metSig.RetType),
+						Duplicate(metSig.Params));
+
+				default:
+					Debug.Fail("Duplicate " + ccSig.GetType().Name);
+					return null;
 			}
 		}
 	}
