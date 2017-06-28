@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
@@ -23,12 +22,7 @@ namespace il2cpp2
 		{
 			if (GenArgs_ == null)
 				return 0;
-
-			var comparer = new SigComparer();
-			int code = GenArgs_.Count;
-			foreach (var sig in GenArgs_)
-				code ^= comparer.GetHashCode(sig);
-			return code;
+			return ~(GenArgs_.Count + 1);
 		}
 
 		public bool GenericEquals(GenericArgs other)
@@ -55,15 +49,14 @@ namespace il2cpp2
 				return "";
 
 			StringBuilder sb = new StringBuilder();
-			sb.Append('<');
 
+			sb.Append('<');
 			bool last = false;
 			foreach (var arg in GenArgs_)
 			{
 				if (last)
 					sb.Append(',');
 				last = true;
-
 				sb.Append(arg.FullName);
 			}
 			sb.Append('>');
@@ -80,12 +73,14 @@ namespace il2cpp2
 
 		// 基类
 		public TypeX BaseType;
-		// 实现的接口
+		// 接口列表
 		private IList<TypeX> Interfaces_;
 		public IList<TypeX> Interfaces => Interfaces_ ?? (Interfaces_ = new List<TypeX>());
 		public bool HasInterfaces => Interfaces_ != null && Interfaces_.Count > 0;
-		// 包含的方法
+		// 方法映射
 		public readonly Dictionary<MethodX, MethodX> Methods = new Dictionary<MethodX, MethodX>();
+		// 运行时类型
+		public string RuntimeVersion => Def.Module.RuntimeVersion;
 
 		public TypeX(TypeDef typeDef)
 		{
@@ -96,14 +91,14 @@ namespace il2cpp2
 		{
 			return Def.Name.GetHashCode() ^
 				   GenericHashCode() ^
-				   Def.Module.RuntimeVersion.GetHashCode();
+				   RuntimeVersion.GetHashCode();
 		}
 
 		public bool Equals(TypeX other)
 		{
 			return TypeEqualityComparer.Instance.Equals(Def, other.Def) &&
 				   GenericEquals(other) &&
-				   Def.Module.RuntimeVersion == other.Def.Module.RuntimeVersion;
+				   RuntimeVersion == other.RuntimeVersion;
 		}
 
 		public override bool Equals(object obj)
@@ -135,9 +130,9 @@ namespace il2cpp2
 
 		// 所属类型
 		public readonly TypeX DeclType;
-		// 展开后的返回值
+		// 返回值
 		public TypeSig ReturnType;
-		// 展开后的参数列表
+		// 参数列表
 		public IList<TypeSig> ParamTypes;
 
 		public MethodX(MethodDef metDef, TypeX declType, IList<TypeSig> genArgs)
@@ -174,7 +169,6 @@ namespace il2cpp2
 				GenericToString());
 
 			sb.Append('(');
-
 			if (ParamTypes == null)
 				sb.Append("<?>");
 			else
@@ -196,14 +190,22 @@ namespace il2cpp2
 
 	public class TypeManager
 	{
+		// 主模块
 		public ModuleDefMD Module { get; private set; }
-		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
+		// 类型映射
 		public readonly Dictionary<TypeX, TypeX> Types = new Dictionary<TypeX, TypeX>();
+		// 待处理方法队列
+		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
 
+		// 复位
 		public void Reset()
 		{
+			Module = null;
+			Types.Clear();
+			PendingMets.Clear();
 		}
 
+		// 加载模块
 		public void Load(string path)
 		{
 			Reset();
@@ -219,19 +221,24 @@ namespace il2cpp2
 			Module.Context.AssemblyResolver.AddToCache(Module);
 		}
 
+		// 处理循环
 		public void Process()
 		{
 			while (PendingMets.Count > 0)
 			{
+				// 取出一个待处理方法
 				MethodX currMetX = PendingMets.Dequeue();
 
+				// 跳过无方法体的方法
 				if (!currMetX.Def.HasBody)
 					continue;
 
+				// 构建方法内的泛型展开器
 				GenericReplacer replacer = new GenericReplacer();
 				replacer.SetType(currMetX.DeclType);
 				replacer.SetMethod(currMetX);
 
+				// 遍历并解析指令
 				foreach (var inst in currMetX.Def.Body.Instructions)
 				{
 					AnalyzeInstruction(inst, replacer);
@@ -239,6 +246,7 @@ namespace il2cpp2
 			}
 		}
 
+		// 解析指令
 		private void AnalyzeInstruction(Instruction inst, GenericReplacer replacer)
 		{
 			switch (inst.OpCode.OperandType)
@@ -306,6 +314,23 @@ namespace il2cpp2
 		}
 
 		// 解析实例类型的定义或引用
+		private TypeX ResolveTypeDefOrRefImpl(ITypeDefOrRef typeDefRef)
+		{
+			switch (typeDefRef)
+			{
+				case TypeDef typeDef:
+					return new TypeX(typeDef);
+
+				case TypeRef typeRef:
+					return new TypeX(typeRef.ResolveTypeDef());
+
+				default:
+					Debug.Fail("ResolveTypeDefOrRefImpl " + typeDefRef.GetType().Name);
+					return null;
+			}
+		}
+
+		// 解析实例类型的定义引用或高阶类型
 		private TypeX ResolveInstanceTypeImpl(ITypeDefOrRef typeDefRef, GenericReplacer replacer)
 		{
 			switch (typeDefRef)
@@ -331,12 +356,12 @@ namespace il2cpp2
 			switch (typeSig)
 			{
 				case TypeDefOrRefSig typeDefRefSig:
-					return ResolveInstanceTypeImpl(typeDefRefSig.TypeDefOrRef, null);
+					return ResolveTypeDefOrRefImpl(typeDefRefSig.TypeDefOrRef);
 
 				case GenericInstSig genInstSig:
 					{
 						// 泛型实例类型
-						TypeX genType = ResolveInstanceTypeImpl(genInstSig.GenericType, null);
+						TypeX genType = ResolveTypeDefOrRefImpl(genInstSig.GenericType.TypeDefOrRef);
 						genType.SetGenericArgs(ResolveTypeSigList(genInstSig.GenericArguments, replacer));
 						return genType;
 					}
