@@ -45,7 +45,7 @@ namespace il2cpp2
 
 	internal class TypeSigDuplicator
 	{
-		public GenericReplacer GenReplacer;
+		public GenericReplacer GenReplacer = new GenericReplacer();
 
 		public TypeSig Duplicate(TypeSig typeSig)
 		{
