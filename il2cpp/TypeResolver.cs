@@ -1,11 +1,140 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
 namespace il2cpp2
 {
+	// 方法签名
+	internal class MethodSignature
+	{
+		public readonly string Name;
+		public readonly MethodBaseSig Signature;
+
+		public MethodSignature(string name, MethodBaseSig sig)
+		{
+			Name = name;
+			Signature = sig;
+		}
+
+		public override int GetHashCode()
+		{
+			return Name.GetHashCode() ^
+				   new SigComparer().GetHashCode(Signature);
+		}
+
+		public bool Equals(MethodSignature other)
+		{
+			return Name == other.Name &&
+				   new SigComparer().Equals(Signature, other.Signature);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is MethodSignature other && Equals(other);
+		}
+
+		public override string ToString()
+		{
+			return Name + ": " + Signature;
+		}
+	}
+
+	internal class VirtualTable
+	{
+		private class ExplicitMapComparer : IEqualityComparer<MethodX>
+		{
+			public int GetHashCode(MethodX obj)
+			{
+				return obj.GetHashCode() ^
+					   obj.DeclType.GetHashCode();
+			}
+
+			public bool Equals(MethodX x, MethodX y)
+			{
+				return x.Equals(y) && x.DeclType.Equals(y.DeclType);
+			}
+		}
+
+		private class SlotLayer
+		{
+			public readonly List<MethodX> Entries;
+			public MethodX ImplMethod;
+
+			public SlotLayer()
+			{
+				Entries = new List<MethodX>();
+			}
+
+			private SlotLayer(List<MethodX> entries, MethodX impl)
+			{
+				Entries = entries;
+				ImplMethod = impl;
+			}
+
+			public SlotLayer Clone()
+			{
+				return new SlotLayer(new List<MethodX>(Entries), ImplMethod);
+			}
+		}
+		private readonly Dictionary<MethodSignature, List<SlotLayer>> VMap =
+			new Dictionary<MethodSignature, List<SlotLayer>>();
+		private readonly Dictionary<MethodX, MethodX> ExplicitMap =
+			new Dictionary<MethodX, MethodX>(new ExplicitMapComparer());
+
+		public VirtualTable Clone()
+		{
+			VirtualTable vtbl = new VirtualTable();
+
+			foreach (var kv in VMap)
+			{
+				vtbl.VMap.Add(kv.Key, kv.Value.Select(layer => layer.Clone()).ToList());
+			}
+			foreach (var kv in ExplicitMap)
+			{
+				vtbl.ExplicitMap.Add(kv.Key, kv.Value);
+			}
+
+			return vtbl;
+		}
+
+		public void NewSlot(MethodSignature sig, MethodX impl)
+		{
+			if (!VMap.TryGetValue(sig, out var layerList))
+			{
+				layerList = new List<SlotLayer>();
+				VMap.Add(sig, layerList);
+			}
+			var layer = new SlotLayer();
+			layer.Entries.Add(impl);
+			layer.ImplMethod = impl;
+			layerList.Add(layer);
+		}
+
+		public void ReuseSlot(MethodSignature sig, MethodX impl)
+		{
+			bool result = VMap.TryGetValue(sig, out var layerList);
+			Debug.Assert(result);
+			Debug.Assert(layerList.Count > 0);
+
+			var layer = layerList.Last();
+			layer.Entries.Add(impl);
+			layer.ImplMethod = impl;
+		}
+
+		public void ExplicitOverride(MethodX entry, MethodX impl)
+		{
+			ExplicitMap[entry] = impl;
+		}
+
+		public void ExpandTable()
+		{
+
+		}
+	}
+
 	// 类型实例的泛型参数
 	public class GenericArgs
 	{
@@ -100,6 +229,9 @@ namespace il2cpp2
 
 		public bool Equals(TypeX other)
 		{
+			if (ReferenceEquals(this, other))
+				return true;
+
 			return TypeEqualityComparer.Instance.Equals(Def, other.Def) &&
 				   GenericEquals(other) &&
 				   RuntimeVersion == other.RuntimeVersion;
@@ -164,6 +296,9 @@ namespace il2cpp2
 
 		public bool Equals(MethodX other)
 		{
+			if (ReferenceEquals(this, other))
+				return true;
+
 			return MethodEqualityComparer.DontCompareDeclaringTypes.Equals(Def, other.Def) &&
 				   GenericEquals(other);
 		}
@@ -226,6 +361,9 @@ namespace il2cpp2
 
 		public bool Equals(FieldX other)
 		{
+			if (ReferenceEquals(this, other))
+				return true;
+
 			return FieldEqualityComparer.DontCompareDeclaringTypes.Equals(Def, other.Def);
 		}
 
