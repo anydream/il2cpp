@@ -79,6 +79,8 @@ namespace il2cpp2
 		public bool HasInterfaces => Interfaces_ != null && Interfaces_.Count > 0;
 		// 方法映射
 		public readonly Dictionary<MethodX, MethodX> Methods = new Dictionary<MethodX, MethodX>();
+		// 字段映射
+		public readonly Dictionary<FieldX, FieldX> Fields = new Dictionary<FieldX, FieldX>();
 		// 运行时类型
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
 
@@ -116,6 +118,16 @@ namespace il2cpp2
 			if (!Methods.ContainsKey(metX))
 			{
 				Methods.Add(metX, metX);
+				return true;
+			}
+			return false;
+		}
+
+		public bool AddField(FieldX fldX)
+		{
+			if (!Fields.ContainsKey(fldX))
+			{
+				Fields.Add(fldX, fldX);
 				return true;
 			}
 			return false;
@@ -185,6 +197,46 @@ namespace il2cpp2
 			sb.Append(')');
 
 			return sb.ToString();
+		}
+	}
+
+	// 展开的字段
+	public class FieldX
+	{
+		// 字段定义
+		public readonly FieldDef Def;
+
+		// 所属类型
+		public readonly TypeX DeclType;
+		// 字段类型
+		public TypeSig FieldType;
+
+		public FieldX(FieldDef fldDef, TypeX declType)
+		{
+			Def = fldDef;
+			DeclType = declType;
+		}
+
+		public override int GetHashCode()
+		{
+			return Def.Name.GetHashCode();
+		}
+
+		public bool Equals(FieldX other)
+		{
+			return FieldEqualityComparer.DontCompareDeclaringTypes.Equals(Def, other.Def);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is FieldX other && Equals(other);
+		}
+
+		public override string ToString()
+		{
+			return string.Format("{0} {1}",
+				FieldType != null ? FieldType.FullName : "<?>",
+				Def.Name);
 		}
 	}
 
@@ -273,6 +325,17 @@ namespace il2cpp2
 
 				case OperandType.InlineField:
 					{
+						switch (inst.Operand)
+						{
+							case FieldDef fldDef:
+								ResolveField(fldDef);
+								break;
+
+							case MemberRef memRef:
+								ResolveField(memRef, replacer);
+								break;
+						}
+
 						break;
 					}
 			}
@@ -459,6 +522,39 @@ namespace il2cpp2
 
 			MethodX metX = new MethodX(metSpec.ResolveMethodDef(), declType, genArgs);
 			AddMethod(declType, metX);
+		}
+
+		// 添加字段
+		private void AddField(TypeX declType, FieldX fldX)
+		{
+			if (declType.AddField(fldX))
+				ExpandField(fldX);
+		}
+
+		private void ExpandField(FieldX fldX)
+		{
+			// 构建字段内的泛型展开器
+			GenericReplacer replacer = new GenericReplacer();
+			replacer.SetType(fldX.DeclType);
+
+			fldX.FieldType = ResolveTypeSig(fldX.Def.FieldType, replacer);
+		}
+
+		private void ResolveField(FieldDef fldDef)
+		{
+			TypeX declType = ResolveInstanceType(fldDef.DeclaringType);
+
+			FieldX fldX = new FieldX(fldDef, declType);
+			AddField(declType, fldX);
+		}
+
+		private void ResolveField(MemberRef memRef, GenericReplacer replacer)
+		{
+			Debug.Assert(memRef.IsFieldRef);
+			TypeX declType = ResolveInstanceType(memRef.DeclaringType, replacer);
+
+			FieldX fldX = new FieldX(memRef.ResolveField(), declType);
+			AddField(declType, fldX);
 		}
 	}
 }
