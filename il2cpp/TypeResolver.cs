@@ -248,7 +248,7 @@ namespace il2cpp2
 						switch (inst.Operand)
 						{
 							case MethodDef metDef:
-								AnalyzeMethod(metDef, replacer);
+								AnalyzeMethod(metDef);
 								break;
 
 							case MemberRef memRef:
@@ -377,10 +377,10 @@ namespace il2cpp2
 			replacer.SetMethod(metX);
 
 			metX.ReturnType = ResolveTypeSig(metX.Def.ReturnType, replacer);
-			metX.ParamTypes = ResolveTypeSigList(metX.Def.Parameters.Select(arg => arg.Type).ToList(), replacer);
+			metX.ParamTypes = ResolveTypeSigList(metX.Def.MethodSig.Params, replacer);
 		}
 
-		public void AnalyzeMethod(MethodDef metDef, GenericReplacer replacer)
+		public void AnalyzeMethod(MethodDef metDef)
 		{
 			TypeX declType = AnalyzeBaseType(metDef.DeclaringType);
 

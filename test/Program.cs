@@ -13,7 +13,7 @@ namespace test
 		{
 			TypeManager typeMgr = new TypeManager();
 			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
-			typeMgr.AnalyzeMethod(typeMgr.Module.EntryPoint, null);
+			typeMgr.AnalyzeMethod(typeMgr.Module.EntryPoint);
 			typeMgr.Process();
 		}
 	}
