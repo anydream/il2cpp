@@ -270,6 +270,7 @@ namespace il2cpp2
 			}
 		}
 
+		// 添加类型
 		private TypeX AddType(TypeX tyX)
 		{
 			if (Types.TryGetValue(tyX, out var otyX))
@@ -281,26 +282,31 @@ namespace il2cpp2
 			return tyX;
 		}
 
+		// 展开类型
 		private void ExpandType(TypeX tyX)
 		{
+			// 构建类型内的泛型展开器
 			GenericReplacer replacer = new GenericReplacer();
 			replacer.SetType(tyX);
 
+			// 展开类型内的泛型类型
 			if (tyX.Def.BaseType != null)
-				tyX.BaseType = AnalyzeBaseType(tyX.Def.BaseType, replacer);
+				tyX.BaseType = AnalyzeInstanceType(tyX.Def.BaseType, replacer);
 			if (tyX.Def.HasInterfaces)
 			{
 				foreach (var inf in tyX.Def.Interfaces)
-					tyX.Interfaces.Add(AnalyzeBaseType(inf.Interface, replacer));
+					tyX.Interfaces.Add(AnalyzeInstanceType(inf.Interface, replacer));
 			}
 		}
 
-		private TypeX AnalyzeBaseType(ITypeDefOrRef typeDefRef, GenericReplacer replacer = null)
+		// 解析实例类型
+		private TypeX AnalyzeInstanceType(ITypeDefOrRef typeDefRef, GenericReplacer replacer = null)
 		{
-			return AddType(ResolveBaseTypeImpl(typeDefRef, replacer));
+			return AddType(ResolveInstanceTypeImpl(typeDefRef, replacer));
 		}
 
-		private TypeX ResolveBaseTypeImpl(ITypeDefOrRef typeDefRef, GenericReplacer replacer)
+		// 解析实例类型的定义或引用
+		private TypeX ResolveInstanceTypeImpl(ITypeDefOrRef typeDefRef, GenericReplacer replacer)
 		{
 			switch (typeDefRef)
 			{
@@ -311,45 +317,112 @@ namespace il2cpp2
 					return new TypeX(typeRef.ResolveTypeDef());
 
 				case TypeSpec typeSpec:
-					return ResolveBaseTypeImpl(typeSpec.TypeSig, replacer);
+					return ResolveInstanceTypeImpl(typeSpec.TypeSig, replacer);
 
 				default:
-					Debug.Fail("ResolveBaseTypeImpl ITypeDefOrRef " + typeDefRef.GetType().Name);
+					Debug.Fail("ResolveInstanceTypeImpl ITypeDefOrRef " + typeDefRef.GetType().Name);
 					return null;
 			}
 		}
 
-		private TypeX ResolveBaseTypeImpl(TypeSig typeSig, GenericReplacer replacer)
+		// 解析实例类型签名
+		private TypeX ResolveInstanceTypeImpl(TypeSig typeSig, GenericReplacer replacer)
 		{
 			switch (typeSig)
 			{
 				case TypeDefOrRefSig typeDefRefSig:
-					return ResolveBaseTypeImpl(typeDefRefSig.TypeDefOrRef, null);
+					return ResolveInstanceTypeImpl(typeDefRefSig.TypeDefOrRef, null);
 
 				case GenericInstSig genInstSig:
 					{
-						TypeX genType = ResolveBaseTypeImpl(genInstSig.GenericType, null);
+						// 泛型实例类型
+						TypeX genType = ResolveInstanceTypeImpl(genInstSig.GenericType, null);
 						genType.SetGenericArgs(ResolveTypeSigList(genInstSig.GenericArguments, replacer));
 						return genType;
 					}
 
 				default:
-					Debug.Fail("ResolveBaseTypeImpl TypeSig " + typeSig.GetType().Name);
+					Debug.Fail("ResolveInstanceTypeImpl TypeSig " + typeSig.GetType().Name);
 					return null;
 			}
 		}
 
-		private TypeSig ResolveTypeSig(TypeSig typeSig, GenericReplacer replacer)
+		// 添加方法
+		private void AddMethod(TypeX declType, MethodX metX)
+		{
+			if (declType.AddMethod(metX))
+				ExpandMethod(metX);
+		}
+
+		// 新方法加入处理队列
+		private void AddPendingMethod(MethodX metX)
+		{
+			PendingMets.Enqueue(metX);
+		}
+
+		// 展开方法
+		private void ExpandMethod(MethodX metX)
+		{
+			AddPendingMethod(metX);
+
+			// 构建方法内的泛型展开器
+			GenericReplacer replacer = new GenericReplacer();
+			replacer.SetType(metX.DeclType);
+			replacer.SetMethod(metX);
+
+			// 展开方法内的泛型类型
+			metX.ReturnType = ResolveTypeSig(metX.Def.ReturnType, replacer);
+			metX.ParamTypes = ResolveTypeSigList(metX.Def.MethodSig.Params, replacer);
+		}
+
+		// 解析无泛型方法
+		public void AnalyzeMethod(MethodDef metDef)
+		{
+			TypeX declType = AnalyzeInstanceType(metDef.DeclaringType);
+
+			MethodX metX = new MethodX(metDef, declType, null);
+			AddMethod(declType, metX);
+		}
+
+		// 解析所在类型包含泛型实例的方法
+		private void AnalyzeMethod(MemberRef memRef, GenericReplacer replacer)
+		{
+			Debug.Assert(memRef.IsMethodRef);
+			TypeX declType = AnalyzeInstanceType(memRef.DeclaringType, replacer);
+
+			MethodX metX = new MethodX(memRef.ResolveMethod(), declType, null);
+			AddMethod(declType, metX);
+		}
+
+		// 解析包含泛型实例的方法
+		private void AnalyzeMethod(MethodSpec metSpec, GenericReplacer replacer)
+		{
+			TypeX declType = AnalyzeInstanceType(metSpec.DeclaringType, replacer);
+
+			// 展开方法的泛型参数
+			IList<TypeSig> genArgs = null;
+			var metGenArgs = metSpec.GenericInstMethodSig?.GenericArguments;
+			if (metGenArgs != null)
+				genArgs = ResolveTypeSigList(metGenArgs, replacer);
+
+			MethodX metX = new MethodX(metSpec.ResolveMethodDef(), declType, genArgs);
+			AddMethod(declType, metX);
+		}
+
+		// 展开类型签名
+		private static TypeSig ResolveTypeSig(TypeSig typeSig, GenericReplacer replacer)
 		{
 			if (replacer == null || !replacer.IsValid)
 				return typeSig;
 
 			var duplicator = new TypeSigDuplicator();
 			duplicator.GenReplacer = replacer;
+
 			return duplicator.Duplicate(typeSig);
 		}
 
-		private IList<TypeSig> ResolveTypeSigList(IList<TypeSig> sigList, GenericReplacer replacer)
+		// 展开类型签名列表
+		private static IList<TypeSig> ResolveTypeSigList(IList<TypeSig> sigList, GenericReplacer replacer)
 		{
 			if (replacer == null || !replacer.IsValid)
 				return new List<TypeSig>(sigList);
@@ -361,56 +434,6 @@ namespace il2cpp2
 			foreach (var typeSig in sigList)
 				result.Add(duplicator.Duplicate(typeSig));
 			return result;
-		}
-
-		private void AddPendingMethod(MethodX metX)
-		{
-			PendingMets.Enqueue(metX);
-		}
-
-		private void ExpandMethod(MethodX metX)
-		{
-			AddPendingMethod(metX);
-
-			GenericReplacer replacer = new GenericReplacer();
-			replacer.SetType(metX.DeclType);
-			replacer.SetMethod(metX);
-
-			metX.ReturnType = ResolveTypeSig(metX.Def.ReturnType, replacer);
-			metX.ParamTypes = ResolveTypeSigList(metX.Def.MethodSig.Params, replacer);
-		}
-
-		public void AnalyzeMethod(MethodDef metDef)
-		{
-			TypeX declType = AnalyzeBaseType(metDef.DeclaringType);
-
-			MethodX metX = new MethodX(metDef, declType, null);
-			if (declType.AddMethod(metX))
-				ExpandMethod(metX);
-		}
-
-		public void AnalyzeMethod(MemberRef memRef, GenericReplacer replacer)
-		{
-			Debug.Assert(memRef.IsMethodRef);
-			TypeX declType = AnalyzeBaseType(memRef.DeclaringType, replacer);
-
-			MethodX metX = new MethodX(memRef.ResolveMethod(), declType, null);
-			if (declType.AddMethod(metX))
-				ExpandMethod(metX);
-		}
-
-		public void AnalyzeMethod(MethodSpec metSpec, GenericReplacer replacer)
-		{
-			TypeX declType = AnalyzeBaseType(metSpec.DeclaringType, replacer);
-
-			IList<TypeSig> genArgs = null;
-			var metGenArgs = metSpec.GenericInstMethodSig?.GenericArguments;
-			if (metGenArgs != null)
-				genArgs = ResolveTypeSigList(metGenArgs, replacer);
-
-			MethodX metX = new MethodX(metSpec.ResolveMethodDef(), declType, genArgs);
-			if (declType.AddMethod(metX))
-				ExpandMethod(metX);
 		}
 	}
 }

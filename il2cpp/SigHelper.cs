@@ -5,6 +5,7 @@ using dnlib.DotNet;
 
 namespace il2cpp2
 {
+	// 泛型展开器
 	public class GenericReplacer
 	{
 		public TypeDef OwnerType { get; private set; }
@@ -48,9 +49,10 @@ namespace il2cpp2
 		}
 	}
 
+	// 类型签名复制器
 	internal class TypeSigDuplicator
 	{
-		public GenericReplacer GenReplacer = new GenericReplacer();
+		public GenericReplacer GenReplacer;
 
 		public TypeSig Duplicate(TypeSig typeSig)
 		{
