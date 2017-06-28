@@ -3,7 +3,8 @@ using dnlib.DotNet;
 
 namespace il2cpp2
 {
-	class GenericArgs
+	// 类型实例的泛型参数
+	internal class GenericArgs
 	{
 		private IList<TypeSig> GenArgs_;
 		public IList<TypeSig> GenArgs => GenArgs_;
@@ -44,16 +45,25 @@ namespace il2cpp2
 		}
 	}
 
-	class TypeX : GenericArgs
+	// 展开的类型
+	internal class TypeX : GenericArgs
 	{
+		// 类型定义
 		public readonly TypeDef Def;
 
+		// 基类
 		public TypeX BaseType;
-		public IList<TypeX> Interfaces;
+		// 实现的接口
+		private IList<TypeX> Interfaces_;
+		public IList<TypeX> Interfaces => Interfaces_ ?? (Interfaces_ = new List<TypeX>());
+		public bool HasInterfaces => Interfaces_ != null && Interfaces_.Count > 0;
+		// 包含的方法
+		public readonly Dictionary<MethodX, MethodX> Methods = new Dictionary<MethodX, MethodX>();
 
-		public TypeX(TypeDef typeDef)
+		public TypeX(TypeDef typeDef, IList<TypeSig> genArgs)
 		{
 			Def = typeDef;
+			SetGenericArgs(genArgs);
 		}
 
 		public override int GetHashCode()
@@ -74,10 +84,24 @@ namespace il2cpp2
 		{
 			return obj is TypeX other && Equals(other);
 		}
+
+		public MethodX TryAddMethod(MethodX metX, out bool isNew)
+		{
+			if (!Methods.TryGetValue(metX, out var ometX))
+			{
+				Methods.Add(metX, metX);
+				isNew = true;
+				return metX;
+			}
+			isNew = false;
+			return ometX;
+		}
 	}
 
-	class MethodX : GenericArgs
+	// 展开的方法
+	internal class MethodX : GenericArgs
 	{
+		// 方法定义
 		public readonly MethodDef Def;
 
 		// 所属类型
@@ -87,16 +111,35 @@ namespace il2cpp2
 		// 展开后的参数列表
 		public IList<TypeSig> ParamTypes;
 
-		public MethodX(MethodDef metDef, TypeX declType)
+		public MethodX(MethodDef metDef, TypeX declType, IList<TypeSig> genArgs)
 		{
 			Def = metDef;
 			DeclType = declType;
+			SetGenericArgs(genArgs);
+		}
+
+		public override int GetHashCode()
+		{
+			return Def.Name.GetHashCode() ^
+				   GenericHashCode();
+		}
+
+		public bool Equals(MethodX other)
+		{
+			return MethodEqualityComparer.DontCompareDeclaringTypes.Equals(Def, other.Def) &&
+				   GenericEquals(other);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is MethodX other && Equals(other);
 		}
 	}
 
-	class TypeManager
+	internal class TypeManager
 	{
 		private ModuleDefMD Module_;
+		public readonly Dictionary<TypeX, TypeX> Types = new Dictionary<TypeX, TypeX>();
 
 		public void Reset()
 		{
@@ -115,6 +158,18 @@ namespace il2cpp2
 
 			Module_.Context = modCtx;
 			Module_.Context.AssemblyResolver.AddToCache(Module_);
+		}
+
+		public TypeX TryAddType(TypeX tyX, out bool isNew)
+		{
+			if (!Types.TryGetValue(tyX, out var otyX))
+			{
+				Types.Add(tyX, tyX);
+				isNew = true;
+				return tyX;
+			}
+			isNew = false;
+			return otyX;
 		}
 
 		public void AnalyzeMethod(MethodDef metDef)
