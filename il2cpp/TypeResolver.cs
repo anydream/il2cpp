@@ -241,13 +241,13 @@ namespace il2cpp2
 				// 遍历并解析指令
 				foreach (var inst in currMetX.Def.Body.Instructions)
 				{
-					AnalyzeInstruction(inst, replacer);
+					ResolveInstruction(inst, replacer);
 				}
 			}
 		}
 
 		// 解析指令
-		private void AnalyzeInstruction(Instruction inst, GenericReplacer replacer)
+		private void ResolveInstruction(Instruction inst, GenericReplacer replacer)
 		{
 			switch (inst.OpCode.OperandType)
 			{
@@ -256,15 +256,15 @@ namespace il2cpp2
 						switch (inst.Operand)
 						{
 							case MethodDef metDef:
-								AnalyzeMethod(metDef);
+								ResolveMethod(metDef);
 								break;
 
 							case MemberRef memRef:
-								AnalyzeMethod(memRef, replacer);
+								ResolveMethod(memRef, replacer);
 								break;
 
 							case MethodSpec metSpec:
-								AnalyzeMethod(metSpec, replacer);
+								ResolveMethod(metSpec, replacer);
 								break;
 						}
 
@@ -299,22 +299,22 @@ namespace il2cpp2
 
 			// 展开类型内的泛型类型
 			if (tyX.Def.BaseType != null)
-				tyX.BaseType = AnalyzeInstanceType(tyX.Def.BaseType, replacer);
+				tyX.BaseType = ResolveInstanceType(tyX.Def.BaseType, replacer);
 			if (tyX.Def.HasInterfaces)
 			{
 				foreach (var inf in tyX.Def.Interfaces)
-					tyX.Interfaces.Add(AnalyzeInstanceType(inf.Interface, replacer));
+					tyX.Interfaces.Add(ResolveInstanceType(inf.Interface, replacer));
 			}
 		}
 
 		// 解析实例类型
-		private TypeX AnalyzeInstanceType(ITypeDefOrRef typeDefRef, GenericReplacer replacer = null)
+		private TypeX ResolveInstanceType(ITypeDefOrRef typeDefRef, GenericReplacer replacer = null)
 		{
 			return AddType(ResolveInstanceTypeImpl(typeDefRef, replacer));
 		}
 
 		// 解析实例类型的定义或引用
-		private TypeX ResolveTypeDefOrRefImpl(ITypeDefOrRef typeDefRef)
+		private static TypeX ResolveTypeDefOrRefImpl(ITypeDefOrRef typeDefRef)
 		{
 			switch (typeDefRef)
 			{
@@ -331,7 +331,7 @@ namespace il2cpp2
 		}
 
 		// 解析实例类型的定义引用或高阶类型
-		private TypeX ResolveInstanceTypeImpl(ITypeDefOrRef typeDefRef, GenericReplacer replacer)
+		private static TypeX ResolveInstanceTypeImpl(ITypeDefOrRef typeDefRef, GenericReplacer replacer)
 		{
 			switch (typeDefRef)
 			{
@@ -351,7 +351,7 @@ namespace il2cpp2
 		}
 
 		// 解析实例类型签名
-		private TypeX ResolveInstanceTypeImpl(TypeSig typeSig, GenericReplacer replacer)
+		private static TypeX ResolveInstanceTypeImpl(TypeSig typeSig, GenericReplacer replacer)
 		{
 			switch (typeSig)
 			{
@@ -370,6 +370,33 @@ namespace il2cpp2
 					Debug.Fail("ResolveInstanceTypeImpl TypeSig " + typeSig.GetType().Name);
 					return null;
 			}
+		}
+
+		// 展开类型签名
+		private static TypeSig ResolveTypeSig(TypeSig typeSig, GenericReplacer replacer)
+		{
+			if (replacer == null || !replacer.IsValid)
+				return typeSig;
+
+			var duplicator = new TypeSigDuplicator();
+			duplicator.GenReplacer = replacer;
+
+			return duplicator.Duplicate(typeSig);
+		}
+
+		// 展开类型签名列表
+		private static IList<TypeSig> ResolveTypeSigList(IList<TypeSig> sigList, GenericReplacer replacer)
+		{
+			if (replacer == null || !replacer.IsValid)
+				return new List<TypeSig>(sigList);
+
+			var duplicator = new TypeSigDuplicator();
+			duplicator.GenReplacer = replacer;
+
+			var result = new List<TypeSig>();
+			foreach (var typeSig in sigList)
+				result.Add(duplicator.Duplicate(typeSig));
+			return result;
 		}
 
 		// 添加方法
@@ -401,28 +428,28 @@ namespace il2cpp2
 		}
 
 		// 解析无泛型方法
-		public void AnalyzeMethod(MethodDef metDef)
+		public void ResolveMethod(MethodDef metDef)
 		{
-			TypeX declType = AnalyzeInstanceType(metDef.DeclaringType);
+			TypeX declType = ResolveInstanceType(metDef.DeclaringType);
 
 			MethodX metX = new MethodX(metDef, declType, null);
 			AddMethod(declType, metX);
 		}
 
 		// 解析所在类型包含泛型实例的方法
-		private void AnalyzeMethod(MemberRef memRef, GenericReplacer replacer)
+		private void ResolveMethod(MemberRef memRef, GenericReplacer replacer)
 		{
 			Debug.Assert(memRef.IsMethodRef);
-			TypeX declType = AnalyzeInstanceType(memRef.DeclaringType, replacer);
+			TypeX declType = ResolveInstanceType(memRef.DeclaringType, replacer);
 
 			MethodX metX = new MethodX(memRef.ResolveMethod(), declType, null);
 			AddMethod(declType, metX);
 		}
 
 		// 解析包含泛型实例的方法
-		private void AnalyzeMethod(MethodSpec metSpec, GenericReplacer replacer)
+		private void ResolveMethod(MethodSpec metSpec, GenericReplacer replacer)
 		{
-			TypeX declType = AnalyzeInstanceType(metSpec.DeclaringType, replacer);
+			TypeX declType = ResolveInstanceType(metSpec.DeclaringType, replacer);
 
 			// 展开方法的泛型参数
 			IList<TypeSig> genArgs = null;
@@ -432,33 +459,6 @@ namespace il2cpp2
 
 			MethodX metX = new MethodX(metSpec.ResolveMethodDef(), declType, genArgs);
 			AddMethod(declType, metX);
-		}
-
-		// 展开类型签名
-		private static TypeSig ResolveTypeSig(TypeSig typeSig, GenericReplacer replacer)
-		{
-			if (replacer == null || !replacer.IsValid)
-				return typeSig;
-
-			var duplicator = new TypeSigDuplicator();
-			duplicator.GenReplacer = replacer;
-
-			return duplicator.Duplicate(typeSig);
-		}
-
-		// 展开类型签名列表
-		private static IList<TypeSig> ResolveTypeSigList(IList<TypeSig> sigList, GenericReplacer replacer)
-		{
-			if (replacer == null || !replacer.IsValid)
-				return new List<TypeSig>(sigList);
-
-			var duplicator = new TypeSigDuplicator();
-			duplicator.GenReplacer = replacer;
-
-			var result = new List<TypeSig>();
-			foreach (var typeSig in sigList)
-				result.Add(duplicator.Duplicate(typeSig));
-			return result;
 		}
 	}
 }
