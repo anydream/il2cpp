@@ -6,14 +6,14 @@ using dnlib.DotNet;
 namespace il2cpp2
 {
 	// 泛型展开器
-	public class GenericReplacer
+	internal class GenericReplacer
 	{
 		public TypeDef OwnerType { get; private set; }
 		public IList<TypeSig> TypeGenArgs { get; private set; }
 		public MethodDef OwnerMethod { get; private set; }
 		public IList<TypeSig> MethodGenArgs { get; private set; }
-		public bool HasType => OwnerType != null & TypeGenArgs != null && TypeGenArgs.Count > 0;
-		public bool HasMethod => OwnerMethod != null & MethodGenArgs != null && MethodGenArgs.Count > 0;
+		public bool HasType => OwnerType != null && TypeGenArgs != null && TypeGenArgs.Count > 0;
+		public bool HasMethod => OwnerMethod != null && MethodGenArgs != null && MethodGenArgs.Count > 0;
 		public bool IsValid => HasType || HasMethod;
 
 		public void SetType(TypeX tyX)
@@ -120,10 +120,10 @@ namespace il2cpp2
 					}
 
 				default:
-					if (typeSig is CorLibTypeSig corSig)
-						return corSig;
+					if (typeSig is CorLibTypeSig)
+						return typeSig;
 
-					Debug.Fail("TypeSig Duplicate Error: " + typeSig.GetType().Name);
+					Debug.Fail("Duplicate TypeSig " + typeSig.GetType().Name);
 					return null;
 			}
 		}
@@ -141,32 +141,6 @@ namespace il2cpp2
 		protected static IList<int> Duplicate(IList<int> lst)
 		{
 			return lst == null ? null : new List<int>(lst);
-		}
-	}
-
-	internal class MethodSigDuplicator : TypeSigDuplicator
-	{
-		public CallingConventionSig Duplicate(CallingConventionSig ccSig)
-		{
-			switch (ccSig)
-			{
-				case PropertySig propSig:
-					return new PropertySig(
-						propSig.HasThis,
-						Duplicate(propSig.RetType),
-						Duplicate(propSig.Params).ToArray());
-
-				case MethodSig metSig:
-					return new MethodSig(
-						metSig.CallingConvention,
-						metSig.GenParamCount,
-						Duplicate(metSig.RetType),
-						Duplicate(metSig.Params));
-
-				default:
-					Debug.Fail("Duplicate " + ccSig.GetType().Name);
-					return null;
-			}
 		}
 	}
 }
