@@ -5,39 +5,44 @@ using dnlib.DotNet;
 
 namespace il2cpp2
 {
-	internal class GenericReplacer
+	public class GenericReplacer
 	{
-		public readonly TypeDef OwnerType;
-		public readonly IList<TypeSig> TypeGenArgs;
-		public readonly MethodDef OwnerMethod;
-		public readonly IList<TypeSig> MethodGenArgs;
+		public TypeDef OwnerType { get; private set; }
+		public IList<TypeSig> TypeGenArgs { get; private set; }
+		public MethodDef OwnerMethod { get; private set; }
+		public IList<TypeSig> MethodGenArgs { get; private set; }
+		public bool HasType => OwnerType != null & TypeGenArgs != null && TypeGenArgs.Count > 0;
+		public bool HasMethod => OwnerMethod != null & MethodGenArgs != null && MethodGenArgs.Count > 0;
+		public bool IsValid => HasType || HasMethod;
 
-		public GenericReplacer()
+		public void SetType(TypeX tyX)
 		{
+			if (tyX.HasGenArgs)
+			{
+				OwnerType = tyX.Def;
+				TypeGenArgs = tyX.GenArgs;
+			}
 		}
 
-		public GenericReplacer(TypeDef typeDef, IList<TypeSig> genArgs)
+		public void SetMethod(MethodX metX)
 		{
-			OwnerType = typeDef;
-			TypeGenArgs = genArgs;
-		}
-
-		public GenericReplacer(MethodDef metDef, IList<TypeSig> genArgs)
-		{
-			OwnerMethod = metDef;
-			MethodGenArgs = genArgs;
+			if (metX.HasGenArgs)
+			{
+				OwnerMethod = metX.Def;
+				MethodGenArgs = metX.GenArgs;
+			}
 		}
 
 		public TypeSig Replace(GenericVar genVar)
 		{
-			if (genVar.OwnerType == OwnerType)
+			if (TypeEqualityComparer.Instance.Equals(genVar.OwnerType, OwnerType))
 				return TypeGenArgs[(int)genVar.Number];
 			return genVar;
 		}
 
 		public TypeSig Replace(GenericMVar genMVar)
 		{
-			if (genMVar.OwnerMethod == OwnerMethod)
+			if (MethodEqualityComparer.DontCompareDeclaringTypes.Equals(genMVar.OwnerMethod, OwnerMethod))
 				return MethodGenArgs[(int)genMVar.Number];
 			return genMVar;
 		}
@@ -113,6 +118,9 @@ namespace il2cpp2
 					}
 
 				default:
+					if (typeSig is CorLibTypeSig corSig)
+						return corSig;
+
 					Debug.Fail("TypeSig Duplicate Error: " + typeSig.GetType().Name);
 					return null;
 			}

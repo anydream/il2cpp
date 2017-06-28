@@ -1,11 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
-using il2cpp;
+using il2cpp2;
 
 namespace test
 {
+	internal class Program
+	{
+		private static void Main(string[] args)
+		{
+			TypeManager typeMgr = new TypeManager();
+			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
+			typeMgr.AnalyzeMethod(typeMgr.Module.EntryPoint, null);
+			typeMgr.Process();
+		}
+	}
+
+#if false
 	internal class Program
 	{
 		private static string PrintAllTypes(List<TypeX> allTypes)
@@ -127,4 +140,5 @@ namespace test
 #endif
 		}
 	}
+#endif
 }

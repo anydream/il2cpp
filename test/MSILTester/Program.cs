@@ -1143,12 +1143,14 @@ System.IEquatable`1<int>
 			}
 		}
 
-		public static void Entry()
+		public static T Entry<T>(T bla)
 		{
-			var cls = new Derived<long, ushort>();
-			Inf<int, long> inf = cls;
+			var cls = new Derived<T, ushort>();
+			Inf<int, T> inf = cls;
+			T t = bla;
 			inf.fun(123);
-			inf.fun(123, 456L, "");
+			inf.fun(123, t, "");
+			return bla;
 		}
 	}
 
@@ -1156,7 +1158,7 @@ System.IEquatable`1<int>
 	{
 		static void Main()
 		{
-			TestCrossOverride5.Entry();
+			TestCrossOverride5.Entry<long>(44);
 		}
 	}
 }
