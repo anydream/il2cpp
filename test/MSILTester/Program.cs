@@ -1107,7 +1107,7 @@ System.IEquatable`1<int>
 		interface Inf<TI, TI2>
 		{
 			TI fun(TI n);
-			TI fun(TI n, TI2 n2);
+			TI fun<TF>(TI n, TI2 n2, TF n3);
 		}
 
 		class Base<TB0, TB> : Inf<int, TB>
@@ -1122,10 +1122,17 @@ System.IEquatable`1<int>
 				return n;
 			}
 
-			int Inf<int, TB>.fun(int n, TB n2)
+#if true
+			int Inf<int, TB>.fun<TF>(int n, TB n2, TF n3)
 			{
 				return n;
 			}
+#else
+			public int fun<TF>(int n, TB n2, TF n3)
+			{
+				return n;
+			}
+#endif
 		}
 
 		class Derived<TD, TD1> : Base<TD1, TD>, Inf<int, TD>
@@ -1141,7 +1148,7 @@ System.IEquatable`1<int>
 			var cls = new Derived<long, ushort>();
 			Inf<int, long> inf = cls;
 			inf.fun(123);
-			inf.fun(123, 456L);
+			inf.fun(123, 456L, "");
 		}
 	}
 
@@ -1149,7 +1156,7 @@ System.IEquatable`1<int>
 	{
 		static void Main()
 		{
-			TestCrossOverride4.Entry();
+			TestCrossOverride5.Entry();
 		}
 	}
 }
