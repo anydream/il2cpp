@@ -97,6 +97,26 @@ namespace il2cpp2
 			Def = metDef;
 		}
 
+		public override int GetHashCode()
+		{
+			return DeclType.GetHashCode() ^
+				   Def.Name.GetHashCode();
+		}
+
+		public bool Equals(MethodImpl other)
+		{
+			if (ReferenceEquals(this, other))
+				return true;
+
+			return DeclType.Equals(other.DeclType) &&
+				   MethodEqualityComparer.DontCompareDeclaringTypes.Equals(Def, other.Def);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is MethodImpl other && Equals(other);
+		}
+
 		public override string ToString()
 		{
 			return Def.FullName + " [" + DeclType + "]";
@@ -314,13 +334,17 @@ namespace il2cpp2
 		// 方法映射
 		private readonly Dictionary<MethodX, MethodX> MethodMap = new Dictionary<MethodX, MethodX>();
 		public IList<MethodX> Methods => new List<MethodX>(MethodMap.Keys);
-		// 方法签名映射
-		public readonly Dictionary<MethodSignature, MethodDef> MethodSigMap = new Dictionary<MethodSignature, MethodDef>();
 		// 字段映射
 		private readonly Dictionary<FieldX, FieldX> FieldMap = new Dictionary<FieldX, FieldX>();
 		public IList<FieldX> Fields => new List<FieldX>(FieldMap.Keys);
 		// 运行时类型
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
+
+		// 方法签名映射
+		public readonly Dictionary<MethodSignature, MethodDef> MethodSigMap = new Dictionary<MethodSignature, MethodDef>();
+		// 方法覆盖映射
+		public readonly Dictionary<MethodSignature, HashSet<MethodImpl>> OverrideImpls =
+			new Dictionary<MethodSignature, HashSet<MethodImpl>>();
 
 		public VirtualTable VTable;
 
@@ -356,11 +380,12 @@ namespace il2cpp2
 			return Def.FullName + GenericToString();
 		}
 
-		public bool AddMethod(MethodX metX)
+		public bool AddMethod(MethodX metX, out MethodX ometX)
 		{
-			if (!MethodMap.ContainsKey(metX))
+			if (!MethodMap.TryGetValue(metX, out ometX))
 			{
 				MethodMap.Add(metX, metX);
+				ometX = metX;
 				return true;
 			}
 			return false;
@@ -382,6 +407,16 @@ namespace il2cpp2
 			Debug.Assert(metDef.DeclaringType == Def);
 
 			MethodSigMap.Add(sig, metDef);
+		}
+
+		public void AddOverrideImpl(MethodSignature sig, MethodImpl impl)
+		{
+			if (!OverrideImpls.TryGetValue(sig, out var implSet))
+			{
+				implSet = new HashSet<MethodImpl>();
+				OverrideImpls.Add(sig, implSet);
+			}
+			implSet.Add(impl);
 		}
 
 		public void CollectInterfaces(HashSet<TypeX> infs)
@@ -470,6 +505,19 @@ namespace il2cpp2
 		}
 	}
 
+	class MethodDeclComparer : IEqualityComparer<MethodX>
+	{
+		public int GetHashCode(MethodX obj)
+		{
+			return obj.GetHashCode() ^ obj.DeclType.GetHashCode();
+		}
+
+		public bool Equals(MethodX x, MethodX y)
+		{
+			return x.Equals(y) && x.DeclType.Equals(y.DeclType);
+		}
+	}
+
 	// 展开的字段
 	public class FieldX
 	{
@@ -523,6 +571,8 @@ namespace il2cpp2
 		public IList<TypeX> Types => new List<TypeX>(TypeMap.Keys);
 		// 待处理方法队列
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
+		// 虚调用
+		private readonly HashSet<MethodX> VCalls = new HashSet<MethodX>(new MethodDeclComparer());
 
 		// 复位
 		public void Reset()
@@ -580,19 +630,33 @@ namespace il2cpp2
 			{
 				case OperandType.InlineMethod:
 					{
+						MethodX resMetX = null;
 						switch (inst.Operand)
 						{
 							case MethodDef metDef:
-								ResolveMethod(metDef);
+								resMetX = ResolveMethod(metDef);
 								break;
 
 							case MemberRef memRef:
-								ResolveMethod(memRef, replacer);
+								resMetX = ResolveMethod(memRef, replacer);
 								break;
 
 							case MethodSpec metSpec:
-								ResolveMethod(metSpec, replacer);
+								resMetX = ResolveMethod(metSpec, replacer);
 								break;
+
+							default:
+								Debug.Fail("InlineMethod " + inst.Operand.GetType().Name);
+								break;
+						}
+
+						if (inst.OpCode.Code == Code.Callvirt ||
+							inst.OpCode.Code == Code.Ldvirtftn)
+						{
+							if (!VCalls.Contains(resMetX))
+							{
+								VCalls.Add(resMetX);
+							}
 						}
 
 						break;
@@ -608,6 +672,10 @@ namespace il2cpp2
 
 							case MemberRef memRef:
 								ResolveField(memRef, replacer);
+								break;
+
+							default:
+								Debug.Fail("InlineField " + inst.Operand.GetType().Name);
 								break;
 						}
 
@@ -770,6 +838,12 @@ namespace il2cpp2
 
 			// 展开虚表
 			currType.VTable.ExpandTable();
+
+			// 追加虚表到入口类型
+			foreach (var kv in currType.VTable.Table)
+			{
+				kv.Key.DeclType.AddOverrideImpl(kv.Key.Signature, kv.Value);
+			}
 		}
 
 		private static MethodSigDuplicator MakeMethodDuplicator(GenericReplacer replacer)
@@ -883,10 +957,12 @@ namespace il2cpp2
 		}
 
 		// 添加方法
-		private void AddMethod(TypeX declType, MethodX metX)
+		private MethodX AddMethod(TypeX declType, MethodX metX)
 		{
-			if (declType.AddMethod(metX))
+			if (declType.AddMethod(metX, out var ometX))
 				ExpandMethod(metX);
+
+			return ometX;
 		}
 
 		// 新方法加入处理队列
@@ -911,26 +987,26 @@ namespace il2cpp2
 		}
 
 		// 解析无泛型方法
-		public void ResolveMethod(MethodDef metDef)
+		public MethodX ResolveMethod(MethodDef metDef)
 		{
 			TypeX declType = ResolveInstanceType(metDef.DeclaringType);
 
 			MethodX metX = new MethodX(metDef, declType, null);
-			AddMethod(declType, metX);
+			return AddMethod(declType, metX);
 		}
 
 		// 解析所在类型包含泛型实例的方法
-		private void ResolveMethod(MemberRef memRef, GenericReplacer replacer)
+		private MethodX ResolveMethod(MemberRef memRef, GenericReplacer replacer)
 		{
 			Debug.Assert(memRef.IsMethodRef);
 			TypeX declType = ResolveInstanceType(memRef.DeclaringType, replacer);
 
 			MethodX metX = new MethodX(memRef.ResolveMethod(), declType, null);
-			AddMethod(declType, metX);
+			return AddMethod(declType, metX);
 		}
 
 		// 解析包含泛型实例的方法
-		private void ResolveMethod(MethodSpec metSpec, GenericReplacer replacer)
+		private MethodX ResolveMethod(MethodSpec metSpec, GenericReplacer replacer)
 		{
 			TypeX declType = ResolveInstanceType(metSpec.DeclaringType, replacer);
 
@@ -941,7 +1017,7 @@ namespace il2cpp2
 				genArgs = ResolveTypeSigList(metGenArgs, replacer);
 
 			MethodX metX = new MethodX(metSpec.ResolveMethodDef(), declType, genArgs);
-			AddMethod(declType, metX);
+			return AddMethod(declType, metX);
 		}
 
 		// 添加字段
