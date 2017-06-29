@@ -54,14 +54,73 @@ namespace test
 			return sb.ToString();
 		}
 
+		private static bool GetTestClassResult(TypeDef typeDef, out string expected)
+		{
+			if (typeDef.HasCustomAttributes)
+			{
+				var attr = typeDef.CustomAttributes[0];
+				if (attr.TypeFullName == "TestIL.TestClassAttribute")
+				{
+					if (attr.HasConstructorArguments)
+					{
+						expected = attr.ConstructorArguments[0].Value.ToString();
+						return true;
+					}
+				}
+			}
+
+			expected = "";
+			return false;
+		}
+
+		private static void TestProcess(TypeManager marker)
+		{
+			foreach (var typeDef in marker.Module.Types)
+			{
+				if (GetTestClassResult(typeDef, out string expected))
+				{
+					var oldColor = Console.ForegroundColor;
+					Console.ForegroundColor = ConsoleColor.Yellow;
+					Console.Write("{0}: ", typeDef.FullName);
+					Console.ForegroundColor = oldColor;
+
+					marker.AddEntry(typeDef.FindMethod("Entry"));
+					marker.Process();
+					string result = PrintAllTypes(marker.Types);
+
+					if (result == expected)
+					{
+						Console.ForegroundColor = ConsoleColor.Green;
+						Console.WriteLine("PASSED");
+						Console.ForegroundColor = oldColor;
+					}
+					else
+					{
+
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.WriteLine("FAILED");
+						Console.ForegroundColor = oldColor;
+						Console.WriteLine(result);
+					}
+
+					marker.Reset();
+				}
+			}
+		}
+
 		private static void Main(string[] args)
 		{
 			TypeManager typeMgr = new TypeManager();
 			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
-			typeMgr.ResolveMethod(typeMgr.Module.EntryPoint);
+
+#if true
+			TestProcess(typeMgr);
+#else
+			typeMgr.AddEntry(typeMgr.Module.EntryPoint);
 			typeMgr.Process();
 			string result = PrintAllTypes(typeMgr.Types);
 			Console.WriteLine(result);
+#endif
 		}
 	}
 

@@ -606,6 +606,12 @@ namespace il2cpp2
 			Module.Context.AssemblyResolver.AddToCache(Module);
 		}
 
+		public void AddEntry(MethodDef metDef)
+		{
+			var resMetX = ResolveMethod(metDef);
+			resMetX.IsCallVirtOnly = false;
+		}
+
 		// 处理循环
 		public void Process()
 		{
@@ -719,6 +725,7 @@ namespace il2cpp2
 					MethodX metX = new MethodX(impl.Def, impl.DeclType, kv.Key.GenArgs);
 					metX = AddMethod(impl.DeclType, metX);
 					kv.Key.OverrideImpls.Add(metX);
+					metX.IsCallVirtOnly = false;
 				}
 			}
 		}
@@ -1026,7 +1033,7 @@ namespace il2cpp2
 		}
 
 		// 解析无泛型方法
-		public MethodX ResolveMethod(MethodDef metDef)
+		private MethodX ResolveMethod(MethodDef metDef)
 		{
 			TypeX declType = ResolveInstanceType(metDef.DeclaringType);
 

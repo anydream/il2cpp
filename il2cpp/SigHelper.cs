@@ -204,28 +204,20 @@ namespace il2cpp2
 		{
 			StringBuilder sb = new StringBuilder();
 
-			if (self.ReturnType != null)
-				PrettyName(sb, self.ReturnType);
-			else
-				sb.Append("<?>");
+			PrettyName(sb, self.ReturnType);
 
 			sb.AppendFormat(" {0}{1}",
 				self.Def.Name,
 				PrettyName((GenericArgs)self));
 
 			sb.Append('(');
-			if (self.ParamTypes == null)
-				sb.Append("<?>");
-			else
+			bool last = false;
+			foreach (var arg in self.ParamTypes)
 			{
-				bool last = false;
-				foreach (var arg in self.ParamTypes)
-				{
-					if (last)
-						sb.Append(',');
-					last = true;
-					PrettyName(sb, arg);
-				}
+				if (last)
+					sb.Append(',');
+				last = true;
+				PrettyName(sb, arg);
 			}
 			sb.Append(')');
 
@@ -359,7 +351,7 @@ namespace il2cpp2
 						return;
 					}
 
-					Debug.Fail("Duplicate TypeSig " + typeSig.GetType().Name);
+					Debug.Fail("PrettyName " + typeSig.GetType().Name);
 					return;
 			}
 		}

@@ -1149,7 +1149,7 @@ System.IEquatable`1<int>
 			}
 		}
 
-		public static T Entry<T>(T bla)
+		private static T EntryT<T>(T bla)
 		{
 			var cls = new Derived<T, ushort>();
 			Inf<int, T> inf = cls;
@@ -1158,8 +1158,14 @@ System.IEquatable`1<int>
 			inf.fun(123, t, "");
 			return bla;
 		}
+
+		public static void Entry()
+		{
+			EntryT('c');
+		}
 	}
 
+	[TestClass(@"")]
 	static class TestCrossOverride6
 	{
 		interface IInf
@@ -1205,7 +1211,6 @@ System.IEquatable`1<int>
 	{
 		static void Main()
 		{
-			TestCrossOverride5.Entry('c');
 		}
 	}
 }
