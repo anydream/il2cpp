@@ -1108,6 +1108,7 @@ System.IEquatable`1<int>
 		{
 			TI fun(TI n);
 			TI fun<TF>(TI n, TI2 n2, TF n3);
+			TI fun<TF>(TF n3, TI2 n2, TI n);
 		}
 
 		class Base<TB0, TB> : Inf<int, TB>
@@ -1118,6 +1119,11 @@ System.IEquatable`1<int>
 			}
 
 			int Inf<int, TB>.fun(int n)
+			{
+				return n;
+			}
+
+			int Inf<int, TB>.fun<TF>(TF n3, TB n2, int n)
 			{
 				return n;
 			}
@@ -1154,11 +1160,52 @@ System.IEquatable`1<int>
 		}
 	}
 
+	static class TestCrossOverride6
+	{
+		interface IInf
+		{
+			int foo(int n);
+		}
+
+		class Base : IInf
+		{
+			int IInf.foo(int n)
+			{
+				return n;
+			}
+		}
+
+		class Sub1 : Base
+		{
+			public int foo(int n)
+			{
+				return n;
+			}
+		}
+
+		class Sub2 : Base, IInf
+		{
+			public int foo(int n)
+			{
+				return n;
+			}
+		}
+
+		public static void Entry()
+		{
+			IInf inf = new Sub1();
+			inf.foo(123);
+
+			inf = new Sub2();
+			inf.foo(456);
+		}
+	}
+
 	class Program
 	{
 		static void Main()
 		{
-			TestCrossOverride5.Entry<long>(44);
+			TestCrossOverride5.Entry('c');
 		}
 	}
 }
