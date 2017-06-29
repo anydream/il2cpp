@@ -333,10 +333,10 @@ namespace il2cpp2
 		public bool HasInterfaces => Interfaces_ != null && Interfaces_.Count > 0;
 		// 方法映射
 		private readonly Dictionary<MethodX, MethodX> MethodMap = new Dictionary<MethodX, MethodX>();
-		public IList<MethodX> Methods => new List<MethodX>(MethodMap.Keys);
+		public IList<MethodX> Methods => new List<MethodX>(MethodMap.Values);
 		// 字段映射
 		private readonly Dictionary<FieldX, FieldX> FieldMap = new Dictionary<FieldX, FieldX>();
-		public IList<FieldX> Fields => new List<FieldX>(FieldMap.Keys);
+		public IList<FieldX> Fields => new List<FieldX>(FieldMap.Values);
 		// 运行时类型
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
 
@@ -448,6 +448,13 @@ namespace il2cpp2
 		public TypeSig ReturnType;
 		// 参数列表
 		public IList<TypeSig> ParamTypes;
+		// 方法覆盖集合
+		private HashSet<MethodX> OverrideImpls_;
+		public HashSet<MethodX> OverrideImpls => OverrideImpls_ ?? (OverrideImpls_ = new HashSet<MethodX>(new MethodDeclComparer()));
+		public bool HasOverrideImpls => OverrideImpls_ != null && OverrideImpls_.Count > 0;
+
+		// 是否为纯虚方法
+		public bool IsCallVirtOnly = true;
 
 		public MethodX(MethodDef metDef, TypeX declType, IList<TypeSig> genArgs)
 		{
@@ -568,7 +575,7 @@ namespace il2cpp2
 		public ModuleDefMD Module { get; private set; }
 		// 类型映射
 		private readonly Dictionary<TypeX, TypeX> TypeMap = new Dictionary<TypeX, TypeX>();
-		public IList<TypeX> Types => new List<TypeX>(TypeMap.Keys);
+		public IList<TypeX> Types => new List<TypeX>(TypeMap.Values);
 		// 待处理方法队列
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
 		// 虚调用
@@ -656,6 +663,7 @@ namespace il2cpp2
 								break;
 						}
 
+						// 添加虚方法入口
 						if (inst.OpCode.Code == Code.Callvirt ||
 							inst.OpCode.Code == Code.Ldvirtftn)
 						{
@@ -672,6 +680,8 @@ namespace il2cpp2
 								VCalls.Add(resMetX, vSig);
 							}
 						}
+						else
+							resMetX.IsCallVirtOnly = false;
 
 						break;
 					}
@@ -707,7 +717,8 @@ namespace il2cpp2
 				foreach (var impl in implSet)
 				{
 					MethodX metX = new MethodX(impl.Def, impl.DeclType, kv.Key.GenArgs);
-					AddMethod(impl.DeclType, metX);
+					metX = AddMethod(impl.DeclType, metX);
+					kv.Key.OverrideImpls.Add(metX);
 				}
 			}
 		}

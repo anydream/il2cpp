@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using dnlib.DotNet;
+using dnlib.Threading;
 
 namespace il2cpp2
 {
@@ -167,6 +169,187 @@ namespace il2cpp2
 					Debug.Fail("Duplicate " + metBaseSig.GetType().Name);
 					return null;
 			}
+		}
+	}
+
+	static class NameHelper
+	{
+		public static void PrettyName(StringBuilder sb, TypeSig typeSig)
+		{
+			if (typeSig == null)
+				return;
+
+			switch (typeSig.ElementType)
+			{
+				case ElementType.Class:
+				case ElementType.ValueType:
+					sb.Append(SigPrettyName(typeSig));
+					return;
+
+				case ElementType.Ptr:
+					PrettyName(sb, typeSig.Next);
+					sb.Append('*');
+					return;
+
+				case ElementType.ByRef:
+					PrettyName(sb, typeSig.Next);
+					sb.Append('&');
+					return;
+
+				case ElementType.SZArray:
+					PrettyName(sb, typeSig.Next);
+					sb.Append("[]");
+					return;
+
+				case ElementType.Pinned:
+					PrettyName(sb, typeSig.Next);
+					return;
+
+				case ElementType.Array:
+					{
+						PrettyName(sb, typeSig.Next);
+						ArraySig arraySig = (ArraySig)typeSig;
+						sb.Append('[');
+						uint rank = arraySig.Rank;
+						if (rank == 0)
+							sb.Append("<RANK0>");   // Not allowed
+						else if (rank == 1)
+							sb.Append('*');
+						else
+						{
+							for (int i = 0; i < (int)rank; i++)
+							{
+								if (i != 0)
+									sb.Append(',');
+
+								const int NO_LOWER = int.MinValue;
+								const uint NO_SIZE = uint.MaxValue;
+								int lower = arraySig.LowerBounds.Get(i, NO_LOWER);
+								uint size = arraySig.Sizes.Get(i, NO_SIZE);
+								if (lower != NO_LOWER)
+								{
+									sb.Append(lower);
+									sb.Append("..");
+									if (size != NO_SIZE)
+										sb.Append(lower + (int)size - 1);
+									else
+										sb.Append('.');
+								}
+							}
+						}
+						sb.Append(']');
+						return;
+					}
+
+				case ElementType.Var:
+				case ElementType.MVar:
+					{
+						var gs = (GenericSig)typeSig;
+						sb.Append(gs.IsMethodVar ? "!!" : "!");
+						sb.Append(gs.Number);
+						return;
+					}
+
+				case ElementType.GenericInst:
+					{
+						GenericInstSig genSig = (GenericInstSig)typeSig;
+						sb.Append(SigPrettyName(genSig.GenericType));
+
+						sb.Append('<');
+						bool last = false;
+						foreach (var arg in genSig.GenericArguments)
+						{
+							if (last)
+								sb.Append(',');
+							last = true;
+							PrettyName(sb, arg);
+						}
+						sb.Append('>');
+
+						return;
+					}
+
+				case ElementType.CModReqd:
+					{
+						PrettyName(sb, typeSig.Next);
+						CModReqdSig modreq = (CModReqdSig)typeSig;
+						sb.AppendFormat(" modreq({0})", modreq.Modifier.FullName);
+						return;
+					}
+
+				case ElementType.CModOpt:
+					{
+						PrettyName(sb, typeSig.Next);
+						CModOptSig modopt = (CModOptSig)typeSig;
+						sb.AppendFormat(" modopt({0})", modopt.Modifier.FullName);
+						return;
+					}
+
+				default:
+					if (typeSig is CorLibTypeSig corTypeSig)
+					{
+						sb.Append(SigPrettyName(corTypeSig));
+						return;
+					}
+
+					Debug.Fail("Duplicate TypeSig " + typeSig.GetType().Name);
+					return;
+			}
+		}
+
+		private static string SigPrettyName(TypeSig typeSig)
+		{
+			if (typeSig.Namespace == "System")
+			{
+				switch (typeSig.TypeName)
+				{
+					case "Void":
+						return "void";
+
+					case "Object":
+						return "object";
+
+					case "Boolean":
+						return "bool";
+
+					case "Char":
+						return "char";
+
+					case "SByte":
+						return "sbyte";
+
+					case "Byte":
+						return "byte";
+
+					case "Int16":
+						return "short";
+
+					case "UInt16":
+						return "ushort";
+
+					case "Int32":
+						return "int";
+
+					case "UInt32":
+						return "uint";
+
+					case "Int64":
+						return "long";
+
+					case "UInt64":
+						return "ulong";
+
+					case "Single":
+						return "float";
+
+					case "Double":
+						return "double";
+
+					case "String":
+						return "string";
+				}
+			}
+			return (typeSig.IsValueType ? "[valuetype]" : "") + typeSig.FullName;
 		}
 	}
 }

@@ -28,13 +28,23 @@ namespace test
 
 				foreach (var met in type.Methods)
 				{
-					sb.AppendFormatLine("-> {0}", met.ToString());
+					sb.AppendFormatLine("-> {0}{1}", met.ToString(), met.IsCallVirtOnly ? " = 0" : "");
+					if (met.HasOverrideImpls)
+					{
+						var implList = new List<MethodX>(met.OverrideImpls);
+						for (int i = 0, sz = implList.Count; i < sz; ++i)
+						{
+							var impl = implList[i];
+							sb.AppendFormatLine("   {0} {1}: {2}",
+								i + 1 == sz ? '\\' : '|',
+								impl.ToString(),
+								impl.DeclType.ToString());
+						}
+					}
 				}
 
 				foreach (var fld in type.Fields)
-				{
 					sb.AppendFormatLine("--> {0}", fld.ToString());
-				}
 
 				sb.AppendLine();
 			}
