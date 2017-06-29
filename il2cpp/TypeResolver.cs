@@ -8,7 +8,7 @@ using dnlib.DotNet.Emit;
 namespace il2cpp2
 {
 	// 方法签名
-	internal class MethodSignature
+	public class MethodSignature
 	{
 		public readonly string Name;
 		public readonly MethodBaseSig Signature;
@@ -42,33 +42,34 @@ namespace il2cpp2
 		}
 	}
 
-	internal class VirtualTable
+	// 方法实现信息
+	public class MethodImpl
 	{
-		private class ExplicitMapComparer : IEqualityComparer<MethodX>
+		// 方法定义
+		public readonly MethodDef Def;
+		// 所属类型
+		public readonly TypeX DeclType;
+
+		public MethodImpl(MethodDef metDef, TypeX declType)
 		{
-			public int GetHashCode(MethodX obj)
-			{
-				return obj.GetHashCode() ^
-					   obj.DeclType.GetHashCode();
-			}
-
-			public bool Equals(MethodX x, MethodX y)
-			{
-				return x.Equals(y) && x.DeclType.Equals(y.DeclType);
-			}
+			Def = metDef;
+			DeclType = declType;
 		}
+	}
 
+	public class VirtualTable
+	{
 		private class SlotLayer
 		{
-			public readonly List<MethodX> Entries;
-			public MethodX ImplMethod;
+			public readonly List<MethodImpl> Entries;
+			public MethodImpl ImplMethod;
 
 			public SlotLayer()
 			{
-				Entries = new List<MethodX>();
+				Entries = new List<MethodImpl>();
 			}
 
-			private SlotLayer(List<MethodX> entries, MethodX impl)
+			private SlotLayer(List<MethodImpl> entries, MethodImpl impl)
 			{
 				Entries = entries;
 				ImplMethod = impl;
@@ -76,13 +77,12 @@ namespace il2cpp2
 
 			public SlotLayer Clone()
 			{
-				return new SlotLayer(new List<MethodX>(Entries), ImplMethod);
+				return new SlotLayer(new List<MethodImpl>(Entries), ImplMethod);
 			}
 		}
+
 		private readonly Dictionary<MethodSignature, List<SlotLayer>> VMap =
 			new Dictionary<MethodSignature, List<SlotLayer>>();
-		private readonly Dictionary<MethodX, MethodX> ExplicitMap =
-			new Dictionary<MethodX, MethodX>(new ExplicitMapComparer());
 
 		public VirtualTable Clone()
 		{
@@ -92,15 +92,15 @@ namespace il2cpp2
 			{
 				vtbl.VMap.Add(kv.Key, kv.Value.Select(layer => layer.Clone()).ToList());
 			}
-			foreach (var kv in ExplicitMap)
+			/*foreach (var kv in ExplicitMap)
 			{
 				vtbl.ExplicitMap.Add(kv.Key, kv.Value);
-			}
+			}*/
 
 			return vtbl;
 		}
 
-		public void NewSlot(MethodSignature sig, MethodX impl)
+		public void NewSlot(MethodSignature sig, MethodImpl impl)
 		{
 			if (!VMap.TryGetValue(sig, out var layerList))
 			{
@@ -113,7 +113,7 @@ namespace il2cpp2
 			layerList.Add(layer);
 		}
 
-		public void ReuseSlot(MethodSignature sig, MethodX impl)
+		public void ReuseSlot(MethodSignature sig, MethodImpl impl)
 		{
 			bool result = VMap.TryGetValue(sig, out var layerList);
 			Debug.Assert(result);
@@ -124,9 +124,8 @@ namespace il2cpp2
 			layer.ImplMethod = impl;
 		}
 
-		public void ExplicitOverride(MethodX entry, MethodX impl)
+		public void ExplicitOverride(TypeX declType, MethodSignature sig, MethodImpl impl)
 		{
-			ExplicitMap[entry] = impl;
 		}
 
 		public void ExpandTable()
@@ -214,6 +213,8 @@ namespace il2cpp2
 		public IList<FieldX> Fields => new List<FieldX>(FieldMap.Keys);
 		// 运行时类型
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
+
+		public VirtualTable VTable;
 
 		public TypeX(TypeDef typeDef)
 		{
@@ -509,6 +510,87 @@ namespace il2cpp2
 				foreach (var inf in tyX.Def.Interfaces)
 					tyX.Interfaces.Add(ResolveInstanceType(inf.Interface, replacer));
 			}
+
+			ResolveVTable(tyX, replacer);
+		}
+
+		private void ResolveVTable(TypeX tyX, GenericReplacer replacer)
+		{
+			MethodSigDuplicator duplicator = null;
+			if (replacer.IsValid)
+			{
+				duplicator = new MethodSigDuplicator();
+				duplicator.GenReplacer = replacer;
+			}
+
+			// 继承虚表
+
+			// 遍历方法
+			foreach (var metDef in tyX.Def.Methods)
+			{
+				// 跳过不产生虚表的静态和特殊方法
+				if (metDef.IsStatic || metDef.IsSpecialName)
+					continue;
+
+				if (metDef.HasOverrides)
+				{
+					// 显式覆盖的方法
+					foreach (var overMet in metDef.Overrides)
+					{
+						var overMetDecl = overMet.MethodDeclaration;
+						if (overMetDecl is MethodDef ometDef)
+						{
+							TypeX oDeclType = ResolveInstanceType(ometDef.DeclaringType);
+
+							//(MethodBaseSig)ometDef.Signature;
+						}
+						else if (overMetDecl is MemberRef omemRef)
+						{
+							Debug.Assert(omemRef.IsMethodRef);
+
+							// 展开目标方法所属的类型
+							TypeX oDeclType = null;
+							if (omemRef.Class is TypeSpec omemClsSpec)
+								oDeclType = ResolveInstanceType(omemClsSpec);
+							else
+								oDeclType = ResolveInstanceType(omemRef.DeclaringType);
+
+							//(MethodBaseSig)omemRef.Signature;
+						}
+					}
+				}
+				else
+				{
+					// 展开方法上属于类型的泛型
+					MethodSignature sig = MakeMethodSignature(
+						metDef.Name,
+						(MethodBaseSig)metDef.Signature,
+						duplicator);
+
+					if (metDef.IsNewSlot ||
+						!metDef.IsVirtual ||
+						tyX.Def.FullName == "System.Object")
+					{
+						// 新建虚表槽的方法
+						tyX.VTable.NewSlot(sig, new MethodImpl(metDef, tyX));
+					}
+					else
+					{
+						// 复用虚表槽的方法
+						Debug.Assert(metDef.IsReuseSlot);
+						tyX.VTable.ReuseSlot(sig, new MethodImpl(metDef, tyX));
+					}
+				}
+			}
+
+			// 关联接口方法
+		}
+
+		private MethodSignature MakeMethodSignature(string name, MethodBaseSig metSig, MethodSigDuplicator duplicator)
+		{
+			if (duplicator != null)
+				metSig = duplicator.Duplicate(metSig);
+			return new MethodSignature(name, metSig);
 		}
 
 		// 解析实例类型

@@ -79,13 +79,13 @@ namespace il2cpp2
 
 				case ElementType.Array:
 					{
-						ArraySig arySig = typeSig as ArraySig;
+						ArraySig arySig = (ArraySig)typeSig;
 						return new ArraySig(Duplicate(arySig.Next), arySig.Rank, Duplicate(arySig.Sizes), Duplicate(arySig.LowerBounds));
 					}
 
 				case ElementType.Var:
 					{
-						GenericVar genVar = typeSig as GenericVar;
+						GenericVar genVar = (GenericVar)typeSig;
 						TypeSig result = GenReplacer.Replace(genVar);
 						if (result != null)
 							return result;
@@ -94,7 +94,7 @@ namespace il2cpp2
 
 				case ElementType.MVar:
 					{
-						GenericMVar genMVar = typeSig as GenericMVar;
+						GenericMVar genMVar = (GenericMVar)typeSig;
 						TypeSig result = GenReplacer.Replace(genMVar);
 						if (result != null)
 							return result;
@@ -103,19 +103,19 @@ namespace il2cpp2
 
 				case ElementType.GenericInst:
 					{
-						GenericInstSig genSig = typeSig as GenericInstSig;
+						GenericInstSig genSig = (GenericInstSig)typeSig;
 						return new GenericInstSig(genSig.GenericType, Duplicate(genSig.GenericArguments));
 					}
 
 				case ElementType.CModReqd:
 					{
-						CModReqdSig modreq = typeSig as CModReqdSig;
+						CModReqdSig modreq = (CModReqdSig)typeSig;
 						return new CModReqdSig(modreq.Modifier, Duplicate(modreq.Next));
 					}
 
 				case ElementType.CModOpt:
 					{
-						CModOptSig modopt = typeSig as CModOptSig;
+						CModOptSig modopt = (CModOptSig)typeSig;
 						return new CModOptSig(modopt.Modifier, Duplicate(modopt.Next));
 					}
 
@@ -141,6 +141,32 @@ namespace il2cpp2
 		protected static IList<int> Duplicate(IList<int> lst)
 		{
 			return lst == null ? null : new List<int>(lst);
+		}
+	}
+
+	internal class MethodSigDuplicator : TypeSigDuplicator
+	{
+		public MethodBaseSig Duplicate(MethodBaseSig metBaseSig)
+		{
+			switch (metBaseSig)
+			{
+				case PropertySig propSig:
+					return new PropertySig(
+						propSig.HasThis,
+						Duplicate(propSig.RetType),
+						Duplicate(propSig.Params).ToArray());
+
+				case MethodSig metSig:
+					return new MethodSig(
+						metSig.CallingConvention,
+						metSig.GenParamCount,
+						Duplicate(metSig.RetType),
+						Duplicate(metSig.Params));
+
+				default:
+					Debug.Fail("Duplicate " + metBaseSig.GetType().Name);
+					return null;
+			}
 		}
 	}
 }
