@@ -148,17 +148,21 @@ namespace il2cpp2
 			new Dictionary<MethodSignature, List<SlotLayer>>();
 		// 显式覆盖列表
 		private readonly List<ExplicitItem> ExplicitList = new List<ExplicitItem>();
+		private readonly HashSet<VirtualEntry> ExplicitSet = new HashSet<VirtualEntry>();
 		// 展开的虚表
-		public readonly Dictionary<VirtualEntry, MethodImpl> Table = new Dictionary<VirtualEntry, MethodImpl>();
+		public Dictionary<VirtualEntry, MethodImpl> Table { get; private set; }
+			= new Dictionary<VirtualEntry, MethodImpl>();
 
 		public VirtualTable Clone()
 		{
 			VirtualTable vtbl = new VirtualTable();
 
+			// 只需要克隆最后一层虚槽
 			foreach (var kv in VMap)
-				vtbl.VMap.Add(kv.Key, kv.Value.Select(layer => layer.Clone()).ToList());
+				vtbl.VMap.Add(kv.Key, new List<SlotLayer> { kv.Value.Last().Clone() });
 
-			vtbl.ExplicitList.AddRange(ExplicitList);
+			// 克隆展开的虚表
+			vtbl.Table = new Dictionary<VirtualEntry, MethodImpl>(Table);
 
 			return vtbl;
 		}
@@ -190,6 +194,13 @@ namespace il2cpp2
 
 		public void MergeSlot(MethodSignature sig, TypeX declType)
 		{
+			// 跳过已覆盖的签名
+			var entry = new VirtualEntry(declType, sig);
+			if (ExplicitSet.Contains(entry))
+				return;
+			if (Table.ContainsKey(entry))
+				return;
+
 			bool result = VMap.TryGetValue(sig, out var layerList);
 			Debug.Assert(result);
 			Debug.Assert(layerList.Count > 0);
@@ -200,7 +211,9 @@ namespace il2cpp2
 
 		public void ExplicitOverride(TypeX declType, MethodSignature sig, MethodImpl impl)
 		{
-			ExplicitList.Add(new ExplicitItem(declType, sig, impl));
+			var expItem = new ExplicitItem(declType, sig, impl);
+			ExplicitList.Add(expItem);
+			ExplicitSet.Add(expItem);
 		}
 
 		public void ExpandTable()
@@ -216,6 +229,7 @@ namespace il2cpp2
 					}
 				}
 			}
+			// 显式覆盖最后展开
 			foreach (var expInfo in ExplicitList)
 			{
 				var entry = new VirtualEntry(expInfo.DeclType, expInfo.Signature);
@@ -691,7 +705,7 @@ namespace il2cpp2
 							// 展开目标方法所属的类型
 							TypeX oDeclType = null;
 							if (omemRef.Class is TypeSpec omemClsSpec)
-								oDeclType = ResolveInstanceType(omemClsSpec);
+								oDeclType = ResolveInstanceType(omemClsSpec, replacer);
 							else
 								Debug.Fail("Override MemberRef " + overMetDecl);
 							//oDeclType = ResolveInstanceType(omemRef.DeclaringType);
