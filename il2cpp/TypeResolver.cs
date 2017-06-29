@@ -572,7 +572,8 @@ namespace il2cpp2
 		// 待处理方法队列
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
 		// 虚调用
-		private readonly HashSet<MethodX> VCalls = new HashSet<MethodX>(new MethodDeclComparer());
+		private readonly Dictionary<MethodX, MethodSignature> VCalls =
+			new Dictionary<MethodX, MethodSignature>(new MethodDeclComparer());
 
 		// 复位
 		public void Reset()
@@ -603,23 +604,28 @@ namespace il2cpp2
 		{
 			while (PendingMets.Count > 0)
 			{
-				// 取出一个待处理方法
-				MethodX currMetX = PendingMets.Dequeue();
-
-				// 跳过无方法体的方法
-				if (!currMetX.Def.HasBody)
-					continue;
-
-				// 构建方法内的泛型展开器
-				GenericReplacer replacer = new GenericReplacer();
-				replacer.SetType(currMetX.DeclType);
-				replacer.SetMethod(currMetX);
-
-				// 遍历并解析指令
-				foreach (var inst in currMetX.Def.Body.Instructions)
+				do
 				{
-					ResolveInstruction(inst, replacer);
-				}
+					// 取出一个待处理方法
+					MethodX currMetX = PendingMets.Dequeue();
+
+					// 跳过无方法体的方法
+					if (!currMetX.Def.HasBody)
+						continue;
+
+					// 构建方法内的泛型展开器
+					GenericReplacer replacer = new GenericReplacer();
+					replacer.SetType(currMetX.DeclType);
+					replacer.SetMethod(currMetX);
+
+					// 遍历并解析指令
+					foreach (var inst in currMetX.Def.Body.Instructions)
+					{
+						ResolveInstruction(inst, replacer);
+					}
+				} while (PendingMets.Count > 0);
+
+				ResolveVCalls();
 			}
 		}
 
@@ -653,9 +659,17 @@ namespace il2cpp2
 						if (inst.OpCode.Code == Code.Callvirt ||
 							inst.OpCode.Code == Code.Ldvirtftn)
 						{
-							if (!VCalls.Contains(resMetX))
+							if (!VCalls.ContainsKey(resMetX))
 							{
-								VCalls.Add(resMetX);
+								var typeReplacer = new GenericReplacer();
+								typeReplacer.SetType(resMetX.DeclType);
+								var typeDuplicator = MakeMethodDuplicator(typeReplacer);
+								var vSig = MakeMethodSignature(
+									resMetX.Def.Name,
+									(MethodBaseSig)resMetX.Def.Signature,
+									typeDuplicator);
+
+								VCalls.Add(resMetX, vSig);
 							}
 						}
 
@@ -681,6 +695,20 @@ namespace il2cpp2
 
 						break;
 					}
+			}
+		}
+
+		private void ResolveVCalls()
+		{
+			foreach (var kv in VCalls)
+			{
+				bool result = kv.Key.DeclType.OverrideImpls.TryGetValue(kv.Value, out var implSet);
+				Debug.Assert(result);
+				foreach (var impl in implSet)
+				{
+					MethodX metX = new MethodX(impl.Def, impl.DeclType, kv.Key.GenArgs);
+					AddMethod(impl.DeclType, metX);
+				}
 			}
 		}
 
