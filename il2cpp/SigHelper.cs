@@ -172,8 +172,75 @@ namespace il2cpp2
 		}
 	}
 
-	static class NameHelper
+	public static class NameHelper
 	{
+		public static string PrettyName(this GenericArgs self)
+		{
+			if (self.GenArgs == null)
+				return "";
+
+			StringBuilder sb = new StringBuilder();
+
+			sb.Append('<');
+			bool last = false;
+			foreach (var arg in self.GenArgs)
+			{
+				if (last)
+					sb.Append(',');
+				last = true;
+				PrettyName(sb, arg);
+			}
+			sb.Append('>');
+
+			return sb.ToString();
+		}
+
+		public static string PrettyName(this TypeX self)
+		{
+			return self.Def.FullName + PrettyName((GenericArgs)self);
+		}
+
+		public static string PrettyName(this MethodX self)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			if (self.ReturnType != null)
+				PrettyName(sb, self.ReturnType);
+			else
+				sb.Append("<?>");
+
+			sb.AppendFormat(" {0}{1}",
+				self.Def.Name,
+				PrettyName((GenericArgs)self));
+
+			sb.Append('(');
+			if (self.ParamTypes == null)
+				sb.Append("<?>");
+			else
+			{
+				bool last = false;
+				foreach (var arg in self.ParamTypes)
+				{
+					if (last)
+						sb.Append(',');
+					last = true;
+					PrettyName(sb, arg);
+				}
+			}
+			sb.Append(')');
+
+			return sb.ToString();
+		}
+
+		public static string PrettyName(this FieldX self)
+		{
+			StringBuilder sb = new StringBuilder();
+			PrettyName(sb, self.FieldType);
+			sb.Append(' ');
+			sb.Append(self.Def.Name);
+			return sb.ToString();
+		}
+
 		public static void PrettyName(StringBuilder sb, TypeSig typeSig)
 		{
 			if (typeSig == null)

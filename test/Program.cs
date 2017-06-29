@@ -24,11 +24,11 @@ namespace test
 
 			foreach (var type in allTypes)
 			{
-				sb.AppendLine(type.ToString());
+				sb.AppendLine(type.PrettyName());
 
 				foreach (var met in type.Methods)
 				{
-					sb.AppendFormatLine("-> {0}{1}", met.ToString(), met.IsCallVirtOnly ? " = 0" : "");
+					sb.AppendFormatLine("-> {0}{1}", met.PrettyName(), met.IsCallVirtOnly ? " = 0" : "");
 					if (met.HasOverrideImpls)
 					{
 						var implList = new List<MethodX>(met.OverrideImpls);
@@ -37,14 +37,14 @@ namespace test
 							var impl = implList[i];
 							sb.AppendFormatLine("   {0} {1}: {2}",
 								i + 1 == sz ? '\\' : '|',
-								impl.ToString(),
-								impl.DeclType.ToString());
+								impl.PrettyName(),
+								impl.DeclType.PrettyName());
 						}
 					}
 				}
 
 				foreach (var fld in type.Fields)
-					sb.AppendFormatLine("--> {0}", fld.ToString());
+					sb.AppendFormatLine("--> {0}", fld.PrettyName());
 
 				sb.AppendLine();
 			}
