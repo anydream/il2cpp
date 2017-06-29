@@ -15,6 +15,7 @@ namespace il2cpp2
 
 		public MethodSignature(string name, MethodBaseSig sig)
 		{
+			Debug.Assert(sig != null);
 			Name = name;
 			Signature = sig;
 		}
@@ -51,6 +52,7 @@ namespace il2cpp2
 
 		public VirtualEntry(TypeX declType, MethodSignature sig)
 		{
+			Debug.Assert(sig != null);
 			DeclType = declType;
 			Signature = sig;
 		}
@@ -168,6 +170,7 @@ namespace il2cpp2
 				layerList = new List<SlotLayer>();
 				VMap.Add(sig, layerList);
 			}
+
 			var layer = new SlotLayer();
 			layer.Entries.Add(impl.DeclType);
 			layer.ImplMethod = impl;
@@ -230,6 +233,7 @@ namespace il2cpp2
 
 		public void SetGenericArgs(IList<TypeSig> genArgs)
 		{
+			Debug.Assert(GenArgs_ == null);
 			GenArgs_ = genArgs;
 		}
 
@@ -629,6 +633,8 @@ namespace il2cpp2
 
 		private void ResolveVTable(TypeX currType, GenericReplacer replacer)
 		{
+			Debug.Assert(currType.VTable == null);
+
 			MethodSigDuplicator duplicator = MakeMethodDuplicator(replacer);
 
 			// 如果当前类型为接口则解析接口方法
@@ -732,13 +738,17 @@ namespace il2cpp2
 			}
 
 			// 关联接口方法
-			HashSet<TypeX> infs = new HashSet<TypeX>();
-			currType.CollectInterfaces(infs);
-			foreach (TypeX infType in infs)
+			if (currType.HasInterfaces)
 			{
-				foreach (var kv in infType.MethodSigMap)
+				HashSet<TypeX> infs = new HashSet<TypeX>();
+				currType.CollectInterfaces(infs);
+
+				foreach (TypeX infType in infs)
 				{
-					currType.VTable.MergeSlot(kv.Key, infType);
+					foreach (var kv in infType.MethodSigMap)
+					{
+						currType.VTable.MergeSlot(kv.Key, infType);
+					}
 				}
 			}
 
