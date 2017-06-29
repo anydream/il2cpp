@@ -86,15 +86,15 @@ namespace il2cpp2
 	// 方法实现信息
 	public class MethodImpl
 	{
-		// 方法定义
-		public readonly MethodDef Def;
 		// 所属类型
 		public readonly TypeX DeclType;
+		// 方法定义
+		public readonly MethodDef Def;
 
-		public MethodImpl(MethodDef metDef, TypeX declType)
+		public MethodImpl(TypeX declType, MethodDef metDef)
 		{
-			Def = metDef;
 			DeclType = declType;
+			Def = metDef;
 		}
 
 		public override string ToString()
@@ -103,6 +103,7 @@ namespace il2cpp2
 		}
 	}
 
+	// 虚表
 	public class VirtualTable
 	{
 		private class SlotLayer
@@ -512,6 +513,7 @@ namespace il2cpp2
 		}
 	}
 
+	// 类型解析管理器
 	public class TypeManager
 	{
 		// 主模块
@@ -696,7 +698,7 @@ namespace il2cpp2
 								(MethodBaseSig)ometDef.Signature,
 								null);
 
-							currType.VTable.ExplicitOverride(oDeclType, oSig, new MethodImpl(metDef, currType));
+							currType.VTable.ExplicitOverride(oDeclType, oSig, new MethodImpl(currType, metDef));
 						}
 						else if (overMetDecl is MemberRef omemRef)
 						{
@@ -719,7 +721,7 @@ namespace il2cpp2
 								(MethodBaseSig)omemRef.Signature,
 								oDuplicator);
 
-							currType.VTable.ExplicitOverride(oDeclType, oSig, new MethodImpl(metDef, currType));
+							currType.VTable.ExplicitOverride(oDeclType, oSig, new MethodImpl(currType, metDef));
 						}
 						else
 							Debug.Fail("Override " + overMetDecl.GetType().Name);
@@ -740,13 +742,13 @@ namespace il2cpp2
 						currType.Def.FullName == "System.Object")
 					{
 						// 新建虚表槽的方法
-						currType.VTable.NewSlot(sig, new MethodImpl(metDef, currType));
+						currType.VTable.NewSlot(sig, new MethodImpl(currType, metDef));
 					}
 					else
 					{
 						// 复用虚表槽的方法
 						Debug.Assert(metDef.IsReuseSlot);
-						currType.VTable.ReuseSlot(sig, new MethodImpl(metDef, currType));
+						currType.VTable.ReuseSlot(sig, new MethodImpl(currType, metDef));
 					}
 				}
 			}
