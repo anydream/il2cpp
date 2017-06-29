@@ -197,7 +197,7 @@ namespace il2cpp2
 
 		public static string PrettyName(this TypeX self)
 		{
-			return self.Def.FullName + PrettyName((GenericArgs)self);
+			return PrettyName(self.Def.ToTypeSig()) + PrettyName((GenericArgs)self);
 		}
 
 		public static string PrettyName(this MethodX self)
@@ -233,7 +233,14 @@ namespace il2cpp2
 			return sb.ToString();
 		}
 
-		public static void PrettyName(StringBuilder sb, TypeSig typeSig)
+		private static string PrettyName(TypeSig typeSig)
+		{
+			StringBuilder sb = new StringBuilder();
+			PrettyName(sb, typeSig);
+			return sb.ToString();
+		}
+
+		private static void PrettyName(StringBuilder sb, TypeSig typeSig)
 		{
 			if (typeSig == null)
 				return;

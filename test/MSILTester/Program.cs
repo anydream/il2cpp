@@ -29,14 +29,6 @@ TestIL.TestInfImpl/Inf
    \ void Foo(): TestIL.TestInfImpl/Cls
 
 ======
-void
-System.ValueType
-int
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestInfImpl
 	{
@@ -86,14 +78,6 @@ TestIL.TestClsImpl/SubCls2
 -> int Foo(int)
 
 ======
-void
-System.ValueType
-int
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestClsImpl
 	{
@@ -253,14 +237,6 @@ TestIL.Chain.Sub2
 -> void .ctor()
 
 ======
-void
-System.ValueType
-int
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestNewOverrides
 	{
@@ -321,13 +297,6 @@ TestIL.TestGenInfImpl/Cls`1<long*[]>
 -> char*[] Foo<char*[]>(char*[],short*[])
 
 ======
-void
-System.ValueType
-int*[]
-short*[]
-char*[]
-long*[]
-TestIL.TestGenInfImpl/Inf`1<long*[]>
 ")]
 	static class TestGenInfImpl
 	{
@@ -477,23 +446,6 @@ TestIL.ExplicitOverride.Cls
 --> int field1
 
 ======
-void
-System.ValueType
-TestIL.ExplicitOverride.Inf
-short
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<short>
-System.IEquatable`1<short>
-TestIL.ExplicitOverride.Inf`1<short>
-uint
-System.IComparable`1<uint>
-System.IEquatable`1<uint>
-TestIL.ExplicitOverride.Inf`1<uint>
-int
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestExplicitOverride1
 	{
@@ -521,22 +473,6 @@ TestIL.ExplicitOverride.Inf
    \ void TestIL.ExplicitOverride.Inf.Foo(): TestIL.ExplicitOverride.Cls
 
 ======
-void
-System.ValueType
-short
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<short>
-System.IEquatable`1<short>
-TestIL.ExplicitOverride.Inf`1<short>
-uint
-System.IComparable`1<uint>
-System.IEquatable`1<uint>
-TestIL.ExplicitOverride.Inf`1<uint>
-int
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestExplicitOverride2
 	{
@@ -565,22 +501,6 @@ TestIL.ExplicitOverride.Inf`1<short>
    \ void TestIL.ExplicitOverride.Inf<System.Int16>.Foo(): TestIL.ExplicitOverride.Cls
 
 ======
-void
-System.ValueType
-TestIL.ExplicitOverride.Inf
-short
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<short>
-System.IEquatable`1<short>
-uint
-System.IComparable`1<uint>
-System.IEquatable`1<uint>
-TestIL.ExplicitOverride.Inf`1<uint>
-int
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestExplicitOverride3
 	{
@@ -617,21 +537,6 @@ TestIL.ExplicitOverride.Inf`1<short>
    \ void TestIL.ExplicitOverride.Inf<System.Int16>.Foo(): TestIL.ExplicitOverride.Sub1
 
 ======
-void
-System.ValueType
-short
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<short>
-System.IEquatable`1<short>
-uint
-System.IComparable`1<uint>
-System.IEquatable`1<uint>
-TestIL.ExplicitOverride.Inf`1<uint>
-int
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestExplicitOverride4
 	{
@@ -665,22 +570,6 @@ TestIL.ExplicitOverride.Inf`1<uint>
    \ void Foo(): TestIL.ExplicitOverride.Cls
 
 ======
-void
-System.ValueType
-TestIL.ExplicitOverride.Inf
-short
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<short>
-System.IEquatable`1<short>
-TestIL.ExplicitOverride.Inf`1<short>
-uint
-System.IComparable`1<uint>
-System.IEquatable`1<uint>
-int
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestExplicitOverride5
 	{
@@ -717,21 +606,6 @@ TestIL.ExplicitOverride.Inf`1<uint>
    \ void TestIL.ExplicitOverride.Inf<System.UInt32>.Foo(): TestIL.ExplicitOverride.Sub2
 
 ======
-void
-System.ValueType
-TestIL.ExplicitOverride.Inf
-short
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<short>
-System.IEquatable`1<short>
-uint
-System.IComparable`1<uint>
-System.IEquatable`1<uint>
-int
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestExplicitOverride6
 	{
@@ -762,10 +636,6 @@ TestIL.TestExplicitOverride7/Inf`1<TestIL.TestExplicitOverride7/Elem>
    \ TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem> TestIL.TestExplicitOverride7.Inf<TC>.Foo(TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem>): TestIL.TestExplicitOverride7/Cls`1<TestIL.TestExplicitOverride7/Elem>
 
 ======
-void
-System.ValueType
-TestIL.TestExplicitOverride7/Elem
-TestIL.TestExplicitOverride7/IBla`1<TestIL.TestExplicitOverride7/Elem>
 ")]
 	static class TestExplicitOverride7
 	{
@@ -829,14 +699,6 @@ TestIL.TestCrossOverride/Inf
    \ int getHeight(): TestIL.TestCrossOverride/Sub1
 
 ======
-void
-System.ValueType
-int
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestCrossOverride
 	{
@@ -905,17 +767,6 @@ TestIL.TestCrossOverride2/Inf`2<int,short>
    \ int Foo(short): TestIL.TestCrossOverride2/Base
 
 ======
-void
-System.ValueType
-int
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<int>
-System.IEquatable`1<int>
-short
-System.IComparable`1<short>
-System.IEquatable`1<short>
 ")]
 	static class TestCrossOverride2
 	{
@@ -962,8 +813,6 @@ TestIL.TestCrossOverride3/Inf
    \ void TestIL.TestCrossOverride3.Inf.fun(): TestIL.TestCrossOverride3/Base
 
 ======
-void
-System.ValueType
 ")]
 	static class TestCrossOverride3
 	{
@@ -1009,17 +858,6 @@ TestIL.TestCrossOverride4/Inf`2<int,long>
    \ int TestIL.TestCrossOverride4.Inf<System.Int32,TB>.fun(int,long): TestIL.TestCrossOverride4/Base`1<long>
 
 ======
-void
-System.ValueType
-long
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<long>
-System.IEquatable`1<long>
-int
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestCrossOverride4
 	{
@@ -1082,20 +920,6 @@ TestIL.TestCrossOverride5/Inf`2<int,long>
    \ int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int,long): TestIL.TestCrossOverride5/Base`2<ushort,long>
 
 ======
-void
-System.ValueType
-long
-System.IComparable
-System.IFormattable
-System.IConvertible
-System.IComparable`1<long>
-System.IEquatable`1<long>
-ushort
-System.IComparable`1<ushort>
-System.IEquatable`1<ushort>
-int
-System.IComparable`1<int>
-System.IEquatable`1<int>
 ")]
 	static class TestCrossOverride5
 	{
