@@ -274,23 +274,23 @@ TestIL.TestGenInfImpl/Sub1`1<int*[]>
 
 TestIL.TestGenInfImpl/Cls`1<int*[]>
 -> char*[] Foo<char*[]>(char*[],int*[])
-   | char*[] Foo<char*[]>(char*[],int*[]): TestIL.TestGenInfImpl/Sub2
-   \ char*[] Foo<char*[]>(char*[],int*[]): TestIL.TestGenInfImpl/Cls`1<int*[]>
+   | char*[] Foo<char*[]>(char*[],int*[]): TestIL.TestGenInfImpl/Cls`1<int*[]>
+   \ char*[] Foo<char*[]>(char*[],int*[]): TestIL.TestGenInfImpl/Sub2
 -> char*[] Foo<char*[]>(char*[],short*[])
-   | char*[] Foo<char*[]>(char*[],short*[]): TestIL.TestGenInfImpl/Sub2
-   \ char*[] Foo<char*[]>(char*[],short*[]): TestIL.TestGenInfImpl/Cls`1<int*[]>
+   | char*[] Foo<char*[]>(char*[],short*[]): TestIL.TestGenInfImpl/Cls`1<int*[]>
+   \ char*[] Foo<char*[]>(char*[],short*[]): TestIL.TestGenInfImpl/Sub2
 -> void .ctor()
 
 TestIL.TestGenInfImpl/Inf`1<int*[]>
 -> char*[] Foo<char*[]>(char*[],int*[]) = 0
-   | char*[] Foo<char*[]>(char*[],int*[]): TestIL.TestGenInfImpl/Sub2
-   \ char*[] Foo<char*[]>(char*[],int*[]): TestIL.TestGenInfImpl/Cls`1<int*[]>
+   | char*[] Foo<char*[]>(char*[],int*[]): TestIL.TestGenInfImpl/Cls`1<int*[]>
+   \ char*[] Foo<char*[]>(char*[],int*[]): TestIL.TestGenInfImpl/Sub2
 
 TestIL.TestGenInfImpl/Inf2`1<short*[]>
 -> char*[] Foo<char*[]>(char*[],short*[]) = 0
+   | char*[] Foo<char*[]>(char*[],short*[]): TestIL.TestGenInfImpl/Cls`1<int*[]>
    | char*[] Foo<char*[]>(char*[],short*[]): TestIL.TestGenInfImpl/Sub2
-   | char*[] Foo<char*[]>(char*[],short*[]): TestIL.TestGenInfImpl/Cls`1<long*[]>
-   \ char*[] Foo<char*[]>(char*[],short*[]): TestIL.TestGenInfImpl/Cls`1<int*[]>
+   \ char*[] Foo<char*[]>(char*[],short*[]): TestIL.TestGenInfImpl/Cls`1<long*[]>
 
 TestIL.TestGenInfImpl/Cls`1<long*[]>
 -> void .ctor()
@@ -901,23 +901,24 @@ TestIL.TestCrossOverride4/Inf`2<int,long>
 	[TestClass(@"======
 TestIL.TestCrossOverride5
 -> void Entry()
+-> char EntryT<char>(char)
 
 object
 -> void .ctor()
 
-TestIL.TestCrossOverride5/Derived`2<long,ushort>
+TestIL.TestCrossOverride5/Derived`2<char,ushort>
 -> void .ctor()
 
-TestIL.TestCrossOverride5/Base`2<ushort,long>
+TestIL.TestCrossOverride5/Base`2<ushort,char>
 -> void .ctor()
 -> int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int)
--> int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int,long)
+-> int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int,char,string)
 
-TestIL.TestCrossOverride5/Inf`2<int,long>
+TestIL.TestCrossOverride5/Inf`2<int,char>
 -> int fun(int) = 0
-   \ int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int): TestIL.TestCrossOverride5/Base`2<ushort,long>
--> int fun(int,long) = 0
-   \ int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int,long): TestIL.TestCrossOverride5/Base`2<ushort,long>
+   \ int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int): TestIL.TestCrossOverride5/Base`2<ushort,char>
+-> int fun<string>(int,char,string) = 0
+   \ int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun<string>(int,char,string): TestIL.TestCrossOverride5/Base`2<ushort,char>
 
 ======
 ")]
@@ -989,7 +990,31 @@ TestIL.TestCrossOverride5/Inf`2<int,long>
 		}
 	}
 
-	[TestClass(@"")]
+	[TestClass(@"======
+TestIL.TestCrossOverride6
+-> void Entry()
+
+object
+-> void .ctor()
+
+TestIL.TestCrossOverride6/Sub1
+-> void .ctor()
+
+TestIL.TestCrossOverride6/Base
+-> void .ctor()
+-> int TestIL.TestCrossOverride6.IInf.foo(int)
+
+TestIL.TestCrossOverride6/IInf
+-> int foo(int) = 0
+   | int TestIL.TestCrossOverride6.IInf.foo(int): TestIL.TestCrossOverride6/Base
+   \ int foo(int): TestIL.TestCrossOverride6/Sub2
+
+TestIL.TestCrossOverride6/Sub2
+-> void .ctor()
+-> int foo(int)
+
+======
+")]
 	static class TestCrossOverride6
 	{
 		interface IInf
@@ -1031,10 +1056,77 @@ TestIL.TestCrossOverride5/Inf`2<int,long>
 		}
 	}
 
+	[TestClass(@"======
+TestIL.TestCrossOverride7
+-> void Entry()
+
+object
+-> void .ctor()
+
+TestIL.TestCrossOverride7/Sub
+-> void .ctor()
+
+TestIL.TestCrossOverride7/Middle
+-> void .ctor()
+-> int TestIL.TestCrossOverride7.Inf.foo()
+--> int field2
+
+TestIL.TestCrossOverride7/Base
+-> void .ctor()
+
+TestIL.TestCrossOverride7/Inf
+-> int foo() = 0
+   \ int TestIL.TestCrossOverride7.Inf.foo(): TestIL.TestCrossOverride7/Middle
+
+======
+")]
+	static class TestCrossOverride7
+	{
+		interface Inf
+		{
+			int foo();
+		}
+
+		class Base : Inf
+		{
+			private int field1;
+			public virtual int foo()
+			{
+				return field1;
+			}
+		}
+
+		class Middle : Base, Inf
+		{
+			private int field2;
+			int Inf.foo()
+			{
+				return field2;
+			}
+		}
+
+		class Sub : Middle
+		{
+			private int field3;
+			public override int foo()
+			{
+				return field3;
+			}
+		}
+
+		public static void Entry()
+		{
+			var cls = new Sub();
+			Inf inf = cls;
+			inf.foo();
+		}
+	}
+
 	class Program
 	{
 		static void Main()
 		{
+			TestCrossOverride7.Entry();
 		}
 	}
 }

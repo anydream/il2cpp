@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
@@ -128,15 +127,15 @@ namespace il2cpp2
 	{
 		private class SlotLayer
 		{
-			public readonly List<TypeX> Entries;
+			public readonly HashSet<TypeX> Entries;
 			public MethodImpl ImplMethod;
 
 			public SlotLayer()
 			{
-				Entries = new List<TypeX>();
+				Entries = new HashSet<TypeX>();
 			}
 
-			private SlotLayer(List<TypeX> entries, MethodImpl impl)
+			private SlotLayer(HashSet<TypeX> entries, MethodImpl impl)
 			{
 				Entries = entries;
 				ImplMethod = impl;
@@ -144,7 +143,7 @@ namespace il2cpp2
 
 			public SlotLayer Clone()
 			{
-				return new SlotLayer(new List<TypeX>(Entries), ImplMethod);
+				return new SlotLayer(new HashSet<TypeX>(Entries), ImplMethod);
 			}
 		}
 
@@ -165,8 +164,8 @@ namespace il2cpp2
 		}
 
 		// 虚表槽层级映射
-		private readonly Dictionary<MethodSignature, List<SlotLayer>> VMap =
-			new Dictionary<MethodSignature, List<SlotLayer>>();
+		private readonly Dictionary<MethodSignature, SlotLayer> VMap =
+			new Dictionary<MethodSignature, SlotLayer>();
 		// 显式覆盖列表
 		private readonly List<ExplicitItem> ExplicitList = new List<ExplicitItem>();
 		private readonly HashSet<VirtualEntry> ExplicitSet = new HashSet<VirtualEntry>();
@@ -178,9 +177,8 @@ namespace il2cpp2
 		{
 			VirtualTable vtbl = new VirtualTable();
 
-			// 只需要克隆最后一层虚槽
 			foreach (var kv in VMap)
-				vtbl.VMap.Add(kv.Key, new List<SlotLayer> { kv.Value.Last().Clone() });
+				vtbl.VMap.Add(kv.Key, kv.Value.Clone());
 
 			// 克隆展开的虚表
 			vtbl.Table = new Dictionary<VirtualEntry, MethodImpl>(Table);
@@ -190,46 +188,37 @@ namespace il2cpp2
 
 		public void NewSlot(MethodSignature sig, MethodImpl impl)
 		{
-			if (!VMap.TryGetValue(sig, out var layerList))
-			{
-				layerList = new List<SlotLayer>();
-				VMap.Add(sig, layerList);
-			}
-
 			var layer = new SlotLayer();
 			layer.Entries.Add(impl.DeclType);
 			layer.ImplMethod = impl;
-			layerList.Add(layer);
+			VMap[sig] = layer;
 		}
 
 		public void ReuseSlot(MethodSignature sig, MethodImpl impl)
 		{
-			bool result = VMap.TryGetValue(sig, out var layerList);
+			bool result = VMap.TryGetValue(sig, out var layer);
 			Debug.Assert(result);
-			Debug.Assert(layerList.Count > 0);
 
-			var layer = layerList.Last();
 			layer.Entries.Add(impl.DeclType);
 			layer.ImplMethod = impl;
 		}
 
 		public void MergeSlot(MethodSignature sig, TypeX declType)
 		{
-			bool result = VMap.TryGetValue(sig, out var layerList);
+			// 跳过显式覆盖中已存在的签名
+			var entry = new VirtualEntry(declType, sig);
+			if (ExplicitSet.Contains(entry))
+				return;
+
+			bool result = VMap.TryGetValue(sig, out var layer);
 			if (!result)
 			{
-				// 跳过已覆盖的签名
-				var entry = new VirtualEntry(declType, sig);
-				if (ExplicitSet.Contains(entry))
-					return;
 				if (Table.ContainsKey(entry))
 					return;
 
 				Debug.Fail("MergeSlot " + entry);
 			}
-			Debug.Assert(layerList.Count > 0);
 
-			var layer = layerList.Last();
 			layer.Entries.Add(declType);
 		}
 
@@ -244,13 +233,11 @@ namespace il2cpp2
 		{
 			foreach (var kv in VMap)
 			{
-				foreach (var layer in kv.Value)
+				var layer = kv.Value;
+				foreach (var entryType in layer.Entries)
 				{
-					foreach (var entryType in layer.Entries)
-					{
-						var entry = new VirtualEntry(entryType, kv.Key);
-						Table[entry] = layer.ImplMethod;
-					}
+					var entry = new VirtualEntry(entryType, kv.Key);
+					Table[entry] = layer.ImplMethod;
 				}
 			}
 			// 显式覆盖最后展开
@@ -258,6 +245,10 @@ namespace il2cpp2
 			{
 				var entry = new VirtualEntry(expInfo.DeclType, expInfo.Signature);
 				Table[entry] = expInfo.ImplMethod;
+
+				// 从虚映射中删除显式覆盖项, 防止子类覆盖
+				if (VMap.TryGetValue(expInfo.Signature, out var layer))
+					layer.Entries.Remove(expInfo.DeclType);
 			}
 		}
 
