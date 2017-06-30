@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -453,7 +454,7 @@ namespace il2cpp2
 		public IList<TypeSig> ParamTypes;
 		// 方法覆盖集合
 		private HashSet<MethodX> OverrideImpls_;
-		public HashSet<MethodX> OverrideImpls => OverrideImpls_ ?? (OverrideImpls_ = new HashSet<MethodX>(new MethodDeclComparer()));
+		public HashSet<MethodX> OverrideImpls => OverrideImpls_ ?? (OverrideImpls_ = new HashSet<MethodX>(new MethodRefComparer()));
 		public bool HasOverrideImpls => OverrideImpls_ != null && OverrideImpls_.Count > 0;
 
 		// 是否为纯虚方法
@@ -470,6 +471,11 @@ namespace il2cpp2
 		{
 			return Def.Name.GetHashCode() ^
 				   GenericHashCode();
+		}
+
+		public int ObjectHashCode()
+		{
+			return base.GetHashCode();
 		}
 
 		public bool Equals(MethodX other)
@@ -515,6 +521,7 @@ namespace il2cpp2
 		}
 	}
 
+	// 比较方法和所在类型的方法比较器
 	class MethodDeclComparer : IEqualityComparer<MethodX>
 	{
 		public int GetHashCode(MethodX obj)
@@ -525,6 +532,20 @@ namespace il2cpp2
 		public bool Equals(MethodX x, MethodX y)
 		{
 			return x.Equals(y) && x.DeclType.Equals(y.DeclType);
+		}
+	}
+
+	// 只比较引用的方法比较器
+	class MethodRefComparer : IEqualityComparer<MethodX>
+	{
+		public int GetHashCode(MethodX obj)
+		{
+			return obj.ObjectHashCode();
+		}
+
+		public bool Equals(MethodX x, MethodX y)
+		{
+			return ReferenceEquals(x, y);
 		}
 	}
 
