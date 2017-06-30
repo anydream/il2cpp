@@ -258,6 +258,13 @@ namespace il2cpp2
 				Table[entry] = expInfo.ImplMethod;
 			}
 		}
+
+		public MethodImpl FindImplementation(VirtualEntry entry)
+		{
+			if (Table.TryGetValue(entry, out var impl))
+				return impl;
+			return null;
+		}
 	}
 
 	// 类型实例的泛型参数
@@ -343,9 +350,9 @@ namespace il2cpp2
 
 		// 方法签名映射
 		public readonly Dictionary<MethodSignature, MethodDef> MethodSigMap = new Dictionary<MethodSignature, MethodDef>();
-		// 方法覆盖映射
-		public readonly Dictionary<MethodSignature, HashSet<MethodImpl>> OverrideImpls =
-			new Dictionary<MethodSignature, HashSet<MethodImpl>>();
+		// 方法覆盖类型集合映射
+		public readonly Dictionary<MethodSignature, HashSet<TypeX>> OverrideImplTypes =
+			new Dictionary<MethodSignature, HashSet<TypeX>>();
 
 		// 是否被实例化过
 		public bool IsInstanced = false;
@@ -413,14 +420,14 @@ namespace il2cpp2
 			MethodSigMap.Add(sig, metDef);
 		}
 
-		public void AddOverrideImpl(MethodSignature sig, MethodImpl impl)
+		public void AddOverrideImplType(MethodSignature sig, TypeX implType)
 		{
-			if (!OverrideImpls.TryGetValue(sig, out var implSet))
+			if (!OverrideImplTypes.TryGetValue(sig, out var implSet))
 			{
-				implSet = new HashSet<MethodImpl>();
-				OverrideImpls.Add(sig, implSet);
+				implSet = new HashSet<TypeX>();
+				OverrideImplTypes.Add(sig, implSet);
 			}
-			implSet.Add(impl);
+			implSet.Add(implType);
 		}
 
 		public void CollectInterfaces(HashSet<TypeX> infs)
@@ -645,7 +652,6 @@ namespace il2cpp2
 		public void AddEntry(MethodDef metDef)
 		{
 			var resMetX = ResolveMethod(metDef);
-			resMetX.IsCallVirtOnly = false;
 		}
 
 		// 处理循环
@@ -773,22 +779,31 @@ namespace il2cpp2
 		{
 			foreach (var kv in VCalls)
 			{
-				bool result = kv.Key.DeclType.OverrideImpls.TryGetValue(kv.Value, out var implSet);
+				MethodX vmetX = kv.Key;
+				MethodSignature vmetSig = kv.Value;
+				bool result = vmetX.DeclType.OverrideImplTypes.TryGetValue(vmetSig, out var implSet);
 				Debug.Assert(result);
-				foreach (var impl in implSet)
+				foreach (var implType in implSet)
 				{
-					if (impl.DeclType.IsInstanced)
-					{
-						MethodX metX = new MethodX(impl.Def, impl.DeclType, kv.Key.GenArgs);
-						metX = AddMethod(impl.DeclType, metX);
-						kv.Key.OverrideImpls.Add(metX);
+					// 过滤已实例化的类型
+					if (!implType.IsInstanced)
+						continue;
 
-						// 之前为纯虚方法且未处理过, 需要重新处理
-						if (metX.IsCallVirtOnly)
-						{
-							metX.IsCallVirtOnly = false;
-							AddPendingMethod(metX);
-						}
+					// 在类型虚表中查找实现
+					var entry = new VirtualEntry(vmetX.DeclType, vmetSig);
+					MethodImpl impl = implType.VTable.FindImplementation(entry);
+					Debug.Assert(impl != null);
+
+					// 构造实现方法
+					MethodX metX = new MethodX(impl.Def, impl.DeclType, vmetX.GenArgs);
+					metX = AddMethod(impl.DeclType, metX);
+					vmetX.OverrideImpls.Add(metX);
+
+					// 之前为纯虚方法且未处理过, 需要重新处理
+					if (metX.IsCallVirtOnly)
+					{
+						metX.IsCallVirtOnly = false;
+						AddPendingMethod(metX);
 					}
 				}
 			}
@@ -949,10 +964,10 @@ namespace il2cpp2
 			// 展开虚表
 			currType.VTable.ExpandTable();
 
-			// 追加虚表到入口类型
+			// 追加当前类型到所有虚入口类型
 			foreach (var kv in currType.VTable.Table)
 			{
-				kv.Key.DeclType.AddOverrideImpl(kv.Key.Signature, kv.Value);
+				kv.Key.DeclType.AddOverrideImplType(kv.Key.Signature, currType);
 			}
 		}
 
