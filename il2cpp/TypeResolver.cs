@@ -59,7 +59,7 @@ namespace il2cpp2
 
 		public override int GetHashCode()
 		{
-			return DeclType.GetHashCode() ^
+			return DeclType.Def.FullName.GetHashCode() ^
 				   Signature.GetHashCode();
 		}
 
@@ -68,7 +68,7 @@ namespace il2cpp2
 			if (ReferenceEquals(this, other))
 				return true;
 
-			return DeclType.Equals(other.DeclType) &&
+			return DeclType.ToString() == other.DeclType.ToString() &&
 				   Signature.Equals(other.Signature);
 		}
 
@@ -828,6 +828,8 @@ namespace il2cpp2
 				MethodX metX = new MethodX(finalizer, tyX, null);
 				AddMethod(tyX, metX);
 			}
+
+			//!GenObjectFinalizer();
 		}
 
 		private void ResolveVCalls()

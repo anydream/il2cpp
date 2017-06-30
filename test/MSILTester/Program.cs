@@ -1197,11 +1197,21 @@ TestIL.TestFinalizer/Cls
 		}
 	}
 
+	[TestClass(@"")]
+	static class TestCrossDomain
+	{
+		public static void Entry()
+		{
+			TestAdapter1.Test.Accept(TestAdapter2.Test.Create());
+			TestAdapter2.Test.Accept(TestAdapter1.Test.Create());
+		}
+	}
+
 	class Program
 	{
 		static void Main()
 		{
-			TestCrossOverride7.Entry();
+			TestCrossDomain.Entry();
 		}
 	}
 }

@@ -50,5 +50,15 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TestAdapter1\TestAdapter1.csproj">
+      <Project>{51d9e431-248f-4086-aacb-037230176766}</Project>
+      <Name>TestAdapter1</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestAdapter2\TestAdapter2.csproj">
+      <Project>{181de10f-e752-4ff8-97f3-d8db0f20abfa}</Project>
+      <Name>TestAdapter2</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
