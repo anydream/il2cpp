@@ -43,15 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeMarker.cs" />
-    <Compile Include="FieldX.cs" />
-    <Compile Include="Generics.cs" />
-    <Compile Include="Helpers.cs" />
-    <Compile Include="MethodX.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SigHelper.cs" />
     <Compile Include="TypeResolver.cs" />
-    <Compile Include="TypeX.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dnlib\src\dnlib.csproj">
