@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
@@ -349,11 +350,16 @@ namespace il2cpp2
 		public readonly Dictionary<MethodSignature, HashSet<TypeX>> OverrideImplTypes =
 			new Dictionary<MethodSignature, HashSet<TypeX>>();
 
-		public bool IsEmptyType => !HasMethods && !HasFields;
-		// 是否被实例化过
-		public bool IsInstanced = false;
 		// 虚表
 		public VirtualTable VTable;
+
+		public bool IsEmptyType => !HasMethods && !HasFields;
+		// 是否被实例化过
+		public bool IsInstanced;
+		// 是否生成过静态构造
+		public bool CctorGenerated;
+		// 是否生成过终结方法
+		public bool FinalizerGenerated;
 
 		public TypeX(TypeDef typeDef)
 		{
@@ -398,11 +404,12 @@ namespace il2cpp2
 			return false;
 		}
 
-		public bool AddField(FieldX fldX)
+		public bool AddField(FieldX fldX, out FieldX ofldX)
 		{
-			if (!FieldMap.ContainsKey(fldX))
+			if (!FieldMap.TryGetValue(fldX, out ofldX))
 			{
 				FieldMap.Add(fldX, fldX);
+				ofldX = fldX;
 				return true;
 			}
 			return false;
@@ -742,10 +749,22 @@ namespace il2cpp2
 							}
 						}
 
+						// 遇到静态方法
+						if (resMetX.Def.IsStatic)
+						{
+							// 生成静态构造方法
+							GenStaticCctor(resMetX.DeclType);
+						}
+
+						// 遇到对象创建
 						if (inst.OpCode.Code == Code.Newobj)
 						{
+							Debug.Assert(!resMetX.Def.IsStatic);
 							Debug.Assert(resMetX.Def.IsConstructor);
 							resMetX.DeclType.IsInstanced = true;
+							// 生成静态构造和终结方法
+							GenStaticCctor(resMetX.DeclType);
+							GenFinalizer(resMetX.DeclType);
 						}
 
 						break;
@@ -753,14 +772,15 @@ namespace il2cpp2
 
 				case OperandType.InlineField:
 					{
+						FieldX resFldX = null;
 						switch (inst.Operand)
 						{
 							case FieldDef fldDef:
-								ResolveField(fldDef);
+								resFldX = ResolveField(fldDef);
 								break;
 
 							case MemberRef memRef:
-								ResolveField(memRef, replacer);
+								resFldX = ResolveField(memRef, replacer);
 								break;
 
 							default:
@@ -768,8 +788,45 @@ namespace il2cpp2
 								break;
 						}
 
+						// 遇到静态字段
+						if (resFldX.Def.IsStatic)
+						{
+							// 生成静态构造方法
+							GenStaticCctor(resFldX.DeclType);
+						}
+
 						break;
 					}
+			}
+		}
+
+		private void GenStaticCctor(TypeX tyX)
+		{
+			if (tyX.CctorGenerated)
+				return;
+			tyX.CctorGenerated = true;
+
+			var cctor = tyX.Def.Methods.FirstOrDefault(met => met.IsStatic && met.IsConstructor);
+			if (cctor != null)
+			{
+				// 创建方法包装
+				MethodX metX = new MethodX(cctor, tyX, null);
+				AddMethod(tyX, metX);
+			}
+		}
+
+		private void GenFinalizer(TypeX tyX)
+		{
+			if (tyX.FinalizerGenerated)
+				return;
+			tyX.FinalizerGenerated = true;
+
+			var finalizer = tyX.Def.Methods.FirstOrDefault(met => !met.IsStatic && met.IsFamily && met.Name == "Finalize");
+			if (finalizer != null)
+			{
+				// 创建方法包装
+				MethodX metX = new MethodX(finalizer, tyX, null);
+				AddMethod(tyX, metX);
 			}
 		}
 
@@ -899,9 +956,10 @@ namespace il2cpp2
 							TypeX oDeclType = null;
 							if (omemRef.Class is TypeSpec omemClsSpec)
 								oDeclType = ResolveInstanceType(omemClsSpec, replacer);
+							else if (omemRef.Class is TypeRef omemClsRef)
+								oDeclType = ResolveInstanceType(omemClsRef);
 							else
 								Debug.Fail("Override MemberRef " + overMetDecl);
-							//oDeclType = ResolveInstanceType(omemRef.DeclaringType);
 
 							GenericReplacer oReplacer = new GenericReplacer();
 							oReplacer.SetType(oDeclType);
@@ -1148,10 +1206,12 @@ namespace il2cpp2
 		}
 
 		// 添加字段
-		private void AddField(TypeX declType, FieldX fldX)
+		private FieldX AddField(TypeX declType, FieldX fldX)
 		{
-			if (declType.AddField(fldX))
+			if (declType.AddField(fldX, out var ofldX))
 				ExpandField(fldX);
+
+			return ofldX;
 		}
 
 		private void ExpandField(FieldX fldX)
@@ -1163,21 +1223,21 @@ namespace il2cpp2
 			fldX.FieldType = ResolveTypeSig(fldX.Def.FieldType, replacer);
 		}
 
-		private void ResolveField(FieldDef fldDef)
+		private FieldX ResolveField(FieldDef fldDef)
 		{
 			TypeX declType = ResolveInstanceType(fldDef.DeclaringType);
 
 			FieldX fldX = new FieldX(fldDef, declType);
-			AddField(declType, fldX);
+			return AddField(declType, fldX);
 		}
 
-		private void ResolveField(MemberRef memRef, GenericReplacer replacer)
+		private FieldX ResolveField(MemberRef memRef, GenericReplacer replacer)
 		{
 			Debug.Assert(memRef.IsFieldRef);
 			TypeX declType = ResolveInstanceType(memRef.DeclaringType, replacer);
 
 			FieldX fldX = new FieldX(memRef.ResolveField(), declType);
-			AddField(declType, fldX);
+			return AddField(declType, fldX);
 		}
 	}
 }

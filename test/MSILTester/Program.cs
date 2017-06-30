@@ -1122,6 +1122,81 @@ TestIL.TestCrossOverride7/Inf
 		}
 	}
 
+	[TestClass(@"======
+TestIL.TestStaticCctor
+-> void Entry()
+
+TestIL.TestStaticCctor/Cls
+-> void .cctor()
+--> int field
+--> int field2
+
+======
+")]
+	static class TestStaticCctor
+	{
+		class Cls
+		{
+			public static int field;
+			private static int field2;
+			private static int field3;
+
+			static Cls()
+			{
+				field2 = 456;
+			}
+
+			~Cls()
+			{
+			}
+		}
+
+		public static void Entry()
+		{
+			Cls.field = 123;
+		}
+	}
+
+	[TestClass(@"======
+TestIL.TestFinalizer
+-> void Entry()
+
+object
+-> void .ctor()
+-> void Finalize()
+
+TestIL.TestFinalizer/Cls
+-> void .ctor()
+-> void .cctor()
+-> void Finalize()
+--> int field2
+
+======
+")]
+	static class TestFinalizer
+	{
+		class Cls
+		{
+			public static int field;
+			private static int field2;
+			private static int field3;
+
+			static Cls()
+			{
+				field2 = 456;
+			}
+
+			~Cls()
+			{
+			}
+		}
+
+		public static void Entry()
+		{
+			object obj = new Cls();
+		}
+	}
+
 	class Program
 	{
 		static void Main()
