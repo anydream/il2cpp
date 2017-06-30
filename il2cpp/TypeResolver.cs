@@ -46,20 +46,20 @@ namespace il2cpp2
 	public class VirtualEntry
 	{
 		// 入口所属的类型
-		public readonly TypeX DeclType;
+		public readonly string TypeName;
 		// 方法签名
 		public readonly MethodSignature Signature;
 
-		public VirtualEntry(TypeX declType, MethodSignature sig)
+		public VirtualEntry(string typeName, MethodSignature sig)
 		{
 			Debug.Assert(sig != null);
-			DeclType = declType;
+			TypeName = typeName;
 			Signature = sig;
 		}
 
 		public override int GetHashCode()
 		{
-			return DeclType.Def.FullName.GetHashCode() ^
+			return TypeName.GetHashCode() ^
 				   Signature.GetHashCode();
 		}
 
@@ -68,7 +68,7 @@ namespace il2cpp2
 			if (ReferenceEquals(this, other))
 				return true;
 
-			return DeclType.ToString() == other.DeclType.ToString() &&
+			return TypeName == other.TypeName &&
 				   Signature.Equals(other.Signature);
 		}
 
@@ -79,7 +79,7 @@ namespace il2cpp2
 
 		public override string ToString()
 		{
-			return DeclType + "::" + Signature;
+			return TypeName + "::" + Signature;
 		}
 	}
 
@@ -128,15 +128,15 @@ namespace il2cpp2
 	{
 		private class SlotLayer
 		{
-			public readonly HashSet<TypeX> Entries;
+			public readonly HashSet<string> Entries;
 			public MethodImpl ImplMethod;
 
 			public SlotLayer()
 			{
-				Entries = new HashSet<TypeX>();
+				Entries = new HashSet<string>();
 			}
 
-			private SlotLayer(HashSet<TypeX> entries, MethodImpl impl)
+			private SlotLayer(HashSet<string> entries, MethodImpl impl)
 			{
 				Entries = entries;
 				ImplMethod = impl;
@@ -144,7 +144,7 @@ namespace il2cpp2
 
 			public SlotLayer Clone()
 			{
-				return new SlotLayer(new HashSet<TypeX>(Entries), ImplMethod);
+				return new SlotLayer(new HashSet<string>(Entries), ImplMethod);
 			}
 		}
 
@@ -152,8 +152,8 @@ namespace il2cpp2
 		{
 			public readonly MethodImpl ImplMethod;
 
-			public ExplicitItem(TypeX declType, MethodSignature sig, MethodImpl impl)
-				: base(declType, sig)
+			public ExplicitItem(string typeName, MethodSignature sig, MethodImpl impl)
+				: base(typeName, sig)
 			{
 				ImplMethod = impl;
 			}
@@ -190,7 +190,7 @@ namespace il2cpp2
 		public void NewSlot(MethodSignature sig, MethodImpl impl)
 		{
 			var layer = new SlotLayer();
-			layer.Entries.Add(impl.DeclType);
+			layer.Entries.Add(impl.DeclType.FullName);
 			layer.ImplMethod = impl;
 			VMap[sig] = layer;
 		}
@@ -200,14 +200,14 @@ namespace il2cpp2
 			bool result = VMap.TryGetValue(sig, out var layer);
 			Debug.Assert(result);
 
-			layer.Entries.Add(impl.DeclType);
+			layer.Entries.Add(impl.DeclType.FullName);
 			layer.ImplMethod = impl;
 		}
 
-		public void MergeSlot(MethodSignature sig, TypeX declType)
+		public void MergeSlot(string typeName, MethodSignature sig)
 		{
 			// 跳过显式覆盖中已存在的签名
-			var entry = new VirtualEntry(declType, sig);
+			var entry = new VirtualEntry(typeName, sig);
 			if (ExplicitSet.Contains(entry))
 				return;
 
@@ -220,12 +220,12 @@ namespace il2cpp2
 				Debug.Fail("MergeSlot " + entry);
 			}
 
-			layer.Entries.Add(declType);
+			layer.Entries.Add(typeName);
 		}
 
-		public void ExplicitOverride(TypeX declType, MethodSignature sig, MethodImpl impl)
+		public void ExplicitOverride(string typeName, MethodSignature sig, MethodImpl impl)
 		{
-			var expItem = new ExplicitItem(declType, sig, impl);
+			var expItem = new ExplicitItem(typeName, sig, impl);
 			ExplicitList.Add(expItem);
 			ExplicitSet.Add(expItem);
 		}
@@ -235,21 +235,21 @@ namespace il2cpp2
 			foreach (var kv in VMap)
 			{
 				var layer = kv.Value;
-				foreach (var entryType in layer.Entries)
+				foreach (var typeName in layer.Entries)
 				{
-					var entry = new VirtualEntry(entryType, kv.Key);
+					var entry = new VirtualEntry(typeName, kv.Key);
 					Table[entry] = layer.ImplMethod;
 				}
 			}
 			// 显式覆盖最后展开
 			foreach (var expInfo in ExplicitList)
 			{
-				var entry = new VirtualEntry(expInfo.DeclType, expInfo.Signature);
+				var entry = new VirtualEntry(expInfo.TypeName, expInfo.Signature);
 				Table[entry] = expInfo.ImplMethod;
 
 				// 从虚映射中删除显式覆盖项, 防止子类覆盖
 				if (VMap.TryGetValue(expInfo.Signature, out var layer))
-					layer.Entries.Remove(expInfo.DeclType);
+					layer.Entries.Remove(expInfo.TypeName);
 			}
 		}
 
@@ -276,27 +276,12 @@ namespace il2cpp2
 
 		public int GenericHashCode()
 		{
-			if (GenArgs_ == null)
-				return 0;
-			return ~(GenArgs_.Count + 1);
+			return SigHelper.SigListHashCode(GenArgs_);
 		}
 
 		public bool GenericEquals(GenericArgs other)
 		{
-			if (GenArgs_ == null && other.GenArgs_ == null)
-				return true;
-			if (GenArgs_ == null || other.GenArgs_ == null)
-				return false;
-			if (GenArgs_.Count != other.GenArgs_.Count)
-				return false;
-
-			var comparer = new SigComparer();
-			for (int i = 0; i < GenArgs_.Count; ++i)
-			{
-				if (!comparer.Equals(GenArgs_[i], other.GenArgs_[i]))
-					return false;
-			}
-			return true;
+			return SigHelper.SigListEquals(GenArgs_, other.GenArgs_);
 		}
 
 		public string GenericToString()
@@ -353,6 +338,9 @@ namespace il2cpp2
 		// 虚表
 		public VirtualTable VTable;
 
+		// 类型全名
+		public string FullName => Def.FullName + GenericToString();
+
 		public bool IsEmptyType => !HasMethods && !HasFields;
 		// 是否被实例化过
 		public bool IsInstanced;
@@ -390,7 +378,7 @@ namespace il2cpp2
 
 		public override string ToString()
 		{
-			return Def.FullName + GenericToString();
+			return FullName;
 		}
 
 		public bool AddMethod(MethodX metX, out MethodX ometX)
@@ -483,6 +471,9 @@ namespace il2cpp2
 			}
 		}
 
+		public string Name => BuildName(false);
+		public string FullName => BuildName(true);
+
 		public MethodX(MethodDef metDef, TypeX declType, IList<TypeSig> genArgs)
 		{
 			Def = metDef;
@@ -517,10 +508,16 @@ namespace il2cpp2
 
 		public override string ToString()
 		{
+			return Name;
+		}
+
+		private string BuildName(bool hasDeclType)
+		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.AppendFormat("{0} {1}{2}",
+			sb.AppendFormat("{0} {1}{2}{3}",
 				ReturnType != null ? ReturnType.FullName : "<?>",
+				hasDeclType ? DeclType.FullName + "::" : "",
 				Def.Name,
 				GenericToString());
 
@@ -541,20 +538,6 @@ namespace il2cpp2
 			sb.Append(')');
 
 			return sb.ToString();
-		}
-	}
-
-	// 比较方法和所在类型的方法比较器
-	class MethodDeclComparer : IEqualityComparer<MethodX>
-	{
-		public int GetHashCode(MethodX obj)
-		{
-			return obj.GetHashCode() ^ obj.DeclType.GetHashCode();
-		}
-
-		public bool Equals(MethodX x, MethodX y)
-		{
-			return x.Equals(y) && x.DeclType.Equals(y.DeclType);
 		}
 	}
 
@@ -615,6 +598,17 @@ namespace il2cpp2
 		}
 	}
 
+	class VCallInfo : VirtualEntry
+	{
+		public readonly IList<TypeSig> GenArgs;
+
+		public VCallInfo(string typeName, MethodSignature sig, IList<TypeSig> genArgs)
+			: base(typeName, sig)
+		{
+			GenArgs = genArgs;
+		}
+	}
+
 	// 类型解析管理器
 	public class TypeManager
 	{
@@ -622,17 +616,19 @@ namespace il2cpp2
 		public ModuleDefMD Module { get; private set; }
 		// 类型映射
 		private readonly Dictionary<TypeX, TypeX> TypeMap = new Dictionary<TypeX, TypeX>();
+		private readonly Dictionary<string, List<TypeX>> NameTypeMap = new Dictionary<string, List<TypeX>>();
 		public IList<TypeX> Types => new List<TypeX>(TypeMap.Values);
 		// 待处理方法队列
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
 		// 虚调用
-		private readonly Dictionary<MethodX, MethodSignature> VCalls =
-			new Dictionary<MethodX, MethodSignature>(new MethodDeclComparer());
+		private readonly Dictionary<string, VCallInfo> VCalls =
+			new Dictionary<string, VCallInfo>();
 
 		// 复位
 		public void Reset()
 		{
 			TypeMap.Clear();
+			NameTypeMap.Clear();
 			PendingMets.Clear();
 			VCalls.Clear();
 		}
@@ -725,7 +721,8 @@ namespace il2cpp2
 							(inst.OpCode.Code == Code.Callvirt ||
 							inst.OpCode.Code == Code.Ldvirtftn))
 						{
-							if (!VCalls.ContainsKey(resMetX))
+							var metName = resMetX.FullName;
+							if (!VCalls.ContainsKey(metName))
 							{
 								var typeReplacer = new GenericReplacer();
 								typeReplacer.SetType(resMetX.DeclType);
@@ -735,7 +732,9 @@ namespace il2cpp2
 									(MethodBaseSig)resMetX.Def.Signature,
 									typeDuplicator);
 
-								VCalls.Add(resMetX, vSig);
+								VCallInfo vInfo = new VCallInfo(resMetX.DeclType.FullName, vSig, resMetX.GenArgs);
+
+								VCalls.Add(metName, vInfo);
 							}
 							resMetX.IsCallVirtOnly = true;
 						}
@@ -811,7 +810,7 @@ namespace il2cpp2
 			{
 				// 创建方法包装
 				MethodX metX = new MethodX(cctor, tyX, null);
-				AddMethod(tyX, metX);
+				AddMethod(metX);
 			}
 		}
 
@@ -826,7 +825,7 @@ namespace il2cpp2
 			{
 				// 创建方法包装
 				MethodX metX = new MethodX(finalizer, tyX, null);
-				AddMethod(tyX, metX);
+				AddMethod(metX);
 			}
 
 			//!GenObjectFinalizer();
@@ -834,33 +833,42 @@ namespace il2cpp2
 
 		private void ResolveVCalls()
 		{
-			foreach (var kv in VCalls)
+			foreach (var vInfo in VCalls.Values)
 			{
-				MethodX vmetX = kv.Key;
-				MethodSignature vmetSig = kv.Value;
-				bool result = vmetX.DeclType.OverrideImplTypes.TryGetValue(vmetSig, out var implSet);
-				Debug.Assert(result);
-				foreach (var implType in implSet)
+				VirtualEntry entry = vInfo;
+				var typeList = GetTypeList(vInfo.TypeName);
+				foreach (var declType in typeList)
 				{
-					// 过滤已实例化的类型
-					if (!implType.IsInstanced)
-						continue;
-
-					// 在类型虚表中查找实现
-					var entry = new VirtualEntry(vmetX.DeclType, vmetSig);
-					MethodImpl impl = implType.VTable.FindImplementation(entry);
-					Debug.Assert(impl != null);
-
-					// 构造实现方法
-					MethodX metX = new MethodX(impl.Def, impl.DeclType, vmetX.GenArgs);
-					metX = AddMethod(impl.DeclType, metX);
-					vmetX.OverrideImpls.Add(metX);
-
-					// 之前为纯虚方法且未处理过, 需要重新处理
-					if (metX.IsCallVirtOnly)
+					bool result = declType.OverrideImplTypes.TryGetValue(vInfo.Signature, out var implSet);
+					Debug.Assert(result);
+					foreach (var implType in implSet)
 					{
-						metX.IsCallVirtOnly = false;
-						AddPendingMethod(metX);
+						// 过滤已实例化的类型
+						if (!implType.IsInstanced)
+							continue;
+
+						// 在类型虚表中查找实现
+						MethodImpl impl = implType.VTable.FindImplementation(entry);
+						Debug.Assert(impl != null);
+
+						// 构造实现方法
+						MethodX metX = new MethodX(impl.Def, impl.DeclType, vInfo.GenArgs);
+						metX = AddMethod(metX);
+
+						// 添加到接口方法的实现集合
+						result = declType.MethodSigMap.TryGetValue(vInfo.Signature, out var vmetDef);
+						Debug.Assert(result);
+						MethodX vmetX = new MethodX(vmetDef, declType, vInfo.GenArgs);
+						vmetX = AddMethod(vmetX);
+						vmetX.IsCallVirtOnly = true;
+						vmetX.OverrideImpls.Add(metX);
+
+						// 之前为纯虚方法且未处理过, 需要重新处理
+						if (metX.IsCallVirtOnly)
+						{
+							metX.IsCallVirtOnly = false;
+							AddPendingMethod(metX);
+						}
 					}
 				}
 			}
@@ -873,9 +881,26 @@ namespace il2cpp2
 				return otyX;
 
 			TypeMap.Add(tyX, tyX);
+
+			// 添加类型到名称映射
+			string typeName = tyX.FullName;
+			if (!NameTypeMap.TryGetValue(typeName, out var typeList))
+			{
+				typeList = new List<TypeX>();
+				NameTypeMap.Add(typeName, typeList);
+			}
+			typeList.Add(tyX);
+
 			ExpandType(tyX);
 
 			return tyX;
+		}
+
+		private List<TypeX> GetTypeList(string typeName)
+		{
+			bool result = NameTypeMap.TryGetValue(typeName, out var typeList);
+			Debug.Assert(result);
+			return typeList;
 		}
 
 		// 展开类型
@@ -948,7 +973,7 @@ namespace il2cpp2
 								(MethodBaseSig)ometDef.Signature,
 								null);
 
-							currType.VTable.ExplicitOverride(oDeclType, oSig, new MethodImpl(currType, metDef));
+							currType.VTable.ExplicitOverride(oDeclType.FullName, oSig, new MethodImpl(currType, metDef));
 						}
 						else if (overMetDecl is MemberRef omemRef)
 						{
@@ -972,7 +997,7 @@ namespace il2cpp2
 								(MethodBaseSig)omemRef.Signature,
 								oDuplicator);
 
-							currType.VTable.ExplicitOverride(oDeclType, oSig, new MethodImpl(currType, metDef));
+							currType.VTable.ExplicitOverride(oDeclType.FullName, oSig, new MethodImpl(currType, metDef));
 						}
 						else
 							Debug.Fail("Override " + overMetDecl.GetType().Name);
@@ -1014,7 +1039,7 @@ namespace il2cpp2
 				{
 					foreach (var kv in infType.MethodSigMap)
 					{
-						currType.VTable.MergeSlot(kv.Key, infType);
+						currType.VTable.MergeSlot(infType.FullName, kv.Key);
 					}
 				}
 			}
@@ -1025,7 +1050,10 @@ namespace il2cpp2
 			// 追加当前类型到所有虚入口类型
 			foreach (var kv in currType.VTable.Table)
 			{
-				kv.Key.DeclType.AddOverrideImplType(kv.Key.Signature, currType);
+				var sig = kv.Key.Signature;
+				var typeList = GetTypeList(kv.Key.TypeName);
+				foreach (var type in typeList)
+					type.AddOverrideImplType(sig, currType);
 			}
 		}
 
@@ -1140,9 +1168,9 @@ namespace il2cpp2
 		}
 
 		// 添加方法
-		private MethodX AddMethod(TypeX declType, MethodX metX)
+		private MethodX AddMethod(MethodX metX)
 		{
-			if (declType.AddMethod(metX, out var ometX))
+			if (metX.DeclType.AddMethod(metX, out var ometX))
 				ExpandMethod(metX);
 
 			return ometX;
@@ -1179,7 +1207,7 @@ namespace il2cpp2
 			TypeX declType = ResolveInstanceType(metDef.DeclaringType);
 
 			MethodX metX = new MethodX(metDef, declType, null);
-			return AddMethod(declType, metX);
+			return AddMethod(metX);
 		}
 
 		// 解析所在类型包含泛型实例的方法
@@ -1189,7 +1217,7 @@ namespace il2cpp2
 			TypeX declType = ResolveInstanceType(memRef.DeclaringType, replacer);
 
 			MethodX metX = new MethodX(memRef.ResolveMethod(), declType, null);
-			return AddMethod(declType, metX);
+			return AddMethod(metX);
 		}
 
 		// 解析包含泛型实例的方法
@@ -1204,13 +1232,13 @@ namespace il2cpp2
 				genArgs = ResolveTypeSigList(metGenArgs, replacer);
 
 			MethodX metX = new MethodX(metSpec.ResolveMethodDef(), declType, genArgs);
-			return AddMethod(declType, metX);
+			return AddMethod(metX);
 		}
 
 		// 添加字段
-		private FieldX AddField(TypeX declType, FieldX fldX)
+		private FieldX AddField(FieldX fldX)
 		{
-			if (declType.AddField(fldX, out var ofldX))
+			if (fldX.DeclType.AddField(fldX, out var ofldX))
 				ExpandField(fldX);
 
 			return ofldX;
@@ -1230,7 +1258,7 @@ namespace il2cpp2
 			TypeX declType = ResolveInstanceType(fldDef.DeclaringType);
 
 			FieldX fldX = new FieldX(fldDef, declType);
-			return AddField(declType, fldX);
+			return AddField(fldX);
 		}
 
 		private FieldX ResolveField(MemberRef memRef, GenericReplacer replacer)
@@ -1239,7 +1267,7 @@ namespace il2cpp2
 			TypeX declType = ResolveInstanceType(memRef.DeclaringType, replacer);
 
 			FieldX fldX = new FieldX(memRef.ResolveField(), declType);
-			return AddField(declType, fldX);
+			return AddField(fldX);
 		}
 	}
 }

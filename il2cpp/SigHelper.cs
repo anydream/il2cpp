@@ -172,8 +172,33 @@ namespace il2cpp2
 		}
 	}
 
-	public static class NameHelper
+	public static class SigHelper
 	{
+		public static int SigListHashCode(IList<TypeSig> sigList)
+		{
+			if (sigList == null)
+				return 0;
+			return ~(sigList.Count + 1);
+		}
+
+		public static bool SigListEquals(IList<TypeSig> x, IList<TypeSig> y)
+		{
+			if (x == null && y == null)
+				return true;
+			if (x == null || y == null)
+				return false;
+			if (x.Count != y.Count)
+				return false;
+
+			var comparer = new SigComparer();
+			for (int i = 0; i < x.Count; ++i)
+			{
+				if (!comparer.Equals(x[i], y[i]))
+					return false;
+			}
+			return true;
+		}
+
 		public static string PrettyName(this GenericArgs self)
 		{
 			if (self.GenArgs == null)
