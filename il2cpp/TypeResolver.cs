@@ -657,6 +657,13 @@ namespace il2cpp2
 		// 处理循环
 		public void Process()
 		{
+			// 添加虚调用 Object.Finalize
+			VCalls.Add(
+				"System.Void System.Object::Finalize()",
+				new VCallInfo("System.Object", new MethodSignature("Finalize",
+					new MethodSig(CallingConvention.HasThis, 0, Module.CorLibTypes.Void)),
+				null));
+
 			while (PendingMets.Count > 0)
 			{
 				do

@@ -18,6 +18,8 @@ TestIL.TestInfImpl
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestInfImpl/Cls
 -> void .ctor()
@@ -61,6 +63,8 @@ TestIL.TestClsImpl
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestClsImpl/SubCls
 -> void .ctor()
@@ -201,6 +205,8 @@ TestIL.TestNewOverrides
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.Chain.Sub1
 -> void .ctor()
@@ -263,6 +269,8 @@ TestIL.TestGenInfImpl
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestGenInfImpl/Sub2
 -> void .ctor()
@@ -438,6 +446,8 @@ TestIL.TestExplicitOverride1
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.ExplicitOverride.Cls
 -> void .ctor()
@@ -462,6 +472,8 @@ TestIL.TestExplicitOverride2
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.ExplicitOverride.Cls
 -> void .ctor()
@@ -490,6 +502,8 @@ TestIL.TestExplicitOverride3
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.ExplicitOverride.Cls
 -> void .ctor()
@@ -518,6 +532,8 @@ TestIL.TestExplicitOverride4
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.ExplicitOverride.Sub1
 -> void .ctor()
@@ -556,6 +572,8 @@ TestIL.TestExplicitOverride5
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.ExplicitOverride.Sub1
 -> void .ctor()
@@ -587,6 +605,8 @@ TestIL.TestExplicitOverride6
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.ExplicitOverride.Sub2
 -> void .ctor()
@@ -626,6 +646,8 @@ TestIL.TestExplicitOverride7
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestExplicitOverride7/Cls`1<TestIL.TestExplicitOverride7/Elem>
 -> void .ctor()
@@ -676,6 +698,8 @@ TestIL.TestCrossOverride
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestCrossOverride/Sub3
 -> void .ctor()
@@ -754,6 +778,8 @@ TestIL.TestCrossOverride2
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestCrossOverride2/Cls
 -> void .ctor()
@@ -800,6 +826,8 @@ TestIL.TestCrossOverride3
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestCrossOverride3/Derived
 -> void .ctor()
@@ -842,6 +870,8 @@ TestIL.TestCrossOverride4
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestCrossOverride4/Derived`1<long>
 -> void .ctor()
@@ -905,6 +935,8 @@ TestIL.TestCrossOverride5
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestCrossOverride5/Derived`2<char,ushort>
 -> void .ctor()
@@ -996,6 +1028,8 @@ TestIL.TestCrossOverride6
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestCrossOverride6/Sub1
 -> void .ctor()
@@ -1062,6 +1096,8 @@ TestIL.TestCrossOverride7
 
 object
 -> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
 
 TestIL.TestCrossOverride7/Sub
 -> void .ctor()
@@ -1163,7 +1199,8 @@ TestIL.TestFinalizer
 
 object
 -> void .ctor()
--> void Finalize()
+-> void Finalize() = 0
+   \ void Finalize(): TestIL.TestFinalizer/Cls
 
 TestIL.TestFinalizer/Cls
 -> void .ctor()
@@ -1206,6 +1243,9 @@ object
    | int GetHashCode(): TestAdapter2.Test/Cls
    \ int GetHashCode(): TestAdapter1.Test/Cls
 -> void .ctor()
+-> void Finalize()
+   | void Finalize(): object
+   \ void Finalize(): object
 
 TestAdapter2.Test
 -> object Create()
@@ -1220,6 +1260,9 @@ object
    | int GetHashCode(): TestAdapter2.Test/Cls
    \ int GetHashCode(): TestAdapter1.Test/Cls
 -> void .ctor()
+-> void Finalize()
+   | void Finalize(): object
+   \ void Finalize(): object
 
 TestAdapter2.Test/Cls
 -> void .ctor()
