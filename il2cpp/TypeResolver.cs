@@ -12,23 +12,29 @@ namespace il2cpp2
 	{
 		public readonly string Name;
 		public readonly MethodBaseSig Signature;
+		private readonly string SigString;
 
 		public MethodSignature(string name, MethodBaseSig sig)
 		{
 			Debug.Assert(sig != null);
 			Name = name;
 			Signature = sig;
+			SigString = Signature.ToString() + "|" + ((int)Signature.CallingConvention).ToString();
 		}
 
 		public override int GetHashCode()
 		{
-			return Name.GetHashCode();
+			return Name.GetHashCode() ^
+				   SigString.GetHashCode();
 		}
 
 		public bool Equals(MethodSignature other)
 		{
+			if (ReferenceEquals(this, other))
+				return true;
+
 			return Name == other.Name &&
-				   new SigComparer().Equals(Signature, other.Signature);
+				   SigString == other.SigString;
 		}
 
 		public override bool Equals(object obj)
