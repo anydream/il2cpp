@@ -912,7 +912,7 @@ TestIL.TestCrossOverride5/Derived`2<char,ushort>
 TestIL.TestCrossOverride5/Base`2<ushort,char>
 -> void .ctor()
 -> int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int)
--> int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun(int,char,string)
+-> int TestIL.TestCrossOverride5.Inf<System.Int32,TB>.fun<string>(int,char,string)
 
 TestIL.TestCrossOverride5/Inf`2<int,char>
 -> int fun(int) = 0
