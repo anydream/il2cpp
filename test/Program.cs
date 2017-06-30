@@ -24,6 +24,9 @@ namespace test
 
 			foreach (var type in allTypes)
 			{
+				if (type.IsEmptyType)
+					continue;
+
 				sb.AppendLine(type.PrettyName());
 
 				foreach (var met in type.Methods)
@@ -31,10 +34,10 @@ namespace test
 					sb.AppendFormatLine("-> {0}{1}", met.PrettyName(), met.IsCallVirtOnly ? " = 0" : "");
 					if (met.HasOverrideImpls)
 					{
-						var implList = new List<MethodX>(met.OverrideImpls);
-						for (int i = 0, sz = implList.Count; i < sz; ++i)
+						var impls = met.OverrideImplsList;
+						for (int i = 0, sz = impls.Count; i < sz; ++i)
 						{
-							var impl = implList[i];
+							var impl = impls[i];
 							sb.AppendFormatLine("   {0} {1}: {2}",
 								i + 1 == sz ? '\\' : '|',
 								impl.PrettyName(),

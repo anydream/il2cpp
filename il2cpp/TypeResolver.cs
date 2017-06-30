@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -342,9 +341,11 @@ namespace il2cpp2
 		// 方法映射
 		private readonly Dictionary<MethodX, MethodX> MethodMap = new Dictionary<MethodX, MethodX>();
 		public IList<MethodX> Methods => new List<MethodX>(MethodMap.Values);
+		public bool HasMethods => MethodMap.Count > 0;
 		// 字段映射
 		private readonly Dictionary<FieldX, FieldX> FieldMap = new Dictionary<FieldX, FieldX>();
 		public IList<FieldX> Fields => new List<FieldX>(FieldMap.Values);
+		public bool HasFields => FieldMap.Count > 0;
 		// 运行时类型
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
 
@@ -354,9 +355,10 @@ namespace il2cpp2
 		public readonly Dictionary<MethodSignature, HashSet<TypeX>> OverrideImplTypes =
 			new Dictionary<MethodSignature, HashSet<TypeX>>();
 
+		public bool IsEmptyType => !HasMethods && !HasFields;
 		// 是否被实例化过
 		public bool IsInstanced = false;
-
+		// 虚表
 		public VirtualTable VTable;
 
 		public TypeX(TypeDef typeDef)
@@ -462,6 +464,7 @@ namespace il2cpp2
 		// 方法覆盖集合
 		private HashSet<MethodX> OverrideImpls_;
 		public HashSet<MethodX> OverrideImpls => OverrideImpls_ ?? (OverrideImpls_ = new HashSet<MethodX>(new MethodRefComparer()));
+		public List<MethodX> OverrideImplsList => new List<MethodX>(OverrideImpls_);
 		public bool HasOverrideImpls => OverrideImpls_ != null && OverrideImpls_.Count > 0;
 
 		// 是否在处理队列中
@@ -717,8 +720,9 @@ namespace il2cpp2
 						}
 
 						// 添加虚方法入口
-						if (inst.OpCode.Code == Code.Callvirt ||
-							inst.OpCode.Code == Code.Ldvirtftn)
+						if (resMetX.Def.IsVirtual &&
+							(inst.OpCode.Code == Code.Callvirt ||
+							inst.OpCode.Code == Code.Ldvirtftn))
 						{
 							if (!VCalls.ContainsKey(resMetX))
 							{
