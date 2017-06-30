@@ -346,6 +346,9 @@ namespace il2cpp2
 		public readonly Dictionary<MethodSignature, HashSet<MethodImpl>> OverrideImpls =
 			new Dictionary<MethodSignature, HashSet<MethodImpl>>();
 
+		// 是否被实例化过
+		public bool IsInstanced = false;
+
 		public VirtualTable VTable;
 
 		public TypeX(TypeDef typeDef)
@@ -689,6 +692,12 @@ namespace il2cpp2
 						else
 							resMetX.IsCallVirtOnly = false;
 
+						if (inst.OpCode.Code == Code.Newobj)
+						{
+							Debug.Assert(resMetX.Def.IsConstructor);
+							resMetX.DeclType.IsInstanced = true;
+						}
+
 						break;
 					}
 
@@ -722,10 +731,13 @@ namespace il2cpp2
 				Debug.Assert(result);
 				foreach (var impl in implSet)
 				{
-					MethodX metX = new MethodX(impl.Def, impl.DeclType, kv.Key.GenArgs);
-					metX = AddMethod(impl.DeclType, metX);
-					kv.Key.OverrideImpls.Add(metX);
-					metX.IsCallVirtOnly = false;
+					if (impl.DeclType.IsInstanced)
+					{
+						MethodX metX = new MethodX(impl.Def, impl.DeclType, kv.Key.GenArgs);
+						metX = AddMethod(impl.DeclType, metX);
+						kv.Key.OverrideImpls.Add(metX);
+						metX.IsCallVirtOnly = false;
+					}
 				}
 			}
 		}
