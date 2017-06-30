@@ -457,8 +457,20 @@ namespace il2cpp2
 		public HashSet<MethodX> OverrideImpls => OverrideImpls_ ?? (OverrideImpls_ = new HashSet<MethodX>(new MethodRefComparer()));
 		public bool HasOverrideImpls => OverrideImpls_ != null && OverrideImpls_.Count > 0;
 
+		// 是否在处理队列中
+		public bool IsQueueing = false;
+
 		// 是否为纯虚方法
-		public bool IsCallVirtOnly = true;
+		private int VirtOnlyStatus_ = 0;
+		public bool IsCallVirtOnly
+		{
+			get => VirtOnlyStatus_ == 1;
+			set
+			{
+				if (VirtOnlyStatus_ == 0 || VirtOnlyStatus_ == 1)
+					VirtOnlyStatus_ = value ? 1 : 2;
+			}
+		}
 
 		public MethodX(MethodDef metDef, TypeX declType, IList<TypeSig> genArgs)
 		{
@@ -645,6 +657,11 @@ namespace il2cpp2
 				{
 					// 取出一个待处理方法
 					MethodX currMetX = PendingMets.Dequeue();
+					currMetX.IsQueueing = false;
+
+					// 跳过纯虚方法
+					if (currMetX.IsCallVirtOnly)
+						continue;
 
 					// 跳过无方法体的方法
 					if (!currMetX.Def.HasBody)
@@ -709,9 +726,17 @@ namespace il2cpp2
 
 								VCalls.Add(resMetX, vSig);
 							}
+							resMetX.IsCallVirtOnly = true;
 						}
 						else
-							resMetX.IsCallVirtOnly = false;
+						{
+							// 之前为纯虚方法且未处理过, 需要重新处理
+							if (resMetX.IsCallVirtOnly)
+							{
+								resMetX.IsCallVirtOnly = false;
+								AddPendingMethod(resMetX);
+							}
+						}
 
 						if (inst.OpCode.Code == Code.Newobj)
 						{
@@ -757,7 +782,13 @@ namespace il2cpp2
 						MethodX metX = new MethodX(impl.Def, impl.DeclType, kv.Key.GenArgs);
 						metX = AddMethod(impl.DeclType, metX);
 						kv.Key.OverrideImpls.Add(metX);
-						metX.IsCallVirtOnly = false;
+
+						// 之前为纯虚方法且未处理过, 需要重新处理
+						if (metX.IsCallVirtOnly)
+						{
+							metX.IsCallVirtOnly = false;
+							AddPendingMethod(metX);
+						}
 					}
 				}
 			}
@@ -1047,6 +1078,10 @@ namespace il2cpp2
 		// 新方法加入处理队列
 		private void AddPendingMethod(MethodX metX)
 		{
+			if (metX.IsQueueing)
+				return;
+
+			metX.IsQueueing = true;
 			PendingMets.Enqueue(metX);
 		}
 
