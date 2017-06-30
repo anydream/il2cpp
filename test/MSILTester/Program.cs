@@ -1240,11 +1240,34 @@ TestAdapter1.Test/Cls
 		}
 	}
 
+	[TestClass(@"======
+TestIL.TestNullCall
+-> void Entry()
+
+TestIL.TestNullCall/Inf
+-> void Foo() = 0
+
+======
+")]
+	static class TestNullCall
+	{
+		interface Inf
+		{
+			void Foo();
+		}
+
+		public static void Entry()
+		{
+			Inf inf = null;
+			inf.Foo();
+		}
+	}
+
 	class Program
 	{
 		static void Main()
 		{
-			TestDifferentBCL.Entry();
+			TestNullCall.Entry();
 		}
 	}
 }

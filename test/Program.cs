@@ -17,7 +17,7 @@ namespace test
 
 	internal class Program
 	{
-		private static string PrintAllTypes(IList<TypeX> allTypes)
+		private static string PrintAllTypes(IList<TypeX> allTypes, bool showVersion)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("======");
@@ -27,7 +27,7 @@ namespace test
 				if (type.IsEmptyType)
 					continue;
 
-				sb.AppendLine(type.PrettyName());
+				sb.AppendLine(type.PrettyName() + (showVersion ? " [" + type.RuntimeVersion + "]" : ""));
 
 				foreach (var met in type.Methods)
 				{
@@ -41,7 +41,7 @@ namespace test
 							sb.AppendFormatLine("   {0} {1}: {2}",
 								i + 1 == sz ? '\\' : '|',
 								impl.PrettyName(),
-								impl.DeclType.PrettyName());
+								impl.DeclType.PrettyName() + (showVersion ? " [" + impl.DeclType.RuntimeVersion + "]" : ""));
 						}
 					}
 				}
@@ -89,7 +89,7 @@ namespace test
 
 					marker.AddEntry(typeDef.FindMethod("Entry"));
 					marker.Process();
-					string result = PrintAllTypes(marker.Types);
+					string result = PrintAllTypes(marker.Types, false);
 
 					if (result == expected)
 					{
@@ -121,7 +121,7 @@ namespace test
 #else
 			typeMgr.AddEntry(typeMgr.Module.EntryPoint);
 			typeMgr.Process();
-			string result = PrintAllTypes(typeMgr.Types);
+			string result = PrintAllTypes(typeMgr.Types, true);
 			Console.WriteLine(result);
 #endif
 		}

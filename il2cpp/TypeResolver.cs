@@ -716,6 +716,9 @@ namespace il2cpp2
 								break;
 						}
 
+						if (resMetX == null)
+							break;
+
 						// 添加虚方法入口
 						if (resMetX.Def.IsVirtual &&
 							(inst.OpCode.Code == Code.Callvirt ||
@@ -840,7 +843,10 @@ namespace il2cpp2
 				foreach (var declType in typeList)
 				{
 					bool result = declType.OverrideImplTypes.TryGetValue(vInfo.Signature, out var implSet);
-					Debug.Assert(result);
+					// 跳过无实例化类型的虚调用
+					if (!result)
+						continue;
+
 					foreach (var implType in implSet)
 					{
 						// 过滤已实例化的类型
@@ -855,20 +861,24 @@ namespace il2cpp2
 						MethodX metX = new MethodX(impl.Def, impl.DeclType, vInfo.GenArgs);
 						metX = AddMethod(metX);
 
-						// 添加到接口方法的实现集合
-						result = declType.MethodSigMap.TryGetValue(vInfo.Signature, out var vmetDef);
-						Debug.Assert(result);
-						MethodX vmetX = new MethodX(vmetDef, declType, vInfo.GenArgs);
-						vmetX = AddMethod(vmetX);
-						vmetX.IsCallVirtOnly = true;
-						vmetX.OverrideImpls.Add(metX);
-
 						// 之前为纯虚方法且未处理过, 需要重新处理
 						if (metX.IsCallVirtOnly)
 						{
 							metX.IsCallVirtOnly = false;
 							AddPendingMethod(metX);
 						}
+
+						// 添加到接口方法的实现集合
+						result = declType.MethodSigMap.TryGetValue(vInfo.Signature, out var vmetDef);
+						// 不同版本的类型可能方法也不同
+						if (!result)
+							continue;
+
+						// 添加到接口方法的实现列表
+						MethodX vmetX = new MethodX(vmetDef, declType, vInfo.GenArgs);
+						vmetX = AddMethod(vmetX);
+						vmetX.IsCallVirtOnly = true;
+						vmetX.OverrideImpls.Add(metX);
 					}
 				}
 			}
@@ -955,8 +965,13 @@ namespace il2cpp2
 			foreach (var metDef in currType.Def.Methods)
 			{
 				// 跳过不产生虚表的静态和特殊方法
-				if (metDef.IsStatic || metDef.IsSpecialName)
+				if (metDef.IsStatic)
 					continue;
+				if (metDef.IsRuntimeSpecialName)
+				{
+					Debug.Assert(metDef.Name == ".ctor" || metDef.Name == ".cctor");
+					continue;
+				}
 
 				if (metDef.HasOverrides)
 				{
@@ -1214,6 +1229,11 @@ namespace il2cpp2
 		private MethodX ResolveMethod(MemberRef memRef, GenericReplacer replacer)
 		{
 			Debug.Assert(memRef.IsMethodRef);
+
+			// 跳过多维数组构造方法
+			if (memRef.DeclaringType.ToTypeSig().IsArray)
+				return null;
+
 			TypeX declType = ResolveInstanceType(memRef.DeclaringType, replacer);
 
 			MethodX metX = new MethodX(memRef.ResolveMethod(), declType, null);
