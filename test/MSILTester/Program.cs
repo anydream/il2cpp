@@ -1197,8 +1197,41 @@ TestIL.TestFinalizer/Cls
 		}
 	}
 
-	[TestClass(@"")]
-	static class TestCrossDomain
+	[TestClass(@"======
+TestIL.TestDifferentBCL
+-> void Entry()
+
+object
+-> int GetHashCode() = 0
+   | int GetHashCode(): TestAdapter2.Test/Cls
+   \ int GetHashCode(): TestAdapter1.Test/Cls
+-> void .ctor()
+
+TestAdapter2.Test
+-> object Create()
+-> void Accept(object)
+
+TestAdapter1.Test
+-> void Accept(object)
+-> object Create()
+
+object
+-> int GetHashCode() = 0
+   | int GetHashCode(): TestAdapter2.Test/Cls
+   \ int GetHashCode(): TestAdapter1.Test/Cls
+-> void .ctor()
+
+TestAdapter2.Test/Cls
+-> void .ctor()
+-> int GetHashCode()
+
+TestAdapter1.Test/Cls
+-> void .ctor()
+-> int GetHashCode()
+
+======
+")]
+	static class TestDifferentBCL
 	{
 		public static void Entry()
 		{
@@ -1211,7 +1244,7 @@ TestIL.TestFinalizer/Cls
 	{
 		static void Main()
 		{
-			TestCrossDomain.Entry();
+			TestDifferentBCL.Entry();
 		}
 	}
 }
