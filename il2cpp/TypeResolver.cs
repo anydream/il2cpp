@@ -215,15 +215,18 @@ namespace il2cpp2
 
 		public void MergeSlot(MethodSignature sig, TypeX declType)
 		{
-			// 跳过已覆盖的签名
-			var entry = new VirtualEntry(declType, sig);
-			if (ExplicitSet.Contains(entry))
-				return;
-			if (Table.ContainsKey(entry))
-				return;
-
 			bool result = VMap.TryGetValue(sig, out var layerList);
-			Debug.Assert(result);
+			if (!result)
+			{
+				// 跳过已覆盖的签名
+				var entry = new VirtualEntry(declType, sig);
+				if (ExplicitSet.Contains(entry))
+					return;
+				if (Table.ContainsKey(entry))
+					return;
+
+				Debug.Fail("MergeSlot " + entry);
+			}
 			Debug.Assert(layerList.Count > 0);
 
 			var layer = layerList.Last();
@@ -631,9 +634,9 @@ namespace il2cpp2
 		// 复位
 		public void Reset()
 		{
-			Module = null;
 			TypeMap.Clear();
 			PendingMets.Clear();
+			VCalls.Clear();
 		}
 
 		// 加载模块
@@ -654,7 +657,7 @@ namespace il2cpp2
 
 		public void AddEntry(MethodDef metDef)
 		{
-			var resMetX = ResolveMethod(metDef);
+			ResolveMethod(metDef);
 		}
 
 		// 处理循环
