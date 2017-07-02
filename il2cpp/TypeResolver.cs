@@ -19,13 +19,12 @@ namespace il2cpp2
 			Debug.Assert(sig != null);
 			Name = name;
 			Signature = sig;
-			SigString = Signature.ToString() + "|" + ((int)Signature.CallingConvention).ToString();
+			SigString = Name + ": " + Signature.ToString() + "|" + ((int)Signature.CallingConvention).ToString();
 		}
 
 		public override int GetHashCode()
 		{
-			return Name.GetHashCode() ^
-				   SigString.GetHashCode();
+			return SigString.GetHashCode();
 		}
 
 		public bool Equals(MethodSignature other)
@@ -33,8 +32,7 @@ namespace il2cpp2
 			if (ReferenceEquals(this, other))
 				return true;
 
-			return Name == other.Name &&
-				   SigString == other.SigString;
+			return SigString == other.SigString;
 		}
 
 		public override bool Equals(object obj)
@@ -44,7 +42,7 @@ namespace il2cpp2
 
 		public override string ToString()
 		{
-			return Name + ": " + Signature;
+			return SigString;
 		}
 	}
 
@@ -134,23 +132,23 @@ namespace il2cpp2
 	{
 		private class SlotLayer
 		{
-			public readonly HashSet<string> Entries;
+			public readonly HashSet<string> EntryTypes;
 			public MethodImpl ImplMethod;
 
 			public SlotLayer()
 			{
-				Entries = new HashSet<string>();
+				EntryTypes = new HashSet<string>();
 			}
 
-			private SlotLayer(HashSet<string> entries, MethodImpl impl)
+			private SlotLayer(HashSet<string> entryTypes, MethodImpl impl)
 			{
-				Entries = entries;
+				EntryTypes = entryTypes;
 				ImplMethod = impl;
 			}
 
 			public SlotLayer Clone()
 			{
-				return new SlotLayer(new HashSet<string>(Entries), ImplMethod);
+				return new SlotLayer(new HashSet<string>(EntryTypes), ImplMethod);
 			}
 		}
 
@@ -196,7 +194,7 @@ namespace il2cpp2
 		public void NewSlot(MethodSignature sig, MethodImpl impl)
 		{
 			var layer = new SlotLayer();
-			layer.Entries.Add(impl.DeclType.FullName);
+			layer.EntryTypes.Add(impl.DeclType.FullName);
 			layer.ImplMethod = impl;
 			VMap[sig] = layer;
 		}
@@ -206,7 +204,7 @@ namespace il2cpp2
 			bool result = VMap.TryGetValue(sig, out var layer);
 			Debug.Assert(result);
 
-			layer.Entries.Add(impl.DeclType.FullName);
+			layer.EntryTypes.Add(impl.DeclType.FullName);
 			layer.ImplMethod = impl;
 		}
 
@@ -226,7 +224,7 @@ namespace il2cpp2
 				Debug.Fail("MergeSlot " + entry);
 			}
 
-			layer.Entries.Add(typeName);
+			layer.EntryTypes.Add(typeName);
 		}
 
 		public void ExplicitOverride(string typeName, MethodSignature sig, MethodImpl impl)
@@ -241,7 +239,7 @@ namespace il2cpp2
 			foreach (var kv in VMap)
 			{
 				var layer = kv.Value;
-				foreach (var typeName in layer.Entries)
+				foreach (var typeName in layer.EntryTypes)
 				{
 					var entry = new VirtualEntry(typeName, kv.Key);
 					Table[entry] = layer.ImplMethod;
@@ -250,12 +248,12 @@ namespace il2cpp2
 			// 显式覆盖最后展开
 			foreach (var expInfo in ExplicitList)
 			{
-				var entry = new VirtualEntry(expInfo.TypeName, expInfo.Signature);
+				VirtualEntry entry = expInfo;
 				Table[entry] = expInfo.ImplMethod;
 
 				// 从虚映射中删除显式覆盖项, 防止子类覆盖
 				if (VMap.TryGetValue(expInfo.Signature, out var layer))
-					layer.Entries.Remove(expInfo.TypeName);
+					layer.EntryTypes.Remove(expInfo.TypeName);
 			}
 		}
 
