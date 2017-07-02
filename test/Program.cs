@@ -119,8 +119,15 @@ namespace test
 #if true
 			TestProcess(typeMgr);
 #else
+			var sw = new Stopwatch();
+			sw.Start();
+
 			typeMgr.AddEntry(typeMgr.Module.EntryPoint);
 			typeMgr.Process();
+
+			sw.Stop();
+			Console.WriteLine("Elapsed: {0}ms", sw.ElapsedMilliseconds);
+
 			string result = PrintAllTypes(typeMgr.Types, true);
 			Console.WriteLine(result);
 #endif
