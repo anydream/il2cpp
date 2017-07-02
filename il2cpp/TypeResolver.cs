@@ -152,31 +152,15 @@ namespace il2cpp2
 			}
 		}
 
-		private class ExplicitItem : VirtualEntry
-		{
-			public readonly MethodImpl ImplMethod;
-
-			public ExplicitItem(string typeName, MethodSignature sig, MethodImpl impl)
-				: base(typeName, sig)
-			{
-				ImplMethod = impl;
-			}
-
-			public override string ToString()
-			{
-				return base.ToString() + " => " + ImplMethod;
-			}
-		}
-
 		// 虚表槽层级映射
 		private readonly Dictionary<MethodSignature, SlotLayer> VMap =
 			new Dictionary<MethodSignature, SlotLayer>();
 		// 显式覆盖列表
-		private readonly List<ExplicitItem> ExplicitList = new List<ExplicitItem>();
-		private readonly HashSet<VirtualEntry> ExplicitSet = new HashSet<VirtualEntry>();
+		private Dictionary<VirtualEntry, MethodImpl> DerivedExplicitMap = new Dictionary<VirtualEntry, MethodImpl>();
+		private Dictionary<VirtualEntry, MethodImpl> CurrExplicitMap = new Dictionary<VirtualEntry, MethodImpl>();
 		// 展开的虚表
-		public Dictionary<VirtualEntry, MethodImpl> Table { get; private set; }
-			= new Dictionary<VirtualEntry, MethodImpl>();
+		public Dictionary<VirtualEntry, MethodImpl> Table { get; private set; } =
+			new Dictionary<VirtualEntry, MethodImpl>();
 
 		public VirtualTable Clone()
 		{
@@ -184,6 +168,8 @@ namespace il2cpp2
 
 			foreach (var kv in VMap)
 				vtbl.VMap.Add(kv.Key, kv.Value.Clone());
+
+			vtbl.DerivedExplicitMap = new Dictionary<VirtualEntry, MethodImpl>(CurrExplicitMap);
 
 			// 克隆展开的虚表
 			vtbl.Table = new Dictionary<VirtualEntry, MethodImpl>(Table);
@@ -210,15 +196,14 @@ namespace il2cpp2
 
 		public void MergeSlot(string typeName, MethodSignature sig)
 		{
-			// 跳过显式覆盖中已存在的签名
-			var entry = new VirtualEntry(typeName, sig);
-			if (ExplicitSet.Contains(entry))
-				return;
-
 			bool result = VMap.TryGetValue(sig, out var layer);
 			if (!result)
 			{
-				if (Table.ContainsKey(entry))
+				// 跳过显式覆盖中已存在的签名
+				var entry = new VirtualEntry(typeName, sig);
+				if (DerivedExplicitMap.ContainsKey(entry))
+					return;
+				if (CurrExplicitMap.ContainsKey(entry))
 					return;
 
 				Debug.Fail("MergeSlot " + entry);
@@ -229,31 +214,44 @@ namespace il2cpp2
 
 		public void ExplicitOverride(string typeName, MethodSignature sig, MethodImpl impl)
 		{
-			var expItem = new ExplicitItem(typeName, sig, impl);
-			ExplicitList.Add(expItem);
-			ExplicitSet.Add(expItem);
+			var entry = new VirtualEntry(typeName, sig);
+			CurrExplicitMap[entry] = impl;
 		}
 
-		public void ExpandTable()
+		public void ExpandTable(TypeX currType)
 		{
 			foreach (var kv in VMap)
 			{
 				var layer = kv.Value;
+				bool isCurr = layer.ImplMethod.DeclType.Equals(currType);
+
 				foreach (var typeName in layer.EntryTypes)
 				{
 					var entry = new VirtualEntry(typeName, kv.Key);
 					Table[entry] = layer.ImplMethod;
+
+					if (isCurr)
+					{
+						if (DerivedExplicitMap.ContainsKey(entry))
+							DerivedExplicitMap.Remove(entry);
+					}
 				}
 			}
-			// 显式覆盖最后展开
-			foreach (var expInfo in ExplicitList)
-			{
-				VirtualEntry entry = expInfo;
-				Table[entry] = expInfo.ImplMethod;
 
-				// 从虚映射中删除显式覆盖项, 防止子类覆盖
-				if (VMap.TryGetValue(expInfo.Signature, out var layer))
-					layer.EntryTypes.Remove(expInfo.TypeName);
+			// 显式覆盖最后展开
+			foreach (var kv in CurrExplicitMap)
+			{
+				DerivedExplicitMap[kv.Key] = kv.Value;
+
+				// 删除显式覆盖的类型, 防止后续类型覆盖
+				if (VMap.TryGetValue(kv.Key.Signature, out var layer))
+					layer.EntryTypes.Remove(kv.Key.TypeName);
+			}
+			CurrExplicitMap = DerivedExplicitMap;
+
+			foreach (var kv in CurrExplicitMap)
+			{
+				Table[kv.Key] = kv.Value;
 			}
 		}
 
@@ -665,8 +663,8 @@ namespace il2cpp2
 			VCalls.Add(
 				"System.Void System.Object::Finalize()",
 				new VCallInfo("System.Object", new MethodSignature("Finalize",
-					new MethodSig(CallingConvention.HasThis, 0, Module.CorLibTypes.Void)),
-				null));
+						new MethodSig(CallingConvention.HasThis, 0, Module.CorLibTypes.Void)),
+					null));
 
 			while (PendingMets.Count > 0)
 			{
@@ -733,7 +731,7 @@ namespace il2cpp2
 						// 添加虚方法入口
 						if (resMetX.Def.IsVirtual &&
 							(inst.OpCode.Code == Code.Callvirt ||
-							inst.OpCode.Code == Code.Ldvirtftn))
+							 inst.OpCode.Code == Code.Ldvirtftn))
 						{
 							var metName = resMetX.FullName;
 							if (!VCalls.ContainsKey(metName))
@@ -1071,7 +1069,7 @@ namespace il2cpp2
 			}
 
 			// 展开虚表
-			currType.VTable.ExpandTable();
+			currType.VTable.ExpandTable(currType);
 
 			// 追加当前类型到所有虚入口类型
 			foreach (var kv in currType.VTable.Table)
@@ -1302,3 +1300,4 @@ namespace il2cpp2
 		}
 	}
 }
+
