@@ -198,7 +198,7 @@ namespace il2cpp2
 		{
 			var entry = new VirtualEntry(typeName, sig);
 
-			// 当前类定义了显式覆盖, 跳过合并
+			// 当前类定义了显式覆盖, 跳过
 			if (CurrExplicitMap.ContainsKey(entry))
 				return;
 
@@ -666,9 +666,9 @@ namespace il2cpp2
 			// 添加虚调用 Object.Finalize
 			VCalls.Add(
 				"System.Void System.Object::Finalize()",
-				new VCallInfo("System.Object", new MethodSignature("Finalize",
-						new MethodSig(CallingConvention.HasThis, 0, Module.CorLibTypes.Void)),
-					null));
+				new VCallInfo("System.Object",
+					new MethodSignature("Finalize",
+						new MethodSig(CallingConvention.HasThis, 0, Module.CorLibTypes.Void)), null));
 
 			while (PendingMets.Count > 0)
 			{
