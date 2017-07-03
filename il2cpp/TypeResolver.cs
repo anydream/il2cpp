@@ -194,22 +194,34 @@ namespace il2cpp2
 			layer.ImplMethod = impl;
 		}
 
-		public void MergeSlot(string typeName, MethodSignature sig)
+		public void MergeSlot(TypeX currType, string typeName, MethodSignature sig)
 		{
+			var entry = new VirtualEntry(typeName, sig);
+
+			// 当前类定义了显式覆盖, 跳过合并
+			if (CurrExplicitMap.ContainsKey(entry))
+				return;
+
 			bool result = VMap.TryGetValue(sig, out var layer);
 			if (!result)
 			{
-				// 跳过显式覆盖中已存在的签名
-				var entry = new VirtualEntry(typeName, sig);
+				// 找不到且存在继承的显式覆盖, 跳过
 				if (DerivedExplicitMap.ContainsKey(entry))
 					return;
-				if (CurrExplicitMap.ContainsKey(entry))
-					return;
-
 				Debug.Fail("MergeSlot " + entry);
 			}
 
-			layer.EntryTypes.Add(typeName);
+			if (layer.ImplMethod.DeclType.Equals(currType))
+			{
+				// 当前类型存在相同签名的实现, 删除并合并
+				DerivedExplicitMap.Remove(entry);
+				layer.EntryTypes.Add(typeName);
+			}
+			else if (!DerivedExplicitMap.ContainsKey(entry))
+			{
+				// 当前类型不存在实现且不存在显式覆盖, 合并
+				layer.EntryTypes.Add(typeName);
+			}
 		}
 
 		public void ExplicitOverride(string typeName, MethodSignature sig, MethodImpl impl)
@@ -218,23 +230,15 @@ namespace il2cpp2
 			CurrExplicitMap[entry] = impl;
 		}
 
-		public void ExpandTable(TypeX currType)
+		public void ExpandTable()
 		{
 			foreach (var kv in VMap)
 			{
 				var layer = kv.Value;
-				bool isCurr = layer.ImplMethod.DeclType.Equals(currType);
-
 				foreach (var typeName in layer.EntryTypes)
 				{
 					var entry = new VirtualEntry(typeName, kv.Key);
 					Table[entry] = layer.ImplMethod;
-
-					if (isCurr)
-					{
-						if (DerivedExplicitMap.ContainsKey(entry))
-							DerivedExplicitMap.Remove(entry);
-					}
 				}
 			}
 
@@ -1063,13 +1067,13 @@ namespace il2cpp2
 				{
 					foreach (var kv in infType.MethodSigMap)
 					{
-						currType.VTable.MergeSlot(infType.FullName, kv.Key);
+						currType.VTable.MergeSlot(currType, infType.FullName, kv.Key);
 					}
 				}
 			}
 
 			// 展开虚表
-			currType.VTable.ExpandTable(currType);
+			currType.VTable.ExpandTable();
 
 			// 追加当前类型到所有虚入口类型
 			foreach (var kv in currType.VTable.Table)

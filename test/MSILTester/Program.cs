@@ -1218,6 +1218,76 @@ TestIL.TestCrossOverride8/Inf
 	}
 
 	[TestClass(@"======
+TestIL.TestCrossOverride9
+-> void Entry()
+
+object
+-> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
+
+TestIL.TestCrossOverride9/Sub3
+-> void .ctor()
+
+TestIL.TestCrossOverride9/Sub2
+-> void .ctor()
+
+TestIL.TestCrossOverride9/Sub
+-> void .ctor()
+-> void TestIL.TestCrossOverride9.Inf.Foo()
+
+TestIL.TestCrossOverride9/Base
+-> void .ctor()
+
+TestIL.TestCrossOverride9/Inf
+-> void Foo() = 0
+   \ void TestIL.TestCrossOverride9.Inf.Foo(): TestIL.TestCrossOverride9/Sub
+
+======
+")]
+	static class TestCrossOverride9
+	{
+		interface Inf
+		{
+			void Foo();
+		}
+
+		class Base : Inf
+		{
+			public virtual void Foo()
+			{
+
+			}
+		}
+
+		class Sub : Base, Inf
+		{
+			void Inf.Foo()
+			{
+
+			}
+		}
+
+		class Sub2 : Sub, Inf
+		{
+		}
+
+		class Sub3 : Sub2
+		{
+			public override void Foo()
+			{
+
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf inf = new Sub3();
+			inf.Foo();
+		}
+	}
+
+	[TestClass(@"======
 TestIL.TestStaticCctor
 -> void Entry()
 
