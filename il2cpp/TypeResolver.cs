@@ -336,7 +336,8 @@ namespace il2cpp2
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
 
 		// 方法签名映射
-		public readonly Dictionary<MethodSignature, MethodDef> MethodSigMap = new Dictionary<MethodSignature, MethodDef>();
+		public readonly Dictionary<MethodSignature, MethodDef> MethodSigMap =
+			new Dictionary<MethodSignature, MethodDef>();
 		// 方法覆盖类型集合映射
 		public readonly Dictionary<MethodSignature, HashSet<TypeX>> OverrideImplTypes =
 			new Dictionary<MethodSignature, HashSet<TypeX>>();
@@ -347,6 +348,7 @@ namespace il2cpp2
 		// 类型全名
 		public string FullName => Def.FullName + GenericToString();
 
+		// 是否为空类型
 		public bool IsEmptyType => !HasMethods && !HasFields;
 		// 是否被实例化过
 		public bool IsInstanced;
@@ -463,10 +465,9 @@ namespace il2cpp2
 		public bool HasOverrideImpls => OverrideImpls_ != null && OverrideImpls_.Count > 0;
 
 		// 是否在处理队列中
-		public bool IsQueueing = false;
-
+		public bool IsQueueing;
 		// 是否为纯虚方法
-		private int VirtOnlyStatus_ = 0;
+		private int VirtOnlyStatus_;
 		public bool IsCallVirtOnly
 		{
 			get => VirtOnlyStatus_ == 1;
@@ -604,6 +605,7 @@ namespace il2cpp2
 		}
 	}
 
+	// 虚调用信息
 	class VCallInfo : VirtualEntry
 	{
 		public readonly IList<TypeSig> GenArgs;
@@ -622,11 +624,12 @@ namespace il2cpp2
 		public ModuleDefMD Module { get; private set; }
 		// 类型映射
 		private readonly Dictionary<TypeX, TypeX> TypeMap = new Dictionary<TypeX, TypeX>();
+		// 同名类型集合映射
 		private readonly Dictionary<string, List<TypeX>> NameTypeMap = new Dictionary<string, List<TypeX>>();
 		public IList<TypeX> Types => new List<TypeX>(TypeMap.Values);
 		// 待处理方法队列
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
-		// 虚调用
+		// 虚调用映射
 		private readonly Dictionary<string, VCallInfo> VCalls =
 			new Dictionary<string, VCallInfo>();
 
@@ -776,6 +779,7 @@ namespace il2cpp2
 						{
 							Debug.Assert(!resMetX.Def.IsStatic);
 							Debug.Assert(resMetX.Def.IsConstructor);
+							// 标记类型为已实例化
 							resMetX.DeclType.IsInstanced = true;
 							// 生成静态构造和终结方法
 							GenStaticCctor(resMetX.DeclType);
@@ -843,16 +847,14 @@ namespace il2cpp2
 				MethodX metX = new MethodX(finalizer, tyX, null);
 				AddMethod(metX);
 			}
-
-			//!GenObjectFinalizer();
 		}
 
 		private void ResolveVCalls()
 		{
 			foreach (var vInfo in VCalls.Values)
 			{
-				VirtualEntry entry = vInfo;
 				var typeList = GetTypeList(vInfo.TypeName);
+				// 遍历同名的所有类型
 				foreach (var declType in typeList)
 				{
 					bool result = declType.OverrideImplTypes.TryGetValue(vInfo.Signature, out var implSet);
@@ -860,13 +862,15 @@ namespace il2cpp2
 					if (!result)
 						continue;
 
+					// 遍历对应方法签名的所有覆盖类型
 					foreach (var implType in implSet)
 					{
-						// 过滤已实例化的类型
+						// 过滤未实例化的类型
 						if (!implType.IsInstanced)
 							continue;
 
 						// 在类型虚表中查找实现
+						VirtualEntry entry = vInfo;
 						MethodImpl impl = implType.VTable.FindImplementation(entry);
 						Debug.Assert(impl != null);
 
