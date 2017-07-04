@@ -458,6 +458,9 @@ namespace il2cpp
 		public TypeSig ReturnType;
 		// 参数列表
 		public IList<TypeSig> ParamTypes;
+		// 临时变量映射
+		public IList<TypeSig> LocalTypes;
+
 		// 方法覆盖集合
 		private HashSet<MethodX> OverrideImpls_;
 		public HashSet<MethodX> OverrideImpls => OverrideImpls_ ?? (OverrideImpls_ = new HashSet<MethodX>(new MethodRefComparer()));
@@ -1231,6 +1234,14 @@ namespace il2cpp
 			// 展开方法内的泛型类型
 			metX.ReturnType = ResolveTypeSig(metX.Def.ReturnType, replacer);
 			metX.ParamTypes = ResolveTypeSigList(metX.Def.MethodSig.Params, replacer);
+
+			// 展开临时变量类型
+			if (metX.Def.HasBody && metX.Def.Body.HasVariables)
+			{
+				metX.LocalTypes = new List<TypeSig>();
+				foreach (var loc in metX.Def.Body.Variables)
+					metX.LocalTypes.Add(ResolveTypeSig(loc.Type, replacer));
+			}
 		}
 
 		// 解析无泛型方法
