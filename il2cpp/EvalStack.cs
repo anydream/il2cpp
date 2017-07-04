@@ -121,6 +121,9 @@ namespace il2cpp
 				// 比较栈信息
 				return -1;
 			}
+			instInfo.IsProcessed = true;
+
+			List<string> popArgs = new List<string>();
 
 			switch (inst.OpCode.StackBehaviourPop)
 			{
@@ -128,48 +131,59 @@ namespace il2cpp
 					break;
 
 				case StackBehaviour.Pop1:
-					break;
 				case StackBehaviour.Popi:
-					break;
 				case StackBehaviour.Popref:
+					popArgs.Add(Pop());
 					break;
 
 				case StackBehaviour.Pop1_pop1:
-					break;
 				case StackBehaviour.Popi_pop1:
-					break;
 				case StackBehaviour.Popi_popi:
-					break;
 				case StackBehaviour.Popi_popi8:
-					break;
 				case StackBehaviour.Popi_popr4:
-					break;
 				case StackBehaviour.Popi_popr8:
-					break;
 				case StackBehaviour.Popref_pop1:
-					break;
 				case StackBehaviour.Popref_popi:
+					popArgs.Add(Pop());
+					popArgs.Add(Pop());
 					break;
 
 				case StackBehaviour.Popi_popi_popi:
-					break;
 				case StackBehaviour.Popref_popi_popi:
-					break;
 				case StackBehaviour.Popref_popi_popi8:
-					break;
 				case StackBehaviour.Popref_popi_popr4:
-					break;
 				case StackBehaviour.Popref_popi_popr8:
-					break;
 				case StackBehaviour.Popref_popi_popref:
-					break;
 				case StackBehaviour.Popref_popi_pop1:
+					popArgs.Add(Pop());
+					popArgs.Add(Pop());
+					popArgs.Add(Pop());
 					break;
 
 				case StackBehaviour.Varpop:
-					break;
+					{
+						if (inst.OpCode.Code == Code.Ret)
+						{
+							Debug.Assert(TypeStack.Count == 1);
+						}
+						else if (inst.OpCode.OperandType == OperandType.InlineMethod)
+						{
+							//inst.Operand;
+						}
+						else if (inst.OpCode.OperandType == OperandType.InlineSig)
+						{
+
+						}
+						else
+						{
+							Debug.Fail("Varpop " + inst.OpCode.OperandType);
+						}
+						break;
+					}
 
 				case StackBehaviour.PopAll:
+					while (TypeStack.Count > 0)
+						TypeStack.Pop();
 					break;
 
 				default:
@@ -197,6 +211,8 @@ namespace il2cpp
 					break;
 
 				case StackBehaviour.Push1_push1:
+					Debug.Assert(inst.OpCode.Code == Code.Dup);
+					Dup();
 					break;
 
 				case StackBehaviour.Varpush:
@@ -207,31 +223,43 @@ namespace il2cpp
 					break;
 			}
 
-			int nextIP = currIP + 1;
+			int nextIP = -1;
 
-			switch (inst.OpCode.OperandType)
+			switch (inst.OpCode.FlowControl)
 			{
-				case OperandType.InlineBrTarget:
-				case OperandType.ShortInlineBrTarget:
+				case FlowControl.Branch:
+					nextIP = InstMap[(Instruction)inst.Operand].Index;
+					break;
+
+				case FlowControl.Cond_Branch:
 					{
-						if (inst.OpCode.FlowControl == FlowControl.Branch)
+						if (inst.OpCode.OperandType == OperandType.InlineSwitch)
 						{
-							nextIP = InstMap[(Instruction)inst.Operand].Index;
+
 						}
 						else
 						{
-							Debug.Assert(inst.OpCode.FlowControl == FlowControl.Cond_Branch);
 							int targetIP = InstMap[(Instruction)inst.Operand].Index;
 							AddPendingBranch(targetIP);
 						}
 						break;
 					}
 
-				case OperandType.InlineSwitch:
-					{
-						throw new NotImplementedException();
-						break;
-					}
+				case FlowControl.Break:
+				case FlowControl.Call:
+				case FlowControl.Meta:
+				case FlowControl.Next:
+					nextIP = currIP + 1;
+					break;
+
+				case FlowControl.Return:
+				case FlowControl.Throw:
+					nextIP = -1;
+					break;
+
+				default:
+					Debug.Fail("FlowControl " + inst.OpCode.FlowControl);
+					break;
 			}
 
 			return nextIP;
