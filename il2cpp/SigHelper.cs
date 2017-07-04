@@ -5,7 +5,7 @@ using System.Text;
 using dnlib.DotNet;
 using dnlib.Threading;
 
-namespace il2cpp2
+namespace il2cpp
 {
 	// 泛型展开器
 	internal class GenericReplacer

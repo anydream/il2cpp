@@ -5,7 +5,7 @@ using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
-namespace il2cpp2
+namespace il2cpp
 {
 	// 方法签名
 	public class MethodSignature
@@ -19,7 +19,7 @@ namespace il2cpp2
 			Debug.Assert(sig != null);
 			Name = name;
 			Signature = sig;
-			SigString = Name + ": " + Signature.ToString() + "|" + ((int)Signature.CallingConvention).ToString();
+			SigString = Name + ": " + Signature + "|" + ((int)Signature.CallingConvention);
 		}
 
 		public override int GetHashCode()

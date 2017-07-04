@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
-using il2cpp2;
+using il2cpp;
 
 namespace test
 {
