@@ -33,6 +33,8 @@ namespace il2cpp
 		private readonly Dictionary<string, TypeSig> TypeMap = new Dictionary<string, TypeSig>();
 		// 当前类型栈
 		private Stack<string> TypeStack = new Stack<string>();
+		// 临时栈槽对应的类型集合
+		private readonly Dictionary<int, HashSet<string>> SlotTypes = new Dictionary<int, HashSet<string>>();
 		// 需要继续执行的分支指令位置和类型栈的队列
 		private readonly Queue<Tuple<int, Stack<string>>> PendingBranch = new Queue<Tuple<int, Stack<string>>>();
 
@@ -41,13 +43,27 @@ namespace il2cpp
 		// 指令对应信息列表
 		private readonly List<InstInfo> InstInfoList = new List<InstInfo>();
 
+		private MethodX TargetMethod;
+		private Func<Instruction, object> ResolverFunc;
+
 		public void Reset()
 		{
 			TypeMap.Clear();
 			TypeStack.Clear();
+			SlotTypes.Clear();
 			PendingBranch.Clear();
 			OffsetIndexMap.Clear();
 			InstInfoList.Clear();
+		}
+
+		private void AddSlotType(int slot, string typeName)
+		{
+			if (!SlotTypes.TryGetValue(slot, out var typeSet))
+			{
+				typeSet = new HashSet<string>();
+				SlotTypes.Add(slot, typeSet);
+			}
+			typeSet.Add(typeName);
 		}
 
 		private string RegType(TypeSig type)
@@ -64,26 +80,34 @@ namespace il2cpp
 			return null;
 		}
 
-		private bool Push(string typeName, out int stackIndex)
+		private bool Push(string typeName, out int slot)
 		{
 			if (typeName != "System.Void")
 			{
-				stackIndex = TypeStack.Count;
+				slot = TypeStack.Count;
 				TypeStack.Push(typeName);
+				AddSlotType(slot, typeName);
 				return true;
 			}
-			stackIndex = -1;
+			slot = -1;
 			return false;
 		}
 
-		private bool Push(TypeSig type, out int stackIndex)
+		private Tuple<int, string> Push(string typeName)
 		{
-			return Push(RegType(type), out stackIndex);
+			if (Push(typeName, out int slot))
+				return new Tuple<int, string>(slot, typeName);
+			return null;
 		}
 
-		private string Pop(out int stackIndex)
+		private Tuple<int, string> Push(TypeSig type)
 		{
-			stackIndex = TypeStack.Count - 1;
+			return Push(RegType(type));
+		}
+
+		private string Pop(out int slot)
+		{
+			slot = TypeStack.Count - 1;
 			return TypeStack.Pop();
 		}
 
@@ -91,9 +115,9 @@ namespace il2cpp
 		{
 			for (int i = 0; i < num; ++i)
 			{
-				int stackIndex;
-				string type = Pop(out stackIndex);
-				popList.Add(new Tuple<int, string>(stackIndex, type));
+				int slot;
+				string typeName = Pop(out slot);
+				popList.Add(new Tuple<int, string>(slot, typeName));
 			}
 		}
 
@@ -106,6 +130,9 @@ namespace il2cpp
 		{
 			Debug.Assert(metX.Def.HasBody);
 			Reset();
+
+			TargetMethod = metX;
+			ResolverFunc = resolver;
 
 			// 构建指令信息映射
 			var instList = metX.Def.Body.Instructions;
@@ -120,7 +147,7 @@ namespace il2cpp
 			int currIP = 0;
 			for (;;)
 			{
-				int result = ProcessStep(currIP, resolver);
+				int result = ProcessStep(currIP);
 				if (result < 0 || result >= instRange)
 				{
 					if (PendingBranch.Count > 0)
@@ -138,7 +165,7 @@ namespace il2cpp
 			}
 		}
 
-		private int ProcessStep(int currIP, Func<Instruction, object> resolver)
+		private int ProcessStep(int currIP)
 		{
 			// 跳过已经处理过的指令
 			var instInfo = InstInfoList[currIP];
@@ -198,7 +225,7 @@ namespace il2cpp
 			}
 
 			// 针对具体指令单独处理
-			ProcessInstruction(inst, popList, resolver);
+			ProcessInstruction(inst, popList);
 
 			int nextIP = -1;
 			switch (inst.OpCode.FlowControl)
@@ -243,29 +270,29 @@ namespace il2cpp
 
 		private void ProcessInstruction(
 			Instruction inst,
-			List<Tuple<int, string>> popList,
-			Func<Instruction, object> resolver)
+			List<Tuple<int, string>> popList)
 		{
 			if (inst.OpCode.Code == Code.Dup)
 			{
-				var type = popList[0].Item2;
-				Push(type, out _);
-				Push(type, out _);
+				var typeName = popList[0].Item2;
+				Push(typeName, out _);
+				Push(typeName, out _);
 				return;
 			}
 			if (inst.OpCode.Code == Code.Pop ||
 				inst.OpCode.Code == Code.Nop)
 				return;
 
-			object operand = resolver(inst);
+			Tuple<int, string> pushSlot;
+
+			object operand = ResolverFunc(inst);
 			switch (inst.OpCode.Code)
 			{
 				case Code.Call:
 				case Code.Callvirt:
-				case Code.Calli:
 					{
 						MethodX metX = (MethodX)operand;
-						Push(metX.ReturnType, out var stackIndex);
+						pushSlot = Push(metX.ReturnType);
 						return;
 					}
 
@@ -274,7 +301,7 @@ namespace il2cpp
 						if (operand != null)
 						{
 							MethodX metX = (MethodX)operand;
-							Push(metX.DeclType.FullName, out var stackIndex);
+							pushSlot = Push(metX.DeclType.FullName);
 							return;
 						}
 						else
@@ -282,6 +309,10 @@ namespace il2cpp
 							throw new NotImplementedException();
 						}
 					}
+
+				default:
+					Debug.Fail(inst.ToString());
+					break;
 			}
 		}
 	}
