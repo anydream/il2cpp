@@ -636,6 +636,8 @@ namespace il2cpp
 		private readonly Dictionary<string, VCallInfo> VCalls =
 			new Dictionary<string, VCallInfo>();
 
+		private readonly EvalStack EvalProcessor = new EvalStack();
+
 		// 复位
 		public void Reset()
 		{
@@ -698,10 +700,15 @@ namespace il2cpp
 					replacer.SetMethod(currMetX);
 
 					// 遍历并解析指令
+#if false
+					EvalProcessor.Process(currMetX, inst => ResolveInstruction(inst, replacer));
+#else
 					foreach (var inst in currMetX.Def.Body.Instructions)
 					{
 						ResolveInstruction(inst, replacer);
 					}
+#endif
+
 				} while (PendingMets.Count > 0);
 
 				ResolveVCalls();
@@ -709,7 +716,7 @@ namespace il2cpp
 		}
 
 		// 解析指令
-		private void ResolveInstruction(Instruction inst, GenericReplacer replacer)
+		private object ResolveInstruction(Instruction inst, GenericReplacer replacer)
 		{
 			switch (inst.OpCode.OperandType)
 			{
@@ -789,7 +796,7 @@ namespace il2cpp
 							GenFinalizer(resMetX.DeclType);
 						}
 
-						break;
+						return resMetX;
 					}
 
 				case OperandType.InlineField:
@@ -817,9 +824,10 @@ namespace il2cpp
 							GenStaticCctor(resFldX.DeclType);
 						}
 
-						break;
+						return resFldX;
 					}
 			}
+			return null;
 		}
 
 		private void GenStaticCctor(TypeX tyX)
