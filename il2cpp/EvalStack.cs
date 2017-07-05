@@ -282,6 +282,16 @@ namespace il2cpp
 			if (inst.OpCode.Code == Code.Pop ||
 				inst.OpCode.Code == Code.Nop)
 				return;
+			if (inst.OpCode.Code == Code.Ret)
+			{
+				if (TypeStack.Count > 0)
+				{
+					Debug.Assert(TypeStack.Count == 1);
+					Pop(1, popList);
+					//! return
+				}
+				return;
+			}
 
 			Tuple<int, string> pushSlot;
 
@@ -292,6 +302,7 @@ namespace il2cpp
 				case Code.Callvirt:
 					{
 						MethodX metX = (MethodX)operand;
+						//! pop
 						pushSlot = Push(metX.ReturnType);
 						return;
 					}
@@ -301,6 +312,7 @@ namespace il2cpp
 						if (operand != null)
 						{
 							MethodX metX = (MethodX)operand;
+							//! pop
 							pushSlot = Push(metX.DeclType.FullName);
 							return;
 						}
