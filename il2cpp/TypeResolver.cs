@@ -481,8 +481,13 @@ namespace il2cpp
 			}
 		}
 
+		public bool IsStatic => Def.IsStatic;
+
 		public string Name => BuildName(false);
 		public string FullName => BuildName(true);
+		public string FullFuncName => BuildFuncName(true);
+
+		public string CppName;
 
 		public MethodX(MethodDef metDef, TypeX declType, IList<TypeSig> genArgs)
 		{
@@ -521,15 +526,25 @@ namespace il2cpp
 			return Name;
 		}
 
+		private string BuildFuncName(bool hasDeclType)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendFormat("{0}{1}{2}",
+				hasDeclType ? DeclType.FullName + "::" : "",
+				Def.Name,
+				GenericToString());
+
+			return sb.ToString();
+		}
+
 		private string BuildName(bool hasDeclType)
 		{
 			StringBuilder sb = new StringBuilder();
 
-			sb.AppendFormat("{0} {1}{2}{3}",
+			sb.AppendFormat("{0} {1}",
 				ReturnType != null ? ReturnType.FullName : "<?>",
-				hasDeclType ? DeclType.FullName + "::" : "",
-				Def.Name,
-				GenericToString());
+				BuildFuncName(hasDeclType));
 
 			sb.Append('(');
 			if (ParamTypes == null)
@@ -700,7 +715,7 @@ namespace il2cpp
 					replacer.SetMethod(currMetX);
 
 					// 遍历并解析指令
-#if false
+#if true
 					EvalProcessor.Process(currMetX, inst => ResolveInstruction(inst, replacer));
 #else
 					foreach (var inst in currMetX.Def.Body.Instructions)

@@ -1437,9 +1437,24 @@ TestIL.TestNullCall/Inf
 
 	class Program
 	{
+		static int foo()
+		{
+			int a = 123;
+			if (a == 123)
+			{
+				++a;
+			}
+			else
+			{
+				--a;
+			}
+
+			return a;
+		}
+
 		static void Main()
 		{
-			TestCrossOverride8.Entry();
+			foo();
 		}
 	}
 }

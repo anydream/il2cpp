@@ -116,7 +116,7 @@ namespace test
 			TypeManager typeMgr = new TypeManager();
 			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
 
-#if true
+#if false
 			TestProcess(typeMgr);
 #else
 			var sw = new Stopwatch();
