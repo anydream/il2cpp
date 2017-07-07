@@ -23,7 +23,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return CppCode ? CppCode : string.Format("{0}{1}", Inst, IsProcessed ? " √" : "");
+			return CppCode ?? string.Format("{0}{1}", Inst, IsProcessed ? " √" : "");
 		}
 	}
 
