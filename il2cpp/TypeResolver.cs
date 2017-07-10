@@ -676,6 +676,8 @@ namespace il2cpp
 
 			Module.Context = modCtx;
 			Module.Context.AssemblyResolver.AddToCache(Module);
+
+			EvalProcessor.CorTypes = Module.CorLibTypes;
 		}
 
 		public void AddEntry(MethodDef metDef)

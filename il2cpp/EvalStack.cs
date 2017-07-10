@@ -36,6 +36,8 @@ namespace il2cpp
 	// 执行栈
 	internal class EvalStack
 	{
+		public ICorLibTypes CorTypes;
+
 		private MethodX TargetMethod;
 		private Func<Instruction, object> ResolverFunc;
 
@@ -194,9 +196,10 @@ namespace il2cpp
 					break;
 
 				default:
-					ProcessInstruction(instInfo);
+					ProcessInstruction(ref instInfo);
 					break;
 			}
+			InstInfoList[currIP] = instInfo;
 
 			switch (inst.OpCode.FlowControl)
 			{
@@ -237,7 +240,7 @@ namespace il2cpp
 			return false;
 		}
 
-		private void ProcessInstruction(InstructionInfo instInfo)
+		private void ProcessInstruction(ref InstructionInfo instInfo)
 		{
 			var inst = instInfo.Inst;
 
@@ -291,6 +294,66 @@ namespace il2cpp
 			// 处理无操作数的指令
 			switch (inst.OpCode.Code)
 			{
+				case Code.Ldc_I4_M1:
+					instInfo.CppCode = PushI4ToCode(-1);
+					break;
+
+				case Code.Ldc_I4_0:
+					instInfo.CppCode = PushI4ToCode(0);
+					break;
+
+				case Code.Ldc_I4_1:
+					instInfo.CppCode = PushI4ToCode(1);
+					break;
+
+				case Code.Ldc_I4_2:
+					instInfo.CppCode = PushI4ToCode(2);
+					break;
+
+				case Code.Ldc_I4_3:
+					instInfo.CppCode = PushI4ToCode(3);
+					break;
+
+				case Code.Ldc_I4_4:
+					instInfo.CppCode = PushI4ToCode(4);
+					break;
+
+				case Code.Ldc_I4_5:
+					instInfo.CppCode = PushI4ToCode(5);
+					break;
+
+				case Code.Ldc_I4_6:
+					instInfo.CppCode = PushI4ToCode(6);
+					break;
+
+				case Code.Ldc_I4_7:
+					instInfo.CppCode = PushI4ToCode(7);
+					break;
+
+				case Code.Ldc_I4_8:
+					instInfo.CppCode = PushI4ToCode(8);
+					break;
+
+				case Code.Ldc_I4_S:
+					instInfo.CppCode = PushI4ToCode((sbyte)inst.Operand);
+					break;
+
+				case Code.Ldc_I4:
+					instInfo.CppCode = PushI4ToCode((int)inst.Operand);
+					break;
+
+				case Code.Ldc_I8:
+					instInfo.CppCode = PushI8ToCode((long)inst.Operand);
+					break;
+
+				case Code.Ldc_R4:
+					instInfo.CppCode = PushR4ToCode((float)inst.Operand);
+					break;
+
+				case Code.Ldc_R8:
+					instInfo.CppCode = PushR8ToCode((double)inst.Operand);
+					break;
+
 				case Code.Ret:
 					{
 						if (CurrStack.Count > 0)
@@ -331,6 +394,32 @@ namespace il2cpp
 						return;
 					}
 			}
+
+			Debug.Fail("Unsupported instrument " + inst.ToString());
+		}
+
+		private string PushI4ToCode(int val)
+		{
+			Push(CorTypes.Int32, out var pushed);
+			return string.Format("{0} = {1}", SlotInfoToCode(ref pushed), val);
+		}
+
+		private string PushI8ToCode(long val)
+		{
+			Push(CorTypes.Int64, out var pushed);
+			return string.Format("{0} = {1}", SlotInfoToCode(ref pushed), val);
+		}
+
+		private string PushR4ToCode(float val)
+		{
+			Push(CorTypes.Single, out var pushed);
+			return string.Format("{0} = {1}", SlotInfoToCode(ref pushed), val);
+		}
+
+		private string PushR8ToCode(double val)
+		{
+			Push(CorTypes.Double, out var pushed);
+			return string.Format("{0} = {1}", SlotInfoToCode(ref pushed), val);
 		}
 
 		private string CallToCode(int popCount, string metName, TypeSig retType)
@@ -359,7 +448,7 @@ namespace il2cpp
 
 			return sb.ToString();
 		}
-		
+
 		private string SlotInfoToCode(ref SlotInfo sinfo)
 		{
 			int typeID = GetTypeID(sinfo.TypeObj, sinfo.StackID);
