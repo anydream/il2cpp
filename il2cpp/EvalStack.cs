@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
@@ -205,6 +206,7 @@ namespace il2cpp
 					break;
 
 				default:
+					ProcessInstruction(iinfo);
 					break;
 			}
 
@@ -253,7 +255,51 @@ namespace il2cpp
 			// 处理无需解析操作数的指令
 			switch (iinfo.Code)
 			{
-
+				case Code.Ldc_I4_M1:
+					Load(iinfo, StackType.I4, "-1");
+					return;
+				case Code.Ldc_I4_0:
+					Load(iinfo, StackType.I4, "0");
+					return;
+				case Code.Ldc_I4_1:
+					Load(iinfo, StackType.I4, "1");
+					return;
+				case Code.Ldc_I4_2:
+					Load(iinfo, StackType.I4, "2");
+					return;
+				case Code.Ldc_I4_3:
+					Load(iinfo, StackType.I4, "3");
+					return;
+				case Code.Ldc_I4_4:
+					Load(iinfo, StackType.I4, "4");
+					return;
+				case Code.Ldc_I4_5:
+					Load(iinfo, StackType.I4, "5");
+					return;
+				case Code.Ldc_I4_6:
+					Load(iinfo, StackType.I4, "6");
+					return;
+				case Code.Ldc_I4_7:
+					Load(iinfo, StackType.I4, "7");
+					return;
+				case Code.Ldc_I4_8:
+					Load(iinfo, StackType.I4, "8");
+					return;
+				case Code.Ldc_I4_S:
+					Load(iinfo, StackType.I4, ((sbyte)iinfo.Operand).ToString());
+					return;
+				case Code.Ldc_I4:
+					Load(iinfo, StackType.I4, ((int)iinfo.Operand).ToString());
+					return;
+				case Code.Ldc_I8:
+					Load(iinfo, StackType.I8, ((long)iinfo.Operand).ToString());
+					return;
+				case Code.Ldc_R4:
+					Load(iinfo, StackType.R4, ((float)iinfo.Operand).ToString(CultureInfo.InvariantCulture));
+					return;
+				case Code.Ldc_R8:
+					Load(iinfo, StackType.R8, ((double)iinfo.Operand).ToString(CultureInfo.InvariantCulture));
+					return;
 			}
 
 			// 解析操作数
