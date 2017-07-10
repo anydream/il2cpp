@@ -57,6 +57,8 @@ namespace il2cpp
 
 		// 当前类型栈
 		private Stack<StackType> TypeStack = new Stack<StackType>();
+		// 栈槽类型映射
+		private Dictionary<int, HashSet<StackType>> StackTypeMap = new Dictionary<int, HashSet<StackType>>();
 		// 待处理的分支
 		private readonly Queue<Tuple<int, Stack<StackType>>> Branches = new Queue<Tuple<int, Stack<StackType>>>();
 
@@ -65,12 +67,23 @@ namespace il2cpp
 			CorTypes = corTypes;
 		}
 
+		private void AddStackTypeMap(ref SlotInfo sinfo)
+		{
+			if (!StackTypeMap.TryGetValue(sinfo.StackIndex, out var typeSet))
+			{
+				typeSet = new HashSet<StackType>();
+				StackTypeMap.Add(sinfo.StackIndex, typeSet);
+			}
+			typeSet.Add(sinfo.SlotType);
+		}
+
 		private SlotInfo Push(StackType stype)
 		{
 			SlotInfo sinfo = new SlotInfo();
 			sinfo.StackIndex = TypeStack.Count;
 			sinfo.SlotType = stype;
 			TypeStack.Push(stype);
+			AddStackTypeMap(ref sinfo);
 			return sinfo;
 		}
 
@@ -106,6 +119,7 @@ namespace il2cpp
 		{
 			InstList = null;
 			TypeStack.Clear();
+			StackTypeMap.Clear();
 			Branches.Clear();
 		}
 
@@ -232,6 +246,49 @@ namespace il2cpp
 			}
 
 			return false;
+		}
+
+		private void ProcessInstruction(InstructionInfo iinfo)
+		{
+			// 处理无需解析操作数的指令
+			switch (iinfo.Code)
+			{
+
+			}
+
+			// 解析操作数
+			object operand = OperandResolver(iinfo.Inst);
+			switch (iinfo.Code)
+			{
+
+			}
+		}
+
+		private string ArgName(int argID)
+		{
+			return "arg_" + argID;
+		}
+
+		private string LocalName(int localID)
+		{
+			return "loc_" + localID;
+		}
+
+		private string SlotInfoName(ref SlotInfo sinfo)
+		{
+			return string.Format("tmp_{0}_{1}", sinfo.StackIndex, sinfo.SlotType);
+		}
+
+		private void Load(InstructionInfo iinfo, StackType stype, string rval)
+		{
+			SlotInfo pushed = Push(stype);
+			iinfo.CppCode = string.Format("{0} = {1}", SlotInfoName(ref pushed), rval);
+		}
+
+		private void Store(InstructionInfo iinfo, string lval, string cast = null)
+		{
+			SlotInfo poped = Pop();
+			iinfo.CppCode = string.Format("{0} = {1}{2}", lval, cast != null ? "(" + cast + ")" : "", SlotInfoName(ref poped));
 		}
 	}
 }
