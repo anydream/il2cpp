@@ -39,7 +39,6 @@ namespace il2cpp
 		private MethodX TargetMethod;
 		private Func<Instruction, object> ResolverFunc;
 
-		private int CurrTypeIndex;
 		// 当前类型栈
 		private Stack<object> CurrStack = new Stack<object>();
 		// 栈槽类型映射. 用于构造临时变量声明
@@ -61,7 +60,7 @@ namespace il2cpp
 				StackSlotMap.Add(stackID, typeIndexMap);
 			}
 			if (!typeIndexMap.ContainsKey(type))
-				typeIndexMap.Add(type, CurrTypeIndex++);
+				typeIndexMap.Add(type, typeIndexMap.Count);
 		}
 
 		private int GetTypeID(object type, int stackID)
@@ -128,7 +127,6 @@ namespace il2cpp
 
 		public void Reset()
 		{
-			CurrTypeIndex = 0;
 			CurrStack.Clear();
 			StackSlotMap.Clear();
 			OffsetIndexMap.Clear();
@@ -385,18 +383,18 @@ namespace il2cpp
 			return (isVirt ? "vmet_" : "met_") + metX.CppName;
 		}
 
-		private static string ToCppName(string str)
+		private static string ToCppName(string fullName)
 		{
 			StringBuilder sb = new StringBuilder();
 
 			string hash = ToRadix(NameCounter++, (uint)DigMap.Length);
 			sb.Append(hash + "_");
 
-			for (int i = 0; i < str.Length; ++i)
+			for (int i = 0; i < fullName.Length; ++i)
 			{
-				if (IsLegalIdentChar(str[i]))
+				if (IsLegalIdentChar(fullName[i]))
 				{
-					sb.Append(str[i]);
+					sb.Append(fullName[i]);
 				}
 				else
 				{
