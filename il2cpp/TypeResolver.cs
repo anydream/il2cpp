@@ -648,10 +648,9 @@ namespace il2cpp
 		// 待处理方法队列
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
 		// 虚调用映射
-		private readonly Dictionary<string, VCallInfo> VCalls =
-			new Dictionary<string, VCallInfo>();
+		private readonly Dictionary<string, VCallInfo> VCalls = new Dictionary<string, VCallInfo>();
 
-		private readonly EvalStack EvalProcessor = new EvalStack();
+		private EvalStack EvalProcessor;
 
 		// 复位
 		public void Reset()
@@ -677,7 +676,7 @@ namespace il2cpp
 			Module.Context = modCtx;
 			Module.Context.AssemblyResolver.AddToCache(Module);
 
-			EvalProcessor.CorTypes = Module.CorLibTypes;
+			EvalProcessor = new EvalStack(Module.CorLibTypes);
 		}
 
 		public void AddEntry(MethodDef metDef)

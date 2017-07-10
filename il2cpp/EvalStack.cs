@@ -1,188 +1,183 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
 namespace il2cpp
 {
-	// 指令数据
-	internal struct InstructionInfo
+	// 栈槽类型
+	internal enum StackType
 	{
-		public Instruction Inst;
-		public bool IsProcessed;
-		public string CppCode;
-
-		public InstructionInfo(Instruction inst)
-		{
-			Inst = inst;
-			IsProcessed = false;
-			CppCode = null;
-		}
-
-		public override string ToString()
-		{
-			return CppCode ?? string.Format("{0}{1}", Inst, IsProcessed ? " √" : "");
-		}
+		I4,
+		I8,
+		R4,
+		R8,
+		Ptr,
+		Obj,
+		Ref
 	}
 
 	internal struct SlotInfo
 	{
-		public object TypeObj;
-		public int StackID;
+		public StackType SlotType;
+		public int StackIndex;
+	}
+
+	// 包装的指令
+	internal class InstructionInfo
+	{
+		public Instruction Inst;
+		public Code Code;
+		public object Operand;
+		public int Index;
+
+		public bool IsProcessed;
+		public string CppCode;
+
+		public InstructionInfo(int index, Instruction inst)
+		{
+			Inst = inst;
+			Code = inst.OpCode.Code;
+			Operand = inst.Operand;
+			Index = index;
+		}
 	}
 
 	// 执行栈
 	internal class EvalStack
 	{
-		public ICorLibTypes CorTypes;
+		private readonly ICorLibTypes CorTypes;
 
 		private MethodX TargetMethod;
-		private Func<Instruction, object> ResolverFunc;
+		private Func<Instruction, object> OperandResolver;
+
+		// 指令列表
+		private InstructionInfo[] InstList;
 
 		// 当前类型栈
-		private Stack<object> CurrStack = new Stack<object>();
-		// 栈槽类型映射. 用于构造临时变量声明
-		private readonly Dictionary<int, Dictionary<object, int>> StackSlotMap = new Dictionary<int, Dictionary<object, int>>();
-		// 指令偏移索引映射
-		private readonly Dictionary<uint, int> OffsetIndexMap = new Dictionary<uint, int>();
-		// 指令信息映射
-		private readonly List<InstructionInfo> InstInfoList = new List<InstructionInfo>();
-		// 暂存的其他分支
-		private readonly Queue<Tuple<int, Stack<object>>> PendingBranches = new Queue<Tuple<int, Stack<object>>>();
+		private Stack<StackType> TypeStack = new Stack<StackType>();
+		// 待处理的分支
+		private readonly Queue<Tuple<int, Stack<StackType>>> Branches = new Queue<Tuple<int, Stack<StackType>>>();
 
-		private void AddStackSlotMap(object type, int stackID)
+		public EvalStack(ICorLibTypes corTypes)
 		{
-			if (!StackSlotMap.TryGetValue(stackID, out var typeIndexMap))
-			{
-				typeIndexMap = new Dictionary<object, int>();
-				StackSlotMap.Add(stackID, typeIndexMap);
-			}
-			if (!typeIndexMap.ContainsKey(type))
-				typeIndexMap.Add(type, typeIndexMap.Count);
+			CorTypes = corTypes;
 		}
 
-		private int GetTypeID(object type, int stackID)
+		private SlotInfo Push(StackType stype)
 		{
-			if (StackSlotMap.TryGetValue(stackID, out var typeIndexMap))
-			{
-				if (typeIndexMap.TryGetValue(type, out int typeID))
-					return typeID;
-			}
-			return -1;
+			SlotInfo sinfo = new SlotInfo();
+			sinfo.StackIndex = TypeStack.Count;
+			sinfo.SlotType = stype;
+			TypeStack.Push(stype);
+			return sinfo;
 		}
 
-		private int Push(object type)
+		private SlotInfo Pop()
 		{
-			int stackID = CurrStack.Count;
-			CurrStack.Push(type);
-			AddStackSlotMap(type, stackID);
-			return stackID;
-		}
-
-		private void Push(object type, out SlotInfo sinfo)
-		{
-			sinfo.StackID = Push(type);
-			sinfo.TypeObj = type;
-		}
-
-		private bool Pop(out SlotInfo sinfo)
-		{
-			if (CurrStack.Count > 0)
-			{
-				sinfo.TypeObj = CurrStack.Pop();
-				sinfo.StackID = CurrStack.Count;
-				return true;
-			}
-			sinfo = new SlotInfo();
-			return false;
+			StackType stype = TypeStack.Pop();
+			SlotInfo sinfo = new SlotInfo();
+			sinfo.StackIndex = TypeStack.Count;
+			sinfo.SlotType = stype;
+			return sinfo;
 		}
 
 		private SlotInfo[] Pop(int num)
 		{
-			SlotInfo[] result = new SlotInfo[num];
+			SlotInfo[] sinfos = new SlotInfo[num];
 			for (int i = 0; i < num; ++i)
-			{
-				bool status = Pop(out result[i]);
-				Debug.Assert(status);
-			}
-			return result;
-		}
+				sinfos[i] = Pop();
 
-		private void Pop()
-		{
-			CurrStack.Pop();
+			return sinfos;
 		}
 
 		private void Dup()
 		{
-			CurrStack.Push(CurrStack.Peek());
+			TypeStack.Push(TypeStack.Peek());
 		}
 
-		private void AddPendingBranch(int targetIP)
+		private void AddBranch(int targetIP)
 		{
-			PendingBranches.Enqueue(new Tuple<int, Stack<object>>(targetIP, new Stack<object>(CurrStack)));
+			Branches.Enqueue(new Tuple<int, Stack<StackType>>(targetIP, new Stack<StackType>(TypeStack)));
 		}
 
-		public void Reset()
+		private void Reset()
 		{
-			CurrStack.Clear();
-			StackSlotMap.Clear();
-			OffsetIndexMap.Clear();
-			InstInfoList.Clear();
-			PendingBranches.Clear();
+			InstList = null;
+			TypeStack.Clear();
+			Branches.Clear();
 		}
 
-		public void Process(MethodX metX, Func<Instruction, object> resolver)
+		public void Process(MethodX metX, Func<Instruction, object> operandRes)
 		{
 			Debug.Assert(metX.Def.HasBody);
+
 			Reset();
 
 			TargetMethod = metX;
-			ResolverFunc = resolver;
+			OperandResolver = operandRes;
 
-			// 包装指令列表
-			var instList = metX.Def.Body.Instructions;
-			for (int i = 0; i < instList.Count; ++i)
+			// 转换为自定义类型的指令列表
+			var origInstList = metX.Def.Body.Instructions;
+			InstList = new InstructionInfo[origInstList.Count];
+
+			Dictionary<uint, int> offsetMap = new Dictionary<uint, int>();
+			List<int> targetFixup = new List<int>();
+
+			for (int i = 0; i < InstList.Length; ++i)
 			{
-				var inst = instList[i];
-				OffsetIndexMap[inst.Offset] = i;
-				InstInfoList.Add(new InstructionInfo(inst));
+				var origInst = origInstList[i];
+				InstList[i] = new InstructionInfo(i, origInst);
+
+				offsetMap.Add(origInst.Offset, i);
+
+				if (origInst.OpCode.OperandType == OperandType.InlineBrTarget ||
+					origInst.OpCode.OperandType == OperandType.ShortInlineBrTarget ||
+					origInst.OpCode.OperandType == OperandType.InlineSwitch)
+				{
+					targetFixup.Add(i);
+				}
+			}
+			foreach (int fixIndex in targetFixup)
+			{
+				var operand = InstList[fixIndex].Operand;
+				if (operand is Instruction targetInst)
+					InstList[fixIndex].Operand = offsetMap[targetInst.Offset];
+				else
+				{
+					var targetInstList = (Instruction[])operand;
+					int[] targetIndices = new int[targetInstList.Length];
+					for (int i = 0; i < targetInstList.Length; ++i)
+						targetIndices[i] = offsetMap[targetInstList[i].Offset];
+
+					InstList[fixIndex].Operand = targetIndices;
+				}
 			}
 
-			// 处理循环
+			// 开始模拟执行
 			int currIP = 0;
-			int nextIP = -1;
+			int nextIP = 0;
 			for (;;)
 			{
 				if (ProcessStep(currIP, ref nextIP))
 					currIP = nextIP;
-				else if (PendingBranches.Count > 0)
+				else if (Branches.Count > 0)
 				{
-					// 处理其他分支
-					var branch = PendingBranches.Dequeue();
+					var branch = Branches.Dequeue();
 					currIP = branch.Item1;
-					CurrStack = branch.Item2;
+					TypeStack = branch.Item2;
 				}
 				else
 					break;
 			}
-
-			//! 构造方法体代码, 构造虚调用代码
 		}
 
 		private bool ProcessStep(int currIP, ref int nextIP)
 		{
-			var instInfo = InstInfoList[currIP];
-			// 跳过已处理项
-			if (instInfo.IsProcessed)
-				return false;
+			var iinfo = InstList[currIP];
 
-			instInfo.IsProcessed = true;
-			var inst = instInfo.Inst;
-
-			switch (inst.OpCode.Code)
+			switch (iinfo.Code)
 			{
 				case Code.Nop:
 					break;
@@ -196,35 +191,30 @@ namespace il2cpp
 					break;
 
 				default:
-					ProcessInstruction(ref instInfo);
 					break;
 			}
-			InstInfoList[currIP] = instInfo;
 
-			switch (inst.OpCode.FlowControl)
+			// 计算下一指令位置
+			switch (iinfo.Inst.OpCode.FlowControl)
 			{
 				case FlowControl.Branch:
-					nextIP = OffsetIndexMap[((Instruction)inst.Operand).Offset];
+					nextIP = (int)iinfo.Operand;
 					return true;
 
 				case FlowControl.Cond_Branch:
+					if (iinfo.Code == Code.Switch)
 					{
-						if (inst.OpCode.Code == Code.Switch)
-						{
-							throw new NotImplementedException();
-						}
-						else
-						{
-							int targetIP = OffsetIndexMap[((Instruction)inst.Operand).Offset];
-							AddPendingBranch(targetIP);
-						}
-						nextIP = currIP + 1;
-						return true;
+						int[] targetList = (int[])iinfo.Operand;
+						foreach (int targetIP in targetList)
+							AddBranch(targetIP);
 					}
-
-				case FlowControl.Return:
-				case FlowControl.Throw:
-					return false;
+					else
+					{
+						int targetIP = (int)iinfo.Operand;
+						AddBranch(targetIP);
+					}
+					nextIP = currIP + 1;
+					return true;
 
 				case FlowControl.Break:
 				case FlowControl.Call:
@@ -233,227 +223,15 @@ namespace il2cpp
 					nextIP = currIP + 1;
 					return true;
 
+				case FlowControl.Return:
+				case FlowControl.Throw:
+					return false;
+
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
 
 			return false;
-		}
-
-		private void ProcessInstruction(ref InstructionInfo instInfo)
-		{
-			var inst = instInfo.Inst;
-
-			// 处理通用的出栈逻辑
-			SlotInfo[] popList = null;
-			switch (inst.OpCode.StackBehaviourPop)
-			{
-				case StackBehaviour.Pop0:
-					break;
-
-				case StackBehaviour.Pop1:
-				case StackBehaviour.Popi:
-				case StackBehaviour.Popref:
-					popList = Pop(1);
-					break;
-
-				case StackBehaviour.Pop1_pop1:
-				case StackBehaviour.Popi_pop1:
-				case StackBehaviour.Popi_popi:
-				case StackBehaviour.Popi_popi8:
-				case StackBehaviour.Popi_popr4:
-				case StackBehaviour.Popi_popr8:
-				case StackBehaviour.Popref_pop1:
-				case StackBehaviour.Popref_popi:
-					popList = Pop(2);
-					break;
-
-				case StackBehaviour.Popi_popi_popi:
-				case StackBehaviour.Popref_popi_popi:
-				case StackBehaviour.Popref_popi_popi8:
-				case StackBehaviour.Popref_popi_popr4:
-				case StackBehaviour.Popref_popi_popr8:
-				case StackBehaviour.Popref_popi_popref:
-				case StackBehaviour.Popref_popi_pop1:
-					popList = Pop(3);
-					break;
-
-				case StackBehaviour.Varpop:
-					// 动态出栈由具体指令来处理
-					break;
-
-				case StackBehaviour.PopAll:
-					CurrStack.Clear();
-					break;
-
-				default:
-					Debug.Fail("StackBehaviourPop " + inst.OpCode.StackBehaviourPop);
-					break;
-			}
-
-			// 处理无操作数的指令
-			switch (inst.OpCode.Code)
-			{
-				case Code.Ldc_I4_M1:
-					instInfo.CppCode = PushI4ToCode(-1);
-					break;
-
-				case Code.Ldc_I4_0:
-					instInfo.CppCode = PushI4ToCode(0);
-					break;
-
-				case Code.Ldc_I4_1:
-					instInfo.CppCode = PushI4ToCode(1);
-					break;
-
-				case Code.Ldc_I4_2:
-					instInfo.CppCode = PushI4ToCode(2);
-					break;
-
-				case Code.Ldc_I4_3:
-					instInfo.CppCode = PushI4ToCode(3);
-					break;
-
-				case Code.Ldc_I4_4:
-					instInfo.CppCode = PushI4ToCode(4);
-					break;
-
-				case Code.Ldc_I4_5:
-					instInfo.CppCode = PushI4ToCode(5);
-					break;
-
-				case Code.Ldc_I4_6:
-					instInfo.CppCode = PushI4ToCode(6);
-					break;
-
-				case Code.Ldc_I4_7:
-					instInfo.CppCode = PushI4ToCode(7);
-					break;
-
-				case Code.Ldc_I4_8:
-					instInfo.CppCode = PushI4ToCode(8);
-					break;
-
-				case Code.Ldc_I4_S:
-					instInfo.CppCode = PushI4ToCode((sbyte)inst.Operand);
-					break;
-
-				case Code.Ldc_I4:
-					instInfo.CppCode = PushI4ToCode((int)inst.Operand);
-					break;
-
-				case Code.Ldc_I8:
-					instInfo.CppCode = PushI8ToCode((long)inst.Operand);
-					break;
-
-				case Code.Ldc_R4:
-					instInfo.CppCode = PushR4ToCode((float)inst.Operand);
-					break;
-
-				case Code.Ldc_R8:
-					instInfo.CppCode = PushR8ToCode((double)inst.Operand);
-					break;
-
-				case Code.Ret:
-					{
-						if (CurrStack.Count > 0)
-						{
-							Debug.Assert(CurrStack.Count == 1);
-
-							SlotInfo poped;
-							Pop(out poped);
-
-							instInfo.CppCode = "return " + SlotInfoToCode(ref poped);
-						}
-						else
-						{
-							instInfo.CppCode = "return";
-						}
-						return;
-					}
-			}
-
-			// 解析操作数
-			object operand = ResolverFunc(inst);
-			switch (inst.OpCode.Code)
-			{
-				case Code.Call:
-				case Code.Callvirt:
-					{
-						MethodX metX = (MethodX)operand;
-
-						int popCount = metX.ParamTypes.Count;
-						if (!metX.IsStatic)
-							++popCount;
-
-						instInfo.CppCode = CallToCode(
-							popCount,
-							metX.GetCppName(inst.OpCode.Code == Code.Callvirt),
-							metX.ReturnType);
-
-						return;
-					}
-			}
-
-			Debug.Fail("Unsupported instrument " + inst.ToString());
-		}
-
-		private string PushI4ToCode(int val)
-		{
-			Push(CorTypes.Int32, out var pushed);
-			return string.Format("{0} = {1}", SlotInfoToCode(ref pushed), val);
-		}
-
-		private string PushI8ToCode(long val)
-		{
-			Push(CorTypes.Int64, out var pushed);
-			return string.Format("{0} = {1}", SlotInfoToCode(ref pushed), val);
-		}
-
-		private string PushR4ToCode(float val)
-		{
-			Push(CorTypes.Single, out var pushed);
-			return string.Format("{0} = {1}", SlotInfoToCode(ref pushed), val);
-		}
-
-		private string PushR8ToCode(double val)
-		{
-			Push(CorTypes.Double, out var pushed);
-			return string.Format("{0} = {1}", SlotInfoToCode(ref pushed), val);
-		}
-
-		private string CallToCode(int popCount, string metName, TypeSig retType)
-		{
-			SlotInfo[] popList = Pop(popCount);
-
-			StringBuilder sb = new StringBuilder();
-			if (!SigHelper.IsVoidSig(retType))
-			{
-				Push(retType, out var pushed);
-				sb.AppendFormat("{0} = ", SlotInfoToCode(ref pushed));
-			}
-
-			sb.AppendFormat("{0}(", metName);
-
-			bool last = false;
-			for (int i = 0; i < popList.Length; ++i)
-			{
-				if (last)
-					sb.Append(", ");
-				last = true;
-				sb.Append(SlotInfoToCode(ref popList[i]));
-			}
-
-			sb.Append(')');
-
-			return sb.ToString();
-		}
-
-		private string SlotInfoToCode(ref SlotInfo sinfo)
-		{
-			int typeID = GetTypeID(sinfo.TypeObj, sinfo.StackID);
-			Debug.Assert(typeID >= 0);
-			return string.Format("tmp_{0}_{1}", sinfo.StackID, typeID);
 		}
 	}
 }
