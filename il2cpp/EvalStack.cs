@@ -8,7 +8,7 @@ using dnlib.DotNet.Emit;
 namespace il2cpp
 {
 	// 指令数据
-	struct InstructionInfo
+	internal struct InstructionInfo
 	{
 		public Instruction Inst;
 		public bool IsProcessed;
@@ -27,7 +27,7 @@ namespace il2cpp
 		}
 	}
 
-	struct SlotInfo
+	internal struct SlotInfo
 	{
 		public object TypeObj;
 		public int StackID;
@@ -49,8 +49,6 @@ namespace il2cpp
 		private readonly List<InstructionInfo> InstInfoList = new List<InstructionInfo>();
 		// 暂存的其他分支
 		private readonly Queue<Tuple<int, Stack<object>>> PendingBranches = new Queue<Tuple<int, Stack<object>>>();
-
-		private static uint NameCounter = 0;
 
 		private void AddStackSlotMap(object type, int stackID)
 		{
@@ -327,7 +325,7 @@ namespace il2cpp
 
 						instInfo.CppCode = CallToCode(
 							popCount,
-							GetMethodCodeName(metX, inst.OpCode.Code == Code.Callvirt),
+							metX.GetCppName(inst.OpCode.Code == Code.Callvirt),
 							metX.ReturnType);
 
 						return;
@@ -340,7 +338,7 @@ namespace il2cpp
 			SlotInfo[] popList = Pop(popCount);
 
 			StringBuilder sb = new StringBuilder();
-			if (!IsVoidSig(retType))
+			if (!SigHelper.IsVoidSig(retType))
 			{
 				Push(retType, out var pushed);
 				sb.AppendFormat("{0} = ", SlotInfoToCode(ref pushed));
@@ -361,69 +359,12 @@ namespace il2cpp
 
 			return sb.ToString();
 		}
-
-		private static bool IsVoidSig(TypeSig sig)
-		{
-			return sig.IsCorLibType && sig.FullName == "System.Void";
-		}
-
+		
 		private string SlotInfoToCode(ref SlotInfo sinfo)
 		{
 			int typeID = GetTypeID(sinfo.TypeObj, sinfo.StackID);
 			Debug.Assert(typeID >= 0);
 			return string.Format("tmp_{0}_{1}", sinfo.StackID, typeID);
-		}
-
-		private static string GetMethodCodeName(MethodX metX, bool isVirt)
-		{
-			if (metX.CppName == null)
-			{
-				metX.CppName = ToCppName(metX.FullFuncName);
-			}
-			return (isVirt ? "vmet_" : "met_") + metX.CppName;
-		}
-
-		private static string ToCppName(string fullName)
-		{
-			StringBuilder sb = new StringBuilder();
-
-			string hash = ToRadix(NameCounter++, (uint)DigMap.Length);
-			sb.Append(hash + "_");
-
-			for (int i = 0; i < fullName.Length; ++i)
-			{
-				if (IsLegalIdentChar(fullName[i]))
-				{
-					sb.Append(fullName[i]);
-				}
-				else
-				{
-					sb.Append('_');
-				}
-			}
-			return sb.ToString();
-		}
-
-		private static bool IsLegalIdentChar(char ch)
-		{
-			return ch >= 'a' && ch <= 'z' ||
-				   ch >= 'A' && ch <= 'Z' ||
-				   ch >= '0' && ch <= '9' ||
-				   ch == '_';
-		}
-
-		private static string DigMap = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		private static string ToRadix(uint value, uint radix)
-		{
-			StringBuilder sb = new StringBuilder();
-			do
-			{
-				uint dig = value % radix;
-				value /= radix;
-				sb.Append(DigMap[(int)dig]);
-			} while (value != 0);
-
-			return sb.ToString();
 		}
 	}
 }

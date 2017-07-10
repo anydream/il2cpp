@@ -487,7 +487,7 @@ namespace il2cpp
 		public string FullName => BuildName(true);
 		public string FullFuncName => BuildFuncName(true);
 
-		public string CppName;
+		public string CppName_;
 
 		public MethodX(MethodDef metDef, TypeX declType, IList<TypeSig> genArgs)
 		{
