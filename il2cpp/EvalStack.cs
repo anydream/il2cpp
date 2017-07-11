@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
@@ -42,6 +43,11 @@ namespace il2cpp
 			Code = inst.OpCode.Code;
 			Operand = inst.Operand;
 			Index = index;
+		}
+
+		public override string ToString()
+		{
+			return CppCode ?? string.Format("{0}: {1} {2}{3}", Index, Code, Operand, IsProcessed ? " √" : "");
 		}
 	}
 
@@ -170,6 +176,9 @@ namespace il2cpp
 				}
 			}
 
+			offsetMap = null;
+			targetFixup = null;
+
 			// 开始模拟执行
 			int currIP = 0;
 			int nextIP = 0;
@@ -191,6 +200,9 @@ namespace il2cpp
 		private bool ProcessStep(int currIP, ref int nextIP)
 		{
 			var iinfo = InstList[currIP];
+			if (iinfo.IsProcessed)
+				return false;
+			iinfo.IsProcessed = true;
 
 			switch (iinfo.Code)
 			{
@@ -300,13 +312,40 @@ namespace il2cpp
 				case Code.Ldc_R8:
 					Load(iinfo, StackType.R8, ((double)iinfo.Operand).ToString(CultureInfo.InvariantCulture));
 					return;
+
+				case Code.Ret:
+					if (TypeStack.Count > 0)
+					{
+						Debug.Assert(TypeStack.Count == 1);
+						SlotInfo poped = Pop();
+						iinfo.CppCode = string.Format("return {0}", SlotInfoName(ref poped));
+					}
+					else
+					{
+						iinfo.CppCode = "return";
+					}
+					return;
 			}
 
 			// 解析操作数
 			object operand = OperandResolver(iinfo.Inst);
 			switch (iinfo.Code)
 			{
+				case Code.Call:
+				case Code.Callvirt:
+					{
+						MethodX metX = (MethodX)operand;
 
+						int popCount = metX.ParamTypes.Count;
+						if (!metX.IsStatic)
+							++popCount;
+
+						Call(iinfo,
+							metX.GetCppName(iinfo.Code == Code.Callvirt),
+							popCount,
+							metX.ReturnType);
+					}
+					return;
 			}
 		}
 
@@ -335,6 +374,73 @@ namespace il2cpp
 		{
 			SlotInfo poped = Pop();
 			iinfo.CppCode = string.Format("{0} = {1}{2}", lval, cast != null ? "(" + cast + ")" : "", SlotInfoName(ref poped));
+		}
+
+		private void Call(InstructionInfo iinfo, string metName, int popCount, TypeSig retType)
+		{
+			SlotInfo[] popList = Pop(popCount);
+
+			StringBuilder sb = new StringBuilder();
+			if (!SigHelper.IsVoidSig(retType))
+			{
+				SlotInfo pushed = Push(ToStackType(retType));
+				sb.AppendFormat("{0} = ", SlotInfoName(ref pushed));
+			}
+
+			sb.AppendFormat("{0}(", metName);
+
+			bool last = false;
+			for (int i = 0; i < popList.Length; ++i)
+			{
+				if (last)
+					sb.Append(", ");
+				last = true;
+
+				var arg = popList[i];
+				sb.Append(SlotInfoName(ref arg));
+			}
+
+			sb.Append(')');
+
+			iinfo.CppCode = sb.ToString();
+		}
+
+		private StackType ToStackType(TypeSig sig)
+		{
+			if (sig.Equals(CorTypes.SByte) ||
+				sig.Equals(CorTypes.Byte) ||
+				sig.Equals(CorTypes.Int16) ||
+				sig.Equals(CorTypes.UInt16) ||
+				sig.Equals(CorTypes.Int32) ||
+				sig.Equals(CorTypes.UInt32) ||
+				sig.Equals(CorTypes.Boolean))
+			{
+				return StackType.I4;
+			}
+			if (sig.Equals(CorTypes.Int64) ||
+				sig.Equals(CorTypes.UInt64))
+			{
+				return StackType.I8;
+			}
+			if (sig.Equals(CorTypes.Single))
+			{
+				return StackType.R4;
+			}
+			if (sig.Equals(CorTypes.Double))
+			{
+				return StackType.R8;
+			}
+			if (sig.IsPointer ||
+				sig.Equals(CorTypes.IntPtr) ||
+				sig.Equals(CorTypes.UIntPtr))
+			{
+				return StackType.Ptr;
+			}
+			if (sig.IsByRef)
+			{
+				return StackType.Ref;
+			}
+			return StackType.Obj;
 		}
 	}
 }
