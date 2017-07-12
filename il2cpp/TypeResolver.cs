@@ -651,6 +651,8 @@ namespace il2cpp
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
 		// 虚调用映射
 		private readonly Dictionary<string, VCallInfo> VCalls = new Dictionary<string, VCallInfo>();
+		// 解析后的操作数缓存
+		private readonly Dictionary<object, object> OperandCache = new Dictionary<object, object>();
 
 		// 复位
 		public void Reset()
@@ -659,6 +661,7 @@ namespace il2cpp
 			NameTypeMap.Clear();
 			PendingMets.Clear();
 			VCalls.Clear();
+			OperandCache.Clear();
 		}
 
 		// 加载模块
@@ -806,6 +809,7 @@ namespace il2cpp
 							GenFinalizer(resMetX.DeclType);
 						}
 
+						AddOperandCache(inst.Operand, resMetX);
 						break;
 					}
 
@@ -834,9 +838,18 @@ namespace il2cpp
 							GenStaticCctor(resFldX.DeclType);
 						}
 
+						AddOperandCache(inst.Operand, resFldX);
 						break;
 					}
 			}
+		}
+
+		private void AddOperandCache(object key, object value)
+		{
+			if (OperandCache.TryGetValue(key, out var cachedValue))
+				Debug.Assert(cachedValue.Equals(value));
+			else
+				OperandCache.Add(key, value);
 		}
 
 		private void GenStaticCctor(TypeX tyX)
