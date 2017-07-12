@@ -357,6 +357,8 @@ namespace il2cpp
 		// 是否生成过终结方法
 		public bool FinalizerGenerated;
 
+		public string CppName_;
+
 		public TypeX(TypeDef typeDef)
 		{
 			Def = typeDef;
@@ -650,8 +652,6 @@ namespace il2cpp
 		// 虚调用映射
 		private readonly Dictionary<string, VCallInfo> VCalls = new Dictionary<string, VCallInfo>();
 
-		private EvalStack EvalProcessor;
-
 		// 复位
 		public void Reset()
 		{
@@ -675,8 +675,6 @@ namespace il2cpp
 
 			Module.Context = modCtx;
 			Module.Context.AssemblyResolver.AddToCache(Module);
-
-			EvalProcessor = new EvalStack(Module.CorLibTypes);
 		}
 
 		public void AddEntry(MethodDef metDef)
@@ -716,14 +714,10 @@ namespace il2cpp
 					replacer.SetMethod(currMetX);
 
 					// 遍历并解析指令
-#if true
-					EvalProcessor.Process(currMetX, inst => ResolveInstruction(inst, replacer));
-#else
 					foreach (var inst in currMetX.Def.Body.Instructions)
 					{
 						ResolveInstruction(inst, replacer);
 					}
-#endif
 
 				} while (PendingMets.Count > 0);
 
@@ -732,7 +726,7 @@ namespace il2cpp
 		}
 
 		// 解析指令
-		private object ResolveInstruction(Instruction inst, GenericReplacer replacer)
+		private void ResolveInstruction(Instruction inst, GenericReplacer replacer)
 		{
 			switch (inst.OpCode.OperandType)
 			{
@@ -812,7 +806,7 @@ namespace il2cpp
 							GenFinalizer(resMetX.DeclType);
 						}
 
-						return resMetX;
+						break;
 					}
 
 				case OperandType.InlineField:
@@ -840,10 +834,9 @@ namespace il2cpp
 							GenStaticCctor(resFldX.DeclType);
 						}
 
-						return resFldX;
+						break;
 					}
 			}
-			return null;
 		}
 
 		private void GenStaticCctor(TypeX tyX)

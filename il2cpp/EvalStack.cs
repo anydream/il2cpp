@@ -341,7 +341,7 @@ namespace il2cpp
 							++popCount;
 
 						Call(iinfo,
-							metX.GetCppName(iinfo.Code == Code.Callvirt),
+							metX.GetCppName(iinfo.Code == Code.Callvirt && metX.Def.IsVirtual),
 							popCount,
 							metX.ReturnType);
 					}
@@ -407,6 +407,16 @@ namespace il2cpp
 
 		private StackType ToStackType(TypeSig sig)
 		{
+			if (sig.IsByRef)
+			{
+				return StackType.Ref;
+			}
+			if (sig.IsPointer ||
+				sig.Equals(CorTypes.IntPtr) ||
+				sig.Equals(CorTypes.UIntPtr))
+			{
+				return StackType.Ptr;
+			}
 			if (sig.Equals(CorTypes.SByte) ||
 				sig.Equals(CorTypes.Byte) ||
 				sig.Equals(CorTypes.Int16) ||
@@ -429,16 +439,6 @@ namespace il2cpp
 			if (sig.Equals(CorTypes.Double))
 			{
 				return StackType.R8;
-			}
-			if (sig.IsPointer ||
-				sig.Equals(CorTypes.IntPtr) ||
-				sig.Equals(CorTypes.UIntPtr))
-			{
-				return StackType.Ptr;
-			}
-			if (sig.IsByRef)
-			{
-				return StackType.Ref;
 			}
 			return StackType.Obj;
 		}
