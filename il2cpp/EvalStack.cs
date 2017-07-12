@@ -31,23 +31,19 @@ namespace il2cpp
 	{
 		public Instruction Inst;
 		public Code Code;
-		public object Operand;
-		public int Index;
 
 		public bool IsProcessed;
 		public string CppCode;
 
-		public InstructionInfo(int index, Instruction inst)
+		public InstructionInfo(Instruction inst)
 		{
 			Inst = inst;
 			Code = inst.OpCode.Code;
-			Operand = inst.Operand;
-			Index = index;
 		}
 
 		public override string ToString()
 		{
-			return CppCode ?? string.Format("{0}: {1} {2}{3}", Index, Code, Operand, IsProcessed ? " √" : "");
+			return CppCode ?? string.Format("{0}{1}", Inst, IsProcessed ? " √" : "");
 		}
 	}
 
@@ -142,42 +138,8 @@ namespace il2cpp
 			// 转换为自定义类型的指令列表
 			var origInstList = metX.Def.Body.Instructions;
 			InstList = new InstructionInfo[origInstList.Count];
-
-			Dictionary<uint, int> offsetMap = new Dictionary<uint, int>();
-			List<int> targetFixup = new List<int>();
-
 			for (int i = 0; i < InstList.Length; ++i)
-			{
-				var origInst = origInstList[i];
-				InstList[i] = new InstructionInfo(i, origInst);
-
-				offsetMap.Add(origInst.Offset, i);
-
-				if (origInst.OpCode.OperandType == OperandType.InlineBrTarget ||
-					origInst.OpCode.OperandType == OperandType.ShortInlineBrTarget ||
-					origInst.OpCode.OperandType == OperandType.InlineSwitch)
-				{
-					targetFixup.Add(i);
-				}
-			}
-			foreach (int fixIndex in targetFixup)
-			{
-				var operand = InstList[fixIndex].Operand;
-				if (operand is Instruction targetInst)
-					InstList[fixIndex].Operand = offsetMap[targetInst.Offset];
-				else
-				{
-					var targetInstList = (Instruction[])operand;
-					int[] targetIndices = new int[targetInstList.Length];
-					for (int i = 0; i < targetInstList.Length; ++i)
-						targetIndices[i] = offsetMap[targetInstList[i].Offset];
-
-					InstList[fixIndex].Operand = targetIndices;
-				}
-			}
-
-			offsetMap = null;
-			targetFixup = null;
+				InstList[i] = new InstructionInfo(origInstList[i]);
 
 			// 开始模拟执行
 			int currIP = 0;
@@ -226,19 +188,19 @@ namespace il2cpp
 			switch (iinfo.Inst.OpCode.FlowControl)
 			{
 				case FlowControl.Branch:
-					nextIP = (int)iinfo.Operand;
+					nextIP = (int)((Instruction)iinfo.Inst.Operand).Offset;
 					return true;
 
 				case FlowControl.Cond_Branch:
 					if (iinfo.Code == Code.Switch)
 					{
-						int[] targetList = (int[])iinfo.Operand;
-						foreach (int targetIP in targetList)
-							AddBranch(targetIP);
+						Instruction[] targetList = (Instruction[])iinfo.Inst.Operand;
+						foreach (Instruction targetInst in targetList)
+							AddBranch((int)targetInst.Offset);
 					}
 					else
 					{
-						int targetIP = (int)iinfo.Operand;
+						int targetIP = (int)((Instruction)iinfo.Inst.Operand).Offset;
 						AddBranch(targetIP);
 					}
 					nextIP = currIP + 1;
@@ -298,19 +260,19 @@ namespace il2cpp
 					Load(iinfo, StackType.I4, "8");
 					return;
 				case Code.Ldc_I4_S:
-					Load(iinfo, StackType.I4, ((sbyte)iinfo.Operand).ToString());
+					Load(iinfo, StackType.I4, ((sbyte)iinfo.Inst.Operand).ToString());
 					return;
 				case Code.Ldc_I4:
-					Load(iinfo, StackType.I4, ((int)iinfo.Operand).ToString());
+					Load(iinfo, StackType.I4, ((int)iinfo.Inst.Operand).ToString());
 					return;
 				case Code.Ldc_I8:
-					Load(iinfo, StackType.I8, ((long)iinfo.Operand).ToString());
+					Load(iinfo, StackType.I8, ((long)iinfo.Inst.Operand).ToString());
 					return;
 				case Code.Ldc_R4:
-					Load(iinfo, StackType.R4, ((float)iinfo.Operand).ToString(CultureInfo.InvariantCulture));
+					Load(iinfo, StackType.R4, ((float)iinfo.Inst.Operand).ToString(CultureInfo.InvariantCulture));
 					return;
 				case Code.Ldc_R8:
-					Load(iinfo, StackType.R8, ((double)iinfo.Operand).ToString(CultureInfo.InvariantCulture));
+					Load(iinfo, StackType.R8, ((double)iinfo.Inst.Operand).ToString(CultureInfo.InvariantCulture));
 					return;
 
 				case Code.Ret:
