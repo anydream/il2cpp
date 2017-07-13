@@ -8,27 +8,39 @@ namespace il2cpp
 	{
 		public static uint NameCounter;
 
-		public static void GetCppName(this TypeSig sig, StringBuilder sb)
+		private static void SigToCppName(TypeSig sig, StringBuilder sb, TypeManager typeMgr)
 		{
 			switch (sig.ElementType)
 			{
 				case ElementType.ValueType:
-					//! name
+					{
+						TypeX type = typeMgr.GetNamedType(sig.FullName, sig.Module.RuntimeVersion);
+						if (type != null)
+							sb.Append(type.GetCppName());
+						else
+							sb.Append("il2cppDummy");
+					}
 					return;
 
 				case ElementType.Class:
-					//! name*
+					{
+						TypeX type = typeMgr.GetNamedType(sig.FullName, sig.Module.RuntimeVersion);
+						if (type != null)
+							sb.Append(type.GetCppName() + '*');
+						else
+							sb.Append("il2cppDummy*");
+					}
 					return;
 
 				case ElementType.Ptr:
 				case ElementType.ByRef:
-					GetCppName(sig.Next, sb);
+					SigToCppName(sig.Next, sb, typeMgr);
 					sb.Append('*');
 					return;
 
 				case ElementType.SZArray:
 					sb.Append("il2cppSZArray<");
-					GetCppName(sig.Next, sb);
+					SigToCppName(sig.Next, sb, typeMgr);
 					sb.Append(">*");
 					return;
 
@@ -39,13 +51,53 @@ namespace il2cpp
 				case ElementType.Pinned:
 				case ElementType.CModReqd:
 				case ElementType.CModOpt:
-					GetCppName(sig.Next, sb);
+					SigToCppName(sig.Next, sb, typeMgr);
 					return;
 
 				default:
-					Debug.Fail("GetCppName TypeSig " + sig.FullName);
+					if (sig is CorLibTypeSig corTypeSig)
+					{
+						// 基础类型
+						if (corTypeSig.Equals(typeMgr.CorTypes.Int32))
+							sb.Append("int32_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.UInt32))
+							sb.Append("uint32_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.Boolean))
+							sb.Append("int32_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.Int64))
+							sb.Append("int64_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.UInt64))
+							sb.Append("uint64_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.Int16))
+							sb.Append("int16_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.UInt16))
+							sb.Append("uint16_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.SByte))
+							sb.Append("int8_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.Byte))
+							sb.Append("uint8_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.Char))
+							sb.Append("uint16_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.IntPtr))
+							sb.Append("intptr_t");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.UIntPtr))
+							sb.Append("uintptr_t");
+						else
+							Debug.Fail("SigToCppName CorLibTypeSig " + corTypeSig);
+
+						return;
+					}
+
+					Debug.Fail("SigToCppName TypeSig " + sig.FullName);
 					return;
 			}
+		}
+
+		public static string GetCppName(this TypeSig sig, TypeManager typeMgr)
+		{
+			StringBuilder sb = new StringBuilder();
+			SigToCppName(sig, sb, typeMgr);
+			return sb.ToString();
 		}
 
 		public static string GetCppName(this TypeX tyX)

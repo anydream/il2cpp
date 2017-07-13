@@ -48,26 +48,26 @@ namespace il2cpp
 	}
 
 	// 执行栈
-	internal class EvalStack
+	public class EvalStack
 	{
+		private readonly TypeManager TypeMgr;
 		private readonly ICorLibTypes CorTypes;
 
 		private MethodX TargetMethod;
-		private Func<Instruction, object> OperandResolver;
-
 		// 指令列表
 		private InstructionInfo[] InstList;
 
 		// 当前类型栈
 		private Stack<StackType> TypeStack = new Stack<StackType>();
 		// 栈槽类型映射
-		private Dictionary<int, HashSet<StackType>> StackTypeMap = new Dictionary<int, HashSet<StackType>>();
+		private readonly Dictionary<int, HashSet<StackType>> StackTypeMap = new Dictionary<int, HashSet<StackType>>();
 		// 待处理的分支
 		private readonly Queue<Tuple<int, Stack<StackType>>> Branches = new Queue<Tuple<int, Stack<StackType>>>();
 
-		public EvalStack(ICorLibTypes corTypes)
+		public EvalStack(TypeManager typeMgr)
 		{
-			CorTypes = corTypes;
+			TypeMgr = typeMgr;
+			CorTypes = typeMgr.CorTypes;
 		}
 
 		private void AddStackTypeMap(ref SlotInfo sinfo)
@@ -126,14 +126,13 @@ namespace il2cpp
 			Branches.Clear();
 		}
 
-		public void Process(MethodX metX, Func<Instruction, object> operandRes)
+		public void Process(MethodX metX)
 		{
 			Debug.Assert(metX.Def.HasBody);
 
 			Reset();
 
 			TargetMethod = metX;
-			OperandResolver = operandRes;
 
 			// 转换为自定义类型的指令列表
 			var origInstList = metX.Def.Body.Instructions;
@@ -226,7 +225,8 @@ namespace il2cpp
 
 		private void ProcessInstruction(InstructionInfo iinfo)
 		{
-			// 处理无需解析操作数的指令
+			object operand = iinfo.Inst.Operand;
+
 			switch (iinfo.Code)
 			{
 				case Code.Ldc_I4_M1:
@@ -275,6 +275,56 @@ namespace il2cpp
 					Load(iinfo, StackType.R8, ((double)iinfo.Inst.Operand).ToString(CultureInfo.InvariantCulture));
 					return;
 
+				case Code.Ldloc_0:
+					Load(iinfo, ToStackType(TargetMethod.LocalTypes[0]), LocalName(0));
+					return;
+				case Code.Ldloc_1:
+					Load(iinfo, ToStackType(TargetMethod.LocalTypes[1]), LocalName(1));
+					return;
+				case Code.Ldloc_2:
+					Load(iinfo, ToStackType(TargetMethod.LocalTypes[2]), LocalName(2));
+					return;
+				case Code.Ldloc_3:
+					Load(iinfo, ToStackType(TargetMethod.LocalTypes[3]), LocalName(3));
+					return;
+				case Code.Ldloc:
+				case Code.Ldloc_S:
+					{
+						Local loc = (Local)operand;
+						Debug.Assert(loc.Type.Equals(TargetMethod.LocalTypes[loc.Index]));
+						Load(iinfo, ToStackType(loc.Type), LocalName(loc.Index));
+					}
+					return;
+				case Code.Ldloca:
+				case Code.Ldloca_S:
+					{
+						Local loc = (Local)operand;
+						Debug.Assert(loc.Type.Equals(TargetMethod.LocalTypes[loc.Index]));
+						Load(iinfo, StackType.Ptr, '&' + LocalName(loc.Index));
+					}
+					return;
+
+				case Code.Stloc_0:
+					Store(iinfo, LocalName(0), TargetMethod.LocalTypes[0].GetCppName(TypeMgr));
+					return;
+				case Code.Stloc_1:
+					Store(iinfo, LocalName(1), TargetMethod.LocalTypes[1].GetCppName(TypeMgr));
+					return;
+				case Code.Stloc_2:
+					Store(iinfo, LocalName(2), TargetMethod.LocalTypes[2].GetCppName(TypeMgr));
+					return;
+				case Code.Stloc_3:
+					Store(iinfo, LocalName(3), TargetMethod.LocalTypes[3].GetCppName(TypeMgr));
+					return;
+				case Code.Stloc:
+				case Code.Stloc_S:
+					{
+						Local loc = (Local)operand;
+						Debug.Assert(loc.Type.Equals(TargetMethod.LocalTypes[loc.Index]));
+						Store(iinfo, LocalName(loc.Index), TargetMethod.LocalTypes[loc.Index].GetCppName(TypeMgr));
+					}
+					return;
+
 				case Code.Ret:
 					if (TypeStack.Count > 0)
 					{
@@ -287,12 +337,7 @@ namespace il2cpp
 						iinfo.CppCode = "return";
 					}
 					return;
-			}
 
-			// 解析操作数
-			object operand = OperandResolver(iinfo.Inst);
-			switch (iinfo.Code)
-			{
 				case Code.Call:
 				case Code.Callvirt:
 					{
@@ -402,6 +447,8 @@ namespace il2cpp
 			{
 				return StackType.R8;
 			}
+
+			Debug.Assert(!sig.IsValueType);
 			return StackType.Obj;
 		}
 	}

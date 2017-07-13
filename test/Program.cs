@@ -111,6 +111,19 @@ namespace test
 			}
 		}
 
+		private static void GenerateAllTypes(IList<TypeX> allTypes, TypeManager typeMgr)
+		{
+			EvalStack evalStack = new EvalStack(typeMgr);
+
+			foreach (var type in allTypes)
+			{
+				foreach (var met in type.Methods)
+				{
+					evalStack.Process(met);
+				}
+			}
+		}
+
 		private static void Main(string[] args)
 		{
 			TypeManager typeMgr = new TypeManager();
@@ -128,8 +141,7 @@ namespace test
 			sw.Stop();
 			Console.WriteLine("Elapsed: {0}ms", sw.ElapsedMilliseconds);
 
-			string result = PrintAllTypes(typeMgr.Types, true);
-			Console.WriteLine(result);
+			GenerateAllTypes(typeMgr.Types, typeMgr);
 #endif
 		}
 	}
