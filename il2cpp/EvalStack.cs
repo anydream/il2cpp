@@ -33,6 +33,7 @@ namespace il2cpp
 		public Code Code;
 
 		public bool IsProcessed;
+		public bool IsBrTarget;
 		public string CppCode;
 
 		public InstructionInfo(Instruction inst)
@@ -43,7 +44,8 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return CppCode ?? string.Format("{0}{1}", Inst, IsProcessed ? " √" : "");
+			return CppCode != null ? string.Format("{0}{1}", (IsBrTarget ? Inst.Offset + ":" : ""), CppCode) :
+				string.Format("{0}{1}", Inst, IsProcessed ? " √" : "");
 		}
 	}
 
@@ -124,6 +126,28 @@ namespace il2cpp
 			TypeStack.Clear();
 			StackTypeMap.Clear();
 			Branches.Clear();
+		}
+
+		public string GetMethodCode()
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (var inst in InstList)
+			{
+				GetCppCode(inst, sb);
+				sb.AppendLine();
+			}
+			return sb.ToString();
+		}
+
+		private void GetCppCode(InstructionInfo iinfo, StringBuilder sb)
+		{
+			if (iinfo.IsBrTarget)
+				sb.Append(LabelName(iinfo.Inst.Offset) + ": ");
+
+			if (iinfo.CppCode != null)
+				sb.Append(iinfo.CppCode);
+
+			sb.Append(';');
 		}
 
 		public void Process(MethodX metX)
@@ -342,7 +366,11 @@ namespace il2cpp
 
 				case Code.Br:
 				case Code.Br_S:
-					iinfo.CppCode = "goto " + LabelName(((Instruction)operand).Offset);
+					{
+						uint target = ((Instruction)operand).Offset;
+						InstList[target].IsBrTarget = true;
+						iinfo.CppCode = "goto " + LabelName(target);
+					}
 					return;
 				case Code.Brfalse:
 				case Code.Brfalse_S:
@@ -443,12 +471,14 @@ namespace il2cpp
 
 		private void BrCond(InstructionInfo iinfo, bool cond, uint target)
 		{
+			InstList[target].IsBrTarget = true;
 			SlotInfo poped = Pop();
 			iinfo.CppCode = string.Format("if ({0}{1}) goto {2}", cond ? "" : "!", SlotInfoName(ref poped), LabelName(target));
 		}
 
 		private void BrCmp(InstructionInfo iinfo, uint target)
 		{
+			InstList[target].IsBrTarget = true;
 			iinfo.CppCode = string.Format("if ({0}) goto {1}", CmpCode(iinfo.Code), LabelName(target));
 		}
 
