@@ -102,7 +102,7 @@ namespace il2cpp
 		private SlotInfo[] Pop(int num)
 		{
 			SlotInfo[] sinfos = new SlotInfo[num];
-			for (int i = 0; i < num; ++i)
+			for (int i = num - 1; i >= 0; --i)
 				sinfos[i] = Pop();
 
 			return sinfos;
@@ -325,6 +325,75 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Ceq:
+					Cmp(iinfo, "==");
+					return;
+				case Code.Cgt:
+					Cmp(iinfo, ">");
+					return;
+				case Code.Cgt_Un:
+					return;
+				case Code.Clt:
+					Cmp(iinfo, "<");
+					return;
+				case Code.Clt_Un:
+					return;
+
+				case Code.Br:
+				case Code.Br_S:
+					iinfo.CppCode = "goto " + LabelName(((Instruction)operand).Offset);
+					return;
+				case Code.Brfalse:
+				case Code.Brfalse_S:
+					BrCond(iinfo, false, ((Instruction)operand).Offset);
+					return;
+				case Code.Brtrue:
+				case Code.Brtrue_S:
+					BrCond(iinfo, true, ((Instruction)operand).Offset);
+					return;
+				case Code.Beq:
+				case Code.Beq_S:
+					BrCmp(iinfo, "==", ((Instruction)operand).Offset);
+					return;
+				case Code.Bge:
+				case Code.Bge_S:
+					BrCmp(iinfo, ">=", ((Instruction)operand).Offset);
+					return;
+				case Code.Bgt:
+				case Code.Bgt_S:
+					BrCmp(iinfo, ">", ((Instruction)operand).Offset);
+					return;
+				case Code.Ble:
+				case Code.Ble_S:
+					BrCmp(iinfo, "<=", ((Instruction)operand).Offset);
+					return;
+				case Code.Blt:
+				case Code.Blt_S:
+					BrCmp(iinfo, "<", ((Instruction)operand).Offset);
+					return;
+				case Code.Bne_Un:
+					return;
+				case Code.Bne_Un_S:
+					return;
+				case Code.Bge_Un:
+					return;
+				case Code.Bge_Un_S:
+					return;
+				case Code.Bgt_Un:
+					return;
+				case Code.Bgt_Un_S:
+					return;
+				case Code.Ble_Un:
+					return;
+				case Code.Ble_Un_S:
+					return;
+				case Code.Blt_Un:
+					return;
+				case Code.Blt_Un_S:
+					return;
+				case Code.Switch:
+					return;
+
 				case Code.Ret:
 					if (TypeStack.Count > 0)
 					{
@@ -366,6 +435,11 @@ namespace il2cpp
 			return "loc_" + localID;
 		}
 
+		private string LabelName(uint offset)
+		{
+			return "label_" + offset;
+		}
+
 		private string SlotInfoName(ref SlotInfo sinfo)
 		{
 			return string.Format("tmp_{0}_{1}", sinfo.StackIndex, sinfo.SlotType);
@@ -381,6 +455,39 @@ namespace il2cpp
 		{
 			SlotInfo poped = Pop();
 			iinfo.CppCode = string.Format("{0} = {1}{2}", lval, cast != null ? "(" + cast + ")" : "", SlotInfoName(ref poped));
+		}
+
+		private void BrCond(InstructionInfo iinfo, bool cond, uint target)
+		{
+			SlotInfo poped = Pop();
+			iinfo.CppCode = string.Format("if ({0}{1}) goto {2}", cond ? "" : "!", SlotInfoName(ref poped), LabelName(target));
+		}
+
+		private void BrCmp(InstructionInfo iinfo, string oper, uint target)
+		{
+			iinfo.CppCode = string.Format("if ({0}) goto {1}", CmpCode(iinfo.Code, oper), LabelName(target));
+		}
+
+		private void Cmp(InstructionInfo iinfo, string oper)
+		{
+			string str = CmpCode(iinfo.Code, oper);
+			SlotInfo pushed = Push(StackType.I4);
+			iinfo.CppCode = string.Format("{0} = {1}", SlotInfoName(ref pushed), str);
+		}
+
+		private string CmpCode(Code code, string oper)
+		{
+			SlotInfo[] popList = Pop(2);
+
+			if (!IsBinCompareValid(popList[0].SlotType, popList[1].SlotType, code))
+			{
+				Debug.Fail("Compare Invalid");
+			}
+
+			return string.Format("{0} {1} {2}",
+				SlotInfoName(ref popList[0]),
+				oper,
+				SlotInfoName(ref popList[1]));
 		}
 
 		private void Call(InstructionInfo iinfo, string metName, int popCount, TypeSig retType)
@@ -450,6 +557,200 @@ namespace il2cpp
 
 			Debug.Assert(!sig.IsValueType);
 			return StackType.Obj;
+		}
+
+		private static bool IsBinoperValid(StackType op1, StackType op2, out StackType retType, Code code)
+		{
+			switch (op1)
+			{
+				case StackType.I4:
+					switch (op2)
+					{
+						case StackType.I4:
+							retType = StackType.I4;
+							return true;
+
+						case StackType.Ptr:
+							retType = StackType.Ptr;
+							return true;
+
+						case StackType.Ref:
+							if (code == Code.Add)
+							{
+								retType = StackType.Ref;
+								return true;
+							}
+							break;
+					}
+					retType = StackType.I4;
+					return false;
+
+				case StackType.I8:
+					if (op2 == StackType.I8)
+					{
+						retType = StackType.I8;
+						return true;
+					}
+					retType = StackType.I4;
+					return false;
+
+				case StackType.R4:
+					if (op2 == StackType.R4)
+					{
+						retType = StackType.R4;
+						return true;
+					}
+					if (op2 == StackType.R8)
+					{
+						retType = StackType.R8;
+						return true;
+					}
+					retType = StackType.I4;
+					return false;
+
+				case StackType.R8:
+					if (op2 == StackType.R4 || op2 == StackType.R8)
+					{
+						retType = StackType.R8;
+						return true;
+					}
+					retType = StackType.I4;
+					return false;
+
+				case StackType.Ptr:
+					switch (op2)
+					{
+						case StackType.I4:
+						case StackType.Ptr:
+							retType = StackType.Ptr;
+							return true;
+
+						case StackType.Ref:
+							if (code == Code.Add)
+							{
+								retType = StackType.Ref;
+								return true;
+							}
+							break;
+					}
+					retType = StackType.I4;
+					return false;
+
+				case StackType.Obj:
+					retType = StackType.I4;
+					return false;
+
+				case StackType.Ref:
+					switch (op2)
+					{
+						case StackType.I4:
+						case StackType.Ptr:
+							if (code == Code.Add || code == Code.Sub)
+							{
+								retType = StackType.Ref;
+								return true;
+							}
+							break;
+
+						case StackType.Ref:
+							if (code == Code.Sub)
+							{
+								retType = StackType.Ptr;
+								return true;
+							}
+							break;
+					}
+					retType = StackType.I4;
+					return false;
+
+				default:
+					throw new ArgumentOutOfRangeException(nameof(op1), op1, null);
+			}
+		}
+
+		private static bool IsBinCompareValid(StackType op1, StackType op2, Code code)
+		{
+			switch (op1)
+			{
+				case StackType.I4:
+					switch (op2)
+					{
+						case StackType.I4:
+						case StackType.Ptr:
+							return true;
+					}
+					return false;
+
+				case StackType.I8:
+					if (op2 == StackType.I8)
+						return true;
+					return false;
+
+				case StackType.R4:
+				case StackType.R8:
+					return op2 == StackType.R4 || op2 == StackType.R8;
+
+				case StackType.Ptr:
+					switch (op2)
+					{
+						case StackType.I4:
+						case StackType.Ptr:
+							return true;
+						case StackType.Ref:
+							{
+								switch (code)
+								{
+									case Code.Beq:
+									case Code.Beq_S:
+									case Code.Bne_Un:
+									case Code.Bne_Un_S:
+									case Code.Ceq:
+										return true;
+								}
+							}
+							break;
+					}
+					return false;
+
+				case StackType.Obj:
+					if (op2 == StackType.Obj)
+					{
+						switch (code)
+						{
+							case Code.Beq:
+							case Code.Beq_S:
+							case Code.Bne_Un:
+							case Code.Bne_Un_S:
+							case Code.Ceq:
+								return true;
+						}
+					}
+					return false;
+
+				case StackType.Ref:
+					switch (op2)
+					{
+						case StackType.Ref:
+							return true;
+						case StackType.Ptr:
+							{
+								switch (code)
+								{
+									case Code.Beq:
+									case Code.Beq_S:
+									case Code.Bne_Un:
+									case Code.Bne_Un_S:
+									case Code.Ceq:
+										return true;
+								}
+							}
+							break;
+					}
+					return false;
+
+				default:
+					throw new ArgumentOutOfRangeException(nameof(op1), op1, null);
+			}
 		}
 	}
 }
