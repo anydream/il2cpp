@@ -326,17 +326,11 @@ namespace il2cpp
 					return;
 
 				case Code.Ceq:
-					Cmp(iinfo, "==");
-					return;
 				case Code.Cgt:
-					Cmp(iinfo, ">");
-					return;
 				case Code.Cgt_Un:
-					return;
 				case Code.Clt:
-					Cmp(iinfo, "<");
-					return;
 				case Code.Clt_Un:
+					Cmp(iinfo);
 					return;
 
 				case Code.Br:
@@ -353,45 +347,25 @@ namespace il2cpp
 					return;
 				case Code.Beq:
 				case Code.Beq_S:
-					BrCmp(iinfo, "==", ((Instruction)operand).Offset);
-					return;
 				case Code.Bge:
 				case Code.Bge_S:
-					BrCmp(iinfo, ">=", ((Instruction)operand).Offset);
-					return;
 				case Code.Bgt:
 				case Code.Bgt_S:
-					BrCmp(iinfo, ">", ((Instruction)operand).Offset);
-					return;
 				case Code.Ble:
 				case Code.Ble_S:
-					BrCmp(iinfo, "<=", ((Instruction)operand).Offset);
-					return;
 				case Code.Blt:
 				case Code.Blt_S:
-					BrCmp(iinfo, "<", ((Instruction)operand).Offset);
-					return;
 				case Code.Bne_Un:
-					return;
 				case Code.Bne_Un_S:
-					return;
 				case Code.Bge_Un:
-					return;
 				case Code.Bge_Un_S:
-					return;
 				case Code.Bgt_Un:
-					return;
 				case Code.Bgt_Un_S:
-					return;
 				case Code.Ble_Un:
-					return;
 				case Code.Ble_Un_S:
-					return;
 				case Code.Blt_Un:
-					return;
 				case Code.Blt_Un_S:
-					return;
-				case Code.Switch:
+					BrCmp(iinfo, ((Instruction)operand).Offset);
 					return;
 
 				case Code.Ret:
@@ -463,19 +437,19 @@ namespace il2cpp
 			iinfo.CppCode = string.Format("if ({0}{1}) goto {2}", cond ? "" : "!", SlotInfoName(ref poped), LabelName(target));
 		}
 
-		private void BrCmp(InstructionInfo iinfo, string oper, uint target)
+		private void BrCmp(InstructionInfo iinfo, uint target)
 		{
-			iinfo.CppCode = string.Format("if ({0}) goto {1}", CmpCode(iinfo.Code, oper), LabelName(target));
+			iinfo.CppCode = string.Format("if ({0}) goto {1}", CmpCode(iinfo.Code), LabelName(target));
 		}
 
-		private void Cmp(InstructionInfo iinfo, string oper)
+		private void Cmp(InstructionInfo iinfo)
 		{
-			string str = CmpCode(iinfo.Code, oper);
+			string str = CmpCode(iinfo.Code);
 			SlotInfo pushed = Push(StackType.I4);
-			iinfo.CppCode = string.Format("{0} = {1}", SlotInfoName(ref pushed), str);
+			iinfo.CppCode = string.Format("{0} = {1} ? 1 : 0", SlotInfoName(ref pushed), str);
 		}
 
-		private string CmpCode(Code code, string oper)
+		private string CmpCode(Code code)
 		{
 			SlotInfo[] popList = Pop(2);
 
@@ -484,10 +458,81 @@ namespace il2cpp
 				Debug.Fail("Compare Invalid");
 			}
 
-			return string.Format("{0} {1} {2}",
+			bool isNeg = false;
+			string oper = null;
+
+			switch (code)
+			{
+				case Code.Ceq:
+				case Code.Beq:
+				case Code.Beq_S:
+					oper = "==";
+					break;
+
+				case Code.Cgt:
+				case Code.Bgt:
+				case Code.Bgt_S:
+					oper = ">";
+					break;
+
+				case Code.Cgt_Un:
+				case Code.Bgt_Un:
+				case Code.Bgt_Un_S:
+					oper = "<=";
+					isNeg = true;
+					break;
+
+				case Code.Clt:
+				case Code.Blt:
+				case Code.Blt_S:
+					oper = "<";
+					break;
+
+				case Code.Clt_Un:
+				case Code.Blt_Un:
+				case Code.Blt_Un_S:
+					oper = ">=";
+					isNeg = true;
+					break;
+
+				case Code.Bge:
+				case Code.Bge_S:
+					oper = ">=";
+					break;
+
+				case Code.Ble:
+				case Code.Ble_S:
+					oper = "<=";
+					break;
+
+				case Code.Bne_Un:
+				case Code.Bne_Un_S:
+					oper = "!=";
+					break;
+
+				case Code.Bge_Un:
+				case Code.Bge_Un_S:
+					oper = "<";
+					isNeg = true;
+					break;
+
+				case Code.Ble_Un:
+				case Code.Ble_Un_S:
+					oper = ">";
+					isNeg = true;
+					break;
+
+				default:
+					Debug.Fail("Oper error " + code);
+					break;
+			}
+
+			return string.Format("{0}{1} {2} {3}{4}",
+				isNeg ? "!(" : "",
 				SlotInfoName(ref popList[0]),
 				oper,
-				SlotInfoName(ref popList[1]));
+				SlotInfoName(ref popList[1]),
+				isNeg ? ")" : "");
 		}
 
 		private void Call(InstructionInfo iinfo, string metName, int popCount, TypeSig retType)
