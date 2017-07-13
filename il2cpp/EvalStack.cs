@@ -325,6 +325,13 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Add:
+					BinOp(iinfo, "+");
+					return;
+				case Code.Sub:
+					BinOp(iinfo, "-");
+					return;
+
 				case Code.Ceq:
 				case Code.Cgt:
 				case Code.Cgt_Un:
@@ -396,6 +403,9 @@ namespace il2cpp
 							metX.ReturnType);
 					}
 					return;
+
+				default:
+					throw new NotImplementedException();
 			}
 		}
 
@@ -523,7 +533,7 @@ namespace il2cpp
 					break;
 
 				default:
-					Debug.Fail("Oper error " + code);
+					Debug.Fail("Code error " + code);
 					break;
 			}
 
@@ -533,6 +543,23 @@ namespace il2cpp
 				oper,
 				SlotInfoName(ref popList[1]),
 				isNeg ? ")" : "");
+		}
+
+		private void BinOp(InstructionInfo iinfo, string oper)
+		{
+			SlotInfo[] popList = Pop(2);
+
+			if (!IsBinoperValid(popList[0].SlotType, popList[1].SlotType, out var retType, iinfo.Code))
+			{
+				Debug.Fail("Binary Oper Invalid");
+			}
+
+			SlotInfo pushed = Push(retType);
+			iinfo.CppCode = string.Format("{0} = {1} {2} {3}",
+				SlotInfoName(ref pushed),
+				SlotInfoName(ref popList[0]),
+				oper,
+				SlotInfoName(ref popList[1]));
 		}
 
 		private void Call(InstructionInfo iinfo, string metName, int popCount, TypeSig retType)
