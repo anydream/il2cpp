@@ -66,6 +66,8 @@ namespace il2cpp
 		// 待处理的分支
 		private readonly Queue<Tuple<int, Stack<StackType>>> Branches = new Queue<Tuple<int, Stack<StackType>>>();
 
+		public string ImplCode;
+
 		public EvalStack(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
@@ -128,26 +130,53 @@ namespace il2cpp
 			Branches.Clear();
 		}
 
-		public string GetMethodCode()
+		private string GenMethodCode()
 		{
 			StringBuilder sb = new StringBuilder();
-			foreach (var inst in InstList)
+
+			var localList = TargetMethod.LocalTypes;
+			if (localList != null)
 			{
-				GetCppCode(inst, sb);
+				sb.AppendLine("// local variables");
+				for (int i = 0; i < localList.Count; ++i)
+				{
+					var loc = localList[i];
+					sb.AppendFormat("{0} {1};", loc.GetCppName(TypeMgr), LocalName(i));
+					sb.AppendLine();
+				}
 				sb.AppendLine();
 			}
+
+			if (StackTypeMap.Count > 0)
+			{
+				sb.AppendLine("// temp variables");
+				foreach (var kv in StackTypeMap)
+				{
+					foreach (var type in kv.Value)
+					{
+						sb.AppendFormat("{0} {1};", StackTypeName(type), TempName(kv.Key, type));
+						sb.AppendLine();
+					}
+				}
+				sb.AppendLine();
+			}
+
+			foreach (var iinfo in InstList)
+			{
+				if (iinfo.IsBrTarget)
+				{
+					sb.Append(LabelName(iinfo.Inst.Offset) + ": ");
+					sb.AppendLine();
+				}
+
+				if (iinfo.CppCode != null)
+				{
+					sb.Append(iinfo.CppCode);
+					sb.Append(';');
+					sb.AppendLine();
+				}
+			}
 			return sb.ToString();
-		}
-
-		private void GetCppCode(InstructionInfo iinfo, StringBuilder sb)
-		{
-			if (iinfo.IsBrTarget)
-				sb.Append(LabelName(iinfo.Inst.Offset) + ": ");
-
-			if (iinfo.CppCode != null)
-				sb.Append(iinfo.CppCode);
-
-			sb.Append(';');
 		}
 
 		public void Process(MethodX metX)
@@ -180,6 +209,8 @@ namespace il2cpp
 				else
 					break;
 			}
+
+			ImplCode = GenMethodCode();
 		}
 
 		private bool ProcessStep(int currIP, ref int nextIP)
@@ -452,9 +483,37 @@ namespace il2cpp
 			return "label_" + offset;
 		}
 
+		private string StackTypeName(StackType stype)
+		{
+			switch (stype)
+			{
+				case StackType.I4:
+					return "int32_t";
+				case StackType.I8:
+					return "int64_t";
+				case StackType.R4:
+					return "float";
+				case StackType.R8:
+					return "double";
+				case StackType.Ptr:
+					return "intptr_t";
+				case StackType.Obj:
+					return "void*";
+				case StackType.Ref:
+					return "intptr_t";
+				default:
+					throw new ArgumentOutOfRangeException(nameof(stype), stype, null);
+			}
+		}
+
+		private string TempName(int stackIndex, StackType stype)
+		{
+			return string.Format("tmp_{0}_{1}", stackIndex, stype);
+		}
+
 		private string SlotInfoName(ref SlotInfo sinfo)
 		{
-			return string.Format("tmp_{0}_{1}", sinfo.StackIndex, sinfo.SlotType);
+			return TempName(sinfo.StackIndex, sinfo.SlotType);
 		}
 
 		private void Load(InstructionInfo iinfo, StackType stype, string rval)
