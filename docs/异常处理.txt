@@ -1,0 +1,46 @@
+- 异常处理信息的顺序就是生成 try-catch 的嵌套顺序
+- 靠上的在内层, 靠下的在外层
+- 对于 leave 指令, 需要从上往下搜索包含该指令的 finally 区间
+  并生成保存目标并跳转到 finally 块的代码
+
+- filter:
+try
+{
+	...
+}
+catch (il2cppException& ex)
+{
+	lastException = ex.Exception;
+	goto FILTER;
+}
+...
+FILTER:
+...
+// endfilter
+if (tmp_0 == 0)
+	// goto outer block or rethrow
+// catch
+...
+
+- finally:
+try
+{
+	// leave 10
+	lastLeaveTarget = 10;
+	goto FINALLY;
+}
+catch (il2cppException& ex)
+{
+	lastException = ex.Exception;
+	goto FINALLY;
+}
+...
+FINALLY:
+...
+// endfinally
+if (lastException)
+	// goto outer block or rethrow
+if (lastLeaveTarget == 10)
+	goto Label_10;
+if (lastLeaveTarget == 20)
+	goto Label_20;
