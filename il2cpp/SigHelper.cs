@@ -174,11 +174,6 @@ namespace il2cpp
 
 	public static class SigHelper
 	{
-		public static bool IsVoidSig(TypeSig sig)
-		{
-			return sig.IsCorLibType && sig.FullName == "System.Void";
-		}
-
 		public static int SigListHashCode(IList<TypeSig> sigList)
 		{
 			if (sigList == null)

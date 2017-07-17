@@ -44,7 +44,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return CppCode != null ? string.Format("{0}{1}", (IsBrTarget ? Inst.Offset + ":" : ""), CppCode) :
+			return CppCode != null ? string.Format("{0}{1}", (IsBrTarget ? Inst.Offset + ": " : ""), CppCode) :
 				string.Format("{0}{1}", Inst, IsProcessed ? " √" : "");
 		}
 	}
@@ -52,10 +52,13 @@ namespace il2cpp
 	// 执行栈
 	public class MethodGenerator
 	{
+		// 类型管理器
 		private readonly TypeManager TypeMgr;
+		// 内置类型集合
 		private readonly ICorLibTypes CorTypes;
 
-		private MethodX TargetMethod;
+		// 当前方法
+		private MethodX CurrMethod;
 		// 指令列表
 		private InstructionInfo[] InstList;
 
@@ -131,67 +134,65 @@ namespace il2cpp
 			TypeStack.Clear();
 			StackTypeMap.Clear();
 			Branches.Clear();
-		}
 
-		private string GenMethodCode()
-		{
-			StringBuilder sb = new StringBuilder();
-
-			var localList = TargetMethod.LocalTypes;
-			if (localList != null)
-			{
-				sb.AppendLine("// local variables");
-				for (int i = 0; i < localList.Count; ++i)
-				{
-					var loc = localList[i];
-					sb.AppendFormat("{0} {1};", loc.GetCppName(TypeMgr), LocalName(i));
-					sb.AppendLine();
-				}
-				sb.AppendLine();
-			}
-
-			if (StackTypeMap.Count > 0)
-			{
-				sb.AppendLine("// temp variables");
-				foreach (var kv in StackTypeMap)
-				{
-					foreach (var type in kv.Value)
-					{
-						sb.AppendFormat("{0} {1};", StackTypeName(type), TempName(kv.Key, type));
-						sb.AppendLine();
-					}
-				}
-				sb.AppendLine();
-			}
-
-			foreach (var iinfo in InstList)
-			{
-				if (iinfo.IsBrTarget)
-				{
-					sb.Append(LabelName(iinfo.Inst.Offset) + ": ");
-					sb.AppendLine();
-				}
-
-				if (iinfo.CppCode != null)
-				{
-					sb.Append(iinfo.CppCode);
-					sb.Append(';');
-					sb.AppendLine();
-				}
-			}
-			return sb.ToString();
+			DeclCode = null;
+			ImplCode = null;
 		}
 
 		public void Process(MethodX metX)
 		{
 			Debug.Assert(metX.Def.HasBody);
 
+			CurrMethod = metX;
 			Reset();
 
-			TargetMethod = metX;
+			GenDeclCode();
+			GenImplCode();
+		}
 
+		private void GetDeclCode(CodePrinter prt)
+		{
+			prt.AppendFormat("{0} {1}(",
+				CurrMethod.ReturnType.GetCppName(TypeMgr),
+				CurrMethod.GetCppName(PrefixMet));
+
+			bool last = false;
+			int argID = 0;
+			if (!CurrMethod.IsStatic)
+			{
+				last = true;
+				prt.AppendFormat("{0}* {1}",
+					CurrMethod.DeclType.GetCppName(),
+					ArgName(argID++));
+			}
+
+			foreach (var arg in CurrMethod.ParamTypes)
+			{
+				if (last)
+					prt.Append(", ");
+				last = true;
+
+				prt.AppendFormat("{0} {1}",
+					arg.GetCppName(TypeMgr),
+					ArgName(argID++));
+			}
+
+			prt.Append(")");
+		}
+
+		private void GenDeclCode()
+		{
+			CodePrinter prt = new CodePrinter();
+			GetDeclCode(prt);
+			prt.AppendLine(";");
+
+			DeclCode = prt.ToString();
+		}
+
+		private void GenImplCode()
+		{
 			// 转换为自定义类型的指令列表
-			var origInstList = metX.Def.Body.Instructions;
+			var origInstList = CurrMethod.Def.Body.Instructions;
 			InstList = new InstructionInfo[origInstList.Count];
 			for (int i = 0; i < InstList.Length; ++i)
 				InstList[i] = new InstructionInfo(origInstList[i]);
@@ -213,7 +214,64 @@ namespace il2cpp
 					break;
 			}
 
-			ImplCode = GenMethodCode();
+			// 构建代码
+			CodePrinter prt = new CodePrinter();
+			GetDeclCode(prt);
+			prt.AppendLine("\n{");
+			++prt.Indents;
+
+			var localList = CurrMethod.LocalTypes;
+			if (localList != null)
+			{
+				prt.AppendLine("// locals");
+				for (int i = 0; i < localList.Count; ++i)
+				{
+					var loc = localList[i];
+					prt.AppendFormatLine("{0} {1};", loc.GetCppName(TypeMgr), LocalName(i));
+				}
+				prt.AppendLine();
+			}
+
+			if (StackTypeMap.Count > 0)
+			{
+				prt.AppendLine("// temps");
+				foreach (var kv in StackTypeMap)
+				{
+					foreach (var type in kv.Value)
+					{
+						prt.AppendFormatLine("{0} {1};", StackTypeName(type), TempName(kv.Key, type));
+					}
+				}
+				prt.AppendLine();
+			}
+
+			foreach (var iinfo in InstList)
+			{
+				if (iinfo.IsBrTarget)
+				{
+					bool isDec = false;
+					if (prt.Indents > 0)
+					{
+						isDec = true;
+						--prt.Indents;
+					}
+
+					prt.AppendLine(LabelName(iinfo.Inst.Offset) + ":");
+
+					if (isDec)
+						++prt.Indents;
+				}
+
+				if (iinfo.CppCode != null)
+				{
+					prt.AppendLine(iinfo.CppCode + ";");
+				}
+			}
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			ImplCode = prt.ToString();
 		}
 
 		private bool ProcessStep(int currIP, ref int nextIP)
@@ -334,22 +392,22 @@ namespace il2cpp
 					return;
 
 				case Code.Ldloc_0:
-					Load(iinfo, ToStackType(TargetMethod.LocalTypes[0]), LocalName(0));
+					Load(iinfo, ToStackType(CurrMethod.LocalTypes[0]), LocalName(0));
 					return;
 				case Code.Ldloc_1:
-					Load(iinfo, ToStackType(TargetMethod.LocalTypes[1]), LocalName(1));
+					Load(iinfo, ToStackType(CurrMethod.LocalTypes[1]), LocalName(1));
 					return;
 				case Code.Ldloc_2:
-					Load(iinfo, ToStackType(TargetMethod.LocalTypes[2]), LocalName(2));
+					Load(iinfo, ToStackType(CurrMethod.LocalTypes[2]), LocalName(2));
 					return;
 				case Code.Ldloc_3:
-					Load(iinfo, ToStackType(TargetMethod.LocalTypes[3]), LocalName(3));
+					Load(iinfo, ToStackType(CurrMethod.LocalTypes[3]), LocalName(3));
 					return;
 				case Code.Ldloc:
 				case Code.Ldloc_S:
 					{
 						Local loc = (Local)operand;
-						Debug.Assert(loc.Type.Equals(TargetMethod.LocalTypes[loc.Index]));
+						Debug.Assert(loc.Type.Equals(CurrMethod.LocalTypes[loc.Index]));
 						Load(iinfo, ToStackType(loc.Type), LocalName(loc.Index));
 					}
 					return;
@@ -357,29 +415,29 @@ namespace il2cpp
 				case Code.Ldloca_S:
 					{
 						Local loc = (Local)operand;
-						Debug.Assert(loc.Type.Equals(TargetMethod.LocalTypes[loc.Index]));
+						Debug.Assert(loc.Type.Equals(CurrMethod.LocalTypes[loc.Index]));
 						Load(iinfo, StackType.Ptr, '&' + LocalName(loc.Index));
 					}
 					return;
 
 				case Code.Stloc_0:
-					Store(iinfo, LocalName(0), TargetMethod.LocalTypes[0].GetCppName(TypeMgr));
+					Store(iinfo, LocalName(0), CurrMethod.LocalTypes[0].GetCppName(TypeMgr));
 					return;
 				case Code.Stloc_1:
-					Store(iinfo, LocalName(1), TargetMethod.LocalTypes[1].GetCppName(TypeMgr));
+					Store(iinfo, LocalName(1), CurrMethod.LocalTypes[1].GetCppName(TypeMgr));
 					return;
 				case Code.Stloc_2:
-					Store(iinfo, LocalName(2), TargetMethod.LocalTypes[2].GetCppName(TypeMgr));
+					Store(iinfo, LocalName(2), CurrMethod.LocalTypes[2].GetCppName(TypeMgr));
 					return;
 				case Code.Stloc_3:
-					Store(iinfo, LocalName(3), TargetMethod.LocalTypes[3].GetCppName(TypeMgr));
+					Store(iinfo, LocalName(3), CurrMethod.LocalTypes[3].GetCppName(TypeMgr));
 					return;
 				case Code.Stloc:
 				case Code.Stloc_S:
 					{
 						Local loc = (Local)operand;
-						Debug.Assert(loc.Type.Equals(TargetMethod.LocalTypes[loc.Index]));
-						Store(iinfo, LocalName(loc.Index), TargetMethod.LocalTypes[loc.Index].GetCppName(TypeMgr));
+						Debug.Assert(loc.Type.Equals(CurrMethod.LocalTypes[loc.Index]));
+						Store(iinfo, LocalName(loc.Index), CurrMethod.LocalTypes[loc.Index].GetCppName(TypeMgr));
 					}
 					return;
 
@@ -459,8 +517,14 @@ namespace il2cpp
 						if (!metX.IsStatic)
 							++popCount;
 
+						string prefix;
+						if (iinfo.Code == Code.Callvirt && metX.Def.IsVirtual)
+							prefix = PrefixVMet;
+						else
+							prefix = PrefixMet;
+
 						Call(iinfo,
-							metX.GetCppName(iinfo.Code == Code.Callvirt && metX.Def.IsVirtual),
+							metX.GetCppName(prefix),
 							popCount,
 							metX.ReturnType);
 					}
@@ -509,12 +573,16 @@ namespace il2cpp
 			}
 		}
 
-		private string TempName(int stackIndex, StackType stype)
+		private static readonly string PrefixMet = "met_";
+		private static readonly string PrefixVMet = "vmet_";
+		private static readonly string PrefixVFtn = "vftn_";
+
+		private static string TempName(int stackIndex, StackType stype)
 		{
 			return string.Format("tmp_{0}_{1}", stackIndex, stype);
 		}
 
-		private string SlotInfoName(ref SlotInfo sinfo)
+		private static string SlotInfoName(ref SlotInfo sinfo)
 		{
 			return TempName(sinfo.StackIndex, sinfo.SlotType);
 		}
@@ -659,7 +727,7 @@ namespace il2cpp
 			SlotInfo[] popList = Pop(popCount);
 
 			StringBuilder sb = new StringBuilder();
-			if (!SigHelper.IsVoidSig(retType))
+			if (!retType.Equals(CorTypes.Void))
 			{
 				SlotInfo pushed = Push(ToStackType(retType));
 				sb.AppendFormat("{0} = ", SlotInfoName(ref pushed));

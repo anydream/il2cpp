@@ -1,14 +1,22 @@
-﻿namespace il2cpp
+﻿using System.Text;
+
+namespace il2cpp
 {
+	// 类型生成器
 	public class TypeGenerator
 	{
+		// 类型管理器
 		private readonly TypeManager TypeMgr;
+		// 方法生成器
 		private readonly MethodGenerator MethodGen;
 
+		// 当前类型
 		private TypeX CurrType;
 
-		public string DeclCode;
-		public string ImplCode;
+		// 声明代码
+		public readonly StringBuilder DeclCode = new StringBuilder();
+		// 实现代码
+		public readonly StringBuilder ImplCode = new StringBuilder();
 
 		public TypeGenerator(TypeManager typeMgr)
 		{
@@ -19,24 +27,22 @@
 		public void Process(TypeX tyX)
 		{
 			CurrType = tyX;
-			DeclCode = null;
-			ImplCode = null;
+			DeclCode.Clear();
+			ImplCode.Clear();
 
+			// 生成类型结构体代码
 			GenDeclCode();
-			GenImplCode();
 
+			// 生成方法代码
 			foreach (var metX in CurrType.Methods)
 			{
 				MethodGen.Process(metX);
+				DeclCode.Append(MethodGen.DeclCode);
+				ImplCode.Append(MethodGen.ImplCode);
 			}
 		}
 
 		private void GenDeclCode()
-		{
-			DeclCode = string.Format("struct {0};\n", CurrType.GetCppName());
-		}
-
-		private void GenImplCode()
 		{
 			CodePrinter prt = new CodePrinter();
 			prt.AppendFormatLine("// {0}, {1}", CurrType.PrettyName(), CurrType.RuntimeVersion);
@@ -64,7 +70,7 @@
 			--prt.Indents;
 			prt.AppendLine("};");
 
-			ImplCode = prt.ToString();
+			DeclCode.Append(prt.ToString());
 		}
 	}
 }

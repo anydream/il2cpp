@@ -58,7 +58,9 @@ namespace il2cpp
 					if (sig is CorLibTypeSig corTypeSig)
 					{
 						// 基础类型
-						if (corTypeSig.Equals(typeMgr.CorTypes.Int32))
+						if (corTypeSig.Equals(typeMgr.CorTypes.Void))
+							sb.Append("void");
+						else if (corTypeSig.Equals(typeMgr.CorTypes.Int32))
 							sb.Append("int32_t");
 						else if (corTypeSig.Equals(typeMgr.CorTypes.UInt32))
 							sb.Append("uint32_t");
@@ -107,12 +109,12 @@ namespace il2cpp
 			return tyX.CppName_;
 		}
 
-		public static string GetCppName(this MethodX metX, bool isVirt)
+		public static string GetCppName(this MethodX metX, string prefix)
 		{
 			if (metX.CppName_ == null)
 				metX.CppName_ = ToCppName(metX.FullFuncName);
 
-			return (isVirt ? "vmet_" : "met_") + metX.CppName_;
+			return prefix + metX.CppName_;
 		}
 
 		public static string GetCppName(this FieldX fldX)

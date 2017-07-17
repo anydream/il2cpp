@@ -113,14 +113,14 @@ namespace test
 
 		private static void GenerateAllTypes(IList<TypeX> allTypes, TypeManager typeMgr)
 		{
-			EvalStack evalStack = new EvalStack(typeMgr);
+			TypeGenerator typeGen = new TypeGenerator(typeMgr);
 
 			foreach (var type in allTypes)
 			{
-				foreach (var met in type.Methods)
-				{
-					evalStack.Process(met);
-				}
+				if (type.IsEmptyType)
+					continue;
+
+				typeGen.Process(type);
 			}
 		}
 

@@ -43,6 +43,12 @@ namespace il2cpp
 			++LineCount;
 		}
 
+		public void AppendLine()
+		{
+			Builder.Append('\n');
+			++LineCount;
+		}
+
 		public void AppendFormat(string fmt, params object[] args)
 		{
 			Append(string.Format(fmt, args));
