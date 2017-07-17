@@ -3,7 +3,7 @@
 	public class TypeGenerator
 	{
 		private readonly TypeManager TypeMgr;
-		private readonly EvalStack MethodGen;
+		private readonly MethodGenerator MethodGen;
 
 		private TypeX CurrType;
 
@@ -13,7 +13,7 @@
 		public TypeGenerator(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
-			MethodGen = new EvalStack(typeMgr);
+			MethodGen = new MethodGenerator(typeMgr);
 		}
 
 		public void Process(TypeX tyX)

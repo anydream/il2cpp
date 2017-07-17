@@ -45,10 +45,10 @@
   <ItemGroup>
     <Compile Include="CodePrinter.cs" />
     <Compile Include="NameHelper.cs" />
-    <Compile Include="EvalStack.cs" />
+    <Compile Include="MethodGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SigHelper.cs" />
-    <Compile Include="CodeGenerator.cs" />
+    <Compile Include="TypeGenerator.cs" />
     <Compile Include="TypeResolver.cs" />
   </ItemGroup>
   <ItemGroup>

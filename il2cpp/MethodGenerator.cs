@@ -50,7 +50,7 @@ namespace il2cpp
 	}
 
 	// 执行栈
-	public class EvalStack
+	public class MethodGenerator
 	{
 		private readonly TypeManager TypeMgr;
 		private readonly ICorLibTypes CorTypes;
@@ -71,7 +71,7 @@ namespace il2cpp
 		// 实现代码
 		public string ImplCode;
 
-		public EvalStack(TypeManager typeMgr)
+		public MethodGenerator(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
 			CorTypes = typeMgr.CorTypes;
