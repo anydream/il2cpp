@@ -19,7 +19,7 @@ namespace il2cpp
 			Debug.Assert(sig != null);
 			Name = name;
 			Signature = sig;
-			SigString = Name + ": " + Signature + "|" + ((int)Signature.CallingConvention);
+			SigString = Name + ": " + Signature + "|" + (int)Signature.CallingConvention;
 		}
 
 		public override int GetHashCode()
@@ -326,11 +326,11 @@ namespace il2cpp
 		public bool HasInterfaces => Interfaces_ != null && Interfaces_.Count > 0;
 		// 方法映射
 		private readonly Dictionary<MethodX, MethodX> MethodMap = new Dictionary<MethodX, MethodX>();
-		public IList<MethodX> Methods => new List<MethodX>(MethodMap.Values);
+		public Dictionary<MethodX, MethodX>.ValueCollection Methods => MethodMap.Values;
 		public bool HasMethods => MethodMap.Count > 0;
 		// 字段映射
 		private readonly Dictionary<FieldX, FieldX> FieldMap = new Dictionary<FieldX, FieldX>();
-		public IList<FieldX> Fields => new List<FieldX>(FieldMap.Values);
+		public Dictionary<FieldX, FieldX>.ValueCollection Fields => FieldMap.Values;
 		public bool HasFields => FieldMap.Count > 0;
 		// 运行时类型
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
@@ -592,6 +592,8 @@ namespace il2cpp
 		public readonly TypeX DeclType;
 		// 字段类型
 		public TypeSig FieldType;
+
+		public string CppName_;
 
 		public FieldX(FieldDef fldDef, TypeX declType)
 		{

@@ -66,6 +66,9 @@ namespace il2cpp
 		// 待处理的分支
 		private readonly Queue<Tuple<int, Stack<StackType>>> Branches = new Queue<Tuple<int, Stack<StackType>>>();
 
+		// 声明代码
+		public string DeclCode;
+		// 实现代码
 		public string ImplCode;
 
 		public EvalStack(TypeManager typeMgr)

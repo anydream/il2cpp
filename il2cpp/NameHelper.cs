@@ -103,7 +103,7 @@ namespace il2cpp
 		public static string GetCppName(this TypeX tyX)
 		{
 			if (tyX.CppName_ == null)
-				tyX.CppName_ = ToCppName(tyX.FullName);
+				tyX.CppName_ = (tyX.Def.IsValueType ? "stru_" : "cls_") + ToCppName(tyX.FullName);
 			return tyX.CppName_;
 		}
 
@@ -113,6 +113,13 @@ namespace il2cpp
 				metX.CppName_ = ToCppName(metX.FullFuncName);
 
 			return (isVirt ? "vmet_" : "met_") + metX.CppName_;
+		}
+
+		public static string GetCppName(this FieldX fldX)
+		{
+			if (fldX.CppName_ == null)
+				fldX.CppName_ = "fld_" + ToCppName(fldX.Def.Name);
+			return fldX.CppName_;
 		}
 
 		private static string ToCppName(string fullName)
@@ -125,13 +132,9 @@ namespace il2cpp
 			for (int i = 0; i < fullName.Length; ++i)
 			{
 				if (IsLegalIdentChar(fullName[i]))
-				{
 					sb.Append(fullName[i]);
-				}
 				else
-				{
 					sb.Append('_');
-				}
 			}
 			return sb.ToString();
 		}
