@@ -198,28 +198,22 @@ namespace il2cpp
 				CurrMethod.ReturnType.GetCppName(TypeMgr),
 				CurrMethod.GetCppName(PrefixMet));
 
-			bool last = false;
-			int argID = 0;
-
-			// 非静态方法需要构造 this 参数
+			int argNum = CurrMethod.ParamTypes.Count;
 			if (!CurrMethod.IsStatic)
-			{
-				last = true;
-				prt.AppendFormat("{0}* {1}",
-					CurrMethod.DeclType.GetCppName(),
-					ArgName(argID++));
-			}
+				++argNum;
 
-			foreach (var arg in CurrMethod.ParamTypes)
+			bool last = false;
+			for (int i = 0; i < argNum; ++i)
 			{
 				if (last)
 					prt.Append(", ");
 				last = true;
 
 				prt.AppendFormat("{0} {1}",
-					arg.GetCppName(TypeMgr),
-					ArgName(argID++));
+					ArgTypeName(i),
+					ArgName(i));
 			}
+
 			prt.Append(")");
 			codeDecl = prt.ToString() + ";\n";
 
@@ -307,26 +301,21 @@ namespace il2cpp
 			prtType.AppendFormat("{0}(*)(",
 				strRetType);
 
-			bool last = true;
-			int argID = 0;
+			Debug.Assert(!CurrMethod.IsStatic);
+			int argNum = CurrMethod.ParamTypes.Count + 1;
 
-			// 构造 this 参数
-			string thisType = CurrMethod.DeclType.GetCppName() + '*';
-			prt.AppendFormat("{0} {1}",
-				thisType,
-				ArgName(argID++));
-
-			prtType.Append(thisType);
-
-			foreach (var arg in CurrMethod.ParamTypes)
+			bool last = false;
+			for (int i = 0; i < argNum; ++i)
 			{
-				string argType = arg.GetCppName(TypeMgr);
-				prt.AppendFormat(", {0} {1}",
-					argType,
-					ArgName(argID++));
+				if (last)
+					prt.Append(", ");
+				last = true;
 
-				prtType.AppendFormat(",{0}", argType);
+				prt.AppendFormat("{0} {1}",
+					ArgTypeName(i),
+					ArgName(i));
 			}
+
 			prt.Append(")");
 			prtType.Append(")");
 			codeDecl = prt.ToString() + ";\n";
@@ -583,6 +572,14 @@ namespace il2cpp
 					{
 						Parameter arg = (Parameter)operand;
 						Load(iinfo, StackType.Ptr, "(" + StackTypeName(StackType.Ptr) + ")&" + ArgName(arg.Index));
+					}
+					return;
+
+				case Code.Starg:
+				case Code.Starg_S:
+					{
+						Parameter arg = (Parameter)operand;
+						Store(iinfo, ArgName(arg.Index), ArgTypeName(arg.Index));
 					}
 					return;
 
@@ -894,6 +891,15 @@ namespace il2cpp
 			sb.Append(')');
 
 			iinfo.CppCode = sb.ToString();
+		}
+
+		private string ArgTypeName(int argID)
+		{
+			if (CurrMethod.IsStatic)
+				return CurrMethod.ParamTypes[argID].GetCppName(TypeMgr);
+			if (argID == 0)
+				return CurrMethod.DeclType.GetCppName() + '*';
+			return CurrMethod.ParamTypes[argID - 1].GetCppName(TypeMgr);
 		}
 
 		private StackType ArgStackType(int argID)
