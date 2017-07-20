@@ -193,7 +193,8 @@ namespace il2cpp
 			CodePrinter prt = new CodePrinter();
 
 			// 构造声明
-			prt.AppendFormat("{0} {1}(",
+			prt.AppendFormat("// {0}\n{1} {2}(",
+				CurrMethod.FullName,
 				CurrMethod.ReturnType.GetCppName(TypeMgr),
 				CurrMethod.GetCppName(PrefixMet));
 
@@ -310,7 +311,7 @@ namespace il2cpp
 			int argID = 0;
 
 			// 构造 this 参数
-			string thisType = CurrMethod.DeclType.GetCppName() + "*";
+			string thisType = CurrMethod.DeclType.GetCppName() + '*';
 			prt.AppendFormat("{0} {1}",
 				thisType,
 				ArgName(argID++));
@@ -533,7 +534,7 @@ namespace il2cpp
 					{
 						Local loc = (Local)operand;
 						Debug.Assert(loc.Type.Equals(CurrMethod.LocalTypes[loc.Index]));
-						Load(iinfo, StackType.Ptr, '&' + LocalName(loc.Index));
+						Load(iinfo, StackType.Ptr, "(" + StackTypeName(StackType.Ptr) + ")&" + LocalName(loc.Index));
 					}
 					return;
 
@@ -555,6 +556,33 @@ namespace il2cpp
 						Local loc = (Local)operand;
 						Debug.Assert(loc.Type.Equals(CurrMethod.LocalTypes[loc.Index]));
 						Store(iinfo, LocalName(loc.Index), CurrMethod.LocalTypes[loc.Index].GetCppName(TypeMgr));
+					}
+					return;
+
+				case Code.Ldarg_0:
+					Load(iinfo, ArgStackType(0), ArgName(0));
+					return;
+				case Code.Ldarg_1:
+					Load(iinfo, ArgStackType(1), ArgName(1));
+					return;
+				case Code.Ldarg_2:
+					Load(iinfo, ArgStackType(2), ArgName(2));
+					return;
+				case Code.Ldarg_3:
+					Load(iinfo, ArgStackType(3), ArgName(3));
+					return;
+				case Code.Ldarg:
+				case Code.Ldarg_S:
+					{
+						Parameter arg = (Parameter)operand;
+						Load(iinfo, ArgStackType(arg.Index), ArgName(arg.Index));
+					}
+					return;
+				case Code.Ldarga:
+				case Code.Ldarga_S:
+					{
+						Parameter arg = (Parameter)operand;
+						Load(iinfo, StackType.Ptr, "(" + StackTypeName(StackType.Ptr) + ")&" + ArgName(arg.Index));
 					}
 					return;
 
@@ -652,17 +680,17 @@ namespace il2cpp
 			}
 		}
 
-		private string ArgName(int argID)
+		private static string ArgName(int argID)
 		{
 			return "arg_" + argID;
 		}
 
-		private string LocalName(int localID)
+		private static string LocalName(int localID)
 		{
 			return "loc_" + localID;
 		}
 
-		private string LabelName(uint offset)
+		private static string LabelName(uint offset)
 		{
 			return "label_" + offset;
 		}
@@ -680,11 +708,11 @@ namespace il2cpp
 				case StackType.R8:
 					return "double";
 				case StackType.Ptr:
-					return "intptr_t";
+					return "int8_t*";
 				case StackType.Obj:
 					return "void*";
 				case StackType.Ref:
-					return "intptr_t";
+					return "int8_t*";
 				default:
 					throw new ArgumentOutOfRangeException(nameof(stype), stype, null);
 			}
@@ -866,6 +894,15 @@ namespace il2cpp
 			sb.Append(')');
 
 			iinfo.CppCode = sb.ToString();
+		}
+
+		private StackType ArgStackType(int argID)
+		{
+			if (CurrMethod.IsStatic)
+				return ToStackType(CurrMethod.ParamTypes[argID]);
+			if (argID == 0)
+				return StackType.Obj;
+			return ToStackType(CurrMethod.ParamTypes[argID - 1]);
 		}
 
 		private StackType ToStackType(TypeSig sig)

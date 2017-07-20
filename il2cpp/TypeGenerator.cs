@@ -45,7 +45,10 @@ namespace il2cpp
 		private void GenDeclCode()
 		{
 			CodePrinter prt = new CodePrinter();
-			prt.AppendFormatLine("// {0}, {1}", CurrType.PrettyName(), CurrType.RuntimeVersion);
+			prt.AppendFormatLine("// {0}, {1}",
+				CurrType.FullName,
+				CurrType.RuntimeVersion);
+
 			if (CurrType.BaseType != null)
 			{
 				prt.AppendFormatLine("struct {0} : {1}\n{{",
