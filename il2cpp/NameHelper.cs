@@ -27,7 +27,7 @@ namespace il2cpp
 					{
 						TypeX type = typeMgr.GetNamedType(sig.FullName, sig.Module.RuntimeVersion);
 						if (type != null)
-							sb.Append(type.GetCppName() + '*');
+							sb.Append("struct " + type.GetCppName() + '*');
 						else
 							sb.Append("il2cppDummy*");
 					}

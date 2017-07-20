@@ -100,7 +100,6 @@ namespace test
 					}
 					else
 					{
-
 						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine("FAILED");
 						Console.ForegroundColor = oldColor;
@@ -115,16 +114,13 @@ namespace test
 		private static void GenerateAllTypes(IList<TypeX> allTypes, TypeManager typeMgr)
 		{
 			TypeGenerator typeGen = new TypeGenerator(typeMgr);
-
+			
 			foreach (var type in allTypes)
 			{
-				if (type.IsEmptyType)
-					continue;
-
 				typeGen.Process(type);
-			}
 
-			Console.WriteLine("{0}\n{1}", typeGen.DeclCode, typeGen.ImplCode);
+				Console.WriteLine("{0}\n{1}", typeGen.DeclCode, typeGen.ImplCode);
+			}
 		}
 
 		private static void Main(string[] args)

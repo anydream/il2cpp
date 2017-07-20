@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -342,6 +343,9 @@ namespace il2cpp
 		public readonly Dictionary<MethodSignature, HashSet<TypeX>> OverrideImplTypes =
 			new Dictionary<MethodSignature, HashSet<TypeX>>();
 
+		// 依赖的类型
+		private readonly HashSet<TypeX> DependTypes = new HashSet<TypeX>();
+
 		// 虚表
 		public VirtualTable VTable;
 
@@ -359,6 +363,8 @@ namespace il2cpp
 
 		public string CppName_;
 		public uint CppTypeID_;
+
+		private uint SortedID_;
 
 		public TypeX(TypeDef typeDef)
 		{
@@ -390,6 +396,22 @@ namespace il2cpp
 		public override string ToString()
 		{
 			return FullName;
+		}
+
+		public void AddDepends(TypeX tyX)
+		{
+			DependTypes.Add(tyX);
+		}
+
+		public uint GetSortedID()
+		{
+			if (SortedID_ == 0)
+			{
+				foreach (var dep in DependTypes)
+					SortedID_ = Math.Max(SortedID_, dep.SortedID_);
+				++SortedID_;
+			}
+			return SortedID_;
 		}
 
 		public bool AddMethod(MethodX metX, out MethodX ometX)
@@ -722,7 +744,7 @@ namespace il2cpp
 					for (int i = 0; i < instList.Count; ++i)
 					{
 						instList[i].Offset = (uint)i;
-						ResolveInstruction(instList[i], replacer);
+						ResolveInstruction(currMetX.DeclType, instList[i], replacer);
 					}
 
 				} while (PendingMets.Count > 0);
@@ -732,7 +754,7 @@ namespace il2cpp
 		}
 
 		// 解析指令
-		private void ResolveInstruction(Instruction inst, GenericReplacer replacer)
+		private void ResolveInstruction(TypeX currType, Instruction inst, GenericReplacer replacer)
 		{
 			switch (inst.OpCode.OperandType)
 			{
@@ -760,6 +782,8 @@ namespace il2cpp
 
 						if (resMetX == null)
 							break;
+
+						currType.AddDepends(resMetX.DeclType);
 
 						// 添加虚方法入口
 						if (resMetX.Def.IsVirtual &&
@@ -833,6 +857,8 @@ namespace il2cpp
 								Debug.Fail("InlineField " + inst.Operand.GetType().Name);
 								break;
 						}
+
+						currType.AddDepends(resFldX.DeclType);
 
 						// 遇到静态字段
 						if (resFldX.Def.IsStatic)
@@ -980,7 +1006,10 @@ namespace il2cpp
 
 			// 展开类型内的泛型类型
 			if (tyX.Def.BaseType != null)
+			{
 				tyX.BaseType = ResolveInstanceType(tyX.Def.BaseType, replacer);
+				tyX.AddDepends(tyX.BaseType);
+			}
 			if (tyX.Def.HasInterfaces)
 			{
 				foreach (var inf in tyX.Def.Interfaces)
@@ -1357,4 +1386,3 @@ namespace il2cpp
 		}
 	}
 }
-
