@@ -7,6 +7,7 @@ namespace il2cpp
 	internal static class NameHelper
 	{
 		public static uint NameCounter;
+		public static uint TypeIDCounter;
 
 		private static void SigToCppName(TypeSig sig, StringBuilder sb, TypeManager typeMgr)
 		{
@@ -107,6 +108,13 @@ namespace il2cpp
 			if (tyX.CppName_ == null)
 				tyX.CppName_ = (tyX.Def.IsValueType ? "stru_" : "cls_") + ToCppName(tyX.FullName);
 			return tyX.CppName_;
+		}
+
+		public static uint GetCppTypeID(this TypeX tyX)
+		{
+			if (tyX.CppTypeID_ == 0)
+				tyX.CppTypeID_ = ++TypeIDCounter;
+			return tyX.CppTypeID_;
 		}
 
 		public static string GetCppName(this MethodX metX, string prefix)

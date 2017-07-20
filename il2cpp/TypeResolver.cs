@@ -358,6 +358,7 @@ namespace il2cpp
 		public bool FinalizerGenerated;
 
 		public string CppName_;
+		public uint CppTypeID_;
 
 		public TypeX(TypeDef typeDef)
 		{
@@ -466,7 +467,6 @@ namespace il2cpp
 		// 方法覆盖集合
 		private HashSet<MethodX> OverrideImpls_;
 		public HashSet<MethodX> OverrideImpls => OverrideImpls_ ?? (OverrideImpls_ = new HashSet<MethodX>(new MethodRefComparer()));
-		public List<MethodX> OverrideImplsList => new List<MethodX>(OverrideImpls_);
 		public bool HasOverrideImpls => OverrideImpls_ != null && OverrideImpls_.Count > 0;
 
 		// 是否在处理队列中

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 using il2cpp;
@@ -34,7 +35,7 @@ namespace test
 					sb.AppendFormatLine("-> {0}{1}", met.PrettyName(), met.IsCallVirtOnly ? " = 0" : "");
 					if (met.HasOverrideImpls)
 					{
-						var impls = met.OverrideImplsList;
+						var impls = met.OverrideImpls.ToList();
 						for (int i = 0, sz = impls.Count; i < sz; ++i)
 						{
 							var impl = impls[i];
@@ -122,6 +123,8 @@ namespace test
 
 				typeGen.Process(type);
 			}
+
+			Console.WriteLine("{0}\n{1}", typeGen.DeclCode, typeGen.ImplCode);
 		}
 
 		private static void Main(string[] args)

@@ -143,54 +143,10 @@ namespace il2cpp
 		{
 			Debug.Assert(metX.Def.HasBody);
 
+			// 重置数据
 			CurrMethod = metX;
 			Reset();
 
-			GenDeclCode();
-			GenImplCode();
-		}
-
-		private void GetDeclCode(CodePrinter prt)
-		{
-			prt.AppendFormat("{0} {1}(",
-				CurrMethod.ReturnType.GetCppName(TypeMgr),
-				CurrMethod.GetCppName(PrefixMet));
-
-			bool last = false;
-			int argID = 0;
-			if (!CurrMethod.IsStatic)
-			{
-				last = true;
-				prt.AppendFormat("{0}* {1}",
-					CurrMethod.DeclType.GetCppName(),
-					ArgName(argID++));
-			}
-
-			foreach (var arg in CurrMethod.ParamTypes)
-			{
-				if (last)
-					prt.Append(", ");
-				last = true;
-
-				prt.AppendFormat("{0} {1}",
-					arg.GetCppName(TypeMgr),
-					ArgName(argID++));
-			}
-
-			prt.Append(")");
-		}
-
-		private void GenDeclCode()
-		{
-			CodePrinter prt = new CodePrinter();
-			GetDeclCode(prt);
-			prt.AppendLine(";");
-
-			DeclCode = prt.ToString();
-		}
-
-		private void GenImplCode()
-		{
 			// 转换为自定义类型的指令列表
 			var origInstList = CurrMethod.Def.Body.Instructions;
 			InstList = new InstructionInfo[origInstList.Count];
@@ -214,12 +170,62 @@ namespace il2cpp
 					break;
 			}
 
-			// 构建代码
+			string codeDecl, codeImpl;
+			GenMetCode(out codeDecl, out codeImpl);
+			DeclCode += codeDecl;
+			ImplCode += codeImpl;
+
+			GenVMetCode(out codeDecl, out codeImpl);
+			DeclCode += codeDecl;
+			ImplCode += codeImpl;
+
+			GenVFtnCode(out codeDecl, out codeImpl);
+			DeclCode += codeDecl;
+			ImplCode += codeImpl;
+		}
+
+		// 生成实现方法
+		private void GenMetCode(out string codeDecl, out string codeImpl)
+		{
+			codeDecl = null;
+			codeImpl = null;
+
 			CodePrinter prt = new CodePrinter();
-			GetDeclCode(prt);
+
+			// 构造声明
+			prt.AppendFormat("{0} {1}(",
+				CurrMethod.ReturnType.GetCppName(TypeMgr),
+				CurrMethod.GetCppName(PrefixMet));
+
+			bool last = false;
+			int argID = 0;
+
+			// 非静态方法需要构造 this 参数
+			if (!CurrMethod.IsStatic)
+			{
+				last = true;
+				prt.AppendFormat("{0}* {1}",
+					CurrMethod.DeclType.GetCppName(),
+					ArgName(argID++));
+			}
+
+			foreach (var arg in CurrMethod.ParamTypes)
+			{
+				if (last)
+					prt.Append(", ");
+				last = true;
+
+				prt.AppendFormat("{0} {1}",
+					arg.GetCppName(TypeMgr),
+					ArgName(argID++));
+			}
+			prt.Append(")");
+			codeDecl = prt.ToString() + ";\n";
+
 			prt.AppendLine("\n{");
 			++prt.Indents;
 
+			// 构造局部变量
 			var localList = CurrMethod.LocalTypes;
 			if (localList != null)
 			{
@@ -232,6 +238,7 @@ namespace il2cpp
 				prt.AppendLine();
 			}
 
+			// 构造临时变量
 			if (StackTypeMap.Count > 0)
 			{
 				prt.AppendLine("// temps");
@@ -245,8 +252,10 @@ namespace il2cpp
 				prt.AppendLine();
 			}
 
+			// 构造指令代码
 			foreach (var iinfo in InstList)
 			{
+				// 跳转标签
 				if (iinfo.IsBrTarget)
 				{
 					bool isDec = false;
@@ -262,6 +271,7 @@ namespace il2cpp
 						++prt.Indents;
 				}
 
+				// 指令代码
 				if (iinfo.CppCode != null)
 				{
 					prt.AppendLine(iinfo.CppCode + ";");
@@ -271,7 +281,114 @@ namespace il2cpp
 			--prt.Indents;
 			prt.AppendLine("}");
 
-			ImplCode = prt.ToString();
+			codeImpl = prt.ToString();
+		}
+
+		// 生成虚调用方法
+		private void GenVMetCode(out string codeDecl, out string codeImpl)
+		{
+			codeDecl = null;
+			codeImpl = null;
+
+			if (!CurrMethod.Def.IsVirtual)
+				return;
+			Debug.Assert(!CurrMethod.IsStatic);
+
+			CodePrinter prt = new CodePrinter();
+			CodePrinter prtType = new CodePrinter();
+
+			// 构造声明
+			string strRetType = CurrMethod.ReturnType.GetCppName(TypeMgr);
+			prt.AppendFormat("{0} {1}(",
+				strRetType,
+				CurrMethod.GetCppName(PrefixVMet));
+
+			prtType.AppendFormat("{0}(*)(",
+				strRetType);
+
+			bool last = true;
+			int argID = 0;
+
+			// 构造 this 参数
+			string thisType = CurrMethod.DeclType.GetCppName() + "*";
+			prt.AppendFormat("{0} {1}",
+				thisType,
+				ArgName(argID++));
+
+			prtType.Append(thisType);
+
+			foreach (var arg in CurrMethod.ParamTypes)
+			{
+				string argType = arg.GetCppName(TypeMgr);
+				prt.AppendFormat(", {0} {1}",
+					argType,
+					ArgName(argID++));
+
+				prtType.AppendFormat(",{0}", argType);
+			}
+			prt.Append(")");
+			prtType.Append(")");
+			codeDecl = prt.ToString() + ";\n";
+
+			prt.AppendLine("\n{");
+			++prt.Indents;
+			prt.AppendFormatLine("void *pfn = {0}({1}->typeID);",
+				CurrMethod.GetCppName(PrefixVFtn),
+				ArgName(0));
+
+			if (!CurrMethod.ReturnType.Equals(CorTypes.Void))
+				prt.Append("return ");
+
+			prt.AppendFormat("(({0})pfn)(", prtType.ToString());
+			for (int i = 0; i <= CurrMethod.ParamTypes.Count; ++i)
+			{
+				if (i != 0)
+					prt.Append(", ");
+				prt.Append(ArgName(i));
+			}
+			prt.AppendLine(");");
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			codeImpl = prt.ToString();
+		}
+
+		// 生成虚查询方法
+		private void GenVFtnCode(out string codeDecl, out string codeImpl)
+		{
+			codeDecl = null;
+			codeImpl = null;
+
+			// 跳过无覆盖方法
+			if (!CurrMethod.HasOverrideImpls)
+				return;
+
+			CodePrinter prt = new CodePrinter();
+			// 构造声明
+			prt.AppendFormat("void* {0}(int typeID)", CurrMethod.GetCppName(PrefixVFtn));
+			codeDecl = prt.ToString() + ";\n";
+
+			prt.AppendLine("\n{");
+			++prt.Indents;
+			prt.AppendLine("switch (typeID)\n{");
+			++prt.Indents;
+
+			// 构造查询跳转分支
+			foreach (var metX in CurrMethod.OverrideImpls)
+			{
+				prt.AppendFormatLine("case {0}: return (void*)&{1};",
+					metX.DeclType.GetCppTypeID(),
+					metX.GetCppName(PrefixMet));
+			}
+
+			--prt.Indents;
+			// 找不到则返回空指针
+			prt.AppendLine("}\nreturn nullptr;");
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			codeImpl = prt.ToString();
 		}
 
 		private bool ProcessStep(int currIP, ref int nextIP)
