@@ -523,7 +523,7 @@ namespace il2cpp
 					{
 						Local loc = (Local)operand;
 						Debug.Assert(loc.Type.Equals(CurrMethod.LocalTypes[loc.Index]));
-						Load(iinfo, StackType.Ptr, "(" + StackTypeName(StackType.Ptr) + ")&" + LocalName(loc.Index));
+						Load(iinfo, StackType.Ptr, LocalName(loc.Index));
 					}
 					return;
 
@@ -571,7 +571,7 @@ namespace il2cpp
 				case Code.Ldarga_S:
 					{
 						Parameter arg = (Parameter)operand;
-						Load(iinfo, StackType.Ptr, "(" + StackTypeName(StackType.Ptr) + ")&" + ArgName(arg.Index));
+						Load(iinfo, StackType.Ptr, ArgName(arg.Index));
 					}
 					return;
 
@@ -580,6 +580,47 @@ namespace il2cpp
 					{
 						Parameter arg = (Parameter)operand;
 						Store(iinfo, ArgName(arg.Index), ArgTypeName(arg.Index));
+					}
+					return;
+
+				case Code.Ldfld:
+					{
+						FieldX fldX = (FieldX)operand;
+						SlotInfo self = Pop();
+						string rval = string.Format("(({0}*){1})->{2}",
+							fldX.DeclType.GetCppName(),
+							SlotInfoName(ref self),
+							fldX.GetCppName());
+						Load(iinfo, ToStackType(fldX.FieldType), rval);
+					}
+					return;
+				case Code.Ldflda:
+					{
+						FieldX fldX = (FieldX)operand;
+						SlotInfo self = Pop();
+						string rval = string.Format("&(({0}*){1})->{2}",
+							fldX.DeclType.GetCppName(),
+							SlotInfoName(ref self),
+							fldX.GetCppName());
+						Load(iinfo, StackType.Ptr, rval);
+					}
+					return;
+				/*case Code.Ldsfld:
+					return;
+				case Code.Ldsflda:
+					return;*/
+
+				case Code.Stfld:
+					{
+						FieldX fldX = (FieldX)operand;
+						SlotInfo val = Pop();
+						SlotInfo self = Pop();
+						iinfo.CppCode = string.Format("(({0}*){1})->{2} = ({3}){4}",
+							fldX.DeclType.GetCppName(),
+							SlotInfoName(ref self),
+							fldX.GetCppName(),
+							fldX.FieldType.GetCppName(TypeMgr),
+							SlotInfoName(ref val));
 					}
 					return;
 
@@ -723,11 +764,11 @@ namespace il2cpp
 				case StackType.R8:
 					return "double";
 				case StackType.Ptr:
-					return "int8_t*";
+					return "void*";
 				case StackType.Obj:
 					return "void*";
 				case StackType.Ref:
-					return "int8_t*";
+					return "void*";
 				default:
 					throw new ArgumentOutOfRangeException(nameof(stype), stype, null);
 			}

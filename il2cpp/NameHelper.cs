@@ -157,7 +157,7 @@ namespace il2cpp
 		public static string GetCppName(this FieldX fldX)
 		{
 			if (fldX.CppName_ == null)
-				fldX.CppName_ = "fld_" + ToCppName(fldX.Def.Name);
+				fldX.CppName_ = (fldX.Def.IsStatic ? "sfld_" : "fld_") + ToCppName(fldX.Def.Name);
 			return fldX.CppName_;
 		}
 
