@@ -326,7 +326,7 @@ namespace il2cpp
 				CurrMethod.GetCppName(PrefixVFtn),
 				ArgName(0));
 
-			if (!CurrMethod.ReturnType.Equals(CorTypes.Void))
+			if (CurrMethod.ReturnType.FullName != "System.Void")
 				prt.Append("return ");
 
 			prt.AppendFormat("(({0})pfn)(", prtType.ToString());
@@ -672,8 +672,26 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Newobj:
+					{
+						if (operand is MethodX metX)
+						{
+							Debug.Assert(metX.Def.IsConstructor);
+
+							NewObj(iinfo,
+								metX.DeclType.GetCppName(),
+								metX.GetCppName(PrefixMet),
+								metX.ParamTypes.Count);
+						}
+						else
+						{
+							throw new NotImplementedException();
+						}
+					}
+					return;
+
 				default:
-					throw new NotImplementedException();
+					throw new NotImplementedException("OpCode: " + iinfo.Code);
 			}
 		}
 
@@ -869,7 +887,7 @@ namespace il2cpp
 			SlotInfo[] popList = Pop(popCount);
 
 			StringBuilder sb = new StringBuilder();
-			if (!retType.Equals(CorTypes.Void))
+			if (retType.FullName != "System.Void")
 			{
 				SlotInfo pushed = Push(ToStackType(retType));
 				sb.AppendFormat("{0} = ", SlotInfoName(ref pushed));
@@ -886,6 +904,33 @@ namespace il2cpp
 
 				var arg = popList[i];
 				sb.Append(SlotInfoName(ref arg));
+			}
+
+			sb.Append(')');
+
+			iinfo.CppCode = sb.ToString();
+		}
+
+		private void NewObj(InstructionInfo iinfo, string typeName, string metName, int popCount)
+		{
+			SlotInfo[] popList = Pop(popCount);
+
+			StringBuilder sb = new StringBuilder();
+
+			SlotInfo self = Push(StackType.Obj);
+			sb.AppendFormat("{0} = il2cpp_New(sizeof({1}));\n",
+				SlotInfoName(ref self),
+				typeName);
+
+			sb.AppendFormat("{0}({1}",
+				metName,
+				SlotInfoName(ref self));
+
+			for (int i = 0; i < popList.Length; ++i)
+			{
+				var arg = popList[i];
+				sb.AppendFormat(", {0}",
+					SlotInfoName(ref arg));
 			}
 
 			sb.Append(')');

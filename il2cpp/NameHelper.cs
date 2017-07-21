@@ -65,34 +65,57 @@ namespace il2cpp
 					if (sig is CorLibTypeSig corTypeSig)
 					{
 						// 基础类型
-						if (corTypeSig.Equals(typeMgr.CorTypes.Void))
-							sb.Append("void");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.Int32))
-							sb.Append("int32_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.UInt32))
-							sb.Append("uint32_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.Boolean))
-							sb.Append("int32_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.Int64))
-							sb.Append("int64_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.UInt64))
-							sb.Append("uint64_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.Int16))
-							sb.Append("int16_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.UInt16))
-							sb.Append("uint16_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.SByte))
-							sb.Append("int8_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.Byte))
-							sb.Append("uint8_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.Char))
-							sb.Append("uint16_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.IntPtr))
-							sb.Append("intptr_t");
-						else if (corTypeSig.Equals(typeMgr.CorTypes.UIntPtr))
-							sb.Append("uintptr_t");
-						else
-							Debug.Fail("SigToCppName CorLibTypeSig " + corTypeSig);
+						switch (corTypeSig.FullName)
+						{
+							case "System.Void":
+								sb.Append("void");
+								break;
+							case "System.Int32":
+								sb.Append("int32_t");
+								break;
+							case "System.UInt32":
+								sb.Append("uint32_t");
+								break;
+							case "System.Single":
+								sb.Append("float");
+								break;
+							case "System.Double":
+								sb.Append("double");
+								break;
+							case "System.Boolean":
+								sb.Append("int32_t");
+								break;
+							case "System.Int64":
+								sb.Append("int64_t");
+								break;
+							case "System.UInt64":
+								sb.Append("uint64_t");
+								break;
+							case "System.Int16":
+								sb.Append("int16_t");
+								break;
+							case "System.UInt16":
+								sb.Append("uint16_t");
+								break;
+							case "System.SByte":
+								sb.Append("int8_t");
+								break;
+							case "System.Byte":
+								sb.Append("uint8_t");
+								break;
+							case "System.Char":
+								sb.Append("uint16_t");
+								break;
+							case "System.IntPtr":
+								sb.Append("intptr_t");
+								break;
+							case "System.UIntPtr":
+								sb.Append("uintptr_t");
+								break;
+							default:
+								Debug.Fail("SigToCppName CorLibTypeSig " + corTypeSig);
+								break;
+						}
 
 						return;
 					}
