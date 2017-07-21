@@ -344,7 +344,7 @@ namespace il2cpp
 			new Dictionary<MethodSignature, HashSet<TypeX>>();
 
 		// 依赖的类型
-		private readonly HashSet<TypeX> DependTypes = new HashSet<TypeX>();
+		public readonly HashSet<TypeX> DependTypes = new HashSet<TypeX>();
 
 		// 虚表
 		public VirtualTable VTable;
@@ -365,6 +365,7 @@ namespace il2cpp
 		public uint CppTypeID_;
 
 		private uint SortedID_;
+		public CppCompileUnit CppUnit;
 
 		public TypeX(TypeDef typeDef)
 		{
@@ -408,7 +409,7 @@ namespace il2cpp
 			if (SortedID_ == 0)
 			{
 				foreach (var dep in DependTypes)
-					SortedID_ = Math.Max(SortedID_, dep.SortedID_);
+					SortedID_ = Math.Max(SortedID_, dep.GetSortedID());
 				++SortedID_;
 			}
 			return SortedID_;

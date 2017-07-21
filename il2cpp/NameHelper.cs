@@ -9,6 +9,12 @@ namespace il2cpp
 		public static uint NameCounter;
 		public static uint TypeIDCounter;
 
+		public static void Reset()
+		{
+			NameCounter = 0;
+			TypeIDCounter = 0;
+		}
+
 		private static void SigToCppName(TypeSig sig, StringBuilder sb, TypeManager typeMgr)
 		{
 			switch (sig.ElementType)

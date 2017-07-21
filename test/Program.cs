@@ -111,18 +111,6 @@ namespace test
 			}
 		}
 
-		private static void GenerateAllTypes(IList<TypeX> allTypes, TypeManager typeMgr)
-		{
-			TypeGenerator typeGen = new TypeGenerator(typeMgr);
-			
-			foreach (var type in allTypes)
-			{
-				typeGen.Process(type);
-
-				Console.WriteLine("{0}\n{1}", typeGen.DeclCode, typeGen.ImplCode);
-			}
-		}
-
 		private static void Main(string[] args)
 		{
 			TypeManager typeMgr = new TypeManager();
@@ -140,7 +128,8 @@ namespace test
 			sw.Stop();
 			Console.WriteLine("Elapsed: {0}ms", sw.ElapsedMilliseconds);
 
-			GenerateAllTypes(typeMgr.Types, typeMgr);
+			TypeGenerator typeGen = new TypeGenerator(typeMgr);
+			typeGen.GenerateAll();
 #endif
 		}
 	}

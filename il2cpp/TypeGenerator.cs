@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
 
 namespace il2cpp
 {
@@ -14,9 +17,12 @@ namespace il2cpp
 		private TypeX CurrType;
 
 		// 声明代码
-		public readonly StringBuilder DeclCode = new StringBuilder();
+		public string DeclCode;
 		// 实现代码
-		public readonly StringBuilder ImplCode = new StringBuilder();
+		public string ImplCode;
+
+		private readonly List<CppCompileUnit> CppUnitList = new List<CppCompileUnit>();
+		private int CppNameCounter;
 
 		public TypeGenerator(TypeManager typeMgr)
 		{
@@ -24,11 +30,55 @@ namespace il2cpp
 			MethodGen = new MethodGenerator(typeMgr);
 		}
 
-		public void Process(TypeX tyX)
+		public void GenerateAll()
+		{
+			NameHelper.Reset();
+			CppNameCounter = 0;
+
+			var types = TypeMgr.Types;
+			foreach (var type in types)
+			{
+				ProcessType(type);
+				SelectCppUnit().AddType(type, DeclCode, ImplCode);
+			}
+
+			foreach (var unit in CppUnitList)
+			{
+				unit.GenerateCode();
+
+				Console.WriteLine("// [{0}.h]\n{1}\n// [{0}.cpp]\n{2}",
+					unit.Name,
+					unit.DeclCode,
+					unit.ImplCode);
+			}
+		}
+
+		private CppCompileUnit SelectCppUnit()
+		{
+			CppCompileUnit curr;
+			if (CppUnitList.Count > 0)
+			{
+				curr = CppUnitList[CppUnitList.Count - 1];
+				if (curr.ImplCodeCounter <= 30000)
+					return curr;
+			}
+
+			curr = new CppCompileUnit(GenCppUnitName());
+			CppUnitList.Add(curr);
+
+			return curr;
+		}
+
+		private string GenCppUnitName()
+		{
+			return "CppUnit_" + CppNameCounter++;
+		}
+
+		private void ProcessType(TypeX tyX)
 		{
 			CurrType = tyX;
-			DeclCode.Clear();
-			ImplCode.Clear();
+			DeclCode = null;
+			ImplCode = null;
 
 			// 生成类型结构体代码
 			GenDeclCode();
@@ -37,8 +87,8 @@ namespace il2cpp
 			foreach (var metX in CurrType.Methods)
 			{
 				MethodGen.Process(metX);
-				DeclCode.Append(MethodGen.DeclCode);
-				ImplCode.Append(MethodGen.ImplCode);
+				DeclCode += MethodGen.DeclCode;
+				ImplCode += MethodGen.ImplCode;
 			}
 		}
 
@@ -51,9 +101,10 @@ namespace il2cpp
 
 			if (CurrType.BaseType != null)
 			{
+				string baseName = CurrType.BaseType.GetCppName();
 				prt.AppendFormatLine("struct {0} : {1}\n{{",
 					CurrType.GetCppName(),
-					CurrType.BaseType.GetCppName());
+					baseName);
 			}
 			else
 			{
@@ -73,7 +124,81 @@ namespace il2cpp
 			--prt.Indents;
 			prt.AppendLine("};");
 
-			DeclCode.Append(prt.ToString());
+			DeclCode += prt.ToString();
+		}
+	}
+
+	public class CppCompileUnit
+	{
+		private class CodeInfo
+		{
+			public readonly TypeX CodeType;
+			public readonly string DeclCode;
+			public readonly string ImplCode;
+
+			public CodeInfo(TypeX tyX, string codeDecl, string codeImpl)
+			{
+				CodeType = tyX;
+				DeclCode = codeDecl;
+				ImplCode = codeImpl;
+			}
+		}
+
+		private readonly List<CodeInfo> CodeInfoList = new List<CodeInfo>();
+		private readonly HashSet<TypeX> DependTypes = new HashSet<TypeX>();
+
+		public readonly string Name;
+		public string DeclCode;
+		public string ImplCode;
+		public int ImplCodeCounter;
+
+		public CppCompileUnit(string name)
+		{
+			Name = name;
+		}
+
+		public void AddType(TypeX tyX, string codeDecl, string codeImpl)
+		{
+			Debug.Assert(tyX.CppUnit == null);
+			tyX.CppUnit = this;
+
+			CodeInfoList.Add(new CodeInfo(tyX, codeDecl, codeImpl));
+			DependTypes.Add(tyX);
+
+			ImplCodeCounter += codeImpl?.Length ?? 0;
+		}
+
+		public void GenerateCode()
+		{
+			Debug.Assert(DeclCode == null);
+
+			StringBuilder sbDecl = new StringBuilder();
+			StringBuilder sbImpl = new StringBuilder();
+
+			sbDecl.AppendLine("#pragma once");
+			sbImpl.AppendFormat("#include \"{0}.h\"\n", Name);
+
+			foreach (var type in DependTypes)
+			{
+				foreach (var dep in type.DependTypes)
+				{
+					if (dep.CppUnit != this)
+					{
+						sbDecl.AppendFormat("#include \"{0}.h\"\n", dep.CppUnit.Name);
+					}
+				}
+			}
+
+			CodeInfoList.Sort((x, y) => x.CodeType.GetSortedID().CompareTo(y.CodeType.GetSortedID()));
+
+			foreach (var info in CodeInfoList)
+			{
+				sbDecl.Append(info.DeclCode);
+				sbImpl.Append(info.ImplCode);
+			}
+
+			DeclCode = sbDecl.ToString();
+			ImplCode = sbImpl.ToString();
 		}
 	}
 }
