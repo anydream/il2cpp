@@ -624,6 +624,24 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Conv_I1:
+				case Code.Conv_I2:
+				case Code.Conv_I4:
+				case Code.Conv_I8:
+				case Code.Conv_U1:
+				case Code.Conv_U2:
+				case Code.Conv_U4:
+				case Code.Conv_U8:
+				case Code.Conv_R4:
+				case Code.Conv_R8:
+				case Code.Conv_I:
+				case Code.Conv_U:
+					Conv(iinfo);
+					return;
+
+				/*case Code.Conv_R_Un:
+					return;*/
+
 				case Code.Add:
 					BinOp(iinfo, "+");
 					return;
@@ -798,6 +816,67 @@ namespace il2cpp
 		{
 			SlotInfo poped = Pop();
 			iinfo.CppCode = string.Format("{0} = {1}{2}", lval, cast != null ? "(" + cast + ")" : "", SlotInfoName(ref poped));
+		}
+
+		private void Conv(InstructionInfo iinfo)
+		{
+			string cast = null;
+			StackType stype = StackType.I4;
+
+			switch (iinfo.Code)
+			{
+				case Code.Conv_I1:
+					cast = "int8_t";
+					break;
+				case Code.Conv_I2:
+					cast = "int16_t";
+					break;
+				case Code.Conv_I4:
+					cast = "int32_t";
+					break;
+				case Code.Conv_I8:
+					cast = "int64_t";
+					stype = StackType.I8;
+					break;
+				case Code.Conv_U1:
+					cast = "uint8_t";
+					break;
+				case Code.Conv_U2:
+					cast = "uint16_t";
+					break;
+				case Code.Conv_U4:
+					cast = "uint32_t";
+					break;
+				case Code.Conv_U8:
+					cast = "uint64_t";
+					stype = StackType.I8;
+					break;
+				case Code.Conv_R4:
+					cast = "float";
+					stype = StackType.R4;
+					break;
+				case Code.Conv_R8:
+					cast = "double";
+					stype = StackType.R8;
+					break;
+				case Code.Conv_I:
+					cast = "intptr_t";
+					stype = StackType.Ptr;
+					break;
+				case Code.Conv_U:
+					cast = "uintptr_t";
+					stype = StackType.Ptr;
+					break;
+				default:
+					Debug.Fail("Code error " + iinfo.Code);
+					break;
+			}
+
+			SlotInfo val = Pop();
+			string rval = string.Format("({0}){1}",
+				cast,
+				SlotInfoName(ref val));
+			Load(iinfo, stype, rval);
 		}
 
 		private void BrCond(InstructionInfo iinfo, bool cond, uint target)

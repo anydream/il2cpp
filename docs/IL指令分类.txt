@@ -169,10 +169,14 @@ Code.Conv_I1:
 Code.Conv_I2:
 Code.Conv_I4:
 Code.Conv_I8:
-Code.Conv_R4:
-Code.Conv_R8:
+Code.Conv_U1:
+Code.Conv_U2:
 Code.Conv_U4:
 Code.Conv_U8:
+Code.Conv_R4:
+Code.Conv_R8:
+Code.Conv_I:
+Code.Conv_U:
 Code.Conv_R_Un:
 Code.Conv_Ovf_I1_Un:
 Code.Conv_Ovf_I2_Un:
@@ -192,12 +196,8 @@ Code.Conv_Ovf_I4:
 Code.Conv_Ovf_U4:
 Code.Conv_Ovf_I8:
 Code.Conv_Ovf_U8:
-Code.Conv_U2:
-Code.Conv_U1:
-Code.Conv_I:
 Code.Conv_Ovf_I:
 Code.Conv_Ovf_U:
-Code.Conv_U:
 
 // 值类型操作
 Code.Cpobj:
