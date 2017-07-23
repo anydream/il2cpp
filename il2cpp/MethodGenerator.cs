@@ -16,10 +16,11 @@ namespace il2cpp
 		R4,
 		R8,
 		Ptr,
-		Obj,
-		Ref
+		Ref,
+		Obj
 	}
 
+	// 栈槽信息
 	internal struct SlotInfo
 	{
 		public StackType SlotType;
@@ -49,13 +50,11 @@ namespace il2cpp
 		}
 	}
 
-	// 执行栈
+	// 方法生成器
 	public class MethodGenerator
 	{
 		// 类型管理器
 		private readonly TypeManager TypeMgr;
-		// 内置类型集合
-		private readonly ICorLibTypes CorTypes;
 
 		// 当前方法
 		private MethodX CurrMethod;
@@ -65,7 +64,7 @@ namespace il2cpp
 		// 当前类型栈
 		private Stack<StackType> TypeStack = new Stack<StackType>();
 		// 栈槽类型映射
-		private readonly Dictionary<int, HashSet<StackType>> StackTypeMap = new Dictionary<int, HashSet<StackType>>();
+		private readonly Dictionary<int, HashSet<StackType>> SlotMap = new Dictionary<int, HashSet<StackType>>();
 		// 待处理的分支
 		private readonly Queue<Tuple<int, Stack<StackType>>> Branches = new Queue<Tuple<int, Stack<StackType>>>();
 
@@ -77,15 +76,14 @@ namespace il2cpp
 		public MethodGenerator(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
-			CorTypes = typeMgr.CorTypes;
 		}
 
-		private void AddStackTypeMap(ref SlotInfo sinfo)
+		private void RegisterSlotInfo(ref SlotInfo sinfo)
 		{
-			if (!StackTypeMap.TryGetValue(sinfo.StackIndex, out var typeSet))
+			if (!SlotMap.TryGetValue(sinfo.StackIndex, out var typeSet))
 			{
 				typeSet = new HashSet<StackType>();
-				StackTypeMap.Add(sinfo.StackIndex, typeSet);
+				SlotMap.Add(sinfo.StackIndex, typeSet);
 			}
 			typeSet.Add(sinfo.SlotType);
 		}
@@ -96,12 +94,13 @@ namespace il2cpp
 			sinfo.StackIndex = TypeStack.Count;
 			sinfo.SlotType = stype;
 			TypeStack.Push(stype);
-			AddStackTypeMap(ref sinfo);
+			RegisterSlotInfo(ref sinfo);
 			return sinfo;
 		}
 
 		private SlotInfo Pop()
 		{
+			Debug.Assert(TypeStack.Count > 0);
 			StackType stype = TypeStack.Pop();
 			SlotInfo sinfo = new SlotInfo();
 			sinfo.StackIndex = TypeStack.Count;
@@ -114,7 +113,6 @@ namespace il2cpp
 			SlotInfo[] sinfos = new SlotInfo[num];
 			for (int i = num - 1; i >= 0; --i)
 				sinfos[i] = Pop();
-
 			return sinfos;
 		}
 
@@ -125,18 +123,18 @@ namespace il2cpp
 
 		private void AddBranch(int targetIP)
 		{
-			Branches.Enqueue(new Tuple<int, Stack<StackType>>(targetIP, new Stack<StackType>(TypeStack)));
+			Branches.Enqueue(new Tuple<int, Stack<StackType>>(
+				targetIP,
+				new Stack<StackType>(TypeStack)));
 		}
 
 		private void Reset()
 		{
+			CurrMethod = null;
 			InstList = null;
 			TypeStack.Clear();
-			StackTypeMap.Clear();
+			SlotMap.Clear();
 			Branches.Clear();
-
-			DeclCode = null;
-			ImplCode = null;
 		}
 
 		public void Process(MethodX metX)
@@ -144,8 +142,10 @@ namespace il2cpp
 			Debug.Assert(metX.Def.HasBody);
 
 			// 重置数据
-			CurrMethod = metX;
 			Reset();
+			CurrMethod = metX;
+			DeclCode = null;
+			ImplCode = null;
 
 			// 转换为自定义类型的指令列表
 			var origInstList = CurrMethod.Def.Body.Instructions;
@@ -153,7 +153,7 @@ namespace il2cpp
 			for (int i = 0; i < InstList.Length; ++i)
 				InstList[i] = new InstructionInfo(origInstList[i]);
 
-			// 开始模拟执行
+			// 模拟执行
 			int currIP = 0;
 			int nextIP = 0;
 			for (;;)
@@ -170,6 +170,7 @@ namespace il2cpp
 					break;
 			}
 
+			// 生成代码
 			string codeDecl, codeImpl;
 
 			GenVFtnCode(out codeDecl, out codeImpl);
@@ -183,14 +184,13 @@ namespace il2cpp
 			GenMetCode(out codeDecl, out codeImpl);
 			DeclCode += codeDecl;
 			ImplCode += codeImpl;
+
+			Reset();
 		}
 
 		// 生成实现方法
 		private void GenMetCode(out string codeDecl, out string codeImpl)
 		{
-			codeDecl = null;
-			codeImpl = null;
-
 			CodePrinter prt = new CodePrinter();
 
 			// 构造声明
@@ -203,12 +203,10 @@ namespace il2cpp
 			if (!CurrMethod.IsStatic)
 				++argNum;
 
-			bool last = false;
 			for (int i = 0; i < argNum; ++i)
 			{
-				if (last)
+				if (i != 0)
 					prt.Append(", ");
-				last = true;
 
 				prt.AppendFormat("{0} {1}",
 					ArgTypeCppName(i),
@@ -216,7 +214,7 @@ namespace il2cpp
 			}
 
 			prt.Append(")");
-			codeDecl = prt.ToString() + ";\n";
+			codeDecl = prt + ";\n";
 
 			prt.AppendLine("\n{");
 			++prt.Indents;
@@ -229,20 +227,24 @@ namespace il2cpp
 				for (int i = 0; i < localList.Count; ++i)
 				{
 					var loc = localList[i];
-					prt.AppendFormatLine("{0} {1};", loc.GetCppName(TypeMgr), LocalName(i));
+					prt.AppendFormatLine("{0} {1};",
+						loc.GetCppName(TypeMgr),
+						LocalName(i));
 				}
 				prt.AppendLine();
 			}
 
 			// 构造临时变量
-			if (StackTypeMap.Count > 0)
+			if (SlotMap.Count > 0)
 			{
 				prt.AppendLine("// temps");
-				foreach (var kv in StackTypeMap)
+				foreach (var kv in SlotMap)
 				{
 					foreach (var type in kv.Value)
 					{
-						prt.AppendFormatLine("{0} {1};", StackTypeName(type), TempName(kv.Key, type));
+						prt.AppendFormatLine("{0} {1};",
+							StackTypeCppName(type),
+							TempName(kv.Key, type));
 					}
 				}
 				prt.AppendLine();
@@ -438,7 +440,6 @@ namespace il2cpp
 
 				case FlowControl.Break:
 				case FlowControl.Call:
-				case FlowControl.Meta:
 				case FlowControl.Next:
 					nextIP = currIP + 1;
 					return true;
@@ -778,7 +779,7 @@ namespace il2cpp
 			return "label_" + offset;
 		}
 
-		private string StackTypeName(StackType stype)
+		private string StackTypeCppName(StackType stype)
 		{
 			switch (stype)
 			{
@@ -1092,32 +1093,35 @@ namespace il2cpp
 			{
 				return StackType.Ref;
 			}
+
+			string sigName = sig.FullName;
 			if (sig.IsPointer ||
-				sig.Equals(CorTypes.IntPtr) ||
-				sig.Equals(CorTypes.UIntPtr))
+				sigName == "System.IntPtr" ||
+				sigName == "System.UIntPtr")
 			{
 				return StackType.Ptr;
 			}
-			if (sig.Equals(CorTypes.SByte) ||
-				sig.Equals(CorTypes.Byte) ||
-				sig.Equals(CorTypes.Int16) ||
-				sig.Equals(CorTypes.UInt16) ||
-				sig.Equals(CorTypes.Int32) ||
-				sig.Equals(CorTypes.UInt32) ||
-				sig.Equals(CorTypes.Boolean))
+			if (sigName == "System.SByte" ||
+				sigName == "System.Byte" ||
+				sigName == "System.Int16" ||
+				sigName == "System.UInt16" ||
+				sigName == "System.Int32" ||
+				sigName == "System.UInt32" ||
+				sigName == "System.Boolean" ||
+				sigName == "System.Char")
 			{
 				return StackType.I4;
 			}
-			if (sig.Equals(CorTypes.Int64) ||
-				sig.Equals(CorTypes.UInt64))
+			if (sigName == "System.Int64" ||
+				sigName == "System.UInt64")
 			{
 				return StackType.I8;
 			}
-			if (sig.Equals(CorTypes.Single))
+			if (sigName == "System.Single")
 			{
 				return StackType.R4;
 			}
-			if (sig.Equals(CorTypes.Double))
+			if (sigName == "System.Double")
 			{
 				return StackType.R8;
 			}
