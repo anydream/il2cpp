@@ -1055,7 +1055,7 @@ namespace il2cpp
 		{
 			SlotInfo[] popList = Pop(2);
 
-			if (!IsBinoperValid(popList[0].SlotType, popList[1].SlotType, out var retType, iinfo.Code))
+			if (!IsBinOpValid(popList[0].SlotType, popList[1].SlotType, out var retType, iinfo.Code))
 			{
 				Debug.Fail("Binary Oper Invalid");
 			}
@@ -1125,9 +1125,9 @@ namespace il2cpp
 			iinfo.CppCode = sb.ToString();
 		}
 
-
-		private static bool IsBinoperValid(StackType op1, StackType op2, out StackType retType, Code code)
+		private static bool IsBinOpValid(StackType op1, StackType op2, out StackType retType, Code code)
 		{
+			retType = StackType.I4;
 			switch (op1)
 			{
 				case StackType.I4:
@@ -1149,7 +1149,6 @@ namespace il2cpp
 							}
 							break;
 					}
-					retType = StackType.I4;
 					return false;
 
 				case StackType.I8:
@@ -1158,7 +1157,6 @@ namespace il2cpp
 						retType = StackType.I8;
 						return true;
 					}
-					retType = StackType.I4;
 					return false;
 
 				case StackType.R4:
@@ -1172,7 +1170,6 @@ namespace il2cpp
 						retType = StackType.R8;
 						return true;
 					}
-					retType = StackType.I4;
 					return false;
 
 				case StackType.R8:
@@ -1181,7 +1178,6 @@ namespace il2cpp
 						retType = StackType.R8;
 						return true;
 					}
-					retType = StackType.I4;
 					return false;
 
 				case StackType.Ptr:
@@ -1200,11 +1196,6 @@ namespace il2cpp
 							}
 							break;
 					}
-					retType = StackType.I4;
-					return false;
-
-				case StackType.Obj:
-					retType = StackType.I4;
 					return false;
 
 				case StackType.Ref:
@@ -1227,7 +1218,9 @@ namespace il2cpp
 							}
 							break;
 					}
-					retType = StackType.I4;
+					return false;
+
+				case StackType.Obj:
 					return false;
 
 				default:
@@ -1279,21 +1272,6 @@ namespace il2cpp
 					}
 					return false;
 
-				case StackType.Obj:
-					if (op2 == StackType.Obj)
-					{
-						switch (code)
-						{
-							case Code.Beq:
-							case Code.Beq_S:
-							case Code.Bne_Un:
-							case Code.Bne_Un_S:
-							case Code.Ceq:
-								return true;
-						}
-					}
-					return false;
-
 				case StackType.Ref:
 					switch (op2)
 					{
@@ -1312,6 +1290,21 @@ namespace il2cpp
 								}
 							}
 							break;
+					}
+					return false;
+
+				case StackType.Obj:
+					if (op2 == StackType.Obj)
+					{
+						switch (code)
+						{
+							case Code.Beq:
+							case Code.Beq_S:
+							case Code.Bne_Un:
+							case Code.Bne_Un_S:
+							case Code.Ceq:
+								return true;
+						}
 					}
 					return false;
 
