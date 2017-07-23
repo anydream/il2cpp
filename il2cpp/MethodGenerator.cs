@@ -761,6 +761,10 @@ namespace il2cpp
 			}
 		}
 
+		private static readonly string PrefixMet = "met_";
+		private static readonly string PrefixVMet = "vmet_";
+		private static readonly string PrefixVFtn = "vftn_";
+
 		private static string ArgName(int argID)
 		{
 			return "arg_" + argID;
@@ -776,6 +780,16 @@ namespace il2cpp
 			return "label_" + offset;
 		}
 
+		private static string TempName(int stackIndex, StackType stype)
+		{
+			return string.Format("tmp_{0}_{1}", stackIndex, stype);
+		}
+
+		private static string SlotInfoName(ref SlotInfo sinfo)
+		{
+			return TempName(sinfo.StackIndex, sinfo.SlotType);
+		}
+
 		private string StackTypeCppName(StackType stype)
 		{
 			switch (stype)
@@ -789,28 +803,73 @@ namespace il2cpp
 				case StackType.R8:
 					return "double";
 				case StackType.Ptr:
-					return "void*";
-				case StackType.Obj:
-					return "void*";
 				case StackType.Ref:
+				case StackType.Obj:
 					return "void*";
 				default:
 					throw new ArgumentOutOfRangeException(nameof(stype), stype, null);
 			}
 		}
 
-		private static readonly string PrefixMet = "met_";
-		private static readonly string PrefixVMet = "vmet_";
-		private static readonly string PrefixVFtn = "vftn_";
-
-		private static string TempName(int stackIndex, StackType stype)
+		private StackType ToStackType(TypeSig sig)
 		{
-			return string.Format("tmp_{0}_{1}", stackIndex, stype);
+			if (sig.IsByRef)
+			{
+				return StackType.Ref;
+			}
+
+			string sigName = sig.FullName;
+			if (sig.IsPointer ||
+				sigName == "System.IntPtr" ||
+				sigName == "System.UIntPtr")
+			{
+				return StackType.Ptr;
+			}
+			if (sigName == "System.SByte" ||
+				sigName == "System.Byte" ||
+				sigName == "System.Int16" ||
+				sigName == "System.UInt16" ||
+				sigName == "System.Int32" ||
+				sigName == "System.UInt32" ||
+				sigName == "System.Boolean" ||
+				sigName == "System.Char")
+			{
+				return StackType.I4;
+			}
+			if (sigName == "System.Int64" ||
+				sigName == "System.UInt64")
+			{
+				return StackType.I8;
+			}
+			if (sigName == "System.Single")
+			{
+				return StackType.R4;
+			}
+			if (sigName == "System.Double")
+			{
+				return StackType.R8;
+			}
+
+			Debug.Assert(!sig.IsValueType);
+			return StackType.Obj;
 		}
 
-		private static string SlotInfoName(ref SlotInfo sinfo)
+		private string ArgTypeCppName(int argID)
 		{
-			return TempName(sinfo.StackIndex, sinfo.SlotType);
+			if (CurrMethod.Def.IsStatic)
+				return CurrMethod.ParamTypes[argID].GetCppName(TypeMgr);
+			if (argID == 0)
+				return CurrMethod.DeclType.GetCppName() + '*';
+			return CurrMethod.ParamTypes[argID - 1].GetCppName(TypeMgr);
+		}
+
+		private StackType ArgStackType(int argID)
+		{
+			if (CurrMethod.Def.IsStatic)
+				return ToStackType(CurrMethod.ParamTypes[argID]);
+			if (argID == 0)
+				return StackType.Obj;
+			return ToStackType(CurrMethod.ParamTypes[argID - 1]);
 		}
 
 		private void Load(InstructionInfo iinfo, StackType stype, string rval)
@@ -1066,66 +1125,6 @@ namespace il2cpp
 			iinfo.CppCode = sb.ToString();
 		}
 
-		private string ArgTypeCppName(int argID)
-		{
-			if (CurrMethod.Def.IsStatic)
-				return CurrMethod.ParamTypes[argID].GetCppName(TypeMgr);
-			if (argID == 0)
-				return CurrMethod.DeclType.GetCppName() + '*';
-			return CurrMethod.ParamTypes[argID - 1].GetCppName(TypeMgr);
-		}
-
-		private StackType ArgStackType(int argID)
-		{
-			if (CurrMethod.Def.IsStatic)
-				return ToStackType(CurrMethod.ParamTypes[argID]);
-			if (argID == 0)
-				return StackType.Obj;
-			return ToStackType(CurrMethod.ParamTypes[argID - 1]);
-		}
-
-		private StackType ToStackType(TypeSig sig)
-		{
-			if (sig.IsByRef)
-			{
-				return StackType.Ref;
-			}
-
-			string sigName = sig.FullName;
-			if (sig.IsPointer ||
-				sigName == "System.IntPtr" ||
-				sigName == "System.UIntPtr")
-			{
-				return StackType.Ptr;
-			}
-			if (sigName == "System.SByte" ||
-				sigName == "System.Byte" ||
-				sigName == "System.Int16" ||
-				sigName == "System.UInt16" ||
-				sigName == "System.Int32" ||
-				sigName == "System.UInt32" ||
-				sigName == "System.Boolean" ||
-				sigName == "System.Char")
-			{
-				return StackType.I4;
-			}
-			if (sigName == "System.Int64" ||
-				sigName == "System.UInt64")
-			{
-				return StackType.I8;
-			}
-			if (sigName == "System.Single")
-			{
-				return StackType.R4;
-			}
-			if (sigName == "System.Double")
-			{
-				return StackType.R8;
-			}
-
-			Debug.Assert(!sig.IsValueType);
-			return StackType.Obj;
-		}
 
 		private static bool IsBinoperValid(StackType op1, StackType op2, out StackType retType, Code code)
 		{
