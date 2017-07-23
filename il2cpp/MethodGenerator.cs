@@ -523,16 +523,14 @@ namespace il2cpp
 				case Code.Ldloc_S:
 					{
 						Local loc = (Local)operand;
-						Debug.Assert(loc.Type.Equals(CurrMethod.LocalTypes[loc.Index]));
-						Load(iinfo, ToStackType(loc.Type), LocalName(loc.Index));
+						Load(iinfo, ToStackType(CurrMethod.LocalTypes[loc.Index]), LocalName(loc.Index));
 					}
 					return;
 				case Code.Ldloca:
 				case Code.Ldloca_S:
 					{
 						Local loc = (Local)operand;
-						Debug.Assert(loc.Type.Equals(CurrMethod.LocalTypes[loc.Index]));
-						Load(iinfo, StackType.Ptr, LocalName(loc.Index));
+						Load(iinfo, StackType.Ptr, "&" + LocalName(loc.Index));
 					}
 					return;
 
@@ -552,7 +550,6 @@ namespace il2cpp
 				case Code.Stloc_S:
 					{
 						Local loc = (Local)operand;
-						Debug.Assert(loc.Type.Equals(CurrMethod.LocalTypes[loc.Index]));
 						Store(iinfo, LocalName(loc.Index), CurrMethod.LocalTypes[loc.Index].GetCppName(TypeMgr));
 					}
 					return;
@@ -580,7 +577,7 @@ namespace il2cpp
 				case Code.Ldarga_S:
 					{
 						Parameter arg = (Parameter)operand;
-						Load(iinfo, StackType.Ptr, ArgName(arg.Index));
+						Load(iinfo, StackType.Ptr, "&" + ArgName(arg.Index));
 					}
 					return;
 
