@@ -969,7 +969,7 @@ namespace il2cpp
 		{
 			SlotInfo[] popList = Pop(2);
 
-			if (!IsBinCompareValid(popList[0].SlotType, popList[1].SlotType, code))
+			if (!IsBinaryCompareValid(popList[0].SlotType, popList[1].SlotType, code))
 			{
 				Debug.Fail("Compare Invalid");
 			}
@@ -1055,7 +1055,7 @@ namespace il2cpp
 		{
 			SlotInfo[] popList = Pop(2);
 
-			if (!IsBinOpValid(popList[0].SlotType, popList[1].SlotType, out var retType, iinfo.Code))
+			if (!IsBinaryOpValid(popList[0].SlotType, popList[1].SlotType, out var retType, iinfo.Code))
 			{
 				Debug.Fail("Binary Oper Invalid");
 			}
@@ -1125,7 +1125,7 @@ namespace il2cpp
 			iinfo.CppCode = sb.ToString();
 		}
 
-		private static bool IsBinOpValid(StackType op1, StackType op2, out StackType retType, Code code)
+		private static bool IsBinaryOpValid(StackType op1, StackType op2, out StackType retType, Code code)
 		{
 			retType = StackType.I4;
 			switch (op1)
@@ -1228,7 +1228,22 @@ namespace il2cpp
 			}
 		}
 
-		private static bool IsBinCompareValid(StackType op1, StackType op2, Code code)
+		private static bool IsUnaryOpValid(StackType op, out StackType retType)
+		{
+			retType = op;
+			switch (op)
+			{
+				case StackType.I4:
+				case StackType.I8:
+				case StackType.R4:
+				case StackType.R8:
+				case StackType.Ptr:
+					return true;
+			}
+			return false;
+		}
+
+		private static bool IsBinaryCompareValid(StackType op1, StackType op2, Code code)
 		{
 			switch (op1)
 			{
@@ -1311,6 +1326,28 @@ namespace il2cpp
 				default:
 					throw new ArgumentOutOfRangeException(nameof(op1), op1, null);
 			}
+		}
+
+		private static bool IsIntegerOpValid(StackType op1, StackType op2, out StackType retType)
+		{
+			retType = op2;
+			switch (op1)
+			{
+				case StackType.I4:
+					return op2 == StackType.I4 || op2 == StackType.Ptr;
+
+				case StackType.I8:
+					return op2 == StackType.I8;
+
+				case StackType.Ptr:
+					if (op2 == StackType.I4 || op2 == StackType.Ptr)
+					{
+						retType = StackType.Ptr;
+						return true;
+					}
+					return false;
+			}
+			return false;
 		}
 	}
 }
