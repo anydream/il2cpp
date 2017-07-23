@@ -200,7 +200,7 @@ namespace il2cpp
 				CurrMethod.GetCppName(PrefixMet));
 
 			int argNum = CurrMethod.ParamTypes.Count;
-			if (!CurrMethod.IsStatic)
+			if (!CurrMethod.Def.IsStatic)
 				++argNum;
 
 			for (int i = 0; i < argNum; ++i)
@@ -290,7 +290,7 @@ namespace il2cpp
 
 			if (!CurrMethod.Def.IsVirtual)
 				return;
-			Debug.Assert(!CurrMethod.IsStatic);
+			Debug.Assert(!CurrMethod.Def.IsStatic);
 
 			CodePrinter prt = new CodePrinter();
 
@@ -721,7 +721,7 @@ namespace il2cpp
 						MethodX metX = (MethodX)operand;
 
 						int popCount = metX.ParamTypes.Count;
-						if (!metX.IsStatic)
+						if (!metX.Def.IsStatic)
 							++popCount;
 
 						string prefix;
@@ -1068,7 +1068,7 @@ namespace il2cpp
 
 		private string ArgTypeCppName(int argID)
 		{
-			if (CurrMethod.IsStatic)
+			if (CurrMethod.Def.IsStatic)
 				return CurrMethod.ParamTypes[argID].GetCppName(TypeMgr);
 			if (argID == 0)
 				return CurrMethod.DeclType.GetCppName() + '*';
@@ -1077,7 +1077,7 @@ namespace il2cpp
 
 		private StackType ArgStackType(int argID)
 		{
-			if (CurrMethod.IsStatic)
+			if (CurrMethod.Def.IsStatic)
 				return ToStackType(CurrMethod.ParamTypes[argID]);
 			if (argID == 0)
 				return StackType.Obj;

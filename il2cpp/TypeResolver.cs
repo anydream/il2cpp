@@ -505,9 +505,7 @@ namespace il2cpp
 					VirtOnlyStatus_ = value ? 1 : 2;
 			}
 		}
-
-		public bool IsStatic => Def.IsStatic;
-
+		
 		public string Name => BuildName(false);
 		public string FullName => BuildName(true);
 		public string FullFuncName => BuildFuncName(true);
