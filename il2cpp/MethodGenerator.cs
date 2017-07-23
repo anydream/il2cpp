@@ -171,7 +171,8 @@ namespace il2cpp
 			}
 
 			string codeDecl, codeImpl;
-			GenMetCode(out codeDecl, out codeImpl);
+
+			GenVFtnCode(out codeDecl, out codeImpl);
 			DeclCode += codeDecl;
 			ImplCode += codeImpl;
 
@@ -179,7 +180,7 @@ namespace il2cpp
 			DeclCode += codeDecl;
 			ImplCode += codeImpl;
 
-			GenVFtnCode(out codeDecl, out codeImpl);
+			GenMetCode(out codeDecl, out codeImpl);
 			DeclCode += codeDecl;
 			ImplCode += codeImpl;
 		}
@@ -210,7 +211,7 @@ namespace il2cpp
 				last = true;
 
 				prt.AppendFormat("{0} {1}",
-					ArgTypeName(i),
+					ArgTypeCppName(i),
 					ArgName(i));
 			}
 
@@ -290,7 +291,6 @@ namespace il2cpp
 			Debug.Assert(!CurrMethod.IsStatic);
 
 			CodePrinter prt = new CodePrinter();
-			StringBuilder prtType = new StringBuilder();
 
 			// 构造声明
 			string strRetType = CurrMethod.ReturnType.GetCppName(TypeMgr);
@@ -298,39 +298,46 @@ namespace il2cpp
 				strRetType,
 				CurrMethod.GetCppName(PrefixVMet));
 
-			prtType.AppendFormat("{0}(*)(",
+			// 构造函数指针类型
+			StringBuilder sbFuncPtr = new StringBuilder();
+			sbFuncPtr.AppendFormat("{0}(*)(",
 				strRetType);
 
-			Debug.Assert(!CurrMethod.IsStatic);
+			// 构造参数列表
 			int argNum = CurrMethod.ParamTypes.Count + 1;
-
-			bool last = false;
 			for (int i = 0; i < argNum; ++i)
 			{
-				if (last)
+				if (i != 0)
+				{
 					prt.Append(", ");
-				last = true;
+					sbFuncPtr.Append(", ");
+				}
 
+				string strArgType = ArgTypeCppName(i);
 				prt.AppendFormat("{0} {1}",
-					ArgTypeName(i),
+					strArgType,
 					ArgName(i));
+				sbFuncPtr.Append(strArgType);
 			}
 
 			prt.Append(")");
-			prtType.Append(")");
-			codeDecl = prt.ToString() + ";\n";
+			sbFuncPtr.Append(")");
+			codeDecl = prt + ";\n";
 
 			prt.AppendLine("\n{");
 			++prt.Indents;
+
+			// 构造获得函数指针代码
 			prt.AppendFormatLine("void *pfn = {0}({1}->typeID);",
 				CurrMethod.GetCppName(PrefixVFtn),
 				ArgName(0));
 
+			// 构造调用代码
 			if (!CurrMethod.ReturnType.IsVoidSig())
 				prt.Append("return ");
 
-			prt.AppendFormat("(({0})pfn)(", prtType.ToString());
-			for (int i = 0; i <= CurrMethod.ParamTypes.Count; ++i)
+			prt.AppendFormat("(({0})pfn)(", sbFuncPtr.ToString());
+			for (int i = 0; i < argNum; ++i)
 			{
 				if (i != 0)
 					prt.Append(", ");
@@ -356,8 +363,9 @@ namespace il2cpp
 
 			CodePrinter prt = new CodePrinter();
 			// 构造声明
-			prt.AppendFormat("void* {0}(int typeID)", CurrMethod.GetCppName(PrefixVFtn));
-			codeDecl = prt.ToString() + ";\n";
+			prt.AppendFormat("void* {0}(int typeID)",
+				CurrMethod.GetCppName(PrefixVFtn));
+			codeDecl = prt + ";\n";
 
 			prt.AppendLine("\n{");
 			++prt.Indents;
@@ -579,7 +587,7 @@ namespace il2cpp
 				case Code.Starg_S:
 					{
 						Parameter arg = (Parameter)operand;
-						Store(iinfo, ArgName(arg.Index), ArgTypeName(arg.Index));
+						Store(iinfo, ArgName(arg.Index), ArgTypeCppName(arg.Index));
 					}
 					return;
 
@@ -739,6 +747,7 @@ namespace il2cpp
 
 							NewObj(iinfo,
 								metX.DeclType.GetCppName(),
+								metX.DeclType.GetCppTypeID(),
 								metX.GetCppName(PrefixMet),
 								metX.ParamTypes.Count);
 						}
@@ -1031,16 +1040,17 @@ namespace il2cpp
 			iinfo.CppCode = sb.ToString();
 		}
 
-		private void NewObj(InstructionInfo iinfo, string typeName, string metName, int popCount)
+		private void NewObj(InstructionInfo iinfo, string typeName, uint typeID, string metName, int popCount)
 		{
 			SlotInfo[] popList = Pop(popCount);
 
 			StringBuilder sb = new StringBuilder();
 
 			SlotInfo self = Push(StackType.Obj);
-			sb.AppendFormat("{0} = il2cpp_New(sizeof({1}));\n",
+			sb.AppendFormat("{0} = il2cpp_New(sizeof({1}), {2});\n",
 				SlotInfoName(ref self),
-				typeName);
+				typeName,
+				typeID);
 
 			sb.AppendFormat("{0}({1}",
 				metName,
@@ -1058,7 +1068,7 @@ namespace il2cpp
 			iinfo.CppCode = sb.ToString();
 		}
 
-		private string ArgTypeName(int argID)
+		private string ArgTypeCppName(int argID)
 		{
 			if (CurrMethod.IsStatic)
 				return CurrMethod.ParamTypes[argID].GetCppName(TypeMgr);
