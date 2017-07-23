@@ -290,7 +290,7 @@ namespace il2cpp
 			Debug.Assert(!CurrMethod.IsStatic);
 
 			CodePrinter prt = new CodePrinter();
-			CodePrinter prtType = new CodePrinter();
+			StringBuilder prtType = new StringBuilder();
 
 			// 构造声明
 			string strRetType = CurrMethod.ReturnType.GetCppName(TypeMgr);
@@ -326,7 +326,7 @@ namespace il2cpp
 				CurrMethod.GetCppName(PrefixVFtn),
 				ArgName(0));
 
-			if (CurrMethod.ReturnType.FullName != "System.Void")
+			if (!CurrMethod.ReturnType.IsVoidSig())
 				prt.Append("return ");
 
 			prt.AppendFormat("(({0})pfn)(", prtType.ToString());
@@ -1007,7 +1007,7 @@ namespace il2cpp
 			SlotInfo[] popList = Pop(popCount);
 
 			StringBuilder sb = new StringBuilder();
-			if (retType.FullName != "System.Void")
+			if (!retType.IsVoidSig())
 			{
 				SlotInfo pushed = Push(ToStackType(retType));
 				sb.AppendFormat("{0} = ", SlotInfoName(ref pushed));
