@@ -186,7 +186,7 @@ namespace il2cpp
 				   ch == '_';
 		}
 
-		private static string DigMap = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		private const string DigMap = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		private static string ToRadix(uint value, uint radix)
 		{
 			StringBuilder sb = new StringBuilder();

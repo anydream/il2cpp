@@ -9,15 +9,32 @@ using dnlib.DotNet.Emit;
 namespace il2cpp
 {
 	// 栈槽类型
-	internal enum StackType
+	internal struct StackType
 	{
-		I4,
-		I8,
-		R4,
-		R8,
-		Ptr,
-		Ref,
-		Obj
+		public string TypeName;
+
+		public StackType(string name)
+		{
+			TypeName = name;
+		}
+
+		public const string I4 = "i4";
+		public const string I8 = "i8";
+		public const string R4 = "r4";
+		public const string R8 = "r8";
+		public const string Ptr = "ptr";
+		public const string Ref = "ref";
+		public const string Obj = "obj";
+
+		public static implicit operator StackType(string name)
+		{
+			return new StackType(name);
+		}
+
+		public static implicit operator string(StackType stype)
+		{
+			return stype.TypeName;
+		}
 	}
 
 	// 栈槽信息
@@ -761,9 +778,9 @@ namespace il2cpp
 			}
 		}
 
-		private static readonly string PrefixMet = "met_";
-		private static readonly string PrefixVMet = "vmet_";
-		private static readonly string PrefixVFtn = "vftn_";
+		private const string PrefixMet = "met_";
+		private const string PrefixVMet = "vmet_";
+		private const string PrefixVFtn = "vftn_";
 
 		private static string ArgName(int argID)
 		{
