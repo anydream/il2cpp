@@ -18,6 +18,11 @@ namespace il2cpp
 			TypeName = name;
 		}
 
+		public override string ToString()
+		{
+			return TypeName;
+		}
+
 		public const string I4 = "i4";
 		public const string I8 = "i8";
 		public const string R4 = "r4";
@@ -89,6 +94,10 @@ namespace il2cpp
 		public string DeclCode;
 		// 实现代码
 		public string ImplCode;
+		// 声明依赖的类型
+		public readonly HashSet<string> DeclDependTypes = new HashSet<string>();
+		// 实现依赖的类型
+		public readonly HashSet<string> ImplDependTypes = new HashSet<string>();
 
 		public MethodGenerator(TypeManager typeMgr)
 		{
@@ -156,49 +165,53 @@ namespace il2cpp
 
 		public void Process(MethodX metX)
 		{
-			Debug.Assert(metX.Def.HasBody);
-
 			// 重置数据
 			Reset();
 			CurrMethod = metX;
 			DeclCode = null;
 			ImplCode = null;
+			DeclDependTypes.Clear();
+			ImplDependTypes.Clear();
 
-			// 转换为自定义类型的指令列表
-			var origInstList = CurrMethod.Def.Body.Instructions;
-			InstList = new InstructionInfo[origInstList.Count];
-			for (int i = 0; i < InstList.Length; ++i)
-				InstList[i] = new InstructionInfo(origInstList[i]);
-
-			// 模拟执行
-			int currIP = 0;
-			int nextIP = 0;
-			for (;;)
+			string codeDecl, codeImpl;
+			if (metX.Def.HasBody)
 			{
-				if (ProcessStep(currIP, ref nextIP))
-					currIP = nextIP;
-				else if (Branches.Count > 0)
+				// 转换为自定义类型的指令列表
+				var origInstList = CurrMethod.Def.Body.Instructions;
+				InstList = new InstructionInfo[origInstList.Count];
+				for (int i = 0; i < InstList.Length; ++i)
+					InstList[i] = new InstructionInfo(origInstList[i]);
+
+				// 模拟执行
+				int currIP = 0;
+				int nextIP = 0;
+				for (;;)
 				{
-					var branch = Branches.Dequeue();
-					currIP = branch.Item1;
-					TypeStack = branch.Item2;
+					if (ProcessStep(currIP, ref nextIP))
+						currIP = nextIP;
+					else if (Branches.Count > 0)
+					{
+						var branch = Branches.Dequeue();
+						currIP = branch.Item1;
+						TypeStack = branch.Item2;
+					}
+					else
+						break;
 				}
-				else
-					break;
+
+				// 生成实现代码
+				GenMetCode(out codeDecl, out codeImpl);
+				DeclCode += codeDecl;
+				ImplCode += codeImpl;
 			}
 
-			// 生成代码
-			string codeDecl, codeImpl;
-
+			// 生成虚查询代码
 			GenVFtnCode(out codeDecl, out codeImpl);
 			DeclCode += codeDecl;
 			ImplCode += codeImpl;
 
+			// 生成虚调用代码
 			GenVMetCode(out codeDecl, out codeImpl);
-			DeclCode += codeDecl;
-			ImplCode += codeImpl;
-
-			GenMetCode(out codeDecl, out codeImpl);
 			DeclCode += codeDecl;
 			ImplCode += codeImpl;
 
@@ -210,10 +223,14 @@ namespace il2cpp
 		{
 			CodePrinter prt = new CodePrinter();
 
+			string retTypeName = CurrMethod.ReturnType.GetCppName(TypeMgr);
+			if (CurrMethod.ReturnType.IsValueType)
+				DeclDependTypes.Add(retTypeName);
+
 			// 构造声明
 			prt.AppendFormat("// {0}\n{1} {2}(",
 				CurrMethod.FullName,
-				CurrMethod.ReturnType.GetCppName(TypeMgr),
+				retTypeName,
 				CurrMethod.GetCppName(PrefixMet));
 
 			int argNum = CurrMethod.ParamTypes.Count;
@@ -312,15 +329,15 @@ namespace il2cpp
 			CodePrinter prt = new CodePrinter();
 
 			// 构造声明
-			string strRetType = CurrMethod.ReturnType.GetCppName(TypeMgr);
+			string retTypeName = CurrMethod.ReturnType.GetCppName(TypeMgr);
 			prt.AppendFormat("{0} {1}(",
-				strRetType,
+				retTypeName,
 				CurrMethod.GetCppName(PrefixVMet));
 
 			// 构造函数指针类型
 			StringBuilder sbFuncPtr = new StringBuilder();
 			sbFuncPtr.AppendFormat("{0}(*)(",
-				strRetType);
+				retTypeName);
 
 			// 构造参数列表
 			int argNum = CurrMethod.ParamTypes.Count + 1;
@@ -332,11 +349,11 @@ namespace il2cpp
 					sbFuncPtr.Append(", ");
 				}
 
-				string strArgType = ArgTypeCppName(i);
+				string argTypeName = ArgTypeCppName(i);
 				prt.AppendFormat("{0} {1}",
-					strArgType,
+					argTypeName,
 					ArgName(i));
-				sbFuncPtr.Append(strArgType);
+				sbFuncPtr.Append(argTypeName);
 			}
 
 			prt.Append(")");
@@ -824,7 +841,7 @@ namespace il2cpp
 				case StackType.Obj:
 					return "void*";
 				default:
-					throw new ArgumentOutOfRangeException(nameof(stype), stype, null);
+					return stype;
 			}
 		}
 
@@ -867,7 +884,11 @@ namespace il2cpp
 				return StackType.R8;
 			}
 
-			Debug.Assert(!sig.IsValueType);
+			if (sig.IsValueType)
+			{
+				return sig.GetCppName(TypeMgr);
+			}
+
 			return StackType.Obj;
 		}
 
@@ -876,7 +897,7 @@ namespace il2cpp
 			if (CurrMethod.Def.IsStatic)
 				return CurrMethod.ParamTypes[argID].GetCppName(TypeMgr);
 			if (argID == 0)
-				return CurrMethod.DeclType.GetCppName() + '*';
+				return CurrMethod.DeclType.GetCppName() + "*";
 			return CurrMethod.ParamTypes[argID - 1].GetCppName(TypeMgr);
 		}
 
@@ -1109,7 +1130,7 @@ namespace il2cpp
 				sb.Append(SlotInfoName(ref arg));
 			}
 
-			sb.Append(')');
+			sb.Append(")");
 
 			iinfo.CppCode = sb.ToString();
 		}
@@ -1137,7 +1158,7 @@ namespace il2cpp
 					SlotInfoName(ref arg));
 			}
 
-			sb.Append(')');
+			sb.Append(")");
 
 			iinfo.CppCode = sb.ToString();
 		}

@@ -343,9 +343,6 @@ namespace il2cpp
 		public readonly Dictionary<MethodSignature, HashSet<TypeX>> OverrideImplTypes =
 			new Dictionary<MethodSignature, HashSet<TypeX>>();
 
-		// 依赖的类型
-		public readonly HashSet<TypeX> DependTypes = new HashSet<TypeX>();
-
 		// 虚表
 		public VirtualTable VTable;
 
@@ -363,9 +360,6 @@ namespace il2cpp
 
 		public string CppName_;
 		public uint CppTypeID_;
-
-		private uint SortedID_;
-		public CppCompileUnit CppUnit;
 
 		public TypeX(TypeDef typeDef)
 		{
@@ -397,22 +391,6 @@ namespace il2cpp
 		public override string ToString()
 		{
 			return FullName;
-		}
-
-		public void AddDepends(TypeX tyX)
-		{
-			DependTypes.Add(tyX);
-		}
-
-		public uint GetSortedID()
-		{
-			if (SortedID_ == 0)
-			{
-				foreach (var dep in DependTypes)
-					SortedID_ = Math.Max(SortedID_, dep.GetSortedID());
-				++SortedID_;
-			}
-			return SortedID_;
 		}
 
 		public bool AddMethod(MethodX metX, out MethodX ometX)
@@ -505,7 +483,7 @@ namespace il2cpp
 					VirtOnlyStatus_ = value ? 1 : 2;
 			}
 		}
-		
+
 		public string Name => BuildName(false);
 		public string FullName => BuildName(true);
 		public string FullFuncName => BuildFuncName(true);
@@ -782,8 +760,6 @@ namespace il2cpp
 						if (resMetX == null)
 							break;
 
-						currType.AddDepends(resMetX.DeclType);
-
 						// 添加虚方法入口
 						if (resMetX.Def.IsVirtual &&
 							(inst.OpCode.Code == Code.Callvirt ||
@@ -856,8 +832,6 @@ namespace il2cpp
 								Debug.Fail("InlineField " + inst.Operand.GetType().Name);
 								break;
 						}
-
-						currType.AddDepends(resFldX.DeclType);
 
 						// 遇到静态字段
 						if (resFldX.Def.IsStatic)
@@ -1005,10 +979,8 @@ namespace il2cpp
 
 			// 展开类型内的泛型类型
 			if (tyX.Def.BaseType != null)
-			{
 				tyX.BaseType = ResolveInstanceType(tyX.Def.BaseType, replacer);
-				tyX.AddDepends(tyX.BaseType);
-			}
+
 			if (tyX.Def.HasInterfaces)
 			{
 				foreach (var inf in tyX.Def.Interfaces)

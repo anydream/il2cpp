@@ -1,10 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace il2cpp
 {
+	// 类型对应的代码
+	class TypeCppCode
+	{
+		// 类型名
+		public readonly string Name;
+		// 声明代码
+		public string DeclCode;
+		// 实现代码
+		public string ImplCode;
+		// 声明依赖的类型
+		public readonly HashSet<string> DeclDependTypes = new HashSet<string>();
+		// 实现依赖的类型
+		public readonly HashSet<string> ImplDependTypes = new HashSet<string>();
+
+		public TypeCppCode(string name)
+		{
+			Name = name;
+		}
+	}
+
 	// 类型生成器
 	public class TypeGenerator
 	{
@@ -13,16 +30,8 @@ namespace il2cpp
 		// 方法生成器
 		private readonly MethodGenerator MethodGen;
 
-		// 当前类型
-		private TypeX CurrType;
-
-		// 声明代码
-		public string DeclCode;
-		// 实现代码
-		public string ImplCode;
-
-		private readonly List<CppCompileUnit> CppUnitList = new List<CppCompileUnit>();
-		private int CppNameCounter;
+		// 类型代码映射
+		private readonly Dictionary<string, TypeCppCode> CodeMap = new Dictionary<string, TypeCppCode>();
 
 		public TypeGenerator(TypeManager typeMgr)
 		{
@@ -33,102 +42,92 @@ namespace il2cpp
 		public void GenerateAll()
 		{
 			NameHelper.Reset();
-			CppNameCounter = 0;
 
-			var types = TypeMgr.Types;
-			foreach (var type in types)
+			// 生成所有类型
+			foreach (var type in TypeMgr.Types)
 			{
 				ProcessType(type);
-				SelectCppUnit().AddType(type, DeclCode, ImplCode);
-			}
-
-			foreach (var unit in CppUnitList)
-			{
-				unit.GenerateCode();
-
-				Console.WriteLine("// [{0}.h]\n{1}\n// [{0}.cpp]\n{2}",
-					unit.Name,
-					unit.DeclCode,
-					unit.ImplCode);
 			}
 		}
 
-		private CppCompileUnit SelectCppUnit()
+		private void ProcessType(TypeX currType)
 		{
-			CppCompileUnit curr;
-			if (CppUnitList.Count > 0)
-			{
-				curr = CppUnitList[CppUnitList.Count - 1];
-				if (curr.ImplCodeCounter <= 30000)
-					return curr;
-			}
-
-			curr = new CppCompileUnit(GenCppUnitName());
-			CppUnitList.Add(curr);
-
-			return curr;
-		}
-
-		private string GenCppUnitName()
-		{
-			return "CppUnit_" + CppNameCounter++;
-		}
-
-		private void ProcessType(TypeX tyX)
-		{
-			CurrType = tyX;
-			DeclCode = null;
-			ImplCode = null;
-
 			// 生成类型结构体代码
-			GenDeclCode();
+			TypeCppCode cppCode = GenDeclCode(currType);
 
 			// 生成方法代码
-			foreach (var metX in CurrType.Methods)
+			foreach (var metX in currType.Methods)
 			{
 				MethodGen.Process(metX);
-				DeclCode += MethodGen.DeclCode;
-				ImplCode += MethodGen.ImplCode;
+
+				cppCode.DeclCode += MethodGen.DeclCode;
+				cppCode.ImplCode += MethodGen.ImplCode;
+
+				cppCode.DeclDependTypes.UnionWith(MethodGen.DeclDependTypes);
+				cppCode.ImplDependTypes.UnionWith(MethodGen.ImplDependTypes);
 			}
 		}
 
-		private void GenDeclCode()
+		private TypeCppCode GenDeclCode(TypeX currType)
 		{
 			CodePrinter prt = new CodePrinter();
-			prt.AppendFormatLine("// {0}, {1}",
-				CurrType.FullName,
-				CurrType.RuntimeVersion);
 
-			if (CurrType.BaseType != null)
+			// 构造类型注释
+			prt.AppendFormatLine("// {0}, {1}",
+				currType.FullName,
+				currType.RuntimeVersion);
+
+			// 构造类型结构体代码
+			string typeName;
+			string baseTypeName = null;
+			if (currType.BaseType != null)
 			{
-				string baseName = CurrType.BaseType.GetCppName();
+				baseTypeName = currType.BaseType.GetCppName();
+				typeName = currType.GetCppName();
 				prt.AppendFormatLine("struct {0} : {1}\n{{",
-					CurrType.GetCppName(),
-					baseName);
+					typeName,
+					baseTypeName);
 			}
 			else
 			{
+				typeName = currType.GetCppName();
 				prt.AppendFormatLine("struct {0}\n{{",
-					CurrType.GetCppName());
+					typeName);
 			}
+
+			// 添加代码映射
+			TypeCppCode cppCode = new TypeCppCode(typeName);
+			CodeMap.Add(typeName, cppCode);
+
+			// 添加基类型依赖
+			if (baseTypeName != null)
+				cppCode.DeclDependTypes.Add(baseTypeName);
+
 			++prt.Indents;
 
-			foreach (var fldX in CurrType.Fields)
+			// 构造结构体成员
+			foreach (var fldX in currType.Fields)
 			{
+				string fieldTypeName = fldX.FieldType.GetCppName(TypeMgr);
 				prt.AppendFormatLine("// {0}\n{1} {2};",
 					fldX.PrettyName(),
-					fldX.FieldType.GetCppName(TypeMgr),
+					fieldTypeName,
 					fldX.GetCppName());
+
+				// 添加字段类型依赖
+				if (fldX.FieldType.IsValueType)
+					cppCode.DeclDependTypes.Add(fieldTypeName);
 			}
 
 			--prt.Indents;
 			prt.AppendLine("};");
 
-			DeclCode += prt.ToString();
+			cppCode.DeclCode = prt.ToString();
+			return cppCode;
 		}
 	}
 
-	public class CppCompileUnit
+	/*public class CppCompileUnit
 	{
 		private class CodeInfo
 		{
@@ -150,7 +149,7 @@ namespace il2cpp
 		public readonly string Name;
 		public string DeclCode;
 		public string ImplCode;
-		public int ImplCodeCounter;
+		public int ImplCodeCounter { get; private set; }
 
 		public CppCompileUnit(string name)
 		{
@@ -178,15 +177,20 @@ namespace il2cpp
 			sbDecl.AppendLine("#pragma once");
 			sbImpl.AppendFormat("#include \"{0}.h\"\n", Name);
 
+			HashSet<string> nameSet = new HashSet<string>();
 			foreach (var type in DependTypes)
 			{
 				foreach (var dep in type.DependTypes)
 				{
 					if (dep.CppUnit != this)
 					{
-						sbDecl.AppendFormat("#include \"{0}.h\"\n", dep.CppUnit.Name);
+						nameSet.Add(dep.CppUnit.Name);
 					}
 				}
+			}
+			foreach (var name in nameSet)
+			{
+				sbDecl.AppendFormat("#include \"{0}.h\"\n", name);
 			}
 
 			CodeInfoList.Sort((x, y) => x.CodeType.GetSortedID().CompareTo(y.CodeType.GetSortedID()));
@@ -200,5 +204,5 @@ namespace il2cpp
 			DeclCode = sbDecl.ToString();
 			ImplCode = sbImpl.ToString();
 		}
-	}
+	}*/
 }
