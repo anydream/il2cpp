@@ -233,17 +233,15 @@ namespace il2cpp
 				retTypeName,
 				CurrMethod.GetCppName(PrefixMet));
 
+			// 构造参数列表
 			int argNum = CurrMethod.ParamTypes.Count;
-			if (!CurrMethod.Def.IsStatic)
-				++argNum;
-
 			for (int i = 0; i < argNum; ++i)
 			{
 				if (i != 0)
 					prt.Append(", ");
 
 				prt.AppendFormat("{0} {1}",
-					ArgTypeCppName(i),
+					CurrMethod.ParamTypes[i].GetCppName(TypeMgr),
 					ArgName(i));
 			}
 
@@ -340,7 +338,7 @@ namespace il2cpp
 				retTypeName);
 
 			// 构造参数列表
-			int argNum = CurrMethod.ParamTypes.Count + 1;
+			int argNum = CurrMethod.ParamTypes.Count;
 			for (int i = 0; i < argNum; ++i)
 			{
 				if (i != 0)
@@ -349,7 +347,7 @@ namespace il2cpp
 					sbFuncPtr.Append(", ");
 				}
 
-				string argTypeName = ArgTypeCppName(i);
+				string argTypeName = CurrMethod.ParamTypes[i].GetCppName(TypeMgr);
 				prt.AppendFormat("{0} {1}",
 					argTypeName,
 					ArgName(i));
@@ -589,22 +587,22 @@ namespace il2cpp
 					return;
 
 				case Code.Ldarg_0:
-					Load(iinfo, ArgStackType(0), ArgName(0));
+					Load(iinfo, ToStackType(CurrMethod.ParamTypes[0]), ArgName(0));
 					return;
 				case Code.Ldarg_1:
-					Load(iinfo, ArgStackType(1), ArgName(1));
+					Load(iinfo, ToStackType(CurrMethod.ParamTypes[1]), ArgName(1));
 					return;
 				case Code.Ldarg_2:
-					Load(iinfo, ArgStackType(2), ArgName(2));
+					Load(iinfo, ToStackType(CurrMethod.ParamTypes[2]), ArgName(2));
 					return;
 				case Code.Ldarg_3:
-					Load(iinfo, ArgStackType(3), ArgName(3));
+					Load(iinfo, ToStackType(CurrMethod.ParamTypes[3]), ArgName(3));
 					return;
 				case Code.Ldarg:
 				case Code.Ldarg_S:
 					{
 						Parameter arg = (Parameter)operand;
-						Load(iinfo, ArgStackType(arg.Index), ArgName(arg.Index));
+						Load(iinfo, ToStackType(CurrMethod.ParamTypes[arg.Index]), ArgName(arg.Index));
 					}
 					return;
 				case Code.Ldarga:
@@ -619,7 +617,7 @@ namespace il2cpp
 				case Code.Starg_S:
 					{
 						Parameter arg = (Parameter)operand;
-						Store(iinfo, ArgName(arg.Index), ArgTypeCppName(arg.Index));
+						Store(iinfo, ArgName(arg.Index), CurrMethod.ParamTypes[arg.Index].GetCppName(TypeMgr));
 					}
 					return;
 
@@ -754,10 +752,6 @@ namespace il2cpp
 					{
 						MethodX metX = (MethodX)operand;
 
-						int popCount = metX.ParamTypes.Count;
-						if (!metX.Def.IsStatic)
-							++popCount;
-
 						string prefix;
 						if (iinfo.Code == Code.Callvirt && metX.Def.IsVirtual)
 							prefix = PrefixVMet;
@@ -766,7 +760,7 @@ namespace il2cpp
 
 						Call(iinfo,
 							metX.GetCppName(prefix),
-							popCount,
+							metX.ParamTypes.Count,
 							metX.ReturnType);
 					}
 					return;
@@ -776,12 +770,13 @@ namespace il2cpp
 						if (operand is MethodX metX)
 						{
 							Debug.Assert(metX.Def.IsConstructor);
+							Debug.Assert(!metX.Def.IsStatic);
 
 							NewObj(iinfo,
 								metX.DeclType.GetCppName(),
 								metX.DeclType.GetCppTypeID(),
 								metX.GetCppName(PrefixMet),
-								metX.ParamTypes.Count);
+								metX.ParamTypes.Count - 1);
 						}
 						else
 						{
@@ -890,24 +885,6 @@ namespace il2cpp
 			}
 
 			return StackType.Obj;
-		}
-
-		private string ArgTypeCppName(int argID)
-		{
-			if (CurrMethod.Def.IsStatic)
-				return CurrMethod.ParamTypes[argID].GetCppName(TypeMgr);
-			if (argID == 0)
-				return CurrMethod.DeclType.GetCppName() + "*";
-			return CurrMethod.ParamTypes[argID - 1].GetCppName(TypeMgr);
-		}
-
-		private StackType ArgStackType(int argID)
-		{
-			if (CurrMethod.Def.IsStatic)
-				return ToStackType(CurrMethod.ParamTypes[argID]);
-			if (argID == 0)
-				return StackType.Obj;
-			return ToStackType(CurrMethod.ParamTypes[argID - 1]);
 		}
 
 		private void Load(InstructionInfo iinfo, StackType stype, string rval)

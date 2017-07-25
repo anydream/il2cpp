@@ -1271,7 +1271,22 @@ namespace il2cpp
 
 			// 展开方法内的泛型类型
 			metX.ReturnType = ResolveTypeSig(metX.Def.ReturnType, replacer);
-			metX.ParamTypes = ResolveTypeSigList(metX.Def.MethodSig.Params, replacer);
+
+			// 构建参数类型列表
+			List<TypeSig> paramSigs = new List<TypeSig>();
+			if (!metX.Def.IsStatic)
+			{
+				Debug.Assert(metX.Def.HasThis);
+				// 添加 this 类型
+				paramSigs.Add(metX.Def.Parameters[0].Type);
+			}
+			else
+				Debug.Assert(!metX.Def.HasThis);
+
+			paramSigs.AddRange(metX.Def.MethodSig.Params);
+
+			// 展开参数类型
+			metX.ParamTypes = ResolveTypeSigList(paramSigs, replacer);
 
 			// 展开临时变量类型
 			if (metX.Def.HasBody && metX.Def.Body.HasVariables)
