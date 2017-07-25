@@ -241,14 +241,21 @@ namespace il2cpp
 				PrettyName((GenericArgs)self));
 
 			sb.Append('(');
+
+			int i = 0;
+			if (!self.Def.IsStatic)
+				i = 1;
+
 			bool last = false;
-			foreach (var arg in self.ParamTypes)
+			for (; i < self.ParamTypes.Count; ++i)
 			{
 				if (last)
 					sb.Append(',');
 				last = true;
+				var arg = self.ParamTypes[i];
 				PrettyName(sb, arg);
 			}
+
 			sb.Append(')');
 
 			return sb.ToString();

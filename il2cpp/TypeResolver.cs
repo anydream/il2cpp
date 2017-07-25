@@ -552,12 +552,17 @@ namespace il2cpp
 				sb.Append("<?>");
 			else
 			{
+				int i = 0;
+				if (!Def.IsStatic)
+					i = 1;
+
 				bool last = false;
-				foreach (var arg in ParamTypes)
+				for (; i < ParamTypes.Count; ++i)
 				{
 					if (last)
 						sb.Append(',');
 					last = true;
+					var arg = ParamTypes[i];
 					sb.Append(arg.FullName);
 				}
 			}
