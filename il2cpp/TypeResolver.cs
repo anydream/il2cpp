@@ -450,6 +450,24 @@ namespace il2cpp
 		}
 	}
 
+	// 包装的指令
+	public class InstructionInfo
+	{
+		public OpCode OpCode;
+		public object Operand;
+		public int Offset;
+
+		public bool IsBrTarget;
+		public bool IsProcessed;
+		public string CppCode;
+
+		public override string ToString()
+		{
+			return CppCode != null ? string.Format("{0}{1}", (IsBrTarget ? Offset + ": " : ""), CppCode) :
+				string.Format("{0}: {1} {2}{3}", Offset, OpCode, Operand, IsProcessed ? " √" : "");
+		}
+	}
+
 	// 展开的方法
 	public class MethodX : GenericArgs
 	{
@@ -465,13 +483,18 @@ namespace il2cpp
 		// 临时变量映射
 		public IList<TypeSig> LocalTypes;
 
+		// 指令列表
+		public InstructionInfo[] InstList;
+		public bool HasInstList => InstList != null;
+
 		// 方法覆盖集合
 		private HashSet<MethodX> OverrideImpls_;
 		public HashSet<MethodX> OverrideImpls => OverrideImpls_ ?? (OverrideImpls_ = new HashSet<MethodX>(new MethodRefComparer()));
 		public bool HasOverrideImpls => OverrideImpls_ != null && OverrideImpls_.Count > 0;
 
-		// 是否在处理队列中
-		public bool IsQueueing;
+		// 是否已处理过
+		public bool IsProcessed;
+
 		// 是否为纯虚方法
 		private int VirtOnlyStatus_;
 		public bool IsCallVirtOnly
@@ -495,6 +518,68 @@ namespace il2cpp
 			Def = metDef;
 			DeclType = declType;
 			SetGenericArgs(genArgs);
+
+			BuildInstructions();
+		}
+
+		private void BuildInstructions()
+		{
+			if (!Def.HasBody)
+				return;
+
+			List<int> branchIndices = new List<int>();
+			Dictionary<uint, int> offsetMap = new Dictionary<uint, int>();
+
+			var origInstList = Def.Body.Instructions;
+			InstList = new InstructionInfo[origInstList.Count];
+			// 构造指令列表
+			for (int i = 0; i < InstList.Length; ++i)
+			{
+				var origInst = origInstList[i];
+
+				// 记录分支指令索引
+				if (origInst.Operand is Instruction || origInst.Operand is Instruction[])
+					branchIndices.Add(i);
+
+				// 记录偏移量映射
+				offsetMap.Add(origInst.Offset, i);
+
+				InstList[i] = new InstructionInfo
+				{
+					OpCode = origInst.OpCode,
+					Operand = origInst.Operand,
+					Offset = i
+				};
+			}
+
+			// 重建跳转指令操作数
+			foreach (int idx in branchIndices)
+			{
+				switch (origInstList[idx].Operand)
+				{
+					case Instruction branchInst:
+						{
+							InstructionInfo targetInst = InstList[offsetMap[branchInst.Offset]];
+							targetInst.IsBrTarget = true;
+							InstList[idx].Operand = targetInst;
+						}
+						break;
+
+					case Instruction[] branchInstList:
+						{
+							InstructionInfo[] targets = new InstructionInfo[branchInstList.Length];
+							for (int i = 0; i < targets.Length; ++i)
+							{
+								InstructionInfo targetInst = InstList[offsetMap[branchInstList[i].Offset]];
+								targetInst.IsBrTarget = true;
+								targets[i] = targetInst;
+							}
+
+							InstList[idx].Operand = targets;
+						}
+						break;
+				}
+			}
 		}
 
 		public override int GetHashCode()
@@ -706,14 +791,20 @@ namespace il2cpp
 				{
 					// 取出一个待处理方法
 					MethodX currMetX = PendingMets.Dequeue();
-					currMetX.IsQueueing = false;
+
+					// 跳过已处理过的方法
+					if (currMetX.IsProcessed)
+						continue;
 
 					// 跳过纯虚方法
 					if (currMetX.IsCallVirtOnly)
 						continue;
 
-					// 跳过无方法体的方法
-					if (!currMetX.Def.HasBody)
+					// 设置为已处理过
+					currMetX.IsProcessed = true;
+
+					// 跳过不包含的方法
+					if (!currMetX.HasInstList)
 						continue;
 
 					// 构建方法内的泛型展开器
@@ -722,11 +813,9 @@ namespace il2cpp
 					replacer.SetMethod(currMetX);
 
 					// 遍历并解析指令
-					var instList = currMetX.Def.Body.Instructions;
-					for (int i = 0; i < instList.Count; ++i)
+					foreach (var inst in currMetX.InstList)
 					{
-						instList[i].Offset = (uint)i;
-						ResolveInstruction(currMetX.DeclType, instList[i], replacer);
+						ResolveInstruction(currMetX.DeclType, inst, replacer);
 					}
 
 				} while (PendingMets.Count > 0);
@@ -736,7 +825,7 @@ namespace il2cpp
 		}
 
 		// 解析指令
-		private void ResolveInstruction(TypeX currType, Instruction inst, GenericReplacer replacer)
+		private void ResolveInstruction(TypeX currType, InstructionInfo inst, GenericReplacer replacer)
 		{
 			switch (inst.OpCode.OperandType)
 			{
@@ -758,8 +847,7 @@ namespace il2cpp
 								break;
 
 							default:
-								Debug.Fail("InlineMethod " + inst.Operand.GetType().Name);
-								break;
+								throw new ArgumentOutOfRangeException("InlineMethod " + inst.Operand.GetType().Name);
 						}
 
 						if (resMetX == null)
@@ -797,12 +885,9 @@ namespace il2cpp
 							}
 						}
 
-						// 遇到静态方法
+						// 生成静态构造方法
 						if (resMetX.Def.IsStatic)
-						{
-							// 生成静态构造方法
 							GenStaticCctor(resMetX.DeclType);
-						}
 
 						// 遇到对象创建
 						if (inst.OpCode.Code == Code.Newobj)
@@ -834,16 +919,12 @@ namespace il2cpp
 								break;
 
 							default:
-								Debug.Fail("InlineField " + inst.Operand.GetType().Name);
-								break;
+								throw new ArgumentOutOfRangeException("InlineField " + inst.Operand.GetType().Name);
 						}
 
-						// 遇到静态字段
+						// 生成静态构造方法
 						if (resFldX.Def.IsStatic)
-						{
-							// 生成静态构造方法
 							GenStaticCctor(resFldX.DeclType);
-						}
 
 						inst.Operand = resFldX;
 						break;
@@ -1257,10 +1338,10 @@ namespace il2cpp
 		// 新方法加入处理队列
 		private void AddPendingMethod(MethodX metX)
 		{
-			if (metX.IsQueueing)
+			// 跳过已处理过的方法
+			if (metX.IsProcessed)
 				return;
 
-			metX.IsQueueing = true;
 			PendingMets.Enqueue(metX);
 		}
 

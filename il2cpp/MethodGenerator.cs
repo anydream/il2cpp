@@ -49,29 +49,6 @@ namespace il2cpp
 		public int StackIndex;
 	}
 
-	// 包装的指令
-	internal class InstructionInfo
-	{
-		public Instruction Inst;
-		public Code Code;
-
-		public bool IsProcessed;
-		public bool IsBrTarget;
-		public string CppCode;
-
-		public InstructionInfo(Instruction inst)
-		{
-			Inst = inst;
-			Code = inst.OpCode.Code;
-		}
-
-		public override string ToString()
-		{
-			return CppCode != null ? string.Format("{0}{1}", (IsBrTarget ? Inst.Offset + ": " : ""), CppCode) :
-				string.Format("{0}{1}", Inst, IsProcessed ? " √" : "");
-		}
-	}
-
 	// 方法生成器
 	public class MethodGenerator
 	{
@@ -80,8 +57,6 @@ namespace il2cpp
 
 		// 当前方法
 		private MethodX CurrMethod;
-		// 指令列表
-		private InstructionInfo[] InstList;
 
 		// 当前类型栈
 		private Stack<StackType> TypeStack = new Stack<StackType>();
@@ -157,7 +132,6 @@ namespace il2cpp
 		private void Reset()
 		{
 			CurrMethod = null;
-			InstList = null;
 			TypeStack.Clear();
 			SlotMap.Clear();
 			Branches.Clear();
@@ -174,14 +148,8 @@ namespace il2cpp
 			ImplDependTypes.Clear();
 
 			string codeDecl, codeImpl;
-			if (metX.Def.HasBody)
+			if (metX.HasInstList)
 			{
-				// 转换为自定义类型的指令列表
-				var origInstList = CurrMethod.Def.Body.Instructions;
-				InstList = new InstructionInfo[origInstList.Count];
-				for (int i = 0; i < InstList.Length; ++i)
-					InstList[i] = new InstructionInfo(origInstList[i]);
-
 				// 模拟执行
 				int currIP = 0;
 				int nextIP = 0;
@@ -283,10 +251,10 @@ namespace il2cpp
 			}
 
 			// 构造指令代码
-			foreach (var iinfo in InstList)
+			foreach (var inst in CurrMethod.InstList)
 			{
 				// 跳转标签
-				if (iinfo.IsBrTarget)
+				if (inst.IsBrTarget)
 				{
 					bool isDec = false;
 					if (prt.Indents > 0)
@@ -295,16 +263,16 @@ namespace il2cpp
 						--prt.Indents;
 					}
 
-					prt.AppendLine(LabelName(iinfo.Inst.Offset) + ":");
+					prt.AppendLine(LabelName(inst.Offset) + ":");
 
 					if (isDec)
 						++prt.Indents;
 				}
 
 				// 指令代码
-				if (iinfo.CppCode != null)
+				if (inst.CppCode != null)
 				{
-					prt.AppendLine(iinfo.CppCode + ";");
+					prt.AppendLine(inst.CppCode + ";");
 				}
 			}
 
@@ -425,12 +393,13 @@ namespace il2cpp
 
 		private bool ProcessStep(int currIP, ref int nextIP)
 		{
-			var iinfo = InstList[currIP];
-			if (iinfo.IsProcessed)
+			var inst = CurrMethod.InstList[currIP];
+			if (inst.IsProcessed)
 				return false;
-			iinfo.IsProcessed = true;
+			inst.IsProcessed = true;
 
-			switch (iinfo.Code)
+			OpCode opCode = inst.OpCode;
+			switch (opCode.Code)
 			{
 				case Code.Nop:
 					break;
@@ -444,28 +413,28 @@ namespace il2cpp
 					break;
 
 				default:
-					ProcessInstruction(iinfo);
+					ProcessInstruction(inst);
 					break;
 			}
 
+			object operand = inst.Operand;
 			// 计算下一指令位置
-			switch (iinfo.Inst.OpCode.FlowControl)
+			switch (opCode.FlowControl)
 			{
 				case FlowControl.Branch:
-					nextIP = (int)((Instruction)iinfo.Inst.Operand).Offset;
+					nextIP = ((InstructionInfo)operand).Offset;
 					return true;
 
 				case FlowControl.Cond_Branch:
-					if (iinfo.Code == Code.Switch)
+					if (opCode.Code == Code.Switch)
 					{
-						Instruction[] targetList = (Instruction[])iinfo.Inst.Operand;
-						foreach (Instruction targetInst in targetList)
-							AddBranch((int)targetInst.Offset);
+						InstructionInfo[] targets = (InstructionInfo[])operand;
+						foreach (InstructionInfo targetInst in targets)
+							AddBranch(targetInst.Offset);
 					}
 					else
 					{
-						int targetIP = (int)((Instruction)iinfo.Inst.Operand).Offset;
-						AddBranch(targetIP);
+						AddBranch(((InstructionInfo)operand).Offset);
 					}
 					nextIP = currIP + 1;
 					return true;
@@ -487,129 +456,130 @@ namespace il2cpp
 			return false;
 		}
 
-		private void ProcessInstruction(InstructionInfo iinfo)
+		private void ProcessInstruction(InstructionInfo inst)
 		{
-			object operand = iinfo.Inst.Operand;
+			OpCode opCode = inst.OpCode;
+			object operand = inst.Operand;
 
-			switch (iinfo.Code)
+			switch (opCode.Code)
 			{
 				case Code.Ldc_I4_M1:
-					Load(iinfo, StackType.I4, "-1");
+					Load(inst, StackType.I4, "-1");
 					return;
 				case Code.Ldc_I4_0:
-					Load(iinfo, StackType.I4, "0");
+					Load(inst, StackType.I4, "0");
 					return;
 				case Code.Ldc_I4_1:
-					Load(iinfo, StackType.I4, "1");
+					Load(inst, StackType.I4, "1");
 					return;
 				case Code.Ldc_I4_2:
-					Load(iinfo, StackType.I4, "2");
+					Load(inst, StackType.I4, "2");
 					return;
 				case Code.Ldc_I4_3:
-					Load(iinfo, StackType.I4, "3");
+					Load(inst, StackType.I4, "3");
 					return;
 				case Code.Ldc_I4_4:
-					Load(iinfo, StackType.I4, "4");
+					Load(inst, StackType.I4, "4");
 					return;
 				case Code.Ldc_I4_5:
-					Load(iinfo, StackType.I4, "5");
+					Load(inst, StackType.I4, "5");
 					return;
 				case Code.Ldc_I4_6:
-					Load(iinfo, StackType.I4, "6");
+					Load(inst, StackType.I4, "6");
 					return;
 				case Code.Ldc_I4_7:
-					Load(iinfo, StackType.I4, "7");
+					Load(inst, StackType.I4, "7");
 					return;
 				case Code.Ldc_I4_8:
-					Load(iinfo, StackType.I4, "8");
+					Load(inst, StackType.I4, "8");
 					return;
 				case Code.Ldc_I4_S:
-					Load(iinfo, StackType.I4, ((sbyte)iinfo.Inst.Operand).ToString());
+					Load(inst, StackType.I4, ((sbyte)operand).ToString());
 					return;
 				case Code.Ldc_I4:
-					Load(iinfo, StackType.I4, ((int)iinfo.Inst.Operand).ToString());
+					Load(inst, StackType.I4, ((int)operand).ToString());
 					return;
 				case Code.Ldc_I8:
-					Load(iinfo, StackType.I8, ((long)iinfo.Inst.Operand).ToString());
+					Load(inst, StackType.I8, ((long)operand).ToString());
 					return;
 				case Code.Ldc_R4:
-					Load(iinfo, StackType.R4, ((float)iinfo.Inst.Operand).ToString(CultureInfo.InvariantCulture));
+					Load(inst, StackType.R4, ((float)operand).ToString(CultureInfo.InvariantCulture));
 					return;
 				case Code.Ldc_R8:
-					Load(iinfo, StackType.R8, ((double)iinfo.Inst.Operand).ToString(CultureInfo.InvariantCulture));
+					Load(inst, StackType.R8, ((double)operand).ToString(CultureInfo.InvariantCulture));
 					return;
 
 				case Code.Ldloc_0:
-					Load(iinfo, ToStackType(CurrMethod.LocalTypes[0]), LocalName(0));
+					Load(inst, ToStackType(CurrMethod.LocalTypes[0]), LocalName(0));
 					return;
 				case Code.Ldloc_1:
-					Load(iinfo, ToStackType(CurrMethod.LocalTypes[1]), LocalName(1));
+					Load(inst, ToStackType(CurrMethod.LocalTypes[1]), LocalName(1));
 					return;
 				case Code.Ldloc_2:
-					Load(iinfo, ToStackType(CurrMethod.LocalTypes[2]), LocalName(2));
+					Load(inst, ToStackType(CurrMethod.LocalTypes[2]), LocalName(2));
 					return;
 				case Code.Ldloc_3:
-					Load(iinfo, ToStackType(CurrMethod.LocalTypes[3]), LocalName(3));
+					Load(inst, ToStackType(CurrMethod.LocalTypes[3]), LocalName(3));
 					return;
 				case Code.Ldloc:
 				case Code.Ldloc_S:
 					{
 						Local loc = (Local)operand;
-						Load(iinfo, ToStackType(CurrMethod.LocalTypes[loc.Index]), LocalName(loc.Index));
+						Load(inst, ToStackType(CurrMethod.LocalTypes[loc.Index]), LocalName(loc.Index));
 					}
 					return;
 				case Code.Ldloca:
 				case Code.Ldloca_S:
 					{
 						Local loc = (Local)operand;
-						Load(iinfo, StackType.Ptr, "&" + LocalName(loc.Index));
+						Load(inst, StackType.Ptr, "&" + LocalName(loc.Index));
 					}
 					return;
 
 				case Code.Stloc_0:
-					Store(iinfo, LocalName(0), CurrMethod.LocalTypes[0].GetCppName(TypeMgr));
+					Store(inst, LocalName(0), CurrMethod.LocalTypes[0].GetCppName(TypeMgr));
 					return;
 				case Code.Stloc_1:
-					Store(iinfo, LocalName(1), CurrMethod.LocalTypes[1].GetCppName(TypeMgr));
+					Store(inst, LocalName(1), CurrMethod.LocalTypes[1].GetCppName(TypeMgr));
 					return;
 				case Code.Stloc_2:
-					Store(iinfo, LocalName(2), CurrMethod.LocalTypes[2].GetCppName(TypeMgr));
+					Store(inst, LocalName(2), CurrMethod.LocalTypes[2].GetCppName(TypeMgr));
 					return;
 				case Code.Stloc_3:
-					Store(iinfo, LocalName(3), CurrMethod.LocalTypes[3].GetCppName(TypeMgr));
+					Store(inst, LocalName(3), CurrMethod.LocalTypes[3].GetCppName(TypeMgr));
 					return;
 				case Code.Stloc:
 				case Code.Stloc_S:
 					{
 						Local loc = (Local)operand;
-						Store(iinfo, LocalName(loc.Index), CurrMethod.LocalTypes[loc.Index].GetCppName(TypeMgr));
+						Store(inst, LocalName(loc.Index), CurrMethod.LocalTypes[loc.Index].GetCppName(TypeMgr));
 					}
 					return;
 
 				case Code.Ldarg_0:
-					Load(iinfo, ToStackType(CurrMethod.ParamTypes[0]), ArgName(0));
+					Load(inst, ToStackType(CurrMethod.ParamTypes[0]), ArgName(0));
 					return;
 				case Code.Ldarg_1:
-					Load(iinfo, ToStackType(CurrMethod.ParamTypes[1]), ArgName(1));
+					Load(inst, ToStackType(CurrMethod.ParamTypes[1]), ArgName(1));
 					return;
 				case Code.Ldarg_2:
-					Load(iinfo, ToStackType(CurrMethod.ParamTypes[2]), ArgName(2));
+					Load(inst, ToStackType(CurrMethod.ParamTypes[2]), ArgName(2));
 					return;
 				case Code.Ldarg_3:
-					Load(iinfo, ToStackType(CurrMethod.ParamTypes[3]), ArgName(3));
+					Load(inst, ToStackType(CurrMethod.ParamTypes[3]), ArgName(3));
 					return;
 				case Code.Ldarg:
 				case Code.Ldarg_S:
 					{
 						Parameter arg = (Parameter)operand;
-						Load(iinfo, ToStackType(CurrMethod.ParamTypes[arg.Index]), ArgName(arg.Index));
+						Load(inst, ToStackType(CurrMethod.ParamTypes[arg.Index]), ArgName(arg.Index));
 					}
 					return;
 				case Code.Ldarga:
 				case Code.Ldarga_S:
 					{
 						Parameter arg = (Parameter)operand;
-						Load(iinfo, StackType.Ptr, "&" + ArgName(arg.Index));
+						Load(inst, StackType.Ptr, "&" + ArgName(arg.Index));
 					}
 					return;
 
@@ -617,7 +587,7 @@ namespace il2cpp
 				case Code.Starg_S:
 					{
 						Parameter arg = (Parameter)operand;
-						Store(iinfo, ArgName(arg.Index), CurrMethod.ParamTypes[arg.Index].GetCppName(TypeMgr));
+						Store(inst, ArgName(arg.Index), CurrMethod.ParamTypes[arg.Index].GetCppName(TypeMgr));
 					}
 					return;
 
@@ -629,7 +599,7 @@ namespace il2cpp
 							fldX.DeclType.GetCppName(),
 							SlotInfoName(ref self),
 							fldX.GetCppName());
-						Load(iinfo, ToStackType(fldX.FieldType), rval);
+						Load(inst, ToStackType(fldX.FieldType), rval);
 					}
 					return;
 				case Code.Ldflda:
@@ -640,7 +610,7 @@ namespace il2cpp
 							fldX.DeclType.GetCppName(),
 							SlotInfoName(ref self),
 							fldX.GetCppName());
-						Load(iinfo, StackType.Ptr, rval);
+						Load(inst, StackType.Ptr, rval);
 					}
 					return;
 				/*case Code.Ldsfld:
@@ -653,7 +623,7 @@ namespace il2cpp
 						FieldX fldX = (FieldX)operand;
 						SlotInfo val = Pop();
 						SlotInfo self = Pop();
-						iinfo.CppCode = string.Format("(({0}*){1})->{2} = ({3}){4}",
+						inst.CppCode = string.Format("(({0}*){1})->{2} = ({3}){4}",
 							fldX.DeclType.GetCppName(),
 							SlotInfoName(ref self),
 							fldX.GetCppName(),
@@ -674,17 +644,17 @@ namespace il2cpp
 				case Code.Conv_R8:
 				case Code.Conv_I:
 				case Code.Conv_U:
-					Conv(iinfo);
+					Conv(inst);
 					return;
 
 				/*case Code.Conv_R_Un:
 					return;*/
 
 				case Code.Add:
-					BinOp(iinfo, "+");
+					BinOp(inst, "+");
 					return;
 				case Code.Sub:
-					BinOp(iinfo, "-");
+					BinOp(inst, "-");
 					return;
 
 				case Code.Ceq:
@@ -692,24 +662,23 @@ namespace il2cpp
 				case Code.Cgt_Un:
 				case Code.Clt:
 				case Code.Clt_Un:
-					Cmp(iinfo);
+					Cmp(inst);
 					return;
 
 				case Code.Br:
 				case Code.Br_S:
 					{
-						uint target = ((Instruction)operand).Offset;
-						InstList[target].IsBrTarget = true;
-						iinfo.CppCode = "goto " + LabelName(target);
+						int target = ((InstructionInfo)operand).Offset;
+						inst.CppCode = "goto " + LabelName(target);
 					}
 					return;
 				case Code.Brfalse:
 				case Code.Brfalse_S:
-					BrCond(iinfo, false, ((Instruction)operand).Offset);
+					BrCond(inst, false, ((InstructionInfo)operand).Offset);
 					return;
 				case Code.Brtrue:
 				case Code.Brtrue_S:
-					BrCond(iinfo, true, ((Instruction)operand).Offset);
+					BrCond(inst, true, ((InstructionInfo)operand).Offset);
 					return;
 				case Code.Beq:
 				case Code.Beq_S:
@@ -731,7 +700,7 @@ namespace il2cpp
 				case Code.Ble_Un_S:
 				case Code.Blt_Un:
 				case Code.Blt_Un_S:
-					BrCmp(iinfo, ((Instruction)operand).Offset);
+					BrCmp(inst, ((InstructionInfo)operand).Offset);
 					return;
 
 				case Code.Ret:
@@ -739,11 +708,11 @@ namespace il2cpp
 					{
 						Debug.Assert(TypeStack.Count == 1);
 						SlotInfo poped = Pop();
-						iinfo.CppCode = string.Format("return {0}", SlotInfoName(ref poped));
+						inst.CppCode = string.Format("return {0}", SlotInfoName(ref poped));
 					}
 					else
 					{
-						iinfo.CppCode = "return";
+						inst.CppCode = "return";
 					}
 					return;
 
@@ -753,12 +722,12 @@ namespace il2cpp
 						MethodX metX = (MethodX)operand;
 
 						string prefix;
-						if (iinfo.Code == Code.Callvirt && metX.Def.IsVirtual)
+						if (opCode.Code == Code.Callvirt && metX.Def.IsVirtual)
 							prefix = PrefixVMet;
 						else
 							prefix = PrefixMet;
 
-						Call(iinfo,
+						Call(inst,
 							metX.GetCppName(prefix),
 							metX.ParamTypes.Count,
 							metX.ReturnType);
@@ -772,7 +741,7 @@ namespace il2cpp
 							Debug.Assert(metX.Def.IsConstructor);
 							Debug.Assert(!metX.Def.IsStatic);
 
-							NewObj(iinfo,
+							NewObj(inst,
 								metX.DeclType.GetCppName(),
 								metX.DeclType.GetCppTypeID(),
 								metX.GetCppName(PrefixMet),
@@ -786,7 +755,7 @@ namespace il2cpp
 					return;
 
 				default:
-					throw new NotImplementedException("OpCode: " + iinfo.Code);
+					throw new NotImplementedException("OpCode: " + opCode);
 			}
 		}
 
@@ -804,7 +773,7 @@ namespace il2cpp
 			return "loc_" + localID;
 		}
 
-		private static string LabelName(uint offset)
+		private static string LabelName(int offset)
 		{
 			return "label_" + offset;
 		}
@@ -887,24 +856,25 @@ namespace il2cpp
 			return StackType.Obj;
 		}
 
-		private void Load(InstructionInfo iinfo, StackType stype, string rval)
+		private void Load(InstructionInfo inst, StackType stype, string rval)
 		{
 			SlotInfo pushed = Push(stype);
-			iinfo.CppCode = string.Format("{0} = {1}", SlotInfoName(ref pushed), rval);
+			inst.CppCode = string.Format("{0} = {1}", SlotInfoName(ref pushed), rval);
 		}
 
-		private void Store(InstructionInfo iinfo, string lval, string cast = null)
+		private void Store(InstructionInfo inst, string lval, string cast = null)
 		{
 			SlotInfo poped = Pop();
-			iinfo.CppCode = string.Format("{0} = {1}{2}", lval, cast != null ? "(" + cast + ")" : "", SlotInfoName(ref poped));
+			inst.CppCode = string.Format("{0} = {1}{2}", lval, cast != null ? "(" + cast + ")" : "", SlotInfoName(ref poped));
 		}
 
-		private void Conv(InstructionInfo iinfo)
+		private void Conv(InstructionInfo inst)
 		{
 			string cast = null;
 			StackType stype = StackType.I4;
 
-			switch (iinfo.Code)
+			OpCode opCode = inst.OpCode;
+			switch (opCode.Code)
 			{
 				case Code.Conv_I1:
 					cast = "int8_t";
@@ -949,7 +919,7 @@ namespace il2cpp
 					stype = StackType.Ptr;
 					break;
 				default:
-					Debug.Fail("Code error " + iinfo.Code);
+					Debug.Fail("Code error " + opCode);
 					break;
 			}
 
@@ -957,27 +927,25 @@ namespace il2cpp
 			string rval = string.Format("({0}){1}",
 				cast,
 				SlotInfoName(ref val));
-			Load(iinfo, stype, rval);
+			Load(inst, stype, rval);
 		}
 
-		private void BrCond(InstructionInfo iinfo, bool cond, uint target)
+		private void BrCond(InstructionInfo inst, bool cond, int target)
 		{
-			InstList[target].IsBrTarget = true;
 			SlotInfo poped = Pop();
-			iinfo.CppCode = string.Format("if ({0}{1}) goto {2}", cond ? "" : "!", SlotInfoName(ref poped), LabelName(target));
+			inst.CppCode = string.Format("if ({0}{1}) goto {2}", cond ? "" : "!", SlotInfoName(ref poped), LabelName(target));
 		}
 
-		private void BrCmp(InstructionInfo iinfo, uint target)
+		private void BrCmp(InstructionInfo inst, int target)
 		{
-			InstList[target].IsBrTarget = true;
-			iinfo.CppCode = string.Format("if ({0}) goto {1}", CmpCode(iinfo.Code), LabelName(target));
+			inst.CppCode = string.Format("if ({0}) goto {1}", CmpCode(inst.OpCode.Code), LabelName(target));
 		}
 
-		private void Cmp(InstructionInfo iinfo)
+		private void Cmp(InstructionInfo inst)
 		{
-			string str = CmpCode(iinfo.Code);
+			string str = CmpCode(inst.OpCode.Code);
 			SlotInfo pushed = Push(StackType.I4);
-			iinfo.CppCode = string.Format("{0} = {1} ? 1 : 0", SlotInfoName(ref pushed), str);
+			inst.CppCode = string.Format("{0} = {1} ? 1 : 0", SlotInfoName(ref pushed), str);
 		}
 
 		private string CmpCode(Code code)
@@ -1066,24 +1034,24 @@ namespace il2cpp
 				isNeg ? ")" : "");
 		}
 
-		private void BinOp(InstructionInfo iinfo, string oper)
+		private void BinOp(InstructionInfo inst, string oper)
 		{
 			SlotInfo[] popList = Pop(2);
 
-			if (!IsBinaryOpValid(popList[0].SlotType, popList[1].SlotType, out var retType, iinfo.Code))
+			if (!IsBinaryOpValid(popList[0].SlotType, popList[1].SlotType, out var retType, inst.OpCode.Code))
 			{
 				Debug.Fail("Binary Oper Invalid");
 			}
 
 			SlotInfo pushed = Push(retType);
-			iinfo.CppCode = string.Format("{0} = {1} {2} {3}",
+			inst.CppCode = string.Format("{0} = {1} {2} {3}",
 				SlotInfoName(ref pushed),
 				SlotInfoName(ref popList[0]),
 				oper,
 				SlotInfoName(ref popList[1]));
 		}
 
-		private void Call(InstructionInfo iinfo, string metName, int popCount, TypeSig retType)
+		private void Call(InstructionInfo inst, string metName, int popCount, TypeSig retType)
 		{
 			SlotInfo[] popList = Pop(popCount);
 
@@ -1109,10 +1077,10 @@ namespace il2cpp
 
 			sb.Append(")");
 
-			iinfo.CppCode = sb.ToString();
+			inst.CppCode = sb.ToString();
 		}
 
-		private void NewObj(InstructionInfo iinfo, string typeName, uint typeID, string metName, int popCount)
+		private void NewObj(InstructionInfo inst, string typeName, uint typeID, string metName, int popCount)
 		{
 			SlotInfo[] popList = Pop(popCount);
 
@@ -1137,7 +1105,7 @@ namespace il2cpp
 
 			sb.Append(")");
 
-			iinfo.CppCode = sb.ToString();
+			inst.CppCode = sb.ToString();
 		}
 
 		private static bool IsBinaryOpValid(StackType op1, StackType op2, out StackType retType, Code code)

@@ -81,6 +81,9 @@ namespace test
 		{
 			foreach (var typeDef in marker.Module.Types)
 			{
+				//if (typeDef.FullName != "TestIL.TestExplicitOverride2")
+				//	continue;
+
 				if (GetTestClassResult(typeDef, out string expected))
 				{
 					var oldColor = Console.ForegroundColor;
@@ -116,7 +119,7 @@ namespace test
 			TypeManager typeMgr = new TypeManager();
 			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
 
-#if false
+#if true
 			TestProcess(typeMgr);
 #else
 			var sw = new Stopwatch();
