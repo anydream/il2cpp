@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace il2cpp
 {
@@ -9,9 +10,9 @@ namespace il2cpp
 		// 类型名
 		public readonly string Name;
 		// 声明代码
-		public string DeclCode;
+		public StringBuilder DeclCode = new StringBuilder();
 		// 实现代码
-		public string ImplCode;
+		public StringBuilder ImplCode = new StringBuilder();
 		// 声明依赖的类型
 		public HashSet<string> DeclDependNames = new HashSet<string>();
 		public HashSet<TypeCppCode> DeclDependTypes = new HashSet<TypeCppCode>();
@@ -52,9 +53,9 @@ namespace il2cpp
 		// 单元名
 		public readonly string Name;
 		// 声明代码
-		public readonly CodePrinter DeclCode = new CodePrinter();
+		public readonly StringBuilder DeclCode = new StringBuilder();
 		// 实现代码
-		public readonly CodePrinter ImplCode = new CodePrinter();
+		public readonly StringBuilder ImplCode = new StringBuilder();
 		// 包含的代码对象
 		public List<TypeCppCode> CodeList = new List<TypeCppCode>();
 
@@ -126,8 +127,8 @@ namespace il2cpp
 			{
 				MethodGen.Process(metX);
 
-				cppCode.DeclCode += MethodGen.DeclCode;
-				cppCode.ImplCode += MethodGen.ImplCode;
+				cppCode.DeclCode.Append(MethodGen.DeclCode);
+				cppCode.ImplCode.Append(MethodGen.ImplCode);
 
 				cppCode.DeclDependNames.UnionWith(MethodGen.DeclDependNames);
 				cppCode.ImplDependNames.UnionWith(MethodGen.ImplDependNames);
@@ -188,7 +189,7 @@ namespace il2cpp
 			--prt.Indents;
 			prt.AppendLine("};");
 
-			cppCode.DeclCode = prt.ToString();
+			cppCode.DeclCode.Append(prt);
 			return cppCode;
 		}
 
@@ -268,7 +269,7 @@ namespace il2cpp
 			foreach (var unit in CompileUnits)
 			{
 				unit.DeclCode.AppendLine("#pragma once");
-				unit.ImplCode.AppendFormatLine("#include \"{0}.h\"", unit.Name);
+				unit.ImplCode.AppendFormat("#include \"{0}.h\"\n", unit.Name);
 
 				foreach (var cppCode in unit.CodeList)
 				{
@@ -279,7 +280,7 @@ namespace il2cpp
 						if (!dependSet.Contains(unitName))
 						{
 							dependSet.Add(unitName);
-							unit.DeclCode.AppendFormatLine("#include \"{0}.h\"",
+							unit.DeclCode.AppendFormat("#include \"{0}.h\"\n",
 								unitName);
 						}
 					}
@@ -299,7 +300,7 @@ namespace il2cpp
 						if (!dependSet.Contains(unitName))
 						{
 							dependSet.Add(unitName);
-							unit.ImplCode.AppendFormatLine("#include \"{0}.h\"",
+							unit.ImplCode.AppendFormat("#include \"{0}.h\"\n",
 								unitName);
 						}
 					}

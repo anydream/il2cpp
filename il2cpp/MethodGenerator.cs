@@ -66,9 +66,9 @@ namespace il2cpp
 		private readonly Queue<Tuple<int, Stack<StackType>>> Branches = new Queue<Tuple<int, Stack<StackType>>>();
 
 		// 声明代码
-		public string DeclCode;
+		public readonly StringBuilder DeclCode = new StringBuilder();
 		// 实现代码
-		public string ImplCode;
+		public readonly StringBuilder ImplCode = new StringBuilder();
 		// 声明依赖的类型
 		public readonly HashSet<string> DeclDependNames = new HashSet<string>();
 		// 实现依赖的类型
@@ -142,8 +142,8 @@ namespace il2cpp
 			// 重置数据
 			Reset();
 			CurrMethod = metX;
-			DeclCode = null;
-			ImplCode = null;
+			DeclCode.Clear();
+			ImplCode.Clear();
 			DeclDependNames.Clear();
 			ImplDependNames.Clear();
 
@@ -169,19 +169,19 @@ namespace il2cpp
 
 				// 生成实现代码
 				GenMetCode(out codeDecl, out codeImpl);
-				DeclCode += codeDecl;
-				ImplCode += codeImpl;
+				DeclCode.Append(codeDecl);
+				ImplCode.Append(codeImpl);
 			}
 
 			// 生成虚查询代码
 			GenVFtnCode(out codeDecl, out codeImpl);
-			DeclCode += codeDecl;
-			ImplCode += codeImpl;
+			DeclCode.Append(codeDecl);
+			ImplCode.Append(codeImpl);
 
 			// 生成虚调用代码
 			GenVMetCode(out codeDecl, out codeImpl);
-			DeclCode += codeDecl;
-			ImplCode += codeImpl;
+			DeclCode.Append(codeDecl);
+			ImplCode.Append(codeImpl);
 
 			Reset();
 		}
