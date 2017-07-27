@@ -163,13 +163,13 @@ namespace test
 
 		private static void Main(string[] args)
 		{
-#if false
+#if true
 			TypeManager typeMgr = new TypeManager();
 			typeMgr.Load(@"../../CodeGenTester/bin/debug/CodeGenTester.exe");
 			TestCodeGen(typeMgr);
 #endif
 
-#if true
+#if false
 			TypeManager typeMgr = new TypeManager();
 			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
 			TestReferenceMarker(typeMgr);

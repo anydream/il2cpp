@@ -265,6 +265,9 @@ namespace il2cpp
 			// 构造指令代码
 			foreach (var inst in CurrMethod.InstList)
 			{
+				// 指令注释
+				prt.AppendFormatLine("// {0}", inst);
+
 				// 跳转标签
 				if (inst.IsBrTarget)
 				{
@@ -275,7 +278,7 @@ namespace il2cpp
 						--prt.Indents;
 					}
 
-					prt.AppendLine(LabelName(inst.Offset) + ":");
+					prt.AppendLine(LabelName(inst.Offset) + ':');
 
 					if (isDec)
 						++prt.Indents;
@@ -284,7 +287,7 @@ namespace il2cpp
 				// 指令代码
 				if (inst.CppCode != null)
 				{
-					prt.AppendLine(inst.CppCode + ";");
+					prt.AppendLine(inst.CppCode + ';');
 				}
 			}
 
@@ -335,7 +338,7 @@ namespace il2cpp
 			}
 
 			prt.Append(")");
-			sbFuncPtr.Append(")");
+			sbFuncPtr.Append(')');
 			codeDecl = prt + ";\n";
 
 			prt.AppendLine("\n{");
@@ -883,7 +886,7 @@ namespace il2cpp
 
 			inst.CppCode = string.Format("{0} = {1}{2}",
 				lval,
-				cast != null ? "(" + cast + ")" : "",
+				cast != null ? '(' + cast + ')' : "",
 				SlotInfoName(ref poped));
 		}
 
@@ -976,7 +979,7 @@ namespace il2cpp
 			}
 
 			bool isNeg = false;
-			string oper = null;
+			string oper;
 
 			switch (code)
 			{
@@ -1092,7 +1095,7 @@ namespace il2cpp
 				sb.Append(SlotInfoName(ref arg));
 			}
 
-			sb.Append(")");
+			sb.Append(')');
 
 			inst.CppCode = sb.ToString();
 		}
@@ -1120,7 +1123,7 @@ namespace il2cpp
 					SlotInfoName(ref arg));
 			}
 
-			sb.Append(")");
+			sb.Append(')');
 
 			inst.CppCode = sb.ToString();
 		}

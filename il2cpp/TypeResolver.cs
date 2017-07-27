@@ -20,7 +20,7 @@ namespace il2cpp
 			Debug.Assert(sig != null);
 			Name = name;
 			Signature = sig;
-			SigString = Name + ": " + Signature + "|" + (int)Signature.CallingConvention;
+			SigString = Name + ": " + Signature + '|' + (int)Signature.CallingConvention;
 		}
 
 		public override int GetHashCode()
@@ -124,7 +124,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return Def.FullName + " [" + DeclType + "]";
+			return Def.FullName + " [" + DeclType + ']';
 		}
 	}
 
@@ -463,8 +463,28 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return CppCode != null ? string.Format("{0}{1}", (IsBrTarget ? Offset + ": " : ""), CppCode) :
-				string.Format("{0}: {1} {2}{3}", Offset, OpCode, Operand, IsProcessed ? " √" : "");
+			string strOperand = null;
+			switch (Operand)
+			{
+				case InstructionInfo inst:
+					strOperand = "label_" + inst.Offset;
+					break;
+
+				case InstructionInfo[] instList:
+					{
+						foreach (var inst in instList)
+						{
+							strOperand += "label_" + inst.Offset + ' ';
+						}
+					}
+					break;
+
+				default:
+					strOperand = Operand?.ToString();
+					break;
+			}
+
+			return string.Format("{0}{1}", OpCode, strOperand ?? "");
 		}
 	}
 
@@ -609,7 +629,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return ShortName;
+			return FullName;
 		}
 
 		private string BuildFuncName(bool hasDeclType)
@@ -683,7 +703,7 @@ namespace il2cpp
 		public TypeSig FieldType;
 
 		// 类型全名
-		public string FullName => FieldType.FullName + ' ' + Def.Name;
+		public string FullName => BuildName();
 
 		public string CppName_;
 
@@ -711,11 +731,16 @@ namespace il2cpp
 			return obj is FieldX other && Equals(other);
 		}
 
-		public override string ToString()
+		private string BuildName()
 		{
 			return string.Format("{0} {1}",
 				FieldType != null ? FieldType.FullName : "<?>",
 				Def.Name);
+		}
+
+		public override string ToString()
+		{
+			return FullName;
 		}
 	}
 

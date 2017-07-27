@@ -164,7 +164,7 @@ namespace il2cpp
 			StringBuilder sb = new StringBuilder();
 
 			string hash = ToRadix(NameCounter++, (uint)DigMap.Length);
-			sb.Append(hash + "_");
+			sb.Append(hash + '_');
 
 			for (int i = 0; i < fullName.Length; ++i)
 			{
