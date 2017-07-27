@@ -6,6 +6,7 @@ namespace il2cpp
 	{
 		public int Indents;
 		public int LineCount { get; private set; }
+		public int Length => Builder.Length;
 		private readonly StringBuilder Builder = new StringBuilder();
 
 		public override string ToString()

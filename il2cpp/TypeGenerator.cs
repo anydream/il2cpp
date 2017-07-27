@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace il2cpp
 {
@@ -12,13 +13,60 @@ namespace il2cpp
 		// 实现代码
 		public string ImplCode;
 		// 声明依赖的类型
-		public readonly HashSet<string> DeclDependTypes = new HashSet<string>();
+		public HashSet<string> DeclDependNames = new HashSet<string>();
+		public readonly HashSet<TypeCppCode> DeclDependTypes = new HashSet<TypeCppCode>();
 		// 实现依赖的类型
-		public readonly HashSet<string> ImplDependTypes = new HashSet<string>();
+		public HashSet<string> ImplDependNames = new HashSet<string>();
+		public readonly HashSet<TypeCppCode> ImplDependTypes = new HashSet<TypeCppCode>();
+
+		// 编译单元
+		public CppCompileUnit CompileUnit;
+		// 依赖计数
+		public uint DependCounter;
+		// 排序索引
+		private uint SortedID;
 
 		public TypeCppCode(string name)
 		{
 			Name = name;
+		}
+
+		public uint GetSortedID()
+		{
+			if (SortedID == 0)
+			{
+				uint id = 0;
+
+				foreach (var typeCode in DeclDependTypes)
+					id = Math.Max(id, typeCode.GetSortedID());
+
+				SortedID = id + 1;
+			}
+			return SortedID;
+		}
+	}
+
+	// 编译单元
+	internal class CppCompileUnit
+	{
+		// 单元名
+		public readonly string Name;
+		// 声明代码
+		public readonly CodePrinter DeclCode = new CodePrinter();
+		// 实现代码
+		public readonly CodePrinter ImplCode = new CodePrinter();
+		// 包含的代码对象
+		public List<TypeCppCode> CodeList = new List<TypeCppCode>();
+
+		public CppCompileUnit(string name)
+		{
+			Name = name;
+		}
+
+		public bool IsFull()
+		{
+			return ImplCode.Length > 3000 ||
+				   DeclCode.Length > 1000;
 		}
 	}
 
@@ -33,6 +81,10 @@ namespace il2cpp
 		// 类型代码映射
 		private readonly Dictionary<string, TypeCppCode> CodeMap = new Dictionary<string, TypeCppCode>();
 
+		// 编译单元列表
+		private readonly List<CppCompileUnit> CompileUnits = new List<CppCompileUnit>();
+		private int CppUnitName;
+
 		public TypeGenerator(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
@@ -42,11 +94,25 @@ namespace il2cpp
 		public void GenerateAll()
 		{
 			NameHelper.Reset();
+			CodeMap.Clear();
+			CompileUnits.Clear();
+			CppUnitName = 0;
 
 			// 生成所有类型
 			foreach (var type in TypeMgr.Types)
 			{
 				ProcessType(type);
+			}
+
+			GenerateCompileUnits();
+
+
+			foreach (var unit in CompileUnits)
+			{
+				Console.WriteLine("[{0}.h]\n{1}\n[{0}.cpp]\n{2}",
+					unit.Name,
+					unit.DeclCode,
+					unit.ImplCode);
 			}
 		}
 
@@ -63,8 +129,8 @@ namespace il2cpp
 				cppCode.DeclCode += MethodGen.DeclCode;
 				cppCode.ImplCode += MethodGen.ImplCode;
 
-				cppCode.DeclDependTypes.UnionWith(MethodGen.DeclDependTypes);
-				cppCode.ImplDependTypes.UnionWith(MethodGen.ImplDependTypes);
+				cppCode.DeclDependNames.UnionWith(MethodGen.DeclDependNames);
+				cppCode.ImplDependNames.UnionWith(MethodGen.ImplDependNames);
 			}
 		}
 
@@ -101,7 +167,7 @@ namespace il2cpp
 
 			// 添加基类型依赖
 			if (baseTypeName != null)
-				cppCode.DeclDependTypes.Add(baseTypeName);
+				cppCode.DeclDependNames.Add(baseTypeName);
 
 			++prt.Indents;
 
@@ -116,7 +182,7 @@ namespace il2cpp
 
 				// 添加字段类型依赖
 				if (fldX.FieldType.IsValueType)
-					cppCode.DeclDependTypes.Add(fieldTypeName);
+					cppCode.DeclDependNames.Add(fieldTypeName);
 			}
 
 			--prt.Indents;
@@ -125,84 +191,114 @@ namespace il2cpp
 			cppCode.DeclCode = prt.ToString();
 			return cppCode;
 		}
-	}
 
-	/*public class CppCompileUnit
-	{
-		private class CodeInfo
+		private CppCompileUnit GetCompileUnit()
 		{
-			public readonly TypeX CodeType;
-			public readonly string DeclCode;
-			public readonly string ImplCode;
-
-			public CodeInfo(TypeX tyX, string codeDecl, string codeImpl)
+			int count = CompileUnits.Count;
+			if (count > 0)
 			{
-				CodeType = tyX;
-				DeclCode = codeDecl;
-				ImplCode = codeImpl;
+				var last = CompileUnits[count - 1];
+				if (!last.IsFull())
+					return last;
 			}
+			var unit = new CppCompileUnit("CppUnit_" + CppUnitName++);
+			CompileUnits.Add(unit);
+			return unit;
 		}
 
-		private readonly List<CodeInfo> CodeInfoList = new List<CodeInfo>();
-		private readonly HashSet<TypeX> DependTypes = new HashSet<TypeX>();
-
-		public readonly string Name;
-		public string DeclCode;
-		public string ImplCode;
-		public int ImplCodeCounter { get; private set; }
-
-		public CppCompileUnit(string name)
+		private void GenerateCompileUnits()
 		{
-			Name = name;
-		}
-
-		public void AddType(TypeX tyX, string codeDecl, string codeImpl)
-		{
-			Debug.Assert(tyX.CppUnit == null);
-			tyX.CppUnit = this;
-
-			CodeInfoList.Add(new CodeInfo(tyX, codeDecl, codeImpl));
-			DependTypes.Add(tyX);
-
-			ImplCodeCounter += codeImpl?.Length ?? 0;
-		}
-
-		public void GenerateCode()
-		{
-			Debug.Assert(DeclCode == null);
-
-			StringBuilder sbDecl = new StringBuilder();
-			StringBuilder sbImpl = new StringBuilder();
-
-			sbDecl.AppendLine("#pragma once");
-			sbImpl.AppendFormat("#include \"{0}.h\"\n", Name);
-
-			HashSet<string> nameSet = new HashSet<string>();
-			foreach (var type in DependTypes)
+			List<TypeCppCode> codeSorter = new List<TypeCppCode>(CodeMap.Values);
+			// 构建类型代码依赖关联
+			foreach (var cppCode in codeSorter)
 			{
-				foreach (var dep in type.DependTypes)
+				foreach (string typeName in cppCode.DeclDependNames)
+					cppCode.DeclDependTypes.Add(CodeMap[typeName]);
+				cppCode.DeclDependNames = null;
+
+				foreach (string typeName in cppCode.ImplDependNames)
+					cppCode.ImplDependTypes.Add(CodeMap[typeName]);
+				cppCode.ImplDependNames = null;
+			}
+			CodeMap.Clear();
+
+			// 统计依赖计数
+			foreach (var cppCode in codeSorter)
+			{
+				// 预生成排序索引
+				cppCode.GetSortedID();
+
+				foreach (var typeCode in cppCode.DeclDependTypes)
+					++typeCode.DependCounter;
+
+				foreach (var typeCode in cppCode.ImplDependTypes)
+					++typeCode.DependCounter;
+			}
+
+			// 排序代码
+			codeSorter.Sort((x, y) =>
+			{
+				int cmp = x.GetSortedID().CompareTo(y.GetSortedID());
+				if (cmp == 0)
+					cmp = y.DependCounter.CompareTo(x.DependCounter);
+				return cmp;
+			});
+
+			// 划分编译单元
+			foreach (var cppCode in codeSorter)
+			{
+				var unit = GetCompileUnit();
+				unit.CodeList.Add(cppCode);
+				cppCode.CompileUnit = unit;
+			}
+
+			// 生成代码
+			HashSet<string> dependSet = new HashSet<string>();
+			foreach (var unit in CompileUnits)
+			{
+				unit.DeclCode.AppendLine("#pragma once");
+				unit.ImplCode.AppendFormatLine("#include \"{0}.h\"", unit.Name);
+
+				foreach (var cppCode in unit.CodeList)
 				{
-					if (dep.CppUnit != this)
+					// 生成头文件依赖包含
+					foreach (var typeCode in cppCode.DeclDependTypes)
 					{
-						nameSet.Add(dep.CppUnit.Name);
+						string unitName = typeCode.CompileUnit.Name;
+						if (!dependSet.Contains(unitName))
+						{
+							dependSet.Add(unitName);
+							unit.DeclCode.AppendFormatLine("#include \"{0}.h\"",
+								unitName);
+						}
 					}
+
+					// 拼接声明代码
+					unit.DeclCode.Append(cppCode.DeclCode);
+					cppCode.DeclCode = null;
 				}
-			}
-			foreach (var name in nameSet)
-			{
-				sbDecl.AppendFormat("#include \"{0}.h\"\n", name);
-			}
 
-			CodeInfoList.Sort((x, y) => x.CodeType.GetSortedID().CompareTo(y.CodeType.GetSortedID()));
+				foreach (var cppCode in unit.CodeList)
+				{
+					// 生成源文件依赖包含
+					foreach (var typeCode in cppCode.ImplDependTypes)
+					{
+						string unitName = typeCode.CompileUnit.Name;
+						if (!dependSet.Contains(unitName))
+						{
+							dependSet.Add(unitName);
+							unit.ImplCode.AppendFormatLine("#include \"{0}.h\"",
+								unitName);
+						}
+					}
 
-			foreach (var info in CodeInfoList)
-			{
-				sbDecl.Append(info.DeclCode);
-				sbImpl.Append(info.ImplCode);
+					// 拼接实现代码
+					unit.ImplCode.Append(cppCode.ImplCode);
+					cppCode.ImplCode = null;
+				}
+				unit.CodeList = null;
+				dependSet.Clear();
 			}
-
-			DeclCode = sbDecl.ToString();
-			ImplCode = sbImpl.ToString();
 		}
-	}*/
+	}
 }

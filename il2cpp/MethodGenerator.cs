@@ -70,9 +70,9 @@ namespace il2cpp
 		// 实现代码
 		public string ImplCode;
 		// 声明依赖的类型
-		public readonly HashSet<string> DeclDependTypes = new HashSet<string>();
+		public readonly HashSet<string> DeclDependNames = new HashSet<string>();
 		// 实现依赖的类型
-		public readonly HashSet<string> ImplDependTypes = new HashSet<string>();
+		public readonly HashSet<string> ImplDependNames = new HashSet<string>();
 
 		public MethodGenerator(TypeManager typeMgr)
 		{
@@ -144,8 +144,8 @@ namespace il2cpp
 			CurrMethod = metX;
 			DeclCode = null;
 			ImplCode = null;
-			DeclDependTypes.Clear();
-			ImplDependTypes.Clear();
+			DeclDependNames.Clear();
+			ImplDependNames.Clear();
 
 			string codeDecl, codeImpl;
 			if (metX.HasInstList)
@@ -193,7 +193,7 @@ namespace il2cpp
 
 			string retTypeName = CurrMethod.ReturnType.GetCppName(TypeMgr);
 			if (CurrMethod.ReturnType.IsValueType)
-				DeclDependTypes.Add(retTypeName);
+				DeclDependNames.Add(retTypeName);
 
 			// 构造声明
 			prt.AppendFormat("// {0}\n{1} {2}(",
@@ -452,8 +452,6 @@ namespace il2cpp
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
-
-			return false;
 		}
 
 		private void ProcessInstruction(InstructionInfo inst)
