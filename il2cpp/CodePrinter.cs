@@ -16,6 +16,9 @@ namespace il2cpp
 
 		public void Append(string str)
 		{
+			if (str == null)
+				return;
+
 			bool isNewLine = IsNewLine();
 
 			foreach (char ch in str)

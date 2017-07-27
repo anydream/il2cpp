@@ -14,10 +14,10 @@ namespace il2cpp
 		public string ImplCode;
 		// 声明依赖的类型
 		public HashSet<string> DeclDependNames = new HashSet<string>();
-		public readonly HashSet<TypeCppCode> DeclDependTypes = new HashSet<TypeCppCode>();
+		public HashSet<TypeCppCode> DeclDependTypes = new HashSet<TypeCppCode>();
 		// 实现依赖的类型
 		public HashSet<string> ImplDependNames = new HashSet<string>();
-		public readonly HashSet<TypeCppCode> ImplDependTypes = new HashSet<TypeCppCode>();
+		public HashSet<TypeCppCode> ImplDependTypes = new HashSet<TypeCppCode>();
 
 		// 编译单元
 		public CppCompileUnit CompileUnit;
@@ -206,6 +206,11 @@ namespace il2cpp
 			return unit;
 		}
 
+		private bool GetCodeFromMap(string typeName, out TypeCppCode typeCode)
+		{
+			return CodeMap.TryGetValue(typeName, out typeCode);
+		}
+
 		private void GenerateCompileUnits()
 		{
 			List<TypeCppCode> codeSorter = new List<TypeCppCode>(CodeMap.Values);
@@ -213,11 +218,17 @@ namespace il2cpp
 			foreach (var cppCode in codeSorter)
 			{
 				foreach (string typeName in cppCode.DeclDependNames)
-					cppCode.DeclDependTypes.Add(CodeMap[typeName]);
+				{
+					if (GetCodeFromMap(typeName, out var typeCode))
+						cppCode.DeclDependTypes.Add(typeCode);
+				}
 				cppCode.DeclDependNames = null;
 
 				foreach (string typeName in cppCode.ImplDependNames)
-					cppCode.ImplDependTypes.Add(CodeMap[typeName]);
+				{
+					if (GetCodeFromMap(typeName, out var typeCode))
+						cppCode.ImplDependTypes.Add(typeCode);
+				}
 				cppCode.ImplDependNames = null;
 			}
 			CodeMap.Clear();
@@ -276,6 +287,7 @@ namespace il2cpp
 					// 拼接声明代码
 					unit.DeclCode.Append(cppCode.DeclCode);
 					cppCode.DeclCode = null;
+					cppCode.DeclDependTypes = null;
 				}
 
 				foreach (var cppCode in unit.CodeList)
@@ -295,6 +307,7 @@ namespace il2cpp
 					// 拼接实现代码
 					unit.ImplCode.Append(cppCode.ImplCode);
 					cppCode.ImplCode = null;
+					cppCode.ImplDependTypes = null;
 				}
 				unit.CodeList = null;
 				dependSet.Clear();
