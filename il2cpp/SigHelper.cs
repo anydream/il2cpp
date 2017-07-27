@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -204,30 +205,12 @@ namespace il2cpp
 			return true;
 		}
 
-		public static string PrettyName(this GenericArgs self)
-		{
-			if (self.GenArgs == null)
-				return "";
-
-			StringBuilder sb = new StringBuilder();
-
-			sb.Append('<');
-			bool last = false;
-			foreach (var arg in self.GenArgs)
-			{
-				if (last)
-					sb.Append(',');
-				last = true;
-				PrettyName(sb, arg);
-			}
-			sb.Append('>');
-
-			return sb.ToString();
-		}
-
 		public static string PrettyName(this TypeX self)
 		{
-			return PrettyName(self.Def.ToTypeSig()) + PrettyName((GenericArgs)self);
+			StringBuilder sb = new StringBuilder();
+			PrettyName(sb, self.Def.ToTypeSig());
+			PrettyGenArgs(sb, self.GenArgs);
+			return sb.ToString();
 		}
 
 		public static string PrettyName(this MethodX self)
@@ -235,13 +218,11 @@ namespace il2cpp
 			StringBuilder sb = new StringBuilder();
 
 			PrettyName(sb, self.ReturnType);
+			sb.Append(' ' + self.Def.Name);
 
-			sb.AppendFormat(" {0}{1}",
-				self.Def.Name,
-				PrettyName((GenericArgs)self));
+			PrettyGenArgs(sb, self.GenArgs);
 
 			sb.Append('(');
-
 			int i = 0;
 			if (!self.Def.IsStatic)
 				i = 1;
@@ -255,7 +236,6 @@ namespace il2cpp
 				var arg = self.ParamTypes[i];
 				PrettyName(sb, arg);
 			}
-
 			sb.Append(')');
 
 			return sb.ToString();
@@ -265,16 +245,25 @@ namespace il2cpp
 		{
 			StringBuilder sb = new StringBuilder();
 			PrettyName(sb, self.FieldType);
-			sb.Append(' ');
-			sb.Append(self.Def.Name);
+			sb.Append(' ' + self.Def.Name);
 			return sb.ToString();
 		}
 
-		private static string PrettyName(TypeSig typeSig)
+		private static void PrettyGenArgs(StringBuilder sb, IList<TypeSig> genArgs)
 		{
-			StringBuilder sb = new StringBuilder();
-			PrettyName(sb, typeSig);
-			return sb.ToString();
+			if (genArgs == null)
+				return;
+
+			sb.Append('<');
+			bool last = false;
+			foreach (var arg in genArgs)
+			{
+				if (last)
+					sb.Append(',');
+				last = true;
+				PrettyName(sb, arg);
+			}
+			sb.Append('>');
 		}
 
 		private static void PrettyName(StringBuilder sb, TypeSig typeSig)
@@ -315,7 +304,7 @@ namespace il2cpp
 						sb.Append('[');
 						uint rank = arraySig.Rank;
 						if (rank == 0)
-							sb.Append("<RANK0>");   // Not allowed
+							throw new NotSupportedException();
 						else if (rank == 1)
 							sb.Append('*');
 						else
@@ -368,7 +357,6 @@ namespace il2cpp
 							PrettyName(sb, arg);
 						}
 						sb.Append('>');
-
 						return;
 					}
 
@@ -395,8 +383,7 @@ namespace il2cpp
 						return;
 					}
 
-					Debug.Fail("PrettyName " + typeSig.GetType().Name);
-					return;
+					throw new ArgumentOutOfRangeException("PrettyName " + typeSig.GetType().Name);
 			}
 		}
 

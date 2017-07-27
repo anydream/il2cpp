@@ -3,7 +3,7 @@
 namespace il2cpp
 {
 	// 类型对应的代码
-	class TypeCppCode
+	internal class TypeCppCode
 	{
 		// 类型名
 		public readonly string Name;
@@ -110,7 +110,7 @@ namespace il2cpp
 			{
 				string fieldTypeName = fldX.FieldType.GetCppName(TypeMgr);
 				prt.AppendFormatLine("// {0}\n{1} {2};",
-					fldX.PrettyName(),
+					fldX.FullName,
 					fieldTypeName,
 					fldX.GetCppName());
 

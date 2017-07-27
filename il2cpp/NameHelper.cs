@@ -149,7 +149,7 @@ namespace il2cpp
 		public static string GetCppName(this MethodX metX, string prefix)
 		{
 			if (metX.CppName_ == null)
-				metX.CppName_ = ToCppName(metX.FullFuncName);
+				metX.CppName_ = ToCppName(metX.Name);
 
 			return prefix + metX.CppName_;
 		}

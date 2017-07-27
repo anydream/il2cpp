@@ -507,9 +507,9 @@ namespace il2cpp
 			}
 		}
 
-		public string Name => BuildName(false);
+		public string ShortName => BuildName(false);
 		public string FullName => BuildName(true);
-		public string FullFuncName => BuildFuncName(true);
+		public string Name => BuildFuncName(true);
 
 		public string CppName_;
 
@@ -609,7 +609,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return Name;
+			return ShortName;
 		}
 
 		private string BuildFuncName(bool hasDeclType)
@@ -681,6 +681,9 @@ namespace il2cpp
 		public readonly TypeX DeclType;
 		// 字段类型
 		public TypeSig FieldType;
+
+		// 类型全名
+		public string FullName => FieldType.FullName + ' ' + Def.Name;
 
 		public string CppName_;
 
