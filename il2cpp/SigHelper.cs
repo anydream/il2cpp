@@ -126,8 +126,7 @@ namespace il2cpp
 					if (typeSig is CorLibTypeSig)
 						return typeSig;
 
-					Debug.Fail("Duplicate TypeSig " + typeSig.GetType().Name);
-					return null;
+					throw new ArgumentOutOfRangeException("Duplicate TypeSig " + typeSig.GetType().Name);
 			}
 		}
 
@@ -167,8 +166,7 @@ namespace il2cpp
 						Duplicate(metSig.Params));
 
 				default:
-					Debug.Fail("Duplicate " + metBaseSig.GetType().Name);
-					return null;
+					throw new ArgumentOutOfRangeException("Duplicate " + metBaseSig.GetType().Name);
 			}
 		}
 	}

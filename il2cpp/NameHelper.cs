@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
 
@@ -113,15 +114,13 @@ namespace il2cpp
 								sb.Append("uintptr_t");
 								break;
 							default:
-								Debug.Fail("SigToCppName CorLibTypeSig " + corTypeSig);
-								break;
+								throw new ArgumentOutOfRangeException("SigToCppName CorLibTypeSig " + corTypeSig);
 						}
 
 						return;
 					}
 
-					Debug.Fail("SigToCppName TypeSig " + sig.FullName);
-					return;
+					throw new ArgumentOutOfRangeException("SigToCppName TypeSig " + sig.FullName);
 			}
 		}
 

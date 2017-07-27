@@ -209,7 +209,7 @@ namespace il2cpp
 				// 找不到且存在继承的显式覆盖, 跳过
 				if (DerivedExplicitMap.ContainsKey(entry))
 					return;
-				Debug.Fail("MergeSlot " + entry);
+				throw new NotSupportedException("MergeSlot " + entry);
 			}
 
 			if (layer.ImplMethod.DeclType.Equals(currType))
@@ -1148,7 +1148,7 @@ namespace il2cpp
 							else if (omemRef.Class is TypeRef omemClsRef)
 								oDeclType = ResolveInstanceType(omemClsRef);
 							else
-								Debug.Fail("Override MemberRef " + overMetDecl);
+								throw new ArgumentOutOfRangeException("Override MemberRef " + overMetDecl);
 
 							GenericReplacer oReplacer = new GenericReplacer();
 							oReplacer.SetType(oDeclType);
@@ -1162,7 +1162,7 @@ namespace il2cpp
 							currType.VTable.ExplicitOverride(oDeclType.FullName, oSig, new MethodImpl(currType, metDef));
 						}
 						else
-							Debug.Fail("Override " + overMetDecl.GetType().Name);
+							throw new ArgumentOutOfRangeException("Override " + overMetDecl.GetType().Name);
 					}
 				}
 				else
@@ -1255,8 +1255,7 @@ namespace il2cpp
 					return new TypeX(typeRef.ResolveTypeDef());
 
 				default:
-					Debug.Fail("ResolveTypeDefOrRefImpl " + typeDefRef.GetType().Name);
-					return null;
+					throw new ArgumentOutOfRangeException("ResolveTypeDefOrRefImpl " + typeDefRef.GetType().Name);
 			}
 		}
 
@@ -1275,8 +1274,7 @@ namespace il2cpp
 					return ResolveInstanceTypeImpl(typeSpec.TypeSig, replacer);
 
 				default:
-					Debug.Fail("ResolveInstanceTypeImpl ITypeDefOrRef " + typeDefRef.GetType().Name);
-					return null;
+					throw new ArgumentOutOfRangeException("ResolveInstanceTypeImpl ITypeDefOrRef " + typeDefRef.GetType().Name);
 			}
 		}
 
@@ -1297,8 +1295,7 @@ namespace il2cpp
 					}
 
 				default:
-					Debug.Fail("ResolveInstanceTypeImpl TypeSig " + typeSig.GetType().Name);
-					return null;
+					throw new ArgumentOutOfRangeException("ResolveInstanceTypeImpl TypeSig " + typeSig.GetType().Name);
 			}
 		}
 

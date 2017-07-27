@@ -192,6 +192,7 @@ namespace il2cpp
 			CodePrinter prt = new CodePrinter();
 
 			string retTypeName = CurrMethod.ReturnType.GetCppName(TypeMgr);
+
 			if (CurrMethod.ReturnType.IsValueType)
 				DeclDependNames.Add(retTypeName);
 
@@ -208,9 +209,15 @@ namespace il2cpp
 				if (i != 0)
 					prt.Append(", ");
 
+				var arg = CurrMethod.ParamTypes[i];
+				string argTypeName = arg.GetCppName(TypeMgr);
+
 				prt.AppendFormat("{0} {1}",
-					CurrMethod.ParamTypes[i].GetCppName(TypeMgr),
+					argTypeName,
 					ArgName(i));
+
+				if (arg.IsValueType)
+					DeclDependNames.Add(argTypeName);
 			}
 
 			prt.Append(")");
@@ -227,9 +234,14 @@ namespace il2cpp
 				for (int i = 0; i < localList.Count; ++i)
 				{
 					var loc = localList[i];
+					string locTypeName = loc.GetCppName(TypeMgr);
+
 					prt.AppendFormatLine("{0} {1};",
-						loc.GetCppName(TypeMgr),
+						locTypeName,
 						LocalName(i));
+
+					if (loc.IsValueType)
+						DeclDependNames.Add(locTypeName);
 				}
 				prt.AppendLine();
 			}
@@ -917,8 +929,7 @@ namespace il2cpp
 					stype = StackType.Ptr;
 					break;
 				default:
-					Debug.Fail("Code error " + opCode);
-					break;
+					throw new ArgumentOutOfRangeException("Code error " + opCode);
 			}
 
 			SlotInfo val = Pop();
@@ -1020,8 +1031,7 @@ namespace il2cpp
 					break;
 
 				default:
-					Debug.Fail("Code error " + code);
-					break;
+					throw new ArgumentOutOfRangeException("Code error " + code);
 			}
 
 			return string.Format("{0}{1} {2} {3}{4}",
