@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using dnlib.DotNet;
@@ -63,7 +62,7 @@ namespace test
 			if (typeDef.HasCustomAttributes)
 			{
 				var attr = typeDef.CustomAttributes[0];
-				if (attr.TypeFullName == "TestIL.TestClassAttribute")
+				if (attr.AttributeType.Name == "TestClassAttribute")
 				{
 					if (attr.HasConstructorArguments)
 					{
@@ -77,9 +76,9 @@ namespace test
 			return false;
 		}
 
-		private static void TestProcess(TypeManager marker)
+		private static void TestReferenceMarker(TypeManager typeMgr)
 		{
-			foreach (var typeDef in marker.Module.Types)
+			foreach (var typeDef in typeMgr.Module.Types)
 			{
 				//if (typeDef.FullName != "TestIL.TestExplicitOverride2")
 				//	continue;
@@ -91,9 +90,9 @@ namespace test
 					Console.Write("{0}: ", typeDef.FullName);
 					Console.ForegroundColor = oldColor;
 
-					marker.AddEntry(typeDef.FindMethod("Entry"));
-					marker.Process();
-					string result = PrintAllTypes(marker.Types, false);
+					typeMgr.AddEntry(typeDef.FindMethod("Entry"));
+					typeMgr.Process();
+					string result = PrintAllTypes(typeMgr.Types, false);
 
 					if (result == expected)
 					{
@@ -109,19 +108,74 @@ namespace test
 						Console.WriteLine(result);
 					}
 
-					marker.Reset();
+					typeMgr.Reset();
+				}
+			}
+		}
+
+		private static void TestCodeGen(TypeManager typeMgr)
+		{
+			TypeGenerator typeGen = new TypeGenerator(typeMgr);
+			StringBuilder sb = new StringBuilder();
+
+			foreach (var typeDef in typeMgr.Module.Types)
+			{
+				if (GetTestClassResult(typeDef, out string expected))
+				{
+					var oldColor = Console.ForegroundColor;
+					Console.ForegroundColor = ConsoleColor.Yellow;
+					Console.Write("{0}: ", typeDef.FullName);
+					Console.ForegroundColor = oldColor;
+
+					typeMgr.AddEntry(typeDef.FindMethod("Entry"));
+					typeMgr.Process();
+					typeGen.GenerateAll();
+
+					foreach (var unit in typeGen.CompileUnits)
+					{
+						sb.AppendFormat("[{0}.h]\n{1}\n[{0}.cpp]\n{2}\n",
+							unit.Name,
+							unit.DeclCode,
+							unit.ImplCode);
+					}
+
+					string result = sb.ToString();
+					sb.Clear();
+
+					if (result == expected)
+					{
+						Console.ForegroundColor = ConsoleColor.Green;
+						Console.WriteLine("PASSED");
+						Console.ForegroundColor = oldColor;
+					}
+					else
+					{
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.WriteLine("FAILED");
+						Console.ForegroundColor = oldColor;
+						Console.WriteLine(result);
+					}
+
+					typeMgr.Reset();
 				}
 			}
 		}
 
 		private static void Main(string[] args)
 		{
+#if false
 			TypeManager typeMgr = new TypeManager();
-			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
+			typeMgr.Load(@"../../CodeGenTester/bin/debug/CodeGenTester.exe");
+			TestCodeGen(typeMgr);
+#endif
 
 #if true
-			TestProcess(typeMgr);
-#else
+			TypeManager typeMgr = new TypeManager();
+			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
+			TestReferenceMarker(typeMgr);
+#endif
+
+#if false
 			var sw = new Stopwatch();
 			sw.Start();
 

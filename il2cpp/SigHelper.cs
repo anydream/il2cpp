@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using dnlib.DotNet;
@@ -215,6 +214,9 @@ namespace il2cpp
 		{
 			StringBuilder sb = new StringBuilder();
 
+			if (self.Def.IsStatic)
+				sb.Append("static ");
+
 			PrettyName(sb, self.ReturnType);
 			sb.Append(' ' + self.Def.Name);
 
@@ -242,6 +244,10 @@ namespace il2cpp
 		public static string PrettyName(this FieldX self)
 		{
 			StringBuilder sb = new StringBuilder();
+
+			if (self.Def.IsStatic)
+				sb.Append("static ");
+
 			PrettyName(sb, self.FieldType);
 			sb.Append(' ' + self.Def.Name);
 			return sb.ToString();

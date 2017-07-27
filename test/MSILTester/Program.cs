@@ -14,7 +14,7 @@ namespace TestIL
 
 	[TestClass(@"======
 TestIL.TestInfImpl
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -59,7 +59,7 @@ TestIL.TestInfImpl/Inf
 
 	[TestClass(@"======
 TestIL.TestClsImpl
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -201,7 +201,7 @@ TestIL.TestClsImpl/SubCls2
 
 	[TestClass(@"======
 TestIL.TestNewOverrides
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -265,7 +265,7 @@ TestIL.Chain.Sub2
 
 	[TestClass(@"======
 TestIL.TestGenInfImpl
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -442,7 +442,7 @@ TestIL.TestGenInfImpl/Cls`1<long*[]>
 
 	[TestClass(@"======
 TestIL.TestExplicitOverride1
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -468,7 +468,7 @@ TestIL.ExplicitOverride.Cls
 
 	[TestClass(@"======
 TestIL.TestExplicitOverride2
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -498,7 +498,7 @@ TestIL.ExplicitOverride.Inf
 
 	[TestClass(@"======
 TestIL.TestExplicitOverride3
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -528,7 +528,7 @@ TestIL.ExplicitOverride.Inf`1<short>
 
 	[TestClass(@"======
 TestIL.TestExplicitOverride4
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -568,7 +568,7 @@ TestIL.ExplicitOverride.Inf`1<short>
 
 	[TestClass(@"======
 TestIL.TestExplicitOverride5
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -601,7 +601,7 @@ TestIL.ExplicitOverride.Inf`1<uint>
 
 	[TestClass(@"======
 TestIL.TestExplicitOverride6
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -642,7 +642,7 @@ TestIL.ExplicitOverride.Inf`1<uint>
 
 	[TestClass(@"======
 TestIL.TestExplicitOverride7
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -694,7 +694,7 @@ TestIL.TestExplicitOverride7/Inf`1<TestIL.TestExplicitOverride7/Elem>
 
 	[TestClass(@"======
 TestIL.TestCrossOverride
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -774,7 +774,7 @@ TestIL.TestCrossOverride/Inf
 
 	[TestClass(@"======
 TestIL.TestCrossOverride2
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -822,7 +822,7 @@ TestIL.TestCrossOverride2/Inf`2<int,short>
 
 	[TestClass(@"======
 TestIL.TestCrossOverride3
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -866,7 +866,7 @@ TestIL.TestCrossOverride3/Inf
 
 	[TestClass(@"======
 TestIL.TestCrossOverride4
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -930,8 +930,8 @@ TestIL.TestCrossOverride4/Inf`2<int,long>
 
 	[TestClass(@"======
 TestIL.TestCrossOverride5
--> void Entry()
--> char EntryT<char>(char)
+-> static void Entry()
+-> static char EntryT<char>(char)
 
 object
 -> void .ctor()
@@ -1024,7 +1024,7 @@ TestIL.TestCrossOverride5/Inf`2<int,char>
 
 	[TestClass(@"======
 TestIL.TestCrossOverride6
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -1092,7 +1092,7 @@ TestIL.TestCrossOverride6/Sub2
 
 	[TestClass(@"======
 TestIL.TestCrossOverride7
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -1160,7 +1160,7 @@ TestIL.TestCrossOverride7/Inf
 
 	[TestClass(@"======
 TestIL.TestCrossOverride8
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -1219,7 +1219,7 @@ TestIL.TestCrossOverride8/Inf
 
 	[TestClass(@"======
 TestIL.TestCrossOverride9
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -1289,12 +1289,12 @@ TestIL.TestCrossOverride9/Inf
 
 	[TestClass(@"======
 TestIL.TestStaticCctor
--> void Entry()
+-> static void Entry()
 
 TestIL.TestStaticCctor/Cls
--> void .cctor()
---> int field
---> int field2
+-> static void .cctor()
+--> static int field
+--> static int field2
 
 ======
 ")]
@@ -1324,7 +1324,7 @@ TestIL.TestStaticCctor/Cls
 
 	[TestClass(@"======
 TestIL.TestFinalizer
--> void Entry()
+-> static void Entry()
 
 object
 -> void .ctor()
@@ -1333,9 +1333,9 @@ object
 
 TestIL.TestFinalizer/Cls
 -> void .ctor()
--> void .cctor()
+-> static void .cctor()
 -> void Finalize()
---> int field2
+--> static int field2
 
 ======
 ")]
@@ -1365,7 +1365,7 @@ TestIL.TestFinalizer/Cls
 
 	[TestClass(@"======
 TestIL.TestDifferentBCL
--> void Entry()
+-> static void Entry()
 
 object
 -> int GetHashCode() = 0
@@ -1377,12 +1377,12 @@ object
    \ void Finalize(): object
 
 TestAdapter2.Test
--> object Create()
--> void Accept(object)
+-> static object Create()
+-> static void Accept(object)
 
 TestAdapter1.Test
--> void Accept(object)
--> object Create()
+-> static void Accept(object)
+-> static object Create()
 
 object
 -> int GetHashCode() = 0
@@ -1414,7 +1414,7 @@ TestAdapter1.Test/Cls
 
 	[TestClass(@"======
 TestIL.TestNullCall
--> void Entry()
+-> static void Entry()
 
 TestIL.TestNullCall/Inf
 -> void Foo() = 0
@@ -1437,24 +1437,8 @@ TestIL.TestNullCall/Inf
 
 	class Program
 	{
-		static int foo()
-		{
-			int a = 123;
-			if (a == 123)
-			{
-				++a;
-			}
-			else
-			{
-				--a;
-			}
-
-			return a;
-		}
-
 		static void Main()
 		{
-			foo();
 		}
 	}
 }

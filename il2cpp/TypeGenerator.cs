@@ -48,7 +48,7 @@ namespace il2cpp
 	}
 
 	// 编译单元
-	internal class CppCompileUnit
+	public class CppCompileUnit
 	{
 		// 单元名
 		public readonly string Name;
@@ -57,7 +57,7 @@ namespace il2cpp
 		// 实现代码
 		public readonly StringBuilder ImplCode = new StringBuilder();
 		// 包含的代码对象
-		public List<TypeCppCode> CodeList = new List<TypeCppCode>();
+		internal List<TypeCppCode> CodeList = new List<TypeCppCode>();
 
 		public CppCompileUnit(string name)
 		{
@@ -83,7 +83,7 @@ namespace il2cpp
 		private readonly Dictionary<string, TypeCppCode> CodeMap = new Dictionary<string, TypeCppCode>();
 
 		// 编译单元列表
-		private readonly List<CppCompileUnit> CompileUnits = new List<CppCompileUnit>();
+		public readonly List<CppCompileUnit> CompileUnits = new List<CppCompileUnit>();
 		private int CppUnitName;
 
 		public TypeGenerator(TypeManager typeMgr)
@@ -106,15 +106,6 @@ namespace il2cpp
 			}
 
 			GenerateCompileUnits();
-
-
-			foreach (var unit in CompileUnits)
-			{
-				Console.WriteLine("[{0}.h]\n{1}\n[{0}.cpp]\n{2}",
-					unit.Name,
-					unit.DeclCode,
-					unit.ImplCode);
-			}
 		}
 
 		private void ProcessType(TypeX currType)
@@ -141,7 +132,7 @@ namespace il2cpp
 
 			// 构造类型注释
 			prt.AppendFormatLine("// {0}, {1}",
-				currType.FullName,
+				currType.PrettyName(),
 				currType.RuntimeVersion);
 
 			// 构造类型结构体代码
@@ -175,9 +166,12 @@ namespace il2cpp
 			// 构造结构体成员
 			foreach (var fldX in currType.Fields)
 			{
+				if (fldX.Def.IsStatic)
+					continue;
+
 				string fieldTypeName = fldX.FieldType.GetCppName(TypeMgr);
 				prt.AppendFormatLine("// {0}\n{1} {2};",
-					fldX.FullName,
+					fldX.PrettyName(),
 					fieldTypeName,
 					fldX.GetCppName());
 
@@ -268,7 +262,11 @@ namespace il2cpp
 			HashSet<string> dependSet = new HashSet<string>();
 			foreach (var unit in CompileUnits)
 			{
+				// 防止包含自身
+				dependSet.Add(unit.Name);
+
 				unit.DeclCode.AppendLine("#pragma once");
+				unit.DeclCode.AppendLine("#include \"il2cpp.h\"");
 				unit.ImplCode.AppendFormat("#include \"{0}.h\"\n", unit.Name);
 
 				foreach (var cppCode in unit.CodeList)

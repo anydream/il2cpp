@@ -1,11 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{D7AF26C0-D2CB-44E9-92F1-78624B7AB175}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CA183818-F70E-4B78-ACD7-3FC0E8A35C7C} = {CA183818-F70E-4B78-ACD7-3FC0E8A35C7C}
+		{A07ACD40-AD75-45D7-8228-5092A5811BC5} = {A07ACD40-AD75-45D7-8228-5092A5811BC5}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "il2cpp", "il2cpp\il2cpp.csproj", "{A114005F-91FD-4852-8514-3CCEE68CD0C3}"
@@ -19,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAdapter2", "test\TestAdapter2\TestAdapter2.csproj", "{181DE10F-E752-4FF8-97F3-D8DB0F20ABFA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProj", "TestProj", "{8DF4FA5C-A243-43C0-80C2-BF5A18F54B84}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenTester", "test\CodeGenTester\CodeGenTester.csproj", "{A07ACD40-AD75-45D7-8228-5092A5811BC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +53,10 @@ Global
 		{181DE10F-E752-4FF8-97F3-D8DB0F20ABFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{181DE10F-E752-4FF8-97F3-D8DB0F20ABFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{181DE10F-E752-4FF8-97F3-D8DB0F20ABFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A07ACD40-AD75-45D7-8228-5092A5811BC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A07ACD40-AD75-45D7-8228-5092A5811BC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A07ACD40-AD75-45D7-8228-5092A5811BC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A07ACD40-AD75-45D7-8228-5092A5811BC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,5 +65,6 @@ Global
 		{CA183818-F70E-4B78-ACD7-3FC0E8A35C7C} = {8DF4FA5C-A243-43C0-80C2-BF5A18F54B84}
 		{51D9E431-248F-4086-AACB-037230176766} = {8DF4FA5C-A243-43C0-80C2-BF5A18F54B84}
 		{181DE10F-E752-4FF8-97F3-D8DB0F20ABFA} = {8DF4FA5C-A243-43C0-80C2-BF5A18F54B84}
+		{A07ACD40-AD75-45D7-8228-5092A5811BC5} = {8DF4FA5C-A243-43C0-80C2-BF5A18F54B84}
 	EndGlobalSection
 EndGlobal

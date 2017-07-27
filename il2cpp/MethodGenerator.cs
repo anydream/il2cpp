@@ -198,7 +198,7 @@ namespace il2cpp
 
 			// 构造声明
 			prt.AppendFormat("// {0}\n{1} {2}(",
-				CurrMethod.FullName,
+				CurrMethod.PrettyName(),
 				retTypeName,
 				CurrMethod.GetCppName(PrefixMet));
 
