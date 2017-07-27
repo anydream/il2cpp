@@ -168,8 +168,11 @@ namespace il2cpp
 
 			for (int i = 0; i < fullName.Length; ++i)
 			{
-				if (IsLegalIdentChar(fullName[i]))
-					sb.Append(fullName[i]);
+				char ch = fullName[i];
+				if (IsLegalIdentChar(ch))
+					sb.Append(ch);
+				else if (ch >= 0x7F)
+					sb.AppendFormat("{0:X}", ch);
 				else
 					sb.Append('_');
 			}

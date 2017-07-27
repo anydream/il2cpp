@@ -66,8 +66,8 @@ namespace il2cpp
 
 		public bool IsFull()
 		{
-			return ImplCode.Length > 3000 ||
-				   DeclCode.Length > 1000;
+			return ImplCode.Length > 50000 ||
+				   DeclCode.Length > 10000;
 		}
 	}
 

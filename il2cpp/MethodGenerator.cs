@@ -198,7 +198,7 @@ namespace il2cpp
 
 			// 构造声明
 			prt.AppendFormat("// {0}\n{1} {2}(",
-				CurrMethod.PrettyName(),
+				CurrMethod.PrettyName(true),
 				retTypeName,
 				CurrMethod.GetCppName(PrefixMet));
 
@@ -798,7 +798,7 @@ namespace il2cpp
 			return TempName(sinfo.StackIndex, sinfo.SlotType);
 		}
 
-		private string StackTypeCppName(StackType stype)
+		private static string StackTypeCppName(StackType stype)
 		{
 			switch (stype)
 			{
@@ -875,7 +875,16 @@ namespace il2cpp
 		private void Store(InstructionInfo inst, string lval, string cast = null)
 		{
 			SlotInfo poped = Pop();
-			inst.CppCode = string.Format("{0} = {1}{2}", lval, cast != null ? "(" + cast + ")" : "", SlotInfoName(ref poped));
+
+			// 如果类型相同则无需转换
+			string tempType = StackTypeCppName(poped.SlotType);
+			if (tempType == cast)
+				cast = null;
+
+			inst.CppCode = string.Format("{0} = {1}{2}",
+				lval,
+				cast != null ? "(" + cast + ")" : "",
+				SlotInfoName(ref poped));
 		}
 
 		private void Conv(InstructionInfo inst)

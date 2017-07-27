@@ -210,7 +210,7 @@ namespace il2cpp
 			return sb.ToString();
 		}
 
-		public static string PrettyName(this MethodX self)
+		public static string PrettyName(this MethodX self, bool hasDeclType = false)
 		{
 			StringBuilder sb = new StringBuilder();
 
@@ -218,7 +218,10 @@ namespace il2cpp
 				sb.Append("static ");
 
 			PrettyName(sb, self.ReturnType);
-			sb.Append(' ' + self.Def.Name);
+
+			sb.AppendFormat(" {0}{1}",
+				hasDeclType ? self.DeclType.PrettyName() + "::" : "",
+				self.Def.Name);
 
 			PrettyGenArgs(sb, self.GenArgs);
 
