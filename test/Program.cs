@@ -11,7 +11,7 @@ namespace test
 	{
 		public static StringBuilder AppendFormatLine(this StringBuilder self, string format, params object[] args)
 		{
-			return self.AppendFormat(format, args).AppendLine();
+			return self.AppendFormat(format, args).Append('\n');
 		}
 	}
 
@@ -20,14 +20,14 @@ namespace test
 		private static string PrintAllTypes(IList<TypeX> allTypes, bool showVersion)
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine("======");
+			sb.Append("======\n");
 
 			foreach (var type in allTypes)
 			{
 				if (type.IsEmptyType)
 					continue;
 
-				sb.AppendLine(type.PrettyName() + (showVersion ? " [" + type.RuntimeVersion + "]" : ""));
+				sb.Append(type.PrettyName() + (showVersion ? " [" + type.RuntimeVersion + "]" : "") + '\n');
 
 				foreach (var met in type.Methods)
 				{
@@ -49,10 +49,10 @@ namespace test
 				foreach (var fld in type.Fields)
 					sb.AppendFormatLine("--> {0}", fld.PrettyName());
 
-				sb.AppendLine();
+				sb.Append('\n');
 			}
 
-			sb.AppendLine("======");
+			sb.Append("======\n");
 
 			return sb.ToString();
 		}
@@ -67,6 +67,7 @@ namespace test
 					if (attr.HasConstructorArguments)
 					{
 						expected = attr.ConstructorArguments[0].Value.ToString();
+						expected = expected.Replace("\r\n", "\n");
 						return true;
 					}
 				}
@@ -102,10 +103,20 @@ namespace test
 					}
 					else
 					{
+						int diff = 0;
+						for (; diff < Math.Min(result.Length, expected.Length); ++diff)
+						{
+							if (result[diff] != expected[diff])
+								break;
+						}
+
 						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine("FAILED");
 						Console.ForegroundColor = oldColor;
-						Console.WriteLine(result);
+						Console.Write(result.Substring(0, diff));
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.WriteLine('[' + result.Substring(diff) + ']');
+						Console.ForegroundColor = oldColor;
 					}
 
 					typeMgr.Reset();
@@ -150,10 +161,20 @@ namespace test
 					}
 					else
 					{
+						int diff = 0;
+						for (; diff < Math.Min(result.Length, expected.Length); ++diff)
+						{
+							if (result[diff] != expected[diff])
+								break;
+						}
+
 						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine("FAILED");
 						Console.ForegroundColor = oldColor;
-						Console.WriteLine(result);
+						Console.Write(result.Substring(0, diff));
+						Console.ForegroundColor = ConsoleColor.Red;
+						Console.WriteLine('[' + result.Substring(diff) + ']');
+						Console.ForegroundColor = oldColor;
 					}
 
 					typeMgr.Reset();

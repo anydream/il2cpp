@@ -479,12 +479,20 @@ namespace il2cpp
 					}
 					break;
 
+				case Parameter arg:
+					strOperand = "arg_" + arg.Index;
+					break;
+
+				case Local loc:
+					strOperand = "loc_" + loc.Index;
+					break;
+
 				default:
 					strOperand = Operand?.ToString();
 					break;
 			}
 
-			return string.Format("{0}{1}", OpCode, strOperand ?? "");
+			return string.Format("{0}{1}", OpCode, strOperand != null ? ' ' + strOperand : "");
 		}
 	}
 

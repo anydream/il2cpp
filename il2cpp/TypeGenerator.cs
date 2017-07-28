@@ -265,8 +265,8 @@ namespace il2cpp
 				// 防止包含自身
 				dependSet.Add(unit.Name);
 
-				unit.DeclCode.AppendLine("#pragma once");
-				unit.DeclCode.AppendLine("#include \"il2cpp.h\"");
+				unit.DeclCode.Append("#pragma once\n");
+				unit.DeclCode.Append("#include \"il2cpp.h\"\n");
 				unit.ImplCode.AppendFormat("#include \"{0}.h\"\n", unit.Name);
 
 				foreach (var cppCode in unit.CodeList)
