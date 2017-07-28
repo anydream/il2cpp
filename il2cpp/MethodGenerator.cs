@@ -476,6 +476,10 @@ namespace il2cpp
 
 			switch (opCode.Code)
 			{
+				case Code.Ldnull:
+					Load(inst, StackType.Obj, "nullptr");
+					return;
+
 				case Code.Ldc_I4_M1:
 					Load(inst, StackType.I4, "-1");
 					return;
@@ -829,34 +833,34 @@ namespace il2cpp
 				return StackType.Ref;
 			}
 
-			string sigName = sig.FullName;
+			var sigType = sig.ElementType;
 			if (sig.IsPointer ||
-				sigName == "System.IntPtr" ||
-				sigName == "System.UIntPtr")
+				sigType == ElementType.I ||
+				sigType == ElementType.U)
 			{
 				return StackType.Ptr;
 			}
-			if (sigName == "System.SByte" ||
-				sigName == "System.Byte" ||
-				sigName == "System.Int16" ||
-				sigName == "System.UInt16" ||
-				sigName == "System.Int32" ||
-				sigName == "System.UInt32" ||
-				sigName == "System.Boolean" ||
-				sigName == "System.Char")
+			if (sigType == ElementType.I1 ||
+				sigType == ElementType.U1 ||
+				sigType == ElementType.I2 ||
+				sigType == ElementType.U2 ||
+				sigType == ElementType.I4 ||
+				sigType == ElementType.U4 ||
+				sigType == ElementType.Char ||
+				sigType == ElementType.Boolean)
 			{
 				return StackType.I4;
 			}
-			if (sigName == "System.Int64" ||
-				sigName == "System.UInt64")
+			if (sigType == ElementType.I8 ||
+				sigType == ElementType.U8)
 			{
 				return StackType.I8;
 			}
-			if (sigName == "System.Single")
+			if (sigType == ElementType.R4)
 			{
 				return StackType.R4;
 			}
-			if (sigName == "System.Double")
+			if (sigType == ElementType.R8)
 			{
 				return StackType.R8;
 			}
@@ -869,10 +873,24 @@ namespace il2cpp
 			return StackType.Obj;
 		}
 
-		private void Load(InstructionInfo inst, StackType stype, string rval)
+		private void Load(InstructionInfo inst, StackType stype, string rval, string cast = null)
 		{
 			SlotInfo pushed = Push(stype);
-			inst.CppCode = string.Format("{0} = {1}", SlotInfoName(ref pushed), rval);
+
+			// 如果类型相同则无需转换
+			if (cast != null)
+			{
+				string tempType = StackTypeCppName(stype);
+				if (tempType == cast)
+					cast = null;
+				else
+					cast = tempType + ")(" + cast;
+			}
+
+			inst.CppCode = string.Format("{0} = {1}{2}",
+				SlotInfoName(ref pushed),
+				cast != null ? '(' + cast + ')' : "",
+				rval);
 		}
 
 		private void Store(InstructionInfo inst, string lval, string cast = null)
@@ -880,9 +898,12 @@ namespace il2cpp
 			SlotInfo poped = Pop();
 
 			// 如果类型相同则无需转换
-			string tempType = StackTypeCppName(poped.SlotType);
-			if (tempType == cast)
-				cast = null;
+			if (cast != null)
+			{
+				string tempType = StackTypeCppName(poped.SlotType);
+				if (tempType == cast)
+					cast = null;
+			}
 
 			inst.CppCode = string.Format("{0} = {1}{2}",
 				lval,
@@ -945,10 +966,7 @@ namespace il2cpp
 			}
 
 			SlotInfo val = Pop();
-			string rval = string.Format("({0}){1}",
-				cast,
-				SlotInfoName(ref val));
-			Load(inst, stype, rval);
+			Load(inst, stype, SlotInfoName(ref val), cast);
 		}
 
 		private void BrCond(InstructionInfo inst, bool cond, int target)

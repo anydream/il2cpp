@@ -19,6 +19,48 @@ namespace il2cpp
 		{
 			switch (sig.ElementType)
 			{
+				case ElementType.Void:
+					sb.Append("void");
+					return;
+				case ElementType.I1:
+					sb.Append("int8_t");
+					return;
+				case ElementType.U1:
+					sb.Append("uint8_t");
+					return;
+				case ElementType.I2:
+					sb.Append("int16_t");
+					return;
+				case ElementType.U2:
+				case ElementType.Char:
+					sb.Append("uint16_t");
+					return;
+				case ElementType.I4:
+				case ElementType.Boolean:
+					sb.Append("int32_t");
+					return;
+				case ElementType.U4:
+					sb.Append("uint32_t");
+					return;
+				case ElementType.I8:
+					sb.Append("int64_t");
+					return;
+				case ElementType.U8:
+					sb.Append("uint64_t");
+					return;
+				case ElementType.R4:
+					sb.Append("float");
+					return;
+				case ElementType.R8:
+					sb.Append("double");
+					return;
+				case ElementType.I:
+					sb.Append("intptr_t");
+					return;
+				case ElementType.U:
+					sb.Append("uintptr_t");
+					return;
+
 				case ElementType.ValueType:
 					{
 						TypeX type = typeMgr.GetNamedType(sig.FullName, sig.Module.RuntimeVersion);
@@ -29,6 +71,7 @@ namespace il2cpp
 					}
 					return;
 
+				case ElementType.Object:
 				case ElementType.Class:
 					{
 						TypeX type = typeMgr.GetNamedType(sig.FullName, sig.Module.RuntimeVersion);
@@ -62,62 +105,17 @@ namespace il2cpp
 					return;
 
 				default:
-					if (sig is CorLibTypeSig corTypeSig)
+					/*if (sig is CorLibTypeSig corTypeSig)
 					{
 						// 基础类型
 						switch (corTypeSig.FullName)
 						{
-							case "System.Void":
-								sb.Append("void");
-								break;
-							case "System.Int32":
-								sb.Append("int32_t");
-								break;
-							case "System.UInt32":
-								sb.Append("uint32_t");
-								break;
-							case "System.Single":
-								sb.Append("float");
-								break;
-							case "System.Double":
-								sb.Append("double");
-								break;
-							case "System.Boolean":
-								sb.Append("int32_t");
-								break;
-							case "System.Int64":
-								sb.Append("int64_t");
-								break;
-							case "System.UInt64":
-								sb.Append("uint64_t");
-								break;
-							case "System.Int16":
-								sb.Append("int16_t");
-								break;
-							case "System.UInt16":
-								sb.Append("uint16_t");
-								break;
-							case "System.SByte":
-								sb.Append("int8_t");
-								break;
-							case "System.Byte":
-								sb.Append("uint8_t");
-								break;
-							case "System.Char":
-								sb.Append("uint16_t");
-								break;
-							case "System.IntPtr":
-								sb.Append("intptr_t");
-								break;
-							case "System.UIntPtr":
-								sb.Append("uintptr_t");
-								break;
 							default:
 								throw new ArgumentOutOfRangeException("SigToCppName CorLibTypeSig " + corTypeSig);
 						}
 
 						return;
-					}
+					}*/
 
 					throw new ArgumentOutOfRangeException("SigToCppName TypeSig " + sig.FullName);
 			}
