@@ -1210,8 +1210,11 @@ namespace il2cpp
 
 					if (metDef.IsNewSlot ||
 						!metDef.IsVirtual ||
-						currType.Def.FullName == "System.Object")
+						currType.Def.ToTypeSig().ElementType == ElementType.Object)
 					{
+						Debug.Assert(currType.Def.ToTypeSig().ElementType != ElementType.Object ||
+									 currType.Def.FullName == "System.Object");
+
 						// 新建虚表槽的方法
 						currType.VTable.NewSlot(sig, new MethodImpl(currType, metDef));
 					}

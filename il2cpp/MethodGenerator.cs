@@ -744,10 +744,7 @@ namespace il2cpp
 						else
 							prefix = PrefixMet;
 
-						Call(inst,
-							metX.GetCppName(prefix),
-							metX.ParamTypes.Count,
-							metX.ReturnType);
+						Call(inst, metX, prefix);
 					}
 					return;
 
@@ -873,42 +870,50 @@ namespace il2cpp
 			return StackType.Obj;
 		}
 
-		private void Load(InstructionInfo inst, StackType stype, string rval, string cast = null)
+		private string LoadPushed(ref SlotInfo pushed, string cast)
 		{
-			SlotInfo pushed = Push(stype);
-
 			// 如果类型相同则无需转换
 			if (cast != null)
 			{
-				string tempType = StackTypeCppName(stype);
-				if (tempType == cast)
+				string tempType = StackTypeCppName(pushed.SlotType);
+				if (IsCppTypeConvertValid(tempType, cast))
 					cast = null;
 				else
 					cast = tempType + ")(" + cast;
 			}
 
-			inst.CppCode = string.Format("{0} = {1}{2}",
+			return string.Format("{0} = {1}",
 				SlotInfoName(ref pushed),
+				cast != null ? '(' + cast + ')' : "");
+		}
+
+		private void Load(InstructionInfo inst, StackType stype, string rval, string cast = null)
+		{
+			SlotInfo pushed = Push(stype);
+			inst.CppCode = LoadPushed(ref pushed, cast) + rval;
+		}
+
+		private string StorePoped(ref SlotInfo poped, string cast)
+		{
+			// 如果类型相同则无需转换
+			if (cast != null)
+			{
+				string tempType = StackTypeCppName(poped.SlotType);
+				if (IsCppTypeConvertValid(cast, tempType))
+					cast = null;
+			}
+
+			return string.Format("{0}{1}",
 				cast != null ? '(' + cast + ')' : "",
-				rval);
+				SlotInfoName(ref poped));
 		}
 
 		private void Store(InstructionInfo inst, string lval, string cast = null)
 		{
 			SlotInfo poped = Pop();
-
-			// 如果类型相同则无需转换
-			if (cast != null)
-			{
-				string tempType = StackTypeCppName(poped.SlotType);
-				if (tempType == cast)
-					cast = null;
-			}
-
-			inst.CppCode = string.Format("{0} = {1}{2}",
+			inst.CppCode = string.Format("{0} = {1}",
 				lval,
-				cast != null ? '(' + cast + ')' : "",
-				SlotInfoName(ref poped));
+				StorePoped(ref poped, cast));
 		}
 
 		private void Conv(InstructionInfo inst)
@@ -1089,28 +1094,29 @@ namespace il2cpp
 				SlotInfoName(ref popList[1]));
 		}
 
-		private void Call(InstructionInfo inst, string metName, int popCount, TypeSig retType)
+		private void Call(InstructionInfo inst, MethodX metX, string prefix)
 		{
-			SlotInfo[] popList = Pop(popCount);
+			int argNum = metX.ParamTypes.Count;
+			SlotInfo[] popList = Pop(argNum);
 
 			StringBuilder sb = new StringBuilder();
+			var retType = metX.ReturnType;
 			if (!retType.IsVoidSig())
 			{
 				SlotInfo pushed = Push(ToStackType(retType));
-				sb.AppendFormat("{0} = ", SlotInfoName(ref pushed));
+				sb.Append(LoadPushed(ref pushed, retType.GetCppName(TypeMgr)));
 			}
 
-			sb.AppendFormat("{0}(", metName);
+			sb.AppendFormat("{0}(", metX.GetCppName(prefix));
 
 			bool last = false;
-			for (int i = 0; i < popList.Length; ++i)
+			for (int i = 0; i < argNum; ++i)
 			{
 				if (last)
 					sb.Append(", ");
 				last = true;
 
-				var arg = popList[i];
-				sb.Append(SlotInfoName(ref arg));
+				sb.Append(StorePoped(ref popList[i], metX.ParamTypes[i].GetCppName(TypeMgr)));
 			}
 
 			sb.Append(')');
@@ -1144,6 +1150,88 @@ namespace il2cpp
 			sb.Append(')');
 
 			inst.CppCode = sb.ToString();
+		}
+
+		private static bool IsCppTypeConvertValid(string ltype, string rtype)
+		{
+			if (ltype == rtype)
+				return true;
+
+			switch (ltype)
+			{
+				case "int16_t":
+					{
+						switch (rtype)
+						{
+							case "int8_t":
+							case "uint8_t":
+								return true;
+						}
+						return false;
+					}
+
+				case "uint16_t":
+					{
+						switch (rtype)
+						{
+							case "uint8_t":
+								return true;
+						}
+						return false;
+					}
+
+				case "int32_t":
+					{
+						switch (rtype)
+						{
+							case "int16_t":
+							case "uint16_t":
+							case "int8_t":
+							case "uint8_t":
+								return true;
+						}
+						return false;
+					}
+
+				case "uint32_t":
+					{
+						switch (rtype)
+						{
+							case "uint16_t":
+							case "uint8_t":
+								return true;
+						}
+						return false;
+					}
+
+				case "int64_t":
+					{
+						switch (rtype)
+						{
+							case "int32_t":
+							case "uint32_t":
+							case "int16_t":
+							case "uint16_t":
+							case "int8_t":
+							case "uint8_t":
+								return true;
+						}
+						return false;
+					}
+
+				case "uint64_t":
+					{
+						switch (rtype)
+						{
+							case "uint32_t":
+							case "uint16_t":
+							case "uint8_t":
+								return true;
+						}
+						return false;
+					}
+			}
+			return false;
 		}
 
 		private static bool IsBinaryOpValid(StackType op1, StackType op2, out StackType retType, Code code)
