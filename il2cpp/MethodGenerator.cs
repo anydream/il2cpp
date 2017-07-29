@@ -928,27 +928,34 @@ namespace il2cpp
 			return StackType.Obj;
 		}
 
-		private string LoadPushed(ref SlotInfo pushed, string cast)
+		private string LoadPushed(ref SlotInfo pushed, string rvalType, string castType = null)
 		{
-			// 如果类型相同则无需转换
-			if (cast != null)
+			if (castType != null)
 			{
-				string tempType = StackTypeCppName(pushed.SlotType);
-				if (IsCppTypeConvertValid(tempType, cast))
-					cast = null;
-				else
-					cast = tempType + ")(" + cast;
+				if (IsCppTypeConvertValid(castType, rvalType))
+					castType = null;
+
+				rvalType = castType;
 			}
 
-			return string.Format("{0} = {1}",
+			string tempType = null;
+			if (rvalType != null)
+			{
+				tempType = StackTypeCppName(pushed.SlotType);
+				if (IsCppTypeConvertValid(tempType, rvalType))
+					tempType = null;
+			}
+
+			return string.Format("{0} = {1}{2}",
 				SlotInfoName(ref pushed),
-				cast != null ? '(' + cast + ')' : "");
+				tempType != null ? '(' + tempType + ')' : "",
+				castType != null ? '(' + castType + ')' : "");
 		}
 
-		private void Load(InstructionInfo inst, StackType stype, string rval, string cast = null)
+		private void Load(InstructionInfo inst, StackType stype, string rval, string rvalType = null, string castType = null)
 		{
 			SlotInfo pushed = Push(stype);
-			inst.CppCode = LoadPushed(ref pushed, cast) + rval;
+			inst.CppCode = LoadPushed(ref pushed, rvalType, castType) + rval;
 		}
 
 		private string StorePoped(ref SlotInfo poped, string cast)
@@ -1029,7 +1036,7 @@ namespace il2cpp
 			}
 
 			SlotInfo val = Pop();
-			Load(inst, stype, SlotInfoName(ref val), cast);
+			Load(inst, stype, SlotInfoName(ref val), StackTypeCppName(val.SlotType), cast);
 		}
 
 		private void BrCond(InstructionInfo inst, bool cond, int target)
