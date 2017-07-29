@@ -66,7 +66,7 @@ namespace il2cpp
 		private void AppendIndent()
 		{
 			for (int i = 0; i < Indents; ++i)
-				Builder.Append("    ");
+				Builder.Append('\t');
 		}
 
 		private bool IsNewLine()

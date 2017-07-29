@@ -390,7 +390,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return FullName;
+			throw new InvalidOperationException();
 		}
 
 		public bool AddMethod(MethodX metX, out MethodX ometX)
@@ -477,6 +477,18 @@ namespace il2cpp
 							strOperand += "label_" + inst.Offset + ' ';
 						}
 					}
+					break;
+
+				case TypeX tyX:
+					strOperand = tyX.PrettyName();
+					break;
+
+				case MethodX metX:
+					strOperand = metX.PrettyName(true);
+					break;
+
+				case FieldX fldX:
+					strOperand = fldX.PrettyName();
 					break;
 
 				case Parameter arg:
@@ -637,7 +649,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return FullName;
+			throw new InvalidOperationException();
 		}
 
 		private string BuildFuncName(bool hasDeclType)
@@ -748,7 +760,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return FullName;
+			throw new InvalidOperationException();
 		}
 	}
 

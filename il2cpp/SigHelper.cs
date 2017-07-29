@@ -58,8 +58,8 @@ namespace il2cpp
 
 		public TypeSig Duplicate(TypeSig typeSig)
 		{
-			if (typeSig == null)
-				return null;
+			if (!IsDuplicateNeeded(typeSig))
+				return typeSig;
 
 			switch (typeSig.ElementType)
 			{
@@ -142,6 +142,34 @@ namespace il2cpp
 		protected static IList<int> Duplicate(IList<int> lst)
 		{
 			return lst == null ? null : new List<int>(lst);
+		}
+
+		// 检查类型签名是否包含泛型
+		private static bool IsDuplicateNeeded(TypeSig typeSig)
+		{
+			while (typeSig != null)
+			{
+				switch (typeSig.ElementType)
+				{
+					case ElementType.Var:
+					case ElementType.MVar:
+						return true;
+
+					case ElementType.GenericInst:
+						{
+							GenericInstSig genSig = (GenericInstSig)typeSig;
+							foreach (var arg in genSig.GenericArguments)
+							{
+								if (IsDuplicateNeeded(arg))
+									return true;
+							}
+						}
+						break;
+				}
+
+				typeSig = typeSig.Next;
+			}
+			return false;
 		}
 	}
 
