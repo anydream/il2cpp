@@ -450,64 +450,6 @@ namespace il2cpp
 		}
 	}
 
-	// 包装的指令
-	public class InstructionInfo
-	{
-		public OpCode OpCode;
-		public object Operand;
-		public int Offset;
-
-		public bool IsBrTarget;
-		public bool IsProcessed;
-		public string CppCode;
-
-		public override string ToString()
-		{
-			string strOperand = null;
-			switch (Operand)
-			{
-				case InstructionInfo inst:
-					strOperand = "label_" + inst.Offset;
-					break;
-
-				case InstructionInfo[] instList:
-					{
-						foreach (var inst in instList)
-						{
-							strOperand += "label_" + inst.Offset + ' ';
-						}
-					}
-					break;
-
-				case TypeX tyX:
-					strOperand = tyX.PrettyName();
-					break;
-
-				case MethodX metX:
-					strOperand = metX.PrettyName(true);
-					break;
-
-				case FieldX fldX:
-					strOperand = fldX.PrettyName();
-					break;
-
-				case Parameter arg:
-					strOperand = "arg_" + arg.Index;
-					break;
-
-				case Local loc:
-					strOperand = "loc_" + loc.Index;
-					break;
-
-				default:
-					strOperand = Operand?.ToString();
-					break;
-			}
-
-			return string.Format("{0}{1}", OpCode, strOperand != null ? ' ' + strOperand : "");
-		}
-	}
-
 	// 展开的方法
 	public class MethodX : GenericArgs
 	{
