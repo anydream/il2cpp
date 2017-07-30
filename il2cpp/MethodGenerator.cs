@@ -87,7 +87,7 @@ namespace il2cpp
 					break;
 
 				case FieldX fldX:
-					strOperand = fldX.PrettyName();
+					strOperand = fldX.PrettyName(true);
 					break;
 
 				case Parameter arg:
@@ -283,6 +283,26 @@ namespace il2cpp
 
 			prt.AppendLine("\n{");
 			++prt.Indents;
+
+			if (CurrMethod.Def.IsStatic)
+			{
+				if (CurrMethod.Def.IsConstructor)
+				{
+					// 静态构造内部防止多次调用
+					prt.AppendLine("static bool cctorIsInvoked = false;");
+					prt.AppendLine("if (cctorIsInvoked) return;");
+					prt.AppendLine("cctorIsInvoked = true;\n");
+				}
+				// 静态方法内部调用静态构造
+				else if (CurrMethod.DeclType.CctorMethod != null)
+					prt.AppendFormatLine("{0}();\n", CurrMethod.DeclType.CctorMethod.GetCppName(PrefixMet));
+			}
+			else if (CurrMethod.Def.IsConstructor)
+			{
+				// 非静态构造内部调用静态构造
+				if (CurrMethod.DeclType.CctorMethod != null)
+					prt.AppendFormatLine("{0}();\n", CurrMethod.DeclType.CctorMethod.GetCppName(PrefixMet));
+			}
 
 			// 构造局部变量
 			var localList = CurrMethod.LocalTypes;
@@ -691,16 +711,14 @@ namespace il2cpp
 				case Code.Ldsfld:
 					{
 						FieldX fldX = (FieldX)operand;
-						if (fldX.DeclType.CctorMethod != null)
-							inst.CppCode = fldX.DeclType.CctorMethod.GetCppName(PrefixMet) + "();\n";
+						InvokeCctor(inst, fldX.DeclType);
 						Load(inst, ToStackType(fldX.FieldType), fldX.GetCppName());
 					}
 					return;
 				case Code.Ldsflda:
 					{
 						FieldX fldX = (FieldX)operand;
-						if (fldX.DeclType.CctorMethod != null)
-							inst.CppCode = fldX.DeclType.CctorMethod.GetCppName(PrefixMet) + "();\n";
+						InvokeCctor(inst, fldX.DeclType);
 						Load(inst, StackType.Ptr, '&' + fldX.GetCppName());
 					}
 					return;
@@ -721,6 +739,7 @@ namespace il2cpp
 				case Code.Stsfld:
 					{
 						FieldX fldX = (FieldX)operand;
+						InvokeCctor(inst, fldX.DeclType);
 						Store(inst, fldX.GetCppName(), fldX.FieldType.GetCppName(TypeMgr));
 					}
 					return;
@@ -996,6 +1015,15 @@ namespace il2cpp
 				SlotInfoName(ref pushed),
 				tempType != null ? '(' + tempType + ')' : "",
 				castType != null ? '(' + castType + ')' : "");
+		}
+
+		private void InvokeCctor(InstructionInfo inst, TypeX declType)
+		{
+			if (CurrMethod.Def.IsStatic)
+				return;
+
+			if (declType.CctorMethod != null)
+				inst.CppCode += declType.CctorMethod.GetCppName(PrefixMet) + "();\n";
 		}
 
 		private void Load(InstructionInfo inst, StackType stype, string rval, string rvalType = null, string castType = null)

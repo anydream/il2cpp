@@ -192,7 +192,7 @@ namespace il2cpp
 			foreach (var sfldX in staticFields)
 			{
 				string fieldTypeName = sfldX.FieldType.GetCppName(TypeMgr);
-				string sfldPrettyName = sfldX.PrettyName();
+				string sfldPrettyName = sfldX.PrettyName(true);
 				string sfldDef = string.Format("{0} {1};\n",
 					fieldTypeName,
 					sfldX.GetCppName());

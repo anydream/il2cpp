@@ -272,7 +272,7 @@ namespace il2cpp
 			return sb.ToString();
 		}
 
-		public static string PrettyName(this FieldX self)
+		public static string PrettyName(this FieldX self, bool hasDeclType = false)
 		{
 			StringBuilder sb = new StringBuilder();
 
@@ -280,7 +280,9 @@ namespace il2cpp
 				sb.Append("static ");
 
 			PrettyName(sb, self.FieldType);
-			sb.Append(' ' + self.Def.Name);
+			sb.AppendFormat(" {0}{1}",
+				hasDeclType ? self.DeclType.PrettyName() + "::" : "",
+				self.Def.Name);
 			return sb.ToString();
 		}
 
