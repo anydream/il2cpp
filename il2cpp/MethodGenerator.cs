@@ -845,14 +845,7 @@ namespace il2cpp
 					{
 						if (operand is MethodX metX)
 						{
-							Debug.Assert(metX.Def.IsConstructor);
-							Debug.Assert(!metX.Def.IsStatic);
-
-							NewObj(inst,
-								metX.DeclType.GetCppName(),
-								metX.DeclType.GetCppTypeID(),
-								metX.GetCppName(PrefixMet),
-								metX.ParamTypes.Count - 1);
+							NewObj(inst, metX);
 						}
 						else
 						{
@@ -1281,27 +1274,31 @@ namespace il2cpp
 			inst.CppCode += sb.ToString();
 		}
 
-		private void NewObj(InstructionInfo inst, string typeName, uint typeID, string metName, int popCount)
+		private void NewObj(InstructionInfo inst, MethodX metX)
 		{
-			SlotInfo[] popList = Pop(popCount);
+			Debug.Assert(metX.Def.IsConstructor);
+			Debug.Assert(!metX.Def.IsStatic);
+			Debug.Assert(metX.ReturnType.IsVoidSig());
+
+			int argNum = metX.ParamTypes.Count - 1;
+			SlotInfo[] popList = Pop(argNum);
+			SlotInfo self = Push(StackType.Obj);
 
 			StringBuilder sb = new StringBuilder();
 
-			SlotInfo self = Push(StackType.Obj);
 			sb.AppendFormat("{0} = il2cpp_New(sizeof({1}), {2});\n",
 				SlotInfoName(ref self),
-				typeName,
-				typeID);
+				metX.DeclType.GetCppName(),
+				metX.DeclType.GetCppTypeID());
 
 			sb.AppendFormat("{0}({1}",
-				metName,
-				SlotInfoName(ref self));
+				metX.GetCppName(PrefixMet),
+				StorePoped(ref self, metX.ParamTypes[0].GetCppName(TypeMgr)));
 
-			for (int i = 0; i < popList.Length; ++i)
+			for (int i = 0; i < argNum; ++i)
 			{
-				var arg = popList[i];
-				sb.AppendFormat(", {0}",
-					SlotInfoName(ref arg));
+				sb.Append(", ");
+				sb.Append(StorePoped(ref popList[i], metX.ParamTypes[i + 1].GetCppName(TypeMgr)));
 			}
 
 			sb.Append(')');
