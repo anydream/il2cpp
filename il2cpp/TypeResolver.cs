@@ -346,6 +346,9 @@ namespace il2cpp
 		// 虚表
 		public VirtualTable VTable;
 
+		public MethodX CctorMethod;
+		public MethodX FinalizerMethod;
+
 		// 类型全名
 		public string FullName => Def.FullName + GenericToString();
 
@@ -933,7 +936,7 @@ namespace il2cpp
 			{
 				// 创建方法包装
 				MethodX metX = new MethodX(cctor, tyX, null);
-				AddMethod(metX);
+				tyX.CctorMethod = AddMethod(metX);
 			}
 		}
 
@@ -948,7 +951,7 @@ namespace il2cpp
 			{
 				// 创建方法包装
 				MethodX metX = new MethodX(finalizer, tyX, null);
-				AddMethod(metX);
+				tyX.FinalizerMethod = AddMethod(metX);
 			}
 		}
 
@@ -1031,6 +1034,14 @@ namespace il2cpp
 			{
 				typeList = new List<TypeX>();
 				NameTypeMap.Add(typeName, typeList);
+			}
+			else
+			{
+				// 不允许出现相同名称不同版本号的类型
+				throw new NotSupportedException(
+					string.Format("Same type name with different version: {0}, {1}",
+						typeList.First().RuntimeVersion,
+						tyX.RuntimeVersion));
 			}
 			typeList.Add(tyX);
 

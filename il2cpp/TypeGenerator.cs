@@ -164,10 +164,14 @@ namespace il2cpp
 			++prt.Indents;
 
 			// 构造结构体成员
+			List<FieldX> staticFields = new List<FieldX>();
 			foreach (var fldX in currType.Fields)
 			{
 				if (fldX.Def.IsStatic)
+				{
+					staticFields.Add(fldX);
 					continue;
+				}
 
 				string fieldTypeName = fldX.FieldType.GetCppName(TypeMgr);
 				prt.AppendFormatLine("// {0}\n{1} {2};",
@@ -183,7 +187,34 @@ namespace il2cpp
 			--prt.Indents;
 			prt.AppendLine("};");
 
+			// 构造静态字段全局变量
+			StringBuilder sbImpl = new StringBuilder();
+			foreach (var sfldX in staticFields)
+			{
+				string fieldTypeName = sfldX.FieldType.GetCppName(TypeMgr);
+				string sfldPrettyName = sfldX.PrettyName();
+				string sfldDef = string.Format("{0} {1};\n",
+					fieldTypeName,
+					sfldX.GetCppName());
+
+				prt.AppendFormat("// {0}\nextern {1}",
+					sfldPrettyName,
+					sfldDef);
+
+				sbImpl.AppendFormat("// {0}\n{1}",
+					sfldPrettyName,
+					sfldDef);
+
+				// 添加字段类型依赖
+				if (sfldX.FieldType.IsValueType)
+				{
+					cppCode.DeclDependNames.Add(fieldTypeName);
+					cppCode.ImplDependNames.Add(fieldTypeName);
+				}
+			}
+
 			cppCode.DeclCode.Append(prt);
+			cppCode.ImplCode.Append(sbImpl);
 			return cppCode;
 		}
 

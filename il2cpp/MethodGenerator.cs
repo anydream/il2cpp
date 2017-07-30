@@ -607,7 +607,7 @@ namespace il2cpp
 				case Code.Ldloca_S:
 					{
 						Local loc = (Local)operand;
-						Load(inst, StackType.Ptr, "&" + LocalName(loc.Index));
+						Load(inst, StackType.Ptr, '&' + LocalName(loc.Index));
 					}
 					return;
 
@@ -654,7 +654,7 @@ namespace il2cpp
 				case Code.Ldarga_S:
 					{
 						Parameter arg = (Parameter)operand;
-						Load(inst, StackType.Ptr, "&" + ArgName(arg.Index));
+						Load(inst, StackType.Ptr, '&' + ArgName(arg.Index));
 					}
 					return;
 
@@ -688,22 +688,40 @@ namespace il2cpp
 						Load(inst, StackType.Ptr, rval);
 					}
 					return;
-				/*case Code.Ldsfld:
+				case Code.Ldsfld:
+					{
+						FieldX fldX = (FieldX)operand;
+						if (fldX.DeclType.CctorMethod != null)
+							inst.CppCode = fldX.DeclType.CctorMethod.GetCppName(PrefixMet) + "();\n";
+						Load(inst, ToStackType(fldX.FieldType), fldX.GetCppName());
+					}
 					return;
 				case Code.Ldsflda:
-					return;*/
+					{
+						FieldX fldX = (FieldX)operand;
+						if (fldX.DeclType.CctorMethod != null)
+							inst.CppCode = fldX.DeclType.CctorMethod.GetCppName(PrefixMet) + "();\n";
+						Load(inst, StackType.Ptr, '&' + fldX.GetCppName());
+					}
+					return;
 
 				case Code.Stfld:
 					{
 						FieldX fldX = (FieldX)operand;
 						SlotInfo val = Pop();
 						SlotInfo self = Pop();
-						inst.CppCode = string.Format("(({0}*){1})->{2} = ({3}){4}",
+						inst.CppCode = string.Format("(({0}*){1})->{2} = {3}",
 							fldX.DeclType.GetCppName(),
 							SlotInfoName(ref self),
 							fldX.GetCppName(),
-							fldX.FieldType.GetCppName(TypeMgr),
-							SlotInfoName(ref val));
+							StorePoped(ref val, fldX.FieldType.GetCppName(TypeMgr)));
+					}
+					return;
+
+				case Code.Stsfld:
+					{
+						FieldX fldX = (FieldX)operand;
+						Store(inst, fldX.GetCppName(), fldX.FieldType.GetCppName(TypeMgr));
 					}
 					return;
 
@@ -881,6 +899,34 @@ namespace il2cpp
 			}
 		}
 
+		private static string StackTypeUnsignedCppName(StackType stype)
+		{
+			switch (stype)
+			{
+				case StackType.I4:
+					return "uint32_t";
+				case StackType.I8:
+					return "uint64_t";
+				case StackType.Ptr:
+					return "uintptr_t";
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		private static bool StackTypeIsReal(StackType stype)
+		{
+			return stype == StackType.R4 ||
+				   stype == StackType.R8;
+		}
+
+		private static bool StackTypeIsInt(StackType stype)
+		{
+			return stype == StackType.I4 ||
+				   stype == StackType.I8 ||
+				   stype == StackType.Ptr;
+		}
+
 		private StackType ToStackType(TypeSig sig)
 		{
 			if (sig.IsByRef)
@@ -955,7 +1001,7 @@ namespace il2cpp
 		private void Load(InstructionInfo inst, StackType stype, string rval, string rvalType = null, string castType = null)
 		{
 			SlotInfo pushed = Push(stype);
-			inst.CppCode = LoadPushed(ref pushed, rvalType, castType) + rval;
+			inst.CppCode += LoadPushed(ref pushed, rvalType, castType) + rval;
 		}
 
 		private string StorePoped(ref SlotInfo poped, string cast)
@@ -976,14 +1022,14 @@ namespace il2cpp
 		private void Store(InstructionInfo inst, string lval, string cast = null)
 		{
 			SlotInfo poped = Pop();
-			inst.CppCode = string.Format("{0} = {1}",
+			inst.CppCode += string.Format("{0} = {1}",
 				lval,
 				StorePoped(ref poped, cast));
 		}
 
 		private void Conv(InstructionInfo inst)
 		{
-			string cast = null;
+			string cast;
 			StackType stype = StackType.I4;
 
 			OpCode opCode = inst.OpCode;
@@ -1042,19 +1088,19 @@ namespace il2cpp
 		private void BrCond(InstructionInfo inst, bool cond, int target)
 		{
 			SlotInfo poped = Pop();
-			inst.CppCode = string.Format("if ({0}{1}) goto {2}", cond ? "" : "!", SlotInfoName(ref poped), LabelName(target));
+			inst.CppCode += string.Format("if ({0}{1}) goto {2}", cond ? "" : "!", SlotInfoName(ref poped), LabelName(target));
 		}
 
 		private void BrCmp(InstructionInfo inst, int target)
 		{
-			inst.CppCode = string.Format("if ({0}) goto {1}", CmpCode(inst.OpCode.Code), LabelName(target));
+			inst.CppCode += string.Format("if ({0}) goto {1}", CmpCode(inst.OpCode.Code), LabelName(target));
 		}
 
 		private void Cmp(InstructionInfo inst)
 		{
 			string str = CmpCode(inst.OpCode.Code);
 			SlotInfo pushed = Push(StackType.I4);
-			inst.CppCode = string.Format("{0} = {1} ? 1 : 0", SlotInfoName(ref pushed), str);
+			inst.CppCode += string.Format("{0} = {1} ? 1 : 0", SlotInfoName(ref pushed), str);
 		}
 
 		private string CmpCode(Code code)
@@ -1067,6 +1113,7 @@ namespace il2cpp
 			}
 
 			bool isNeg = false;
+			bool isUn = false;
 			string oper;
 
 			switch (code)
@@ -1088,6 +1135,7 @@ namespace il2cpp
 				case Code.Bgt_Un_S:
 					oper = "<=";
 					isNeg = true;
+					isUn = true;
 					break;
 
 				case Code.Clt:
@@ -1101,6 +1149,7 @@ namespace il2cpp
 				case Code.Blt_Un_S:
 					oper = ">=";
 					isNeg = true;
+					isUn = true;
 					break;
 
 				case Code.Bge:
@@ -1113,32 +1162,49 @@ namespace il2cpp
 					oper = "<=";
 					break;
 
-				case Code.Bne_Un:
-				case Code.Bne_Un_S:
-					oper = "!=";
-					break;
-
 				case Code.Bge_Un:
 				case Code.Bge_Un_S:
 					oper = "<";
 					isNeg = true;
+					isUn = true;
 					break;
 
 				case Code.Ble_Un:
 				case Code.Ble_Un_S:
 					oper = ">";
 					isNeg = true;
+					isUn = true;
+					break;
+
+				case Code.Bne_Un:
+				case Code.Bne_Un_S:
+					oper = "!=";
+					isUn = true;
 					break;
 
 				default:
 					throw new ArgumentOutOfRangeException("Code error " + code);
 			}
 
+			bool isUnsigned = false;
+			if (isUn)
+			{
+				if (StackTypeIsInt(popList[0].SlotType) && StackTypeIsInt(popList[1].SlotType))
+				{
+					isUnsigned = true;
+				}
+				else if (StackTypeIsReal(popList[0].SlotType) && StackTypeIsReal(popList[1].SlotType))
+				{
+				}
+				else
+					return "0";
+			}
+
 			return string.Format("{0}{1} {2} {3}{4}",
 				isNeg ? "!(" : "",
-				SlotInfoName(ref popList[0]),
+				(isUnsigned ? '(' + StackTypeUnsignedCppName(popList[0].SlotType) + ')' : "") + SlotInfoName(ref popList[0]),
 				oper,
-				SlotInfoName(ref popList[1]),
+				(isUnsigned ? '(' + StackTypeUnsignedCppName(popList[1].SlotType) + ')' : "") + SlotInfoName(ref popList[1]),
 				isNeg ? ")" : "");
 		}
 
@@ -1152,7 +1218,7 @@ namespace il2cpp
 			}
 
 			SlotInfo pushed = Push(retType);
-			inst.CppCode = string.Format("{0} = {1} {2} {3}",
+			inst.CppCode += string.Format("{0} = {1} {2} {3}",
 				SlotInfoName(ref pushed),
 				SlotInfoName(ref popList[0]),
 				oper,
@@ -1186,7 +1252,7 @@ namespace il2cpp
 
 			sb.Append(')');
 
-			inst.CppCode = sb.ToString();
+			inst.CppCode += sb.ToString();
 		}
 
 		private void NewObj(InstructionInfo inst, string typeName, uint typeID, string metName, int popCount)
@@ -1214,7 +1280,7 @@ namespace il2cpp
 
 			sb.Append(')');
 
-			inst.CppCode = sb.ToString();
+			inst.CppCode += sb.ToString();
 		}
 
 		private static bool IsCppTypeConvertValid(string ltype, string rtype)
