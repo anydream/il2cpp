@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using dnlib.DotNet;
 
 namespace il2cpp
 {
@@ -131,9 +132,8 @@ namespace il2cpp
 			CodePrinter prt = new CodePrinter();
 
 			// 构造类型注释
-			prt.AppendFormatLine("// {0}, {1}",
-				currType.PrettyName(),
-				currType.RuntimeVersion);
+			prt.AppendFormatLine("// {0}",
+				currType.PrettyName());
 
 			// 构造类型结构体代码
 			string typeName;
@@ -162,6 +162,12 @@ namespace il2cpp
 				cppCode.DeclDependNames.Add(baseTypeName);
 
 			++prt.Indents;
+
+			// object 添加类型字段
+			if (currType.Def.ToTypeSig().ElementType == ElementType.Object)
+			{
+				prt.AppendLine("uint32_t il2cppTypeID;");
+			}
 
 			// 构造结构体成员
 			List<FieldX> staticFields = new List<FieldX>();

@@ -289,9 +289,7 @@ namespace il2cpp
 				if (CurrMethod.Def.IsConstructor)
 				{
 					// 静态构造内部防止多次调用
-					prt.AppendLine("static bool cctorIsInvoked = false;");
-					prt.AppendLine("if (cctorIsInvoked) return;");
-					prt.AppendLine("cctorIsInvoked = true;\n");
+					prt.AppendLine("IL2CPP_CCTOR_PREVENTOR;\n");
 				}
 				// 静态方法内部调用静态构造
 				else if (CurrMethod.DeclType.CctorMethod != null)
@@ -423,7 +421,7 @@ namespace il2cpp
 			++prt.Indents;
 
 			// 构造获得函数指针代码
-			prt.AppendFormatLine("void *pfn = {0}({1}->typeID);",
+			prt.AppendFormatLine("void* pfn = {0}({1}->il2cppTypeID);",
 				CurrMethod.GetCppName(PrefixVFtn),
 				ArgName(0));
 
@@ -694,7 +692,7 @@ namespace il2cpp
 							fldX.DeclType.GetCppName(),
 							SlotInfoName(ref self),
 							fldX.GetCppName());
-						Load(inst, ToStackType(fldX.FieldType), rval);
+						Load(inst, ToStackType(fldX.FieldType), rval, fldX.FieldType.GetCppName(TypeMgr));
 					}
 					return;
 				case Code.Ldflda:
@@ -712,7 +710,7 @@ namespace il2cpp
 					{
 						FieldX fldX = (FieldX)operand;
 						InvokeCctor(inst, fldX.DeclType);
-						Load(inst, ToStackType(fldX.FieldType), fldX.GetCppName());
+						Load(inst, ToStackType(fldX.FieldType), fldX.GetCppName(), fldX.FieldType.GetCppName(TypeMgr));
 					}
 					return;
 				case Code.Ldsflda:
@@ -820,7 +818,7 @@ namespace il2cpp
 					{
 						Debug.Assert(TypeStack.Count == 1);
 						SlotInfo poped = Pop();
-						inst.CppCode = string.Format("return {0}", SlotInfoName(ref poped));
+						inst.CppCode = "return " + StorePoped(ref poped, CurrMethod.ReturnType.GetCppName(TypeMgr));
 					}
 					else
 					{
@@ -1019,7 +1017,7 @@ namespace il2cpp
 
 		private void InvokeCctor(InstructionInfo inst, TypeX declType)
 		{
-			if (CurrMethod.Def.IsStatic)
+			if (CurrMethod.Def.IsStatic && CurrMethod.DeclType.Equals(declType))
 				return;
 
 			if (declType.CctorMethod != null)
