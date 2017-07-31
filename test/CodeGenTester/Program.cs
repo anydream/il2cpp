@@ -381,7 +381,7 @@ label_4:
 				char.MinValue,
 				false,
 				default(IntPtr),
-				UIntPtr.Zero,
+				default(UIntPtr),
 				null);
 
 			ch = Foo(
@@ -397,8 +397,8 @@ label_4:
 				double.MaxValue,
 				char.MaxValue,
 				true,
-				new IntPtr(-1),
-				new UIntPtr(ulong.MaxValue),
+				default(IntPtr),
+				default(UIntPtr),
 				null);
 		}
 	}
