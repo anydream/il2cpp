@@ -17,12 +17,12 @@ namespace test
 
 	internal class Program
 	{
-		private static string PrintAllTypes(IList<TypeX> allTypes, bool showVersion)
+		private static string PrintAllTypes(TypeManager typeMgr, bool showVersion)
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append("======\n");
 
-			foreach (var type in allTypes)
+			foreach (var type in typeMgr.Types)
 			{
 				if (type.IsEmptyType)
 					continue;
@@ -93,7 +93,7 @@ namespace test
 
 					typeMgr.AddEntry(typeDef.FindMethod("Entry"));
 					typeMgr.Process();
-					string result = PrintAllTypes(typeMgr.Types, false);
+					string result = PrintAllTypes(typeMgr, false);
 
 					if (result == expected)
 					{

@@ -1363,6 +1363,7 @@ TestIL.TestFinalizer/Cls
 		}
 	}
 
+#if false
 	[TestClass(@"======
 TestIL.TestDifferentBCL
 -> static void Entry()
@@ -1411,6 +1412,7 @@ TestAdapter1.Test/Cls
 			TestAdapter2.Test.Accept(TestAdapter1.Test.Create());
 		}
 	}
+#endif
 
 	[TestClass(@"======
 TestIL.TestNullCall

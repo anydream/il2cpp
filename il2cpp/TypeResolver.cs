@@ -730,7 +730,7 @@ namespace il2cpp
 		private readonly Dictionary<TypeX, TypeX> TypeMap = new Dictionary<TypeX, TypeX>();
 		// 同名类型集合映射
 		private readonly Dictionary<string, List<TypeX>> NameTypeMap = new Dictionary<string, List<TypeX>>();
-		public IList<TypeX> Types => new List<TypeX>(TypeMap.Values);
+		public Dictionary<TypeX, TypeX>.ValueCollection Types => TypeMap.Values;
 		// 待处理方法队列
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
 		// 虚调用映射

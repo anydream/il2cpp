@@ -103,8 +103,21 @@ namespace il2cpp
 			CompileUnits.Clear();
 			CppUnitName = 0;
 
+			// 提升 object 为第一个类型
+			var types = new List<TypeX>(TypeMgr.Types);
+			for (int i = 0; i < types.Count; ++i)
+			{
+				var type = types[i];
+				if (type.Def.ToTypeSig().ElementType == ElementType.Object)
+				{
+					types[i] = types[0];
+					types[0] = type;
+					break;
+				}
+			}
+
 			// 生成所有类型
-			foreach (var type in TypeMgr.Types)
+			foreach (var type in types)
 			{
 				ProcessType(type);
 			}
