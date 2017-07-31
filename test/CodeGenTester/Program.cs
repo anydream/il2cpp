@@ -15,11 +15,12 @@ namespace CodeGenTester
 	[TestClass(@"[CppUnit_0.h]
 #pragma once
 #include ""il2cpp.h""
-// object, v4.0.30319
+// object
 struct cls_0_System_Object
 {
+	uint32_t il2cppTypeID;
 };
-// CodeGenTester.TestBasicInst, v4.0.30319
+// CodeGenTester.TestBasicInst
 struct cls_1_CodeGenTester_TestBasicInst : cls_0_System_Object
 {
 };
@@ -192,11 +193,12 @@ label_31:
 	[TestClass(@"[CppUnit_0.h]
 #pragma once
 #include ""il2cpp.h""
-// object, v4.0.30319
+// object
 struct cls_0_System_Object
 {
+	uint32_t il2cppTypeID;
 };
-// CodeGenTester.TestBasicTypes, v4.0.30319
+// CodeGenTester.TestBasicTypes
 struct cls_1_CodeGenTester_TestBasicTypes : cls_0_System_Object
 {
 };
@@ -337,7 +339,7 @@ uint16_t met_2_CodeGenTester_TestBasicTypes__Foo(int8_t arg_0, uint8_t arg_1, in
 label_4:
 	tmp_0_i4 = loc_0;
 	// ret
-	return tmp_0_i4;
+	return (uint16_t)tmp_0_i4;
 }
 
 ")]
@@ -379,7 +381,7 @@ label_4:
 				char.MinValue,
 				false,
 				default(IntPtr),
-				default(UIntPtr),
+				UIntPtr.Zero,
 				null);
 
 			ch = Foo(
@@ -395,9 +397,39 @@ label_4:
 				double.MaxValue,
 				char.MaxValue,
 				true,
-				default(IntPtr),
-				default(UIntPtr),
+				new IntPtr(-1),
+				new UIntPtr(ulong.MaxValue),
 				null);
+		}
+	}
+
+	[TestClass(@"")]
+	class TestStatic
+	{
+		private static byte s_byte;
+		private static uint s_uint;
+
+		class Cls
+		{
+			public static byte s_byte;
+			public static uint s_uint = 123456;
+			public uint f_uint = 789;
+
+			static Cls()
+			{
+				s_byte = 42;
+			}
+		}
+
+		static TestStatic()
+		{
+			s_byte = 1;
+		}
+
+		public static uint Entry()
+		{
+			Cls.s_uint += s_uint - new Cls().f_uint;
+			return s_byte + s_uint + Cls.s_byte + Cls.s_uint;
 		}
 	}
 
@@ -405,7 +437,7 @@ label_4:
 	{
 		static void Main()
 		{
-
+			uint result = TestStatic.Entry();
 		}
 	}
 }

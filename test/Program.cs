@@ -161,6 +161,9 @@ namespace test
 					}
 					else
 					{
+						result = result.Replace("\t", "    ");
+						expected = expected.Replace("\t", "    ");
+
 						int diff = 0;
 						for (; diff < Math.Min(result.Length, expected.Length); ++diff)
 						{
