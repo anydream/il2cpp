@@ -128,6 +128,33 @@ namespace il2cpp
 			return sb.ToString();
 		}
 
+		public static string GetInitValue(this TypeSig sig, TypeManager typeMgr)
+		{
+			switch (sig.ElementType)
+			{
+				case ElementType.I1:
+				case ElementType.U1:
+				case ElementType.I2:
+				case ElementType.U2:
+				case ElementType.Char:
+				case ElementType.I4:
+				case ElementType.Boolean:
+				case ElementType.U4:
+				case ElementType.I8:
+				case ElementType.U8:
+				case ElementType.R4:
+				case ElementType.R8:
+				case ElementType.I:
+				case ElementType.U:
+					return "0";
+
+				case ElementType.ValueType:
+					return sig.GetCppName(typeMgr) + "()";
+			}
+
+			return "nullptr";
+		}
+
 		public static string GetCppName(this TypeX tyX)
 		{
 			if (tyX.CppName_ == null)

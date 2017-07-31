@@ -291,8 +291,10 @@ namespace il2cpp
 			{
 				if (CurrMethod.Def.IsConstructor)
 				{
+					Debug.Assert(CurrMethod.DeclType.CctorMethod == CurrMethod);
 					// 静态构造内部防止多次调用
-					prt.AppendLine("IL2CPP_CCTOR_PREVENTOR;\n");
+					prt.AppendFormatLine("IL2CPP_CCTOR_PREVENTOR(onceflag_{0});\n",
+						CurrMethod.DeclType.GetCppName());
 				}
 				// 静态方法内部调用静态构造
 				else if (CurrMethod.DeclType.CctorMethod != null)

@@ -83,6 +83,9 @@ namespace il2cpp
 		// 类型代码映射
 		private readonly Dictionary<string, TypeCppCode> CodeMap = new Dictionary<string, TypeCppCode>();
 
+		// 静态变量初始化代码体
+		private StringBuilder StaticInitBody = new StringBuilder();
+
 		// 编译单元列表
 		public readonly List<CppCompileUnit> CompileUnits = new List<CppCompileUnit>();
 		private int CppUnitName;
@@ -100,6 +103,7 @@ namespace il2cpp
 		{
 			NameHelper.Reset();
 			CodeMap.Clear();
+			StaticInitBody.Clear();
 			CompileUnits.Clear();
 			CppUnitName = 0;
 
@@ -213,11 +217,12 @@ namespace il2cpp
 			StringBuilder sbImpl = IsAllInOne ? null : new StringBuilder();
 			foreach (var sfldX in staticFields)
 			{
-				string fieldTypeName = sfldX.FieldType.GetCppName(TypeMgr);
+				string sfldTypeName = sfldX.FieldType.GetCppName(TypeMgr);
+				string sfldCppName = sfldX.GetCppName();
 				string sfldPrettyName = sfldX.PrettyName(true);
 				string sfldDef = string.Format("{0} {1};\n",
-					fieldTypeName,
-					sfldX.GetCppName());
+					sfldTypeName,
+					sfldCppName);
 
 				prt.AppendFormat("// {0}\n{1}{2}",
 					sfldPrettyName,
@@ -231,12 +236,35 @@ namespace il2cpp
 										sfldDef);
 				}
 
+				StaticInitBody.AppendFormat("{0} = {1};\n",
+					sfldCppName,
+					sfldX.FieldType.GetInitValue(TypeMgr));
+
 				// 添加字段类型依赖
 				if (sfldX.FieldType.IsValueType)
 				{
-					cppCode.DeclDependNames.Add(fieldTypeName);
-					cppCode.ImplDependNames.Add(fieldTypeName);
+					cppCode.DeclDependNames.Add(sfldTypeName);
+					cppCode.ImplDependNames.Add(sfldTypeName);
 				}
+			}
+
+			// 静态构造函数防止多次调用的标记
+			if (currType.CctorMethod != null)
+			{
+				string onceName = string.Format("onceflag_{0}",
+					currType.GetCppName());
+				string onceDef = string.Format("int32_t {0};\n",
+					onceName);
+
+				prt.Append((IsAllInOne ? "static " : "extern ") + onceDef);
+
+				if (!IsAllInOne)
+				{
+					sbImpl.Append(onceDef);
+				}
+
+				StaticInitBody.AppendFormat("{0} = 0;\n",
+					onceName);
 			}
 
 			cppCode.DeclCode.Append(prt);
@@ -394,6 +422,29 @@ namespace il2cpp
 					unit.CodeList = null;
 					dependSet.Clear();
 				}
+			}
+
+			// 添加初始化静态变量的函数
+			if (StaticInitBody.Length > 0)
+			{
+				var firstUnit = CompileUnits[0];
+
+				CodePrinter staticInitPrt = new CodePrinter();
+				staticInitPrt.AppendFormat("{0}void il2cpp_InitStaticVars()",
+					IsAllInOne ? "static " : "");
+
+				if (!IsAllInOne)
+				{
+					firstUnit.DeclCode.AppendFormat("{0};\n", staticInitPrt);
+				}
+
+				staticInitPrt.AppendLine("\n{");
+				++staticInitPrt.Indents;
+				staticInitPrt.Append(StaticInitBody.ToString());
+				--staticInitPrt.Indents;
+				staticInitPrt.AppendLine("}");
+
+				firstUnit.ImplCode.Append(staticInitPrt);
 			}
 		}
 	}
