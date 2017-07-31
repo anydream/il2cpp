@@ -430,8 +430,7 @@ namespace il2cpp
 				var firstUnit = CompileUnits[0];
 
 				CodePrinter staticInitPrt = new CodePrinter();
-				staticInitPrt.AppendFormat("{0}void il2cpp_InitStaticVars()",
-					IsAllInOne ? "static " : "");
+				staticInitPrt.Append("void il2cpp_InitStaticVars()");
 
 				if (!IsAllInOne)
 				{
