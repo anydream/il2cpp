@@ -112,6 +112,7 @@ namespace il2cpp
 	{
 		// 类型管理器
 		private readonly TypeManager TypeMgr;
+		private readonly TypeGenerator TypeGen;
 
 		// 当前方法
 		private MethodX CurrMethod;
@@ -132,9 +133,10 @@ namespace il2cpp
 		// 实现依赖的类型
 		public readonly HashSet<string> ImplDependNames = new HashSet<string>();
 
-		public MethodGenerator(TypeManager typeMgr)
+		public MethodGenerator(TypeManager typeMgr, TypeGenerator typeGen)
 		{
 			TypeMgr = typeMgr;
+			TypeGen = typeGen;
 		}
 
 		private void RegisterSlotInfo(ref SlotInfo sinfo)
@@ -255,8 +257,9 @@ namespace il2cpp
 				DeclDependNames.Add(retTypeName);
 
 			// 构造声明
-			prt.AppendFormat("// {0}\n{1} {2}(",
+			prt.AppendFormat("// {0}\n{1}{2} {3}(",
 				CurrMethod.PrettyName(true),
+				TypeGen.IsAllInOne ? "static " : "",
 				retTypeName,
 				CurrMethod.GetCppName(PrefixMet));
 
@@ -387,7 +390,8 @@ namespace il2cpp
 
 			// 构造声明
 			string retTypeName = CurrMethod.ReturnType.GetCppName(TypeMgr);
-			prt.AppendFormat("{0} {1}(",
+			prt.AppendFormat("{0}{1} {2}(",
+				TypeGen.IsAllInOne ? "static " : "",
 				retTypeName,
 				CurrMethod.GetCppName(PrefixVMet));
 
@@ -456,7 +460,8 @@ namespace il2cpp
 
 			CodePrinter prt = new CodePrinter();
 			// 构造声明
-			prt.AppendFormat("void* {0}(int typeID)",
+			prt.AppendFormat("{0}void* {1}(int typeID)",
+				TypeGen.IsAllInOne ? "static " : "",
 				CurrMethod.GetCppName(PrefixVFtn));
 			codeDecl = prt + ";\n";
 

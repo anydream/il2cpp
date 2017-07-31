@@ -54,9 +54,9 @@ namespace il2cpp
 		// 单元名
 		public readonly string Name;
 		// 声明代码
-		public readonly StringBuilder DeclCode = new StringBuilder();
+		public StringBuilder DeclCode = new StringBuilder();
 		// 实现代码
-		public readonly StringBuilder ImplCode = new StringBuilder();
+		public StringBuilder ImplCode = new StringBuilder();
 		// 包含的代码对象
 		internal List<TypeCppCode> CodeList = new List<TypeCppCode>();
 
@@ -87,10 +87,13 @@ namespace il2cpp
 		public readonly List<CppCompileUnit> CompileUnits = new List<CppCompileUnit>();
 		private int CppUnitName;
 
+		// 是否把所有代码都生成到一个文件
+		public bool IsAllInOne = false;
+
 		public TypeGenerator(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
-			MethodGen = new MethodGenerator(typeMgr);
+			MethodGen = new MethodGenerator(typeMgr, this);
 		}
 
 		public void GenerateAll()
@@ -194,7 +197,7 @@ namespace il2cpp
 			prt.AppendLine("};");
 
 			// 构造静态字段全局变量
-			StringBuilder sbImpl = new StringBuilder();
+			StringBuilder sbImpl = IsAllInOne ? null : new StringBuilder();
 			foreach (var sfldX in staticFields)
 			{
 				string fieldTypeName = sfldX.FieldType.GetCppName(TypeMgr);
@@ -203,13 +206,17 @@ namespace il2cpp
 					fieldTypeName,
 					sfldX.GetCppName());
 
-				prt.AppendFormat("// {0}\nextern {1}",
+				prt.AppendFormat("// {0}\n{1}{2}",
 					sfldPrettyName,
+					IsAllInOne ? "static " : "extern ",
 					sfldDef);
 
-				sbImpl.AppendFormat("// {0}\n{1}",
-					sfldPrettyName,
-					sfldDef);
+				if (!IsAllInOne)
+				{
+					sbImpl.AppendFormat("// {0}\n{1}",
+										sfldPrettyName,
+										sfldDef);
+				}
 
 				// 添加字段类型依赖
 				if (sfldX.FieldType.IsValueType)
@@ -220,7 +227,9 @@ namespace il2cpp
 			}
 
 			cppCode.DeclCode.Append(prt);
-			cppCode.ImplCode.Append(sbImpl);
+			if (!IsAllInOne)
+				cppCode.ImplCode.Append(sbImpl);
+
 			return cppCode;
 		}
 
@@ -287,66 +296,91 @@ namespace il2cpp
 				return cmp;
 			});
 
-			// 划分编译单元
-			foreach (var cppCode in codeSorter)
+			if (IsAllInOne)
 			{
-				var unit = GetCompileUnit();
-				unit.CodeList.Add(cppCode);
-				cppCode.CompileUnit = unit;
-			}
+				var unit = new CppCompileUnit("CppUnitAll");
+				CompileUnits.Add(unit);
 
-			// 生成代码
-			HashSet<string> dependSet = new HashSet<string>();
-			foreach (var unit in CompileUnits)
-			{
-				// 防止包含自身
-				dependSet.Add(unit.Name);
-
-				unit.DeclCode.Append("#pragma once\n");
 				unit.DeclCode.Append("#include \"il2cpp.h\"\n");
-				unit.ImplCode.AppendFormat("#include \"{0}.h\"\n", unit.Name);
 
-				foreach (var cppCode in unit.CodeList)
+				foreach (var cppCode in codeSorter)
 				{
-					// 生成头文件依赖包含
-					foreach (var typeCode in cppCode.DeclDependTypes)
-					{
-						string unitName = typeCode.CompileUnit.Name;
-						if (!dependSet.Contains(unitName))
-						{
-							dependSet.Add(unitName);
-							unit.DeclCode.AppendFormat("#include \"{0}.h\"\n",
-								unitName);
-						}
-					}
-
-					// 拼接声明代码
 					unit.DeclCode.Append(cppCode.DeclCode);
+					unit.ImplCode.Append(cppCode.ImplCode);
+
 					cppCode.DeclCode = null;
 					cppCode.DeclDependTypes = null;
-				}
-
-				foreach (var cppCode in unit.CodeList)
-				{
-					// 生成源文件依赖包含
-					foreach (var typeCode in cppCode.ImplDependTypes)
-					{
-						string unitName = typeCode.CompileUnit.Name;
-						if (!dependSet.Contains(unitName))
-						{
-							dependSet.Add(unitName);
-							unit.ImplCode.AppendFormat("#include \"{0}.h\"\n",
-								unitName);
-						}
-					}
-
-					// 拼接实现代码
-					unit.ImplCode.Append(cppCode.ImplCode);
 					cppCode.ImplCode = null;
 					cppCode.ImplDependTypes = null;
 				}
-				unit.CodeList = null;
-				dependSet.Clear();
+
+				unit.DeclCode.Append(unit.ImplCode);
+				unit.ImplCode = unit.DeclCode;
+				unit.DeclCode = null;
+			}
+			else
+			{
+				// 划分编译单元
+				foreach (var cppCode in codeSorter)
+				{
+					var unit = GetCompileUnit();
+					unit.CodeList.Add(cppCode);
+					cppCode.CompileUnit = unit;
+				}
+
+				// 生成代码
+				HashSet<string> dependSet = new HashSet<string>();
+				foreach (var unit in CompileUnits)
+				{
+					// 防止包含自身
+					dependSet.Add(unit.Name);
+
+					unit.DeclCode.Append("#pragma once\n");
+					unit.DeclCode.Append("#include \"il2cpp.h\"\n");
+					unit.ImplCode.AppendFormat("#include \"{0}.h\"\n", unit.Name);
+
+					foreach (var cppCode in unit.CodeList)
+					{
+						// 生成头文件依赖包含
+						foreach (var typeCode in cppCode.DeclDependTypes)
+						{
+							string unitName = typeCode.CompileUnit.Name;
+							if (!dependSet.Contains(unitName))
+							{
+								dependSet.Add(unitName);
+								unit.DeclCode.AppendFormat("#include \"{0}.h\"\n",
+									unitName);
+							}
+						}
+
+						// 拼接声明代码
+						unit.DeclCode.Append(cppCode.DeclCode);
+						cppCode.DeclCode = null;
+						cppCode.DeclDependTypes = null;
+					}
+
+					foreach (var cppCode in unit.CodeList)
+					{
+						// 生成源文件依赖包含
+						foreach (var typeCode in cppCode.ImplDependTypes)
+						{
+							string unitName = typeCode.CompileUnit.Name;
+							if (!dependSet.Contains(unitName))
+							{
+								dependSet.Add(unitName);
+								unit.ImplCode.AppendFormat("#include \"{0}.h\"\n",
+									unitName);
+							}
+						}
+
+						// 拼接实现代码
+						unit.ImplCode.Append(cppCode.ImplCode);
+						cppCode.ImplCode = null;
+						cppCode.ImplDependTypes = null;
+					}
+					unit.CodeList = null;
+					dependSet.Clear();
+				}
 			}
 		}
 	}
