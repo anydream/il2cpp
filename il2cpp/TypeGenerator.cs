@@ -186,7 +186,7 @@ namespace il2cpp
 			// object 添加类型字段
 			if (currType.Def.ToTypeSig().ElementType == ElementType.Object)
 			{
-				prt.AppendLine("uint32_t il2cppTypeID;");
+				prt.AppendLine("uint32_t objectTypeID;");
 			}
 
 			// 构造结构体成员
@@ -253,7 +253,7 @@ namespace il2cpp
 			{
 				string onceName = string.Format("onceflag_{0}",
 					currType.GetCppName());
-				string onceDef = string.Format("int32_t {0};\n",
+				string onceDef = string.Format("int8_t {0};\n",
 					onceName);
 
 				prt.Append((IsAllInOne ? "static " : "extern ") + onceDef);

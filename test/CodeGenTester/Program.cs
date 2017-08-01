@@ -18,7 +18,7 @@ namespace CodeGenTester
 // object
 struct cls_0_System_Object
 {
-	uint32_t il2cppTypeID;
+	uint32_t objectTypeID;
 };
 // CodeGenTester.TestBasicInst
 struct cls_1_CodeGenTester_TestBasicInst : cls_0_System_Object
@@ -196,7 +196,7 @@ label_31:
 // object
 struct cls_0_System_Object
 {
-	uint32_t il2cppTypeID;
+	uint32_t objectTypeID;
 };
 // CodeGenTester.TestBasicTypes
 struct cls_1_CodeGenTester_TestBasicTypes : cls_0_System_Object
@@ -415,9 +415,20 @@ label_4:
 			public static uint s_uint = 123456;
 			public uint f_uint = 789;
 
+			public Cls()
+			{
+				s_uint = 123455;
+				Setup();
+			}
+
 			static Cls()
 			{
 				s_byte = 42;
+			}
+
+			private void Setup()
+			{
+				s_uint = 123456;
 			}
 		}
 

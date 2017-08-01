@@ -427,7 +427,7 @@ namespace il2cpp
 			++prt.Indents;
 
 			// 构造获得函数指针代码
-			prt.AppendFormatLine("void* pfn = {0}({1}->il2cppTypeID);",
+			prt.AppendFormatLine("void* pfn = {0}({1}->objectTypeID);",
 				CurrMethod.GetCppName(PrefixVFtn),
 				ArgName(0));
 
@@ -462,7 +462,7 @@ namespace il2cpp
 
 			CodePrinter prt = new CodePrinter();
 			// 构造声明
-			prt.AppendFormat("{0}void* {1}(int typeID)",
+			prt.AppendFormat("{0}void* {1}(uint32_t typeID)",
 				TypeGen.IsAllInOne ? "static " : "",
 				CurrMethod.GetCppName(PrefixVFtn));
 			codeDecl = prt + ";\n";
@@ -1032,7 +1032,9 @@ namespace il2cpp
 
 		private void InvokeCctor(InstructionInfo inst, TypeX declType)
 		{
-			if (CurrMethod.Def.IsStatic && CurrMethod.DeclType.Equals(declType))
+			// 如果需要调用静态构造的类型就是当前方法所在的类型, 则不生成
+			//! 当前方法类型的父类型也无需生成
+			if (CurrMethod.DeclType.Equals(declType))
 				return;
 
 			if (declType.CctorMethod != null)
