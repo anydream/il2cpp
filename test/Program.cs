@@ -143,22 +143,12 @@ namespace test
 					typeMgr.Process();
 					typeGen.GenerateAll();
 
-					if (typeGen.IsAllInOne)
+					foreach (var unit in typeGen.CompileUnits)
 					{
-						foreach (var unit in typeGen.CompileUnits)
-						{
-							sb.Append(unit.ImplCode);
-						}
-					}
-					else
-					{
-						foreach (var unit in typeGen.CompileUnits)
-						{
-							sb.AppendFormat("[{0}.h]\n{1}\n[{0}.cpp]\n{2}\n",
-								unit.Name,
-								unit.DeclCode,
-								unit.ImplCode);
-						}
+						sb.AppendFormat("[{0}.h]\n{1}\n[{0}.cpp]\n{2}\n",
+							unit.Name,
+							unit.DeclCode,
+							unit.ImplCode);
 					}
 
 					string result = sb.ToString();

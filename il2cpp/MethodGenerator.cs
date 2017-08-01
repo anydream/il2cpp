@@ -322,7 +322,7 @@ namespace il2cpp
 						LocalName(i));
 
 					if (loc.IsValueType)
-						DeclDependNames.Add(locTypeName);
+						ImplDependNames.Add(locTypeName);
 				}
 				prt.AppendLine();
 			}
@@ -695,22 +695,28 @@ namespace il2cpp
 					{
 						FieldX fldX = (FieldX)operand;
 						SlotInfo self = Pop();
+						string fldDeclTypeName = fldX.DeclType.GetCppName();
 						string rval = string.Format("(({0}*){1})->{2}",
-							fldX.DeclType.GetCppName(),
+							fldDeclTypeName,
 							SlotInfoName(ref self),
 							fldX.GetCppName());
 						Load(inst, ToStackType(fldX.FieldType), rval, fldX.FieldType.GetCppName(TypeMgr));
+
+						ImplDependNames.Add(fldDeclTypeName);
 					}
 					return;
 				case Code.Ldflda:
 					{
 						FieldX fldX = (FieldX)operand;
 						SlotInfo self = Pop();
+						string fldDeclTypeName = fldX.DeclType.GetCppName();
 						string rval = string.Format("&(({0}*){1})->{2}",
-							fldX.DeclType.GetCppName(),
+							fldDeclTypeName,
 							SlotInfoName(ref self),
 							fldX.GetCppName());
 						Load(inst, StackType.Ptr, rval);
+
+						ImplDependNames.Add(fldDeclTypeName);
 					}
 					return;
 				case Code.Ldsfld:
@@ -718,6 +724,8 @@ namespace il2cpp
 						FieldX fldX = (FieldX)operand;
 						InvokeCctor(inst, fldX.DeclType);
 						Load(inst, ToStackType(fldX.FieldType), fldX.GetCppName(), fldX.FieldType.GetCppName(TypeMgr));
+
+						ImplDependNames.Add(fldX.DeclType.GetCppName());
 					}
 					return;
 				case Code.Ldsflda:
@@ -725,6 +733,8 @@ namespace il2cpp
 						FieldX fldX = (FieldX)operand;
 						InvokeCctor(inst, fldX.DeclType);
 						Load(inst, StackType.Ptr, '&' + fldX.GetCppName());
+
+						ImplDependNames.Add(fldX.DeclType.GetCppName());
 					}
 					return;
 
@@ -733,11 +743,14 @@ namespace il2cpp
 						FieldX fldX = (FieldX)operand;
 						SlotInfo val = Pop();
 						SlotInfo self = Pop();
+						string fldDeclTypeName = fldX.DeclType.GetCppName();
 						inst.CppCode = string.Format("(({0}*){1})->{2} = {3}",
-							fldX.DeclType.GetCppName(),
+							fldDeclTypeName,
 							SlotInfoName(ref self),
 							fldX.GetCppName(),
 							StorePoped(ref val, fldX.FieldType.GetCppName(TypeMgr)));
+
+						ImplDependNames.Add(fldDeclTypeName);
 					}
 					return;
 
@@ -746,6 +759,8 @@ namespace il2cpp
 						FieldX fldX = (FieldX)operand;
 						InvokeCctor(inst, fldX.DeclType);
 						Store(inst, fldX.GetCppName(), fldX.FieldType.GetCppName(TypeMgr));
+
+						ImplDependNames.Add(fldX.DeclType.GetCppName());
 					}
 					return;
 
@@ -1279,6 +1294,8 @@ namespace il2cpp
 			sb.Append(')');
 
 			inst.CppCode += sb.ToString();
+
+			ImplDependNames.Add(metX.DeclType.GetCppName());
 		}
 
 		private void NewObj(InstructionInfo inst, MethodX metX)
@@ -1293,9 +1310,10 @@ namespace il2cpp
 
 			StringBuilder sb = new StringBuilder();
 
+			string metDeclTypeName = metX.DeclType.GetCppName();
 			sb.AppendFormat("{0} = il2cpp_New(sizeof({1}), {2});\n",
 				SlotInfoName(ref self),
-				metX.DeclType.GetCppName(),
+				metDeclTypeName,
 				metX.DeclType.GetCppTypeID());
 
 			sb.AppendFormat("{0}({1}",
@@ -1311,6 +1329,8 @@ namespace il2cpp
 			sb.Append(')');
 
 			inst.CppCode += sb.ToString();
+
+			ImplDependNames.Add(metDeclTypeName);
 		}
 
 		private static bool IsCppTypeConvertValid(string ltype, string rtype)

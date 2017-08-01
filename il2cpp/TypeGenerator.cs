@@ -342,12 +342,16 @@ namespace il2cpp
 				var unit = new CppCompileUnit("CppUnitAll");
 				CompileUnits.Add(unit);
 
-				unit.DeclCode.Append("#include \"il2cpp.h\"\n");
+				StringBuilder sbDecl = new StringBuilder();
+				StringBuilder sbImpl = new StringBuilder();
+
+				unit.DeclCode.Append("#pragma once\n");
+				sbDecl.Append("#include \"il2cpp.h\"\n");
 
 				foreach (var cppCode in codeSorter)
 				{
-					unit.DeclCode.Append(cppCode.DeclCode);
-					unit.ImplCode.Append(cppCode.ImplCode);
+					sbDecl.Append(cppCode.DeclCode);
+					sbImpl.Append(cppCode.ImplCode);
 
 					cppCode.DeclCode = null;
 					cppCode.DeclDependTypes = null;
@@ -355,9 +359,9 @@ namespace il2cpp
 					cppCode.ImplDependTypes = null;
 				}
 
-				unit.DeclCode.Append(unit.ImplCode);
-				unit.ImplCode = unit.DeclCode;
-				unit.DeclCode = null;
+				sbDecl.Append(sbImpl);
+				sbImpl = null;
+				unit.ImplCode = sbDecl;
 			}
 			else
 			{
@@ -432,10 +436,7 @@ namespace il2cpp
 				CodePrinter staticInitPrt = new CodePrinter();
 				staticInitPrt.Append("void il2cpp_InitStaticVars()");
 
-				if (!IsAllInOne)
-				{
-					firstUnit.DeclCode.AppendFormat("{0};\n", staticInitPrt);
-				}
+				firstUnit.DeclCode.AppendFormat("{0};\n", staticInitPrt);
 
 				staticInitPrt.AppendLine("\n{");
 				++staticInitPrt.Indents;
