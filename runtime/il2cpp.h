@@ -16,20 +16,23 @@
 #define IL2CPP_UNLIKELY(x)					x
 #endif
 
-#define IL2CPP_CALL_ONCE(_flag, _func) \
+#define IL2CPP_CALL_ONCE(_flag, _locktid, _func) \
 		if (IL2CPP_UNLIKELY(_flag != -1)) \
 		{ \
 			if (IL2CPP_ATOMIC_CAS(&_flag, 0, 1) == 0) \
 			{ \
+				_locktid = il2cpp_ThreadID(); \
 				_func(); \
+				_flag = -1; \
 			} \
-			else \
+			else if (_locktid != il2cpp_ThreadID()) \
 			{ \
 				while (_flag != -1) \
 					il2cpp_Yield(); \
+				_flag = -1; \
 			} \
-			_flag = -1; \
 		}
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID);
 void il2cpp_Yield();
+uintptr_t il2cpp_ThreadID();

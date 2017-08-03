@@ -2,6 +2,12 @@
 #include <thread>
 #include "il2cpp.h"
 
+#if defined(_WIN32)
+#include <windows.h>
+#else
+#include <sys/types.h>
+#endif
+
 struct il2cppObject
 {
 	uint32_t objectTypeID;
@@ -17,4 +23,13 @@ void* il2cpp_New(uint32_t sz, uint32_t typeID)
 void il2cpp_Yield()
 {
 	std::this_thread::yield();
+}
+
+uintptr_t il2cpp_ThreadID()
+{
+#if defined(_WIN32)
+	return (uintptr_t)GetCurrentThreadId();
+#else
+	return (uintptr_t)gettid();
+#endif
 }
