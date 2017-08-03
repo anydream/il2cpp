@@ -822,6 +822,15 @@ namespace il2cpp
 		{
 			switch (inst.OpCode.OperandType)
 			{
+				case OperandType.InlineType:
+					{
+						ITypeDefOrRef typeDefRef = (ITypeDefOrRef)inst.Operand;
+						var duplicator = new TypeSigDuplicator();
+						duplicator.GenReplacer = replacer;
+						inst.Operand = duplicator.Duplicate(typeDefRef.ToTypeSig());
+						break;
+					}
+
 				case OperandType.InlineMethod:
 					{
 						MethodX resMetX = null;

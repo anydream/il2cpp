@@ -715,29 +715,13 @@ namespace il2cpp
 				case Code.Ldfld:
 					{
 						FieldX fldX = (FieldX)operand;
-						SlotInfo self = Pop();
-						string fldDeclTypeName = fldX.DeclType.GetCppName();
-						string rval = string.Format("(({0}*){1})->{2}",
-							fldDeclTypeName,
-							SlotInfoName(ref self),
-							fldX.GetCppName());
-						Load(inst, ToStackType(fldX.FieldType), rval, fldX.FieldType.GetCppName(TypeMgr));
-
-						ImplDependNames.Add(fldDeclTypeName);
+						Ldfld(inst, fldX, false);
 					}
 					return;
 				case Code.Ldflda:
 					{
 						FieldX fldX = (FieldX)operand;
-						SlotInfo self = Pop();
-						string fldDeclTypeName = fldX.DeclType.GetCppName();
-						string rval = string.Format("&(({0}*){1})->{2}",
-							fldDeclTypeName,
-							SlotInfoName(ref self),
-							fldX.GetCppName());
-						Load(inst, StackType.Ptr, rval);
-
-						ImplDependNames.Add(fldDeclTypeName);
+						Ldfld(inst, fldX, true);
 					}
 					return;
 				case Code.Ldsfld:
@@ -897,6 +881,51 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Initobj:
+					{
+						InitObj(inst, (TypeSig)operand);
+					}
+					return;
+
+				case Code.Ldobj:
+					{
+						TypeSig sig = (TypeSig)operand;
+						Debug.Assert(sig.IsValueType);
+
+						SlotInfo poped = Pop();
+						Debug.Assert(StackTypeIsPointer(poped.SlotType));
+
+						string typeName = sig.GetCppName(TypeMgr);
+						string rval = string.Format("*({0}*){1}",
+							typeName,
+							SlotInfoName(ref poped));
+
+						Load(inst, typeName, rval);
+
+						ImplDependNames.Add(typeName);
+					}
+					return;
+				case Code.Stobj:
+					{
+						TypeSig sig = (TypeSig)operand;
+						Debug.Assert(sig.IsValueType);
+
+						SlotInfo srcVal = Pop();
+						SlotInfo dstAddr = Pop();
+						Debug.Assert(StackTypeIsPointer(dstAddr.SlotType));
+
+						string typeName = sig.GetCppName(TypeMgr);
+						Debug.Assert(typeName == srcVal.SlotType);
+
+						inst.CppCode = string.Format("*({0}*){1} = {2}",
+							typeName,
+							SlotInfoName(ref dstAddr),
+							SlotInfoName(ref srcVal));
+
+						ImplDependNames.Add(typeName);
+					}
+					return;
+
 				default:
 					throw new NotImplementedException("OpCode: " + opCode);
 			}
@@ -978,6 +1007,19 @@ namespace il2cpp
 			return stype == StackType.I4 ||
 				   stype == StackType.I8 ||
 				   stype == StackType.Ptr;
+		}
+
+		private static bool StackTypeIsPointer(StackType stype)
+		{
+			return stype == StackType.Ptr ||
+				   stype == StackType.Ref;
+		}
+
+		private static bool StackTypeIsPtrOrObj(StackType stype)
+		{
+			return stype == StackType.Ptr ||
+				   stype == StackType.Ref ||
+				   stype == StackType.Obj;
 		}
 
 		private StackType ToStackType(TypeSig sig)
@@ -1354,6 +1396,56 @@ namespace il2cpp
 			inst.CppCode += sb.ToString();
 
 			ImplDependNames.Add(metDeclTypeName);
+		}
+
+		private void InitObj(InstructionInfo inst, TypeSig sig)
+		{
+			SlotInfo poped = Pop();
+
+			if (sig.IsValueType)
+			{
+				Debug.Assert(StackTypeIsPointer(poped.SlotType));
+				string typeName = sig.GetCppName(TypeMgr);
+				inst.CppCode = string.Format("*({0}*){1} = {0}()",
+					typeName,
+					SlotInfoName(ref poped));
+
+				ImplDependNames.Add(typeName);
+			}
+			else
+			{
+				Debug.Assert(poped.SlotType == StackType.Obj);
+				inst.CppCode = string.Format("{0} = nullptr",
+					SlotInfoName(ref poped));
+			}
+		}
+
+		private void Ldfld(InstructionInfo inst, FieldX fldX, bool isLoadAddr)
+		{
+			SlotInfo self = Pop();
+			string fldDeclTypeName = fldX.DeclType.GetCppName();
+
+			string rval;
+			if (StackTypeIsPtrOrObj(self.SlotType))
+			{
+				rval = string.Format("{0}(({1}*){2})->{3}",
+					isLoadAddr ? "&" : "",
+					fldDeclTypeName,
+					SlotInfoName(ref self),
+					fldX.GetCppName());
+			}
+			else
+			{
+				Debug.Assert(fldDeclTypeName == self.SlotType);
+				rval = string.Format("{0}{1}.{2}",
+					isLoadAddr ? "&" : "",
+					SlotInfoName(ref self),
+					fldX.GetCppName());
+			}
+
+			Load(inst, ToStackType(fldX.FieldType), rval, fldX.FieldType.GetCppName(TypeMgr));
+
+			ImplDependNames.Add(fldDeclTypeName);
 		}
 
 		private static bool IsCppTypeConvertValid(string ltype, string rtype)
