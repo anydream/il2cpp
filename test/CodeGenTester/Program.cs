@@ -722,11 +722,40 @@ void il2cpp_InitStaticVars()
 		}
 	}
 
+	[TestClass(@"")]
+	class TestCycleCctor
+	{
+		class A
+		{
+			public static int sfld;
+
+			static A()
+			{
+				sfld = B.sfld + 1;
+			}
+		}
+
+		class B
+		{
+			public static int sfld;
+
+			static B()
+			{
+				sfld = A.sfld + 1;
+			}
+		}
+
+		public static bool Entry()
+		{
+			return A.sfld - B.sfld == 1;
+		}
+	}
+
 	class Program
 	{
 		static void Main()
 		{
-			bool res = TestValueType.Entry();
+			bool res = TestCycleCctor.Entry();
 		}
 	}
 }

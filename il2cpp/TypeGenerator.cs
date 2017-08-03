@@ -252,19 +252,28 @@ namespace il2cpp
 			if (currType.CctorMethod != null)
 			{
 				string onceName = string.Format("onceflag_{0}",
-					currType.GetCppName());
+					typeName);
 				string onceDef = string.Format("int8_t {0};\n",
 					onceName);
 
+				string locktidName = string.Format("locktid_{0}",
+					typeName);
+				string locktidDef = string.Format("uintptr_t {0};\n",
+					locktidName);
+
 				prt.Append((IsAllInOne ? "static " : "extern ") + onceDef);
+				prt.Append((IsAllInOne ? "static " : "extern ") + locktidDef);
 
 				if (!IsAllInOne)
 				{
 					sbImpl.Append(onceDef);
+					sbImpl.Append(locktidDef);
 				}
 
 				StaticInitBody.AppendFormat("{0} = 0;\n",
 					onceName);
+				StaticInitBody.AppendFormat("{0} = 0;\n",
+					locktidName);
 			}
 
 			cppCode.DeclCode.Append(prt);

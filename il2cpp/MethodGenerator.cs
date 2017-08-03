@@ -297,7 +297,7 @@ namespace il2cpp
 
 					// 静态构造内部防止多次调用
 					string declTypeName = CurrMethod.DeclType.GetCppName();
-					prt.AppendFormatLine("IL2CPP_CALL_ONCE(onceflag_{0}, once_{1});",
+					prt.AppendFormatLine("IL2CPP_CALL_ONCE(\n\tonceflag_{0},\n\tlocktid_{0},\n\tonce_{1});",
 						declTypeName,
 						metName);
 

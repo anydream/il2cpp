@@ -5,6 +5,7 @@
 #if defined(__clang__) || defined(__GNUC__)
 #define GNU_LIKE
 #elif defined(_MSC_VER)
+#include <intrin.h>
 #define MSVC_LIKE
 #endif
 
@@ -23,13 +24,12 @@
 			{ \
 				_locktid = il2cpp_ThreadID(); \
 				_func(); \
-				_flag = -1; \
+				IL2CPP_ATOMIC_CAS(&_flag, 1, -1); \
 			} \
 			else if (_locktid != il2cpp_ThreadID()) \
 			{ \
 				while (_flag != -1) \
 					il2cpp_Yield(); \
-				_flag = -1; \
 			} \
 		}
 
