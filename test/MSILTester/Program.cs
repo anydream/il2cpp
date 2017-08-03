@@ -1437,6 +1437,47 @@ TestIL.TestNullCall/Inf
 		}
 	}
 
+	[TestClass(@"======
+TestIL.TestCycleTypeRef
+-> static void Entry()
+
+object
+-> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
+
+TestIL.TestCycleTypeRef/A`1<int>
+-> void .ctor()
+
+TestIL.TestCycleTypeRef/C`1<TestIL.TestCycleTypeRef/B`1<int>>
+-> void .ctor()
+
+TestIL.TestCycleTypeRef/B`1<int>
+-> void .ctor()
+
+TestIL.TestCycleTypeRef/C`1<TestIL.TestCycleTypeRef/A`1<int>>
+-> void .ctor()
+
+======
+")]
+	static class TestCycleTypeRef
+	{
+		class A<T> : C<B<T>>
+		{ }
+
+		class B<T> : C<A<T>>
+		{ }
+
+		class C<T>
+		{ }
+
+		public static void Entry()
+		{
+			var aa = new A<int>();
+			var bb = new B<int>();
+		}
+	}
+
 	class Program
 	{
 		static void Main()
