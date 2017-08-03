@@ -3,6 +3,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace dnlib.DotNet {
@@ -32,6 +33,15 @@ namespace dnlib.DotNet {
 		/// <param name="innerException">Inner exception or <c>null</c> if none</param>
 		public TypeNameParserException(string message, Exception innerException)
 			: base(message, innerException) {
+		}
+
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="info"></param>
+		/// <param name="context"></param>
+		protected TypeNameParserException(SerializationInfo info, StreamingContext context)
+			: base(info, context) {
 		}
 	}
 
@@ -608,7 +618,7 @@ namespace dnlib.DotNet {
 			var asm = ownerModule.Assembly;
 			if (asm == null)
 				return null;
-			if (asmRef.FullName != asm.GetFullNameWithPublicKey() && asmRef.FullName != asm.GetFullNameWithPublicKeyToken())
+			if (!(AssemblyNameComparer.CompareAll.Equals(asmRef, asm) && asmRef.IsRetargetable == asm.IsRetargetable))
 				return null;
 			var td = typeRef.Resolve();
 			return td != null && td.Module == ownerModule ? td : null;

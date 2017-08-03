@@ -1326,7 +1326,7 @@ namespace dnlib.DotNet {
 		const int TYPESIG_NAME = 2;
 		void CreateTypeSigName(TypeSig typeSig, int flags) {
 			if (typeSig == null) {
-				//sb.Append(NULLVALUE);
+				sb.Append(NULLVALUE);
 				return;
 			}
 			if (!recursionCounter.Increment()) {
@@ -1516,8 +1516,7 @@ namespace dnlib.DotNet {
 				if (createName) {
 					var gs = (GenericSig)typeSig;
 					var gp = gs.GenericParam;
-					//if (gp == null || !AddName(gp.Name)) {
-					if (true) {
+					if (gp == null || !AddName(gp.Name)) {
 						sb.Append(gs.IsMethodVar ? "!!" : "!");
 						sb.Append(gs.Number);
 					}
