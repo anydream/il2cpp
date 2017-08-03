@@ -20,7 +20,7 @@ namespace il2cpp
 			Debug.Assert(sig != null);
 			Name = name;
 			Signature = sig;
-			SigString = Name + ": " + Signature + '|' + (int)Signature.CallingConvention;
+			SigString = Name + ':' + Signature.SignatureName() + '|' + (int)Signature.CallingConvention;
 		}
 
 		public override int GetHashCode()

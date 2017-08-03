@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using dnlib.DotNet;
@@ -233,7 +234,7 @@ namespace il2cpp
 		public static string PrettyName(this TypeX self)
 		{
 			StringBuilder sb = new StringBuilder();
-			PrettyName(sb, self.Def.ToTypeSig());
+			PrettyName(sb, self.Def.ToTypeSig(), true);
 			PrettyGenArgs(sb, self.GenArgs);
 			return sb.ToString();
 		}
@@ -245,7 +246,7 @@ namespace il2cpp
 			if (self.Def.IsStatic)
 				sb.Append("static ");
 
-			PrettyName(sb, self.ReturnType);
+			PrettyName(sb, self.ReturnType, true);
 
 			sb.AppendFormat(" {0}{1}",
 				hasDeclType ? self.DeclType.PrettyName() + "::" : "",
@@ -265,7 +266,7 @@ namespace il2cpp
 					sb.Append(',');
 				last = true;
 				var arg = self.ParamTypes[i];
-				PrettyName(sb, arg);
+				PrettyName(sb, arg, true);
 			}
 			sb.Append(')');
 
@@ -279,7 +280,7 @@ namespace il2cpp
 			if (self.Def.IsStatic)
 				sb.Append("static ");
 
-			PrettyName(sb, self.FieldType);
+			PrettyName(sb, self.FieldType, true);
 			sb.AppendFormat(" {0}{1}",
 				hasDeclType ? self.DeclType.PrettyName() + "::" : "",
 				self.Def.Name);
@@ -298,12 +299,45 @@ namespace il2cpp
 				if (last)
 					sb.Append(',');
 				last = true;
-				PrettyName(sb, arg);
+				PrettyName(sb, arg, true);
 			}
 			sb.Append('>');
 		}
 
-		private static void PrettyName(StringBuilder sb, TypeSig typeSig)
+		public static string SignatureName(this MethodBaseSig self)
+		{
+			Debug.Assert(self.ParamsAfterSentinel == null);
+
+			StringBuilder sb = new StringBuilder();
+
+			PrettyName(sb, self.RetType, false);
+
+			sb.Append(' ');
+
+			if (self.Generic)
+			{
+				sb.Append('<');
+				for (uint i = 0; i < self.GenParamCount; ++i)
+				{
+					if (i != 0)
+						sb.Append(',');
+					sb.AppendFormat("!!{0}", i);
+				}
+				sb.Append('>');
+			}
+			sb.Append('(');
+			for (int i = 0; i < self.Params.Count; ++i)
+			{
+				if (i != 0)
+					sb.Append(',');
+				PrettyName(sb, self.Params[i], false);
+			}
+			sb.Append(')');
+
+			return sb.ToString();
+		}
+
+		private static void PrettyName(StringBuilder sb, TypeSig typeSig, bool prettyBaseType)
 		{
 			if (typeSig == null)
 				return;
@@ -312,31 +346,31 @@ namespace il2cpp
 			{
 				case ElementType.Class:
 				case ElementType.ValueType:
-					sb.Append(SigPrettyName(typeSig));
+					sb.Append(SigPrettyName(typeSig, prettyBaseType));
 					return;
 
 				case ElementType.Ptr:
-					PrettyName(sb, typeSig.Next);
+					PrettyName(sb, typeSig.Next, prettyBaseType);
 					sb.Append('*');
 					return;
 
 				case ElementType.ByRef:
-					PrettyName(sb, typeSig.Next);
+					PrettyName(sb, typeSig.Next, prettyBaseType);
 					sb.Append('&');
 					return;
 
 				case ElementType.SZArray:
-					PrettyName(sb, typeSig.Next);
+					PrettyName(sb, typeSig.Next, prettyBaseType);
 					sb.Append("[]");
 					return;
 
 				case ElementType.Pinned:
-					PrettyName(sb, typeSig.Next);
+					PrettyName(sb, typeSig.Next, prettyBaseType);
 					return;
 
 				case ElementType.Array:
 					{
-						PrettyName(sb, typeSig.Next);
+						PrettyName(sb, typeSig.Next, prettyBaseType);
 						ArraySig arraySig = (ArraySig)typeSig;
 						sb.Append('[');
 						uint rank = arraySig.Rank;
@@ -382,7 +416,7 @@ namespace il2cpp
 				case ElementType.GenericInst:
 					{
 						GenericInstSig genSig = (GenericInstSig)typeSig;
-						sb.Append(SigPrettyName(genSig.GenericType));
+						sb.Append(SigPrettyName(genSig.GenericType, prettyBaseType));
 
 						sb.Append('<');
 						bool last = false;
@@ -391,7 +425,7 @@ namespace il2cpp
 							if (last)
 								sb.Append(',');
 							last = true;
-							PrettyName(sb, arg);
+							PrettyName(sb, arg, prettyBaseType);
 						}
 						sb.Append('>');
 						return;
@@ -399,7 +433,7 @@ namespace il2cpp
 
 				case ElementType.CModReqd:
 					{
-						PrettyName(sb, typeSig.Next);
+						PrettyName(sb, typeSig.Next, prettyBaseType);
 						CModReqdSig modreq = (CModReqdSig)typeSig;
 						sb.AppendFormat(" modreq({0})", modreq.Modifier.FullName);
 						return;
@@ -407,7 +441,7 @@ namespace il2cpp
 
 				case ElementType.CModOpt:
 					{
-						PrettyName(sb, typeSig.Next);
+						PrettyName(sb, typeSig.Next, prettyBaseType);
 						CModOptSig modopt = (CModOptSig)typeSig;
 						sb.AppendFormat(" modopt({0})", modopt.Modifier.FullName);
 						return;
@@ -416,7 +450,7 @@ namespace il2cpp
 				default:
 					if (typeSig is CorLibTypeSig corTypeSig)
 					{
-						sb.Append(SigPrettyName(corTypeSig));
+						sb.Append(SigPrettyName(corTypeSig, prettyBaseType));
 						return;
 					}
 
@@ -424,8 +458,11 @@ namespace il2cpp
 			}
 		}
 
-		private static string SigPrettyName(TypeSig typeSig)
+		private static string SigPrettyName(TypeSig typeSig, bool prettyBaseType)
 		{
+			if (!prettyBaseType)
+				return typeSig.FullName;
+
 			if (typeSig.Namespace == "System")
 			{
 				switch (typeSig.TypeName)
