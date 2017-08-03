@@ -250,18 +250,20 @@ namespace il2cpp
 		private void GenMetCode(out string codeDecl, out string codeImpl)
 		{
 			CodePrinter prt = new CodePrinter();
+			CodePrinter prtOnce = null;
 
 			string retTypeName = CurrMethod.ReturnType.GetCppName(TypeMgr);
 
 			if (CurrMethod.ReturnType.IsValueType)
 				DeclDependNames.Add(retTypeName);
 
+			string metName = CurrMethod.GetCppName(PrefixMet);
 			// 构造声明
 			prt.AppendFormat("// {0}\n{1}{2} {3}(",
 				CurrMethod.PrettyName(true),
 				TypeGen.IsAllInOne ? "static " : "",
 				retTypeName,
-				CurrMethod.GetCppName(PrefixMet));
+				metName);
 
 			// 构造参数列表
 			int argNum = CurrMethod.ParamTypes.Count;
@@ -292,9 +294,26 @@ namespace il2cpp
 				if (CurrMethod.Def.IsConstructor)
 				{
 					Debug.Assert(CurrMethod.DeclType.CctorMethod == CurrMethod);
+
 					// 静态构造内部防止多次调用
-					prt.AppendFormatLine("IL2CPP_CCTOR_PREVENTOR(onceflag_{0});\n",
-						CurrMethod.DeclType.GetCppName());
+					string declTypeName = CurrMethod.DeclType.GetCppName();
+					prt.AppendFormatLine("IL2CPP_CALL_ONCE(onceflag_{0}, once_{1});",
+						declTypeName,
+						metName);
+
+					--prt.Indents;
+					prt.AppendLine("}");
+
+					// 构造单次调用的实现代码
+					prtOnce = prt;
+					prt = new CodePrinter();
+
+					prt.AppendFormat("static {0} once_{1}()",
+						retTypeName,
+						metName);
+
+					prt.AppendLine("\n{");
+					++prt.Indents;
 				}
 				// 静态方法内部调用静态构造
 				else if (CurrMethod.DeclType.CctorMethod != null)
@@ -376,6 +395,8 @@ namespace il2cpp
 			prt.AppendLine("}");
 
 			codeImpl = prt.ToString();
+			if (prtOnce != null)
+				codeImpl += prtOnce.ToString();
 		}
 
 		// 生成虚调用方法
