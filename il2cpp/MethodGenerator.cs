@@ -1377,6 +1377,61 @@ namespace il2cpp
 			ImplDependNames.Add(metDeclTypeName);
 		}
 
+		private void Ldfld(InstructionInfo inst, FieldX fldX, bool isLoadAddr)
+		{
+			SlotInfo self = Pop();
+			string fldDeclTypeName = fldX.DeclType.GetCppName();
+
+			string rval;
+			if (StackTypeIsPtrOrObj(self.SlotType))
+			{
+				rval = string.Format("{0}(({1}*){2})->{3}",
+					isLoadAddr ? "&" : "",
+					fldDeclTypeName,
+					SlotInfoName(ref self),
+					fldX.GetCppName());
+			}
+			else
+			{
+				Debug.Assert(fldDeclTypeName == self.SlotType);
+				rval = string.Format("{0}{1}.{2}",
+					isLoadAddr ? "&" : "",
+					SlotInfoName(ref self),
+					fldX.GetCppName());
+			}
+
+			StackType stype;
+			string rvalType = null;
+			if (isLoadAddr)
+				stype = StackType.Ptr;
+			else
+			{
+				stype = ToStackType(fldX.FieldType);
+				rvalType = fldX.FieldType.GetCppName(TypeMgr);
+			}
+
+			Load(inst, stype, rval, rvalType);
+
+			ImplDependNames.Add(fldDeclTypeName);
+		}
+
+		private void Stfld(InstructionInfo inst, FieldX fldX)
+		{
+			SlotInfo val = Pop();
+			SlotInfo self = Pop();
+
+			Debug.Assert(StackTypeIsPtrOrObj(self.SlotType));
+
+			string fldDeclTypeName = fldX.DeclType.GetCppName();
+			inst.CppCode = string.Format("(({0}*){1})->{2} = {3}",
+				fldDeclTypeName,
+				SlotInfoName(ref self),
+				fldX.GetCppName(),
+				StorePoped(ref val, fldX.FieldType.GetCppName(TypeMgr)));
+
+			ImplDependNames.Add(fldDeclTypeName);
+		}
+
 		private void InitObj(InstructionInfo inst, TypeSig sig)
 		{
 			SlotInfo poped = Pop();
@@ -1467,61 +1522,6 @@ namespace il2cpp
 				SlotInfoName(ref dstAddr),
 				SlotInfoName(ref val),
 				SlotInfoName(ref size));
-		}
-
-		private void Ldfld(InstructionInfo inst, FieldX fldX, bool isLoadAddr)
-		{
-			SlotInfo self = Pop();
-			string fldDeclTypeName = fldX.DeclType.GetCppName();
-
-			string rval;
-			if (StackTypeIsPtrOrObj(self.SlotType))
-			{
-				rval = string.Format("{0}(({1}*){2})->{3}",
-					isLoadAddr ? "&" : "",
-					fldDeclTypeName,
-					SlotInfoName(ref self),
-					fldX.GetCppName());
-			}
-			else
-			{
-				Debug.Assert(fldDeclTypeName == self.SlotType);
-				rval = string.Format("{0}{1}.{2}",
-					isLoadAddr ? "&" : "",
-					SlotInfoName(ref self),
-					fldX.GetCppName());
-			}
-
-			StackType stype;
-			string rvalType = null;
-			if (isLoadAddr)
-				stype = StackType.Ptr;
-			else
-			{
-				stype = ToStackType(fldX.FieldType);
-				rvalType = fldX.FieldType.GetCppName(TypeMgr);
-			}
-
-			Load(inst, stype, rval, rvalType);
-
-			ImplDependNames.Add(fldDeclTypeName);
-		}
-
-		private void Stfld(InstructionInfo inst, FieldX fldX)
-		{
-			SlotInfo val = Pop();
-			SlotInfo self = Pop();
-
-			Debug.Assert(StackTypeIsPtrOrObj(self.SlotType));
-
-			string fldDeclTypeName = fldX.DeclType.GetCppName();
-			inst.CppCode = string.Format("(({0}*){1})->{2} = {3}",
-				fldDeclTypeName,
-				SlotInfoName(ref self),
-				fldX.GetCppName(),
-				StorePoped(ref val, fldX.FieldType.GetCppName(TypeMgr)));
-
-			ImplDependNames.Add(fldDeclTypeName);
 		}
 
 		private static bool IsCppTypeConvertValid(string ltype, string rtype)
