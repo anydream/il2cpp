@@ -827,7 +827,13 @@ namespace il2cpp
 						ITypeDefOrRef typeDefRef = (ITypeDefOrRef)inst.Operand;
 						var duplicator = new TypeSigDuplicator();
 						duplicator.GenReplacer = replacer;
-						inst.Operand = duplicator.Duplicate(typeDefRef.ToTypeSig());
+						TypeSig resTypeSig = duplicator.Duplicate(typeDefRef.ToTypeSig());
+
+						// 解析实例类型
+						TypeSig instSig = resTypeSig.GetLeafSig();
+						ResolveInstanceType(instSig.ToTypeDefOrRef());
+
+						inst.Operand = resTypeSig;
 						break;
 					}
 

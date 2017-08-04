@@ -206,6 +206,19 @@ namespace il2cpp
 			return sig.ElementType == ElementType.Void;
 		}
 
+		public static TypeSig GetLeafSig(this TypeSig sig)
+		{
+			TypeSig result = null;
+			while (sig != null)
+			{
+				result = sig;
+				sig = sig.Next;
+			}
+
+			Debug.Assert(result is LeafSig);
+			return result;
+		}
+
 		public static int SigListHashCode(IList<TypeSig> sigList)
 		{
 			if (sigList == null)
