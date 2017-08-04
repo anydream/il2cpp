@@ -899,6 +899,12 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Initblk:
+					{
+						Initblk(inst);
+					}
+					return;
+
 				default:
 					throw new NotImplementedException("OpCode: " + opCode);
 			}
@@ -1447,6 +1453,20 @@ namespace il2cpp
 				SlotInfoName(ref srcAddr));
 
 			ImplDependNames.Add(typeName);
+		}
+
+		private void Initblk(InstructionInfo inst)
+		{
+			SlotInfo size = Pop();
+			SlotInfo val = Pop();
+			SlotInfo dstAddr = Pop();
+
+			Debug.Assert(StackTypeIsPointer(dstAddr.SlotType));
+
+			inst.CppCode = string.Format("memset({0}, (uint8_t){1}, (uint32_t){2})",
+				SlotInfoName(ref dstAddr),
+				SlotInfoName(ref val),
+				SlotInfoName(ref size));
 		}
 
 		private void Ldfld(InstructionInfo inst, FieldX fldX, bool isLoadAddr)
