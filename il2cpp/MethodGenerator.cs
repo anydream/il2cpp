@@ -907,6 +907,17 @@ namespace il2cpp
 						Cpblk(inst);
 					}
 					return;
+				case Code.Sizeof:
+					{
+						TypeSig sig = (TypeSig)operand;
+						Sizeof(inst, sig);
+					}
+					return;
+				case Code.Localloc:
+					{
+						Localloc(inst);
+					}
+					return;
 
 				default:
 					throw new NotImplementedException("OpCode: " + opCode);
@@ -1540,6 +1551,37 @@ namespace il2cpp
 				SlotInfoName(ref dstAddr),
 				SlotInfoName(ref srcAddr),
 				SlotInfoName(ref size));
+		}
+
+		private void Sizeof(InstructionInfo inst, TypeSig sig)
+		{
+			if (sig.IsValueType)
+			{
+				string typeName = sig.GetCppName(TypeMgr);
+				string rval = string.Format("sizeof({0})",
+					typeName);
+
+				Load(inst, StackType.I4, rval);
+
+				ImplDependNames.Add(typeName);
+			}
+			else
+			{
+				Load(inst, StackType.I4, "sizeof(void*)");
+			}
+		}
+
+		private void Localloc(InstructionInfo inst)
+		{
+			SlotInfo size = Pop();
+
+			Debug.Assert(StackTypeIsInt(size.SlotType));
+
+			//! 是否需要初始化数据
+			string rval = string.Format("il2cpp_Localloc((uintptr_t){0})",
+				SlotInfoName(ref size));
+
+			Load(inst, StackType.Ptr, rval);
 		}
 
 		private static bool IsCppTypeConvertValid(string ltype, string rtype)
