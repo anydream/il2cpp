@@ -387,7 +387,7 @@ namespace il2cpp
 				// 指令代码
 				if (inst.CppCode != null)
 				{
-					prt.AppendLine(inst.CppCode + ';');
+					prt.AppendLine(inst.CppCode);
 				}
 			}
 
@@ -797,7 +797,7 @@ namespace il2cpp
 				case Code.Br_S:
 					{
 						int target = ((InstructionInfo)operand).Offset;
-						inst.CppCode = "goto " + LabelName(target);
+						inst.CppCode = "goto " + LabelName(target) + ';';
 					}
 					return;
 				case Code.Brfalse:
@@ -831,16 +831,23 @@ namespace il2cpp
 					BrCmp(inst, ((InstructionInfo)operand).Offset);
 					return;
 
+				case Code.Switch:
+					{
+						InstructionInfo[] targets = (InstructionInfo[])operand;
+						Switch(inst, targets);
+					}
+					return;
+
 				case Code.Ret:
 					if (TypeStack.Count > 0)
 					{
 						Debug.Assert(TypeStack.Count == 1);
 						SlotInfo poped = Pop();
-						inst.CppCode = "return " + StorePoped(ref poped, CurrMethod.ReturnType.GetCppName(TypeMgr));
+						inst.CppCode = "return " + StorePoped(ref poped, CurrMethod.ReturnType.GetCppName(TypeMgr)) + ';';
 					}
 					else
 					{
-						inst.CppCode = "return";
+						inst.CppCode = "return;";
 					}
 					return;
 
@@ -1062,6 +1069,17 @@ namespace il2cpp
 			return StackType.Obj;
 		}
 
+		private void InvokeCctor(InstructionInfo inst, TypeX declType)
+		{
+			// 如果需要调用静态构造的类型就是当前方法所在的类型, 则不生成
+			//! 当前方法类型的父类型也无需生成
+			if (CurrMethod.DeclType.Equals(declType))
+				return;
+
+			if (declType.CctorMethod != null)
+				inst.CppCode += declType.CctorMethod.GetCppName(PrefixMet) + "();\n";
+		}
+
 		private string LoadPushed(ref SlotInfo pushed, string rvalType, string castType = null)
 		{
 			if (castType != null)
@@ -1086,21 +1104,10 @@ namespace il2cpp
 				castType != null ? '(' + castType + ')' : "");
 		}
 
-		private void InvokeCctor(InstructionInfo inst, TypeX declType)
-		{
-			// 如果需要调用静态构造的类型就是当前方法所在的类型, 则不生成
-			//! 当前方法类型的父类型也无需生成
-			if (CurrMethod.DeclType.Equals(declType))
-				return;
-
-			if (declType.CctorMethod != null)
-				inst.CppCode += declType.CctorMethod.GetCppName(PrefixMet) + "();\n";
-		}
-
 		private void Load(InstructionInfo inst, StackType stype, string rval, string rvalType = null, string castType = null)
 		{
 			SlotInfo pushed = Push(stype);
-			inst.CppCode += LoadPushed(ref pushed, rvalType, castType) + rval;
+			inst.CppCode += LoadPushed(ref pushed, rvalType, castType) + rval + ';';
 		}
 
 		private string StorePoped(ref SlotInfo poped, string cast)
@@ -1113,15 +1120,14 @@ namespace il2cpp
 					cast = null;
 			}
 
-			return string.Format("{0}{1}",
-				cast != null ? '(' + cast + ')' : "",
-				SlotInfoName(ref poped));
+			return (cast != null ? '(' + cast + ')' : "") +
+				   SlotInfoName(ref poped);
 		}
 
 		private void Store(InstructionInfo inst, string lval, string cast = null)
 		{
 			SlotInfo poped = Pop();
-			inst.CppCode += string.Format("{0} = {1}",
+			inst.CppCode += string.Format("{0} = {1};",
 				lval,
 				StorePoped(ref poped, cast));
 		}
@@ -1187,19 +1193,19 @@ namespace il2cpp
 		private void BrCond(InstructionInfo inst, bool cond, int target)
 		{
 			SlotInfo poped = Pop();
-			inst.CppCode += string.Format("if ({0}{1}) goto {2}", cond ? "" : "!", SlotInfoName(ref poped), LabelName(target));
+			inst.CppCode += string.Format("if ({0}{1}) goto {2};", cond ? "" : "!", SlotInfoName(ref poped), LabelName(target));
 		}
 
 		private void BrCmp(InstructionInfo inst, int target)
 		{
-			inst.CppCode += string.Format("if ({0}) goto {1}", CmpCode(inst.OpCode.Code), LabelName(target));
+			inst.CppCode += string.Format("if ({0}) goto {1};", CmpCode(inst.OpCode.Code), LabelName(target));
 		}
 
 		private void Cmp(InstructionInfo inst)
 		{
 			string str = CmpCode(inst.OpCode.Code);
 			SlotInfo pushed = Push(StackType.I4);
-			inst.CppCode += string.Format("{0} = {1} ? 1 : 0", SlotInfoName(ref pushed), str);
+			inst.CppCode += string.Format("{0} = {1} ? 1 : 0;", SlotInfoName(ref pushed), str);
 		}
 
 		private string CmpCode(Code code)
@@ -1307,6 +1313,31 @@ namespace il2cpp
 				isNeg ? ")" : "");
 		}
 
+		private void Switch(InstructionInfo inst, InstructionInfo[] targets)
+		{
+			SlotInfo poped = Pop();
+			Debug.Assert(poped.SlotType == StackType.I4);
+
+			CodePrinter prt = new CodePrinter();
+			prt.AppendFormatLine("switch ((uint32_t){0})",
+				SlotInfoName(ref poped));
+
+			prt.AppendLine("{");
+			++prt.Indents;
+
+			for (int i = 0; i < targets.Length; ++i)
+			{
+				prt.AppendFormatLine("case {0}: goto {1};",
+					i,
+					LabelName(targets[i].Offset));
+			}
+
+			--prt.Indents;
+			prt.Append("}");
+
+			inst.CppCode = prt.ToString();
+		}
+
 		private void BinOp(InstructionInfo inst, string oper)
 		{
 			SlotInfo[] popList = Pop(2);
@@ -1317,7 +1348,7 @@ namespace il2cpp
 			}
 
 			SlotInfo pushed = Push(retType);
-			inst.CppCode += string.Format("{0} = {1} {2} {3}",
+			inst.CppCode += string.Format("{0} = {1} {2} {3};",
 				SlotInfoName(ref pushed),
 				SlotInfoName(ref popList[0]),
 				oper,
@@ -1349,7 +1380,7 @@ namespace il2cpp
 				sb.Append(StorePoped(ref popList[i], metX.ParamTypes[i].GetCppName(TypeMgr)));
 			}
 
-			sb.Append(')');
+			sb.Append(");");
 
 			inst.CppCode += sb.ToString();
 
@@ -1384,7 +1415,7 @@ namespace il2cpp
 				sb.Append(StorePoped(ref popList[i], metX.ParamTypes[i + 1].GetCppName(TypeMgr)));
 			}
 
-			sb.Append(')');
+			sb.Append(");");
 
 			inst.CppCode += sb.ToString();
 
@@ -1437,7 +1468,7 @@ namespace il2cpp
 			Debug.Assert(StackTypeIsPtrOrObj(self.SlotType));
 
 			string fldDeclTypeName = fldX.DeclType.GetCppName();
-			inst.CppCode = string.Format("(({0}*){1})->{2} = {3}",
+			inst.CppCode = string.Format("(({0}*){1})->{2} = {3};",
 				fldDeclTypeName,
 				SlotInfoName(ref self),
 				fldX.GetCppName(),
@@ -1454,7 +1485,7 @@ namespace il2cpp
 			{
 				Debug.Assert(StackTypeIsPointer(poped.SlotType));
 				string typeName = sig.GetCppName(TypeMgr);
-				inst.CppCode = string.Format("*({0}*){1} = {0}()",
+				inst.CppCode = string.Format("*({0}*){1} = {0}();",
 					typeName,
 					SlotInfoName(ref poped));
 
@@ -1463,7 +1494,7 @@ namespace il2cpp
 			else
 			{
 				Debug.Assert(poped.SlotType == StackType.Obj);
-				inst.CppCode = string.Format("{0} = nullptr",
+				inst.CppCode = string.Format("{0} = nullptr;",
 					SlotInfoName(ref poped));
 			}
 		}
@@ -1496,7 +1527,7 @@ namespace il2cpp
 			string typeName = sig.GetCppName(TypeMgr);
 			Debug.Assert(typeName == srcVal.SlotType);
 
-			inst.CppCode = string.Format("*({0}*){1} = {2}",
+			inst.CppCode = string.Format("*({0}*){1} = {2};",
 				typeName,
 				SlotInfoName(ref dstAddr),
 				SlotInfoName(ref srcVal));
@@ -1516,7 +1547,7 @@ namespace il2cpp
 
 			string typeName = sig.GetCppName(TypeMgr);
 
-			inst.CppCode = string.Format("*({0}*){1} = *({0}*){2}",
+			inst.CppCode = string.Format("*({0}*){1} = *({0}*){2};",
 				typeName,
 				SlotInfoName(ref dstAddr),
 				SlotInfoName(ref srcAddr));
@@ -1532,7 +1563,7 @@ namespace il2cpp
 
 			Debug.Assert(StackTypeIsPointer(dstAddr.SlotType));
 
-			inst.CppCode = string.Format("memset({0}, (uint8_t){1}, (uint32_t){2})",
+			inst.CppCode = string.Format("memset({0}, (uint8_t){1}, (uint32_t){2});",
 				SlotInfoName(ref dstAddr),
 				SlotInfoName(ref val),
 				SlotInfoName(ref size));
@@ -1547,7 +1578,7 @@ namespace il2cpp
 			Debug.Assert(StackTypeIsPointer(srcAddr.SlotType));
 			Debug.Assert(StackTypeIsPointer(dstAddr.SlotType));
 
-			inst.CppCode = string.Format("memcpy({0}, {1}, (uint32_t){2})",
+			inst.CppCode = string.Format("memcpy({0}, {1}, (uint32_t){2});",
 				SlotInfoName(ref dstAddr),
 				SlotInfoName(ref srcAddr),
 				SlotInfoName(ref size));
