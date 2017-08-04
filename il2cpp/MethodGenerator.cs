@@ -892,6 +892,13 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Cpobj:
+					{
+						TypeSig sig = (TypeSig)operand;
+						Cpobj(inst, sig);
+					}
+					return;
+
 				default:
 					throw new NotImplementedException("OpCode: " + opCode);
 			}
@@ -1418,6 +1425,26 @@ namespace il2cpp
 				typeName,
 				SlotInfoName(ref dstAddr),
 				SlotInfoName(ref srcVal));
+
+			ImplDependNames.Add(typeName);
+		}
+
+		private void Cpobj(InstructionInfo inst, TypeSig sig)
+		{
+			if (!sig.IsValueType)
+				throw new NotImplementedException();
+
+			SlotInfo srcAddr = Pop();
+			SlotInfo dstAddr = Pop();
+			Debug.Assert(StackTypeIsPointer(srcAddr.SlotType));
+			Debug.Assert(StackTypeIsPointer(dstAddr.SlotType));
+
+			string typeName = sig.GetCppName(TypeMgr);
+
+			inst.CppCode = string.Format("*({0}*){1} = *({0}*){2}",
+				typeName,
+				SlotInfoName(ref dstAddr),
+				SlotInfoName(ref srcAddr));
 
 			ImplDependNames.Add(typeName);
 		}
