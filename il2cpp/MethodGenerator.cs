@@ -878,7 +878,6 @@ namespace il2cpp
 						InitObj(inst, sig);
 					}
 					return;
-
 				case Code.Ldobj:
 					{
 						TypeSig sig = (TypeSig)operand;
@@ -891,7 +890,6 @@ namespace il2cpp
 						Stobj(inst, sig);
 					}
 					return;
-
 				case Code.Cpobj:
 					{
 						TypeSig sig = (TypeSig)operand;
@@ -902,6 +900,11 @@ namespace il2cpp
 				case Code.Initblk:
 					{
 						Initblk(inst);
+					}
+					return;
+				case Code.Cpblk:
+					{
+						Cpblk(inst);
 					}
 					return;
 
@@ -1521,6 +1524,21 @@ namespace il2cpp
 			inst.CppCode = string.Format("memset({0}, (uint8_t){1}, (uint32_t){2})",
 				SlotInfoName(ref dstAddr),
 				SlotInfoName(ref val),
+				SlotInfoName(ref size));
+		}
+
+		private void Cpblk(InstructionInfo inst)
+		{
+			SlotInfo size = Pop();
+			SlotInfo srcAddr = Pop();
+			SlotInfo dstAddr = Pop();
+
+			Debug.Assert(StackTypeIsPointer(srcAddr.SlotType));
+			Debug.Assert(StackTypeIsPointer(dstAddr.SlotType));
+
+			inst.CppCode = string.Format("memcpy({0}, {1}, (uint32_t){2})",
+				SlotInfoName(ref dstAddr),
+				SlotInfoName(ref srcAddr),
 				SlotInfoName(ref size));
 		}
 
