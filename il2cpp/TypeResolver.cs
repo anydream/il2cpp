@@ -467,6 +467,8 @@ namespace il2cpp
 		public IList<TypeSig> ParamTypes;
 		// 临时变量映射
 		public IList<TypeSig> LocalTypes;
+		// 是否需要初始化局部变量
+		public bool InitLocals => Def.Body?.InitLocals ?? false;
 
 		// 指令列表
 		public InstructionInfo[] InstList;

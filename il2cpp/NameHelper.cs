@@ -147,11 +147,10 @@ namespace il2cpp
 				case ElementType.I:
 				case ElementType.U:
 					return "0";
-
-				case ElementType.ValueType:
-					return sig.GetCppName(typeMgr) + "()";
 			}
 
+			if (sig.IsValueType)
+				return sig.GetCppName(typeMgr) + "()";
 			return "nullptr";
 		}
 

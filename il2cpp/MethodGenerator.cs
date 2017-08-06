@@ -336,9 +336,10 @@ namespace il2cpp
 					var loc = localList[i];
 					string locTypeName = loc.GetCppName(TypeMgr);
 
-					prt.AppendFormatLine("{0} {1};",
+					prt.AppendFormatLine("{0} {1}{2};",
 						locTypeName,
-						LocalName(i));
+						LocalName(i),
+						CurrMethod.InitLocals ? " = " + loc.GetInitValue(TypeMgr) : "");
 
 					if (loc.IsValueType)
 						ImplDependNames.Add(locTypeName);
@@ -1608,9 +1609,9 @@ namespace il2cpp
 
 			Debug.Assert(StackTypeIsInt(size.SlotType));
 
-			//! 是否需要初始化数据
-			string rval = string.Format("il2cpp_Localloc((uintptr_t){0})",
-				SlotInfoName(ref size));
+			string rval = string.Format("il2cpp_Localloc((uintptr_t){0}, {1})",
+				SlotInfoName(ref size),
+				CurrMethod.InitLocals ? "true" : "false");
 
 			Load(inst, StackType.Ptr, rval);
 		}
