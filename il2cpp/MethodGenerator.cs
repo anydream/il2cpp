@@ -927,6 +927,31 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Ldind_I1:
+				case Code.Ldind_I2:
+				case Code.Ldind_I4:
+				case Code.Ldind_I8:
+				case Code.Ldind_U1:
+				case Code.Ldind_U2:
+				case Code.Ldind_U4:
+				case Code.Ldind_R4:
+				case Code.Ldind_R8:
+				case Code.Ldind_I:
+				case Code.Ldind_Ref:
+					Ldind(inst, opCode.Code);
+					return;
+
+				case Code.Stind_I1:
+				case Code.Stind_I2:
+				case Code.Stind_I4:
+				case Code.Stind_I8:
+				case Code.Stind_R4:
+				case Code.Stind_R8:
+				case Code.Stind_I:
+				case Code.Stind_Ref:
+					Stind(inst, opCode.Code);
+					return;
+
 				default:
 					throw new NotImplementedException("OpCode: " + opCode);
 			}
@@ -1512,6 +1537,8 @@ namespace il2cpp
 				typeName,
 				SlotInfoName(ref poped));
 
+			//! typeName 是否需要转换基础类型名为简化的别名
+			//! 是否需要转换为栈类型名
 			Load(inst, typeName, rval);
 
 			ImplDependNames.Add(typeName);
@@ -1534,6 +1561,132 @@ namespace il2cpp
 				SlotInfoName(ref srcVal));
 
 			ImplDependNames.Add(typeName);
+		}
+
+		private void Ldind(InstructionInfo inst, Code code)
+		{
+			SlotInfo poped = Pop();
+			Debug.Assert(StackTypeIsPointer(poped.SlotType));
+
+			StackType stype = null;
+			string typeName = null;
+
+			switch (code)
+			{
+				case Code.Ldind_I1:
+					stype = StackType.I4;
+					typeName = "int8_t";
+					break;
+
+				case Code.Ldind_I2:
+					stype = StackType.I4;
+					typeName = "int16_t";
+					break;
+
+				case Code.Ldind_I4:
+					stype = StackType.I4;
+					typeName = "int32_t";
+					break;
+
+				case Code.Ldind_I8:
+					stype = StackType.I8;
+					typeName = "int64_t";
+					break;
+
+				case Code.Ldind_U1:
+					stype = StackType.I4;
+					typeName = "uint8_t";
+					break;
+
+				case Code.Ldind_U2:
+					stype = StackType.I4;
+					typeName = "uint16_t";
+					break;
+
+				case Code.Ldind_U4:
+					stype = StackType.I4;
+					typeName = "uint32_t";
+					break;
+
+				case Code.Ldind_R4:
+					stype = StackType.R4;
+					typeName = "float";
+					break;
+
+				case Code.Ldind_R8:
+					stype = StackType.R8;
+					typeName = "double";
+					break;
+
+				case Code.Ldind_I:
+					stype = StackType.Ptr;
+					typeName = "intptr_t";
+					break;
+
+				case Code.Ldind_Ref:
+					stype = StackType.Obj;
+					typeName = StackTypeCppName(stype);
+					break;
+
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			string rval = string.Format("*({0}*){1}",
+				typeName,
+				SlotInfoName(ref poped));
+			Load(inst, stype, rval, typeName);
+		}
+
+		private void Stind(InstructionInfo inst, Code code)
+		{
+			SlotInfo srcVal = Pop();
+			SlotInfo dstAddr = Pop();
+			Debug.Assert(StackTypeIsPointer(dstAddr.SlotType));
+
+			string typeName = null;
+			switch (code)
+			{
+				case Code.Stind_I1:
+					typeName = "int8_t";
+					break;
+
+				case Code.Stind_I2:
+					typeName = "int16_t";
+					break;
+
+				case Code.Stind_I4:
+					typeName = "int32_t";
+					break;
+
+				case Code.Stind_I8:
+					typeName = "int64_t";
+					break;
+
+				case Code.Stind_R4:
+					typeName = "float";
+					break;
+
+				case Code.Stind_R8:
+					typeName = "double";
+					break;
+
+				case Code.Stind_I:
+					typeName = "intptr_t";
+					break;
+
+				case Code.Stind_Ref:
+					typeName = StackTypeCppName(StackType.Obj);
+					break;
+
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			inst.CppCode = string.Format("*({0}*){1} = {2};",
+				typeName,
+				SlotInfoName(ref dstAddr),
+				StorePoped(ref srcVal, typeName));
 		}
 
 		private void Cpobj(InstructionInfo inst, TypeSig sig)
