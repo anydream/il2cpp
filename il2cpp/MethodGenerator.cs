@@ -871,6 +871,13 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Calli:
+					{
+						MethodSig metSig = (MethodSig)operand;
+						Calli(inst, metSig);
+					}
+					return;
+
 				case Code.Jmp:
 					{
 						MethodX metX = (MethodX)operand;
@@ -1421,13 +1428,10 @@ namespace il2cpp
 
 			sb.AppendFormat("{0}(", metX.GetCppName(prefix));
 
-			bool last = false;
 			for (int i = 0; i < argNum; ++i)
 			{
-				if (last)
+				if (i != 0)
 					sb.Append(", ");
-				last = true;
-
 				sb.Append(StorePoped(ref popList[i], metX.ParamTypes[i].GetCppName(TypeMgr)));
 			}
 
@@ -1461,6 +1465,49 @@ namespace il2cpp
 			ImplDependNames.Add(metX.DeclType.GetCppName());
 		}
 
+		private void Calli(InstructionInfo inst, MethodBaseSig metSig)
+		{
+			SlotInfo ftnPtr = Pop();
+			Debug.Assert(ftnPtr.SlotType == StackType.Ptr);
+
+			int argNum = metSig.Params.Count;
+			SlotInfo[] popList = Pop(argNum);
+
+			StringBuilder sb = new StringBuilder();
+			var retType = metSig.RetType;
+			var retTypeName = retType.GetCppName(TypeMgr);
+			if (!retType.IsVoidSig())
+			{
+				SlotInfo pushed = Push(ToStackType(retType));
+				sb.Append(LoadPushed(ref pushed, retTypeName));
+			}
+
+			string[] paramTypeName = new string[argNum];
+
+			sb.AppendFormat("(({0}(*)(", retTypeName);
+			for (int i = 0; i < argNum; ++i)
+			{
+				if (i != 0)
+					sb.Append(',');
+
+				paramTypeName[i] = metSig.Params[i].GetCppName(TypeMgr);
+				sb.Append(paramTypeName[i]);
+			}
+			sb.AppendFormat(")){0})(",
+				SlotInfoName(ref ftnPtr));
+
+			for (int i = 0; i < argNum; ++i)
+			{
+				if (i != 0)
+					sb.Append(", ");
+				sb.Append(StorePoped(ref popList[i], paramTypeName[i]));
+			}
+
+			sb.Append(");");
+
+			inst.CppCode += sb.ToString();
+		}
+
 		private void Jmp(InstructionInfo inst, MethodX metX)
 		{
 			TypeStack.Clear();
@@ -1478,13 +1525,10 @@ namespace il2cpp
 
 			sb.AppendFormat("{0}(", metX.GetCppName(PrefixMet));
 
-			bool last = false;
 			for (int i = 0; i < argNum; ++i)
 			{
-				if (last)
+				if (i != 0)
 					sb.Append(", ");
-				last = true;
-
 				sb.Append(ArgName(i));
 			}
 
