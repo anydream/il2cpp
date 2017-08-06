@@ -858,6 +858,19 @@ namespace il2cpp
 					}
 					return;
 
+				case Code.Ldftn:
+					{
+						MethodX metX = (MethodX)operand;
+						Ldftn(inst, metX);
+					}
+					return;
+				case Code.Ldvirtftn:
+					{
+						MethodX metX = (MethodX)operand;
+						Ldvirtftn(inst, metX);
+					}
+					return;
+
 				case Code.Jmp:
 					{
 						MethodX metX = (MethodX)operand;
@@ -1421,6 +1434,29 @@ namespace il2cpp
 			sb.Append(");");
 
 			inst.CppCode += sb.ToString();
+
+			ImplDependNames.Add(metX.DeclType.GetCppName());
+		}
+
+		private void Ldftn(InstructionInfo inst, MethodX metX)
+		{
+			string rval = string.Format("(void*)&{0}",
+				metX.GetCppName(PrefixMet));
+			Load(inst, StackType.Ptr, rval);
+
+			ImplDependNames.Add(metX.DeclType.GetCppName());
+		}
+
+		private void Ldvirtftn(InstructionInfo inst, MethodX metX)
+		{
+			SlotInfo poped = Pop();
+			Debug.Assert(poped.SlotType == StackType.Obj);
+
+			string rval = string.Format("{0}((({1}*){2})->objectTypeID)",
+				metX.GetCppName(PrefixVFtn),
+				TypeMgr.GetNamedType("System.Object").GetCppName(),
+				SlotInfoName(ref poped));
+			Load(inst, StackType.Ptr, rval);
 
 			ImplDependNames.Add(metX.DeclType.GetCppName());
 		}

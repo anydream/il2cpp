@@ -738,8 +738,6 @@ namespace il2cpp
 		// 虚调用映射
 		private readonly Dictionary<string, VCallInfo> VCalls = new Dictionary<string, VCallInfo>();
 
-		public ICorLibTypes CorTypes => Module.CorLibTypes;
-
 		// 复位
 		public void Reset()
 		{
@@ -1033,6 +1031,16 @@ namespace il2cpp
 					if (type.RuntimeVersion == version)
 						return type;
 				}
+			}
+			return null;
+		}
+
+		public TypeX GetNamedType(string typeName)
+		{
+			if (NameTypeMap.TryGetValue(typeName, out var typeList))
+			{
+				Debug.Assert(typeList.Count == 1);
+				return typeList[0];
 			}
 			return null;
 		}
