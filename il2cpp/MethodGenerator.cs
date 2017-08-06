@@ -840,16 +840,7 @@ namespace il2cpp
 					return;
 
 				case Code.Ret:
-					if (TypeStack.Count > 0)
-					{
-						Debug.Assert(TypeStack.Count == 1);
-						SlotInfo poped = Pop();
-						inst.CppCode = "return " + StorePoped(ref poped, CurrMethod.ReturnType.GetCppName(TypeMgr)) + ';';
-					}
-					else
-					{
-						inst.CppCode = "return;";
-					}
+					Ret(inst);
 					return;
 
 				case Code.Call:
@@ -864,6 +855,13 @@ namespace il2cpp
 							prefix = PrefixMet;
 
 						Call(inst, metX, prefix);
+					}
+					return;
+
+				case Code.Jmp:
+					{
+						MethodX metX = (MethodX)operand;
+						Jmp(inst, metX);
 					}
 					return;
 
@@ -1381,6 +1379,20 @@ namespace il2cpp
 				SlotInfoName(ref popList[1]));
 		}
 
+		private void Ret(InstructionInfo inst)
+		{
+			if (TypeStack.Count > 0)
+			{
+				Debug.Assert(TypeStack.Count == 1);
+				SlotInfo poped = Pop();
+				inst.CppCode += "return " + StorePoped(ref poped, CurrMethod.ReturnType.GetCppName(TypeMgr)) + ';';
+			}
+			else
+			{
+				inst.CppCode += "return;";
+			}
+		}
+
 		private void Call(InstructionInfo inst, MethodX metX, string prefix)
 		{
 			int argNum = metX.ParamTypes.Count;
@@ -1409,6 +1421,41 @@ namespace il2cpp
 			sb.Append(");");
 
 			inst.CppCode += sb.ToString();
+
+			ImplDependNames.Add(metX.DeclType.GetCppName());
+		}
+
+		private void Jmp(InstructionInfo inst, MethodX metX)
+		{
+			TypeStack.Clear();
+
+			int argNum = metX.ParamTypes.Count;
+			Debug.Assert(CurrMethod.ParamTypes.Count == argNum);
+
+			StringBuilder sb = new StringBuilder();
+			var retType = metX.ReturnType;
+			if (!retType.IsVoidSig())
+			{
+				SlotInfo pushed = Push(ToStackType(retType));
+				sb.Append(LoadPushed(ref pushed, retType.GetCppName(TypeMgr)));
+			}
+
+			sb.AppendFormat("{0}(", metX.GetCppName(PrefixMet));
+
+			bool last = false;
+			for (int i = 0; i < argNum; ++i)
+			{
+				if (last)
+					sb.Append(", ");
+				last = true;
+
+				sb.Append(ArgName(i));
+			}
+
+			sb.Append(");");
+
+			inst.CppCode += sb.ToString();
+			Ret(inst);
 
 			ImplDependNames.Add(metX.DeclType.GetCppName());
 		}
