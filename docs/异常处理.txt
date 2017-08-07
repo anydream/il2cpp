@@ -22,25 +22,40 @@ if (tmp_0 == 0)
 // catch
 ...
 
-- finally:
+- try-finally:
+cls_n_System_Exception *currException = nullptr;
 try
 {
-	// leave 10
-	lastLeaveTarget = 10;
-	goto FINALLY;
+	// try block
+	
+	// leave 256 注册到包含当前指令的 finally 块内
+	leaveTarget = 1;
+	goto LB_FINALLY_1;
 }
-catch (il2cppException& ex)
+catch (il2cppException &ex)
 {
-	lastException = ex.Exception;
-	goto FINALLY;
+	currException = ex.ManagedException;
 }
-...
-FINALLY:
-...
+LB_FINALLY_1:
+// finally block
+
 // endfinally
-if (lastException)
-	// goto outer block or rethrow
-if (lastLeaveTarget == 10)
-	goto Label_10;
-if (lastLeaveTarget == 20)
-	goto Label_20;
+if (currException)
+	IL2CPP_THROW(il2cppException(currException));
+switch (leaveTarget)
+{
+	case 1: goto LB_256;
+	case 2: goto LB_FINALLY_2;
+	...
+}
+
+- try-fault:
+try
+{
+	// try block
+}
+catch (il2cppException &ex)
+{
+	// fault block
+	IL2CPP_THROW(ex);
+}
