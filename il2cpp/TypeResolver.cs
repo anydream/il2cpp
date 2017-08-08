@@ -581,7 +581,8 @@ namespace il2cpp
 					var orig = origHandlers[i];
 					curr.TryStart = offsetMap[orig.TryStart.Offset];
 					curr.TryEnd = offsetMap[orig.TryEnd.Offset];
-					curr.FilterStart = offsetMap[orig.FilterStart.Offset];
+					if (orig.FilterStart != null)
+						curr.FilterStart = offsetMap[orig.FilterStart.Offset];
 					curr.HandlerStart = offsetMap[orig.HandlerStart.Offset];
 					curr.HandlerEnd = offsetMap[orig.HandlerEnd.Offset];
 					curr.CatchType = resolverFunc(orig.CatchType.ToTypeSig());
@@ -1429,8 +1430,17 @@ namespace il2cpp
 					metX.LocalTypes.Add(ResolveTypeSig(loc.Type, replacer));
 			}
 
-			// 展开指令集和异常处理信息
-			metX.BuildInstructions(sig => ResolveTypeSig(sig, replacer));
+			// 构造指令集和异常处理信息
+			metX.BuildInstructions(sig =>
+			{
+				var resTypeSig = ResolveTypeSig(sig, replacer);
+
+				// 解析实例类型
+				TypeSig instSig = resTypeSig.GetLeafSig();
+				ResolveInstanceType(instSig.ToTypeDefOrRef());
+
+				return resTypeSig;
+			});
 		}
 
 		// 解析无泛型方法

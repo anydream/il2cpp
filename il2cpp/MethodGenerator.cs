@@ -112,7 +112,7 @@ namespace il2cpp
 	{
 		public int TryStart;
 		public int TryEnd;
-		public int FilterStart;
+		public int? FilterStart;
 		public int HandlerStart;
 		public int HandlerEnd;
 		public TypeSig CatchType;
@@ -222,22 +222,8 @@ namespace il2cpp
 			string codeDecl, codeImpl;
 			if (metX.HasInstList)
 			{
-				// 模拟执行
-				int currIP = 0;
-				int nextIP = 0;
-				for (;;)
-				{
-					if (ProcessStep(currIP, ref nextIP))
-						currIP = nextIP;
-					else if (Branches.Count > 0)
-					{
-						var branch = Branches.Dequeue();
-						currIP = branch.Item1;
-						TypeStack = branch.Item2;
-					}
-					else
-						break;
-				}
+				ProcessLoop(0);
+				ProcessHandlers();
 
 				// 生成实现代码
 				GenMetCode(out codeDecl, out codeImpl);
@@ -256,6 +242,28 @@ namespace il2cpp
 			ImplCode.Append(codeImpl);
 
 			Reset();
+		}
+
+		private void ProcessLoop(int begin)
+		{
+			// 模拟执行
+			int currIP = begin;
+			int nextIP = 0;
+			for (;;)
+			{
+				if (ProcessStep(currIP, ref nextIP))
+					currIP = nextIP;
+				else if (Branches.Count > 0)
+				{
+					var branch = Branches.Dequeue();
+					currIP = branch.Item1;
+					TypeStack = branch.Item2;
+				}
+				else
+					break;
+			}
+
+			TypeStack.Clear();
 		}
 
 		// 生成实现方法
@@ -521,6 +529,43 @@ namespace il2cpp
 			prt.AppendLine("}");
 
 			codeImpl = prt.ToString();
+		}
+
+		private List<ExceptionHandlerInfo> GetLeaveThroughHandlers(int offset)
+		{
+			Debug.Assert(CurrMethod.Def.HasBody);
+			if (!CurrMethod.HasHandlerList)
+				return null;
+
+			List<ExceptionHandlerInfo> result = new List<ExceptionHandlerInfo>();
+			foreach (var handler in CurrMethod.HandlerList)
+			{
+				// 只收集 finally/fault 信息
+				if (handler.HandlerType != ExceptionHandlerType.Finally &&
+					handler.HandlerType != ExceptionHandlerType.Fault)
+					continue;
+
+				if (offset >= handler.TryStart && offset < handler.TryEnd)
+					result.Add(handler);
+			}
+
+			if (result.Count > 0)
+				return result;
+			return null;
+		}
+
+		private void ProcessHandlers()
+		{
+			if (!CurrMethod.HasHandlerList)
+				return;
+
+			foreach (var handler in CurrMethod.HandlerList)
+			{
+				ProcessLoop(handler.TryStart);
+				if (handler.FilterStart != null)
+					ProcessLoop((int)handler.FilterStart);
+				ProcessLoop(handler.HandlerStart);
+			}
 		}
 
 		private bool ProcessStep(int currIP, ref int nextIP)
