@@ -695,7 +695,246 @@ void il2cpp_InitStaticVars()
 		}
 	}
 
-	[TestClass(@"")]
+	[TestClass(@"[CppUnit_0.h]
+#pragma once
+#include ""il2cpp.h""
+// [valuetype]CodeGenTester.TestValueType/MyStru
+struct stru_3_CodeGenTester_TestValueType_MyStru
+{
+	// float f_float
+	float fld_5_f_float;
+	// long f_long
+	int64_t fld_6_f_long;
+};
+// void [valuetype]CodeGenTester.TestValueType/MyStru::.ctor(float,long)
+void met_2_CodeGenTester_TestValueType_MyStru___ctor(stru_3_CodeGenTester_TestValueType_MyStru* arg_0, float arg_1, int64_t arg_2);
+// object
+struct cls_0_System_Object
+{
+	uint32_t objectTypeID;
+};
+// CodeGenTester.TestValueType
+struct cls_1_CodeGenTester_TestValueType : cls_0_System_Object
+{
+};
+// static bool CodeGenTester.TestValueType::Entry()
+int32_t met_7_CodeGenTester_TestValueType__Entry();
+// static [valuetype]CodeGenTester.TestValueType/MyStru CodeGenTester.TestValueType::Foo([valuetype]CodeGenTester.TestValueType/MyStru,[valuetype]CodeGenTester.TestValueType/MyStru&,[valuetype]CodeGenTester.TestValueType/MyStru&)
+stru_3_CodeGenTester_TestValueType_MyStru met_4_CodeGenTester_TestValueType__Foo(stru_3_CodeGenTester_TestValueType_MyStru arg_0, stru_3_CodeGenTester_TestValueType_MyStru* arg_1, stru_3_CodeGenTester_TestValueType_MyStru* arg_2);
+// System.ValueType
+struct cls_8_System_ValueType : cls_0_System_Object
+{
+};
+
+[CppUnit_0.cpp]
+#include ""CppUnit_0.h""
+// void [valuetype]CodeGenTester.TestValueType/MyStru::.ctor(float,long)
+void met_2_CodeGenTester_TestValueType_MyStru___ctor(stru_3_CodeGenTester_TestValueType_MyStru* arg_0, float arg_1, int64_t arg_2)
+{
+	// temps
+	void* tmp_0_ref;
+	float tmp_1_r4;
+	int64_t tmp_1_i8;
+
+	// nop
+	// ldarg.0
+	tmp_0_ref = arg_0;
+	// ldarg.1
+	tmp_1_r4 = arg_1;
+	// stfld float [valuetype]CodeGenTester.TestValueType/MyStru::f_float
+	((stru_3_CodeGenTester_TestValueType_MyStru*)tmp_0_ref)->fld_5_f_float = tmp_1_r4;
+	// ldarg.0
+	tmp_0_ref = arg_0;
+	// ldarg.2
+	tmp_1_i8 = arg_2;
+	// stfld long [valuetype]CodeGenTester.TestValueType/MyStru::f_long
+	((stru_3_CodeGenTester_TestValueType_MyStru*)tmp_0_ref)->fld_6_f_long = tmp_1_i8;
+	// ret
+	return;
+}
+// static bool CodeGenTester.TestValueType::Entry()
+int32_t met_7_CodeGenTester_TestValueType__Entry()
+{
+	// locals
+	stru_3_CodeGenTester_TestValueType_MyStru loc_0 = stru_3_CodeGenTester_TestValueType_MyStru();
+	stru_3_CodeGenTester_TestValueType_MyStru loc_1 = stru_3_CodeGenTester_TestValueType_MyStru();
+	stru_3_CodeGenTester_TestValueType_MyStru loc_2 = stru_3_CodeGenTester_TestValueType_MyStru();
+	stru_3_CodeGenTester_TestValueType_MyStru loc_3 = stru_3_CodeGenTester_TestValueType_MyStru();
+	int32_t loc_4 = 0;
+	int32_t loc_5 = 0;
+
+	// temps
+	void* tmp_0_ptr;
+	stru_3_CodeGenTester_TestValueType_MyStru tmp_0_stru_3_CodeGenTester_TestValueType_MyStru;
+	float tmp_0_r4;
+	int64_t tmp_0_i8;
+	int32_t tmp_0_i4;
+	float tmp_1_r4;
+	void* tmp_1_ptr;
+	stru_3_CodeGenTester_TestValueType_MyStru tmp_1_stru_3_CodeGenTester_TestValueType_MyStru;
+	int64_t tmp_1_i8;
+	int32_t tmp_2_i4;
+	int64_t tmp_2_i8;
+	void* tmp_2_ptr;
+
+	// nop
+	// ldloca.s loc_0
+	tmp_0_ptr = &loc_0;
+	// ldc.r4 777
+	tmp_1_r4 = 777;
+	// ldc.i4 888
+	tmp_2_i4 = 888;
+	// conv.i8
+	tmp_2_i8 = tmp_2_i4;
+	// call void [valuetype]CodeGenTester.TestValueType/MyStru::.ctor(float,long)
+	met_2_CodeGenTester_TestValueType_MyStru___ctor((stru_3_CodeGenTester_TestValueType_MyStru*)tmp_0_ptr, tmp_1_r4, tmp_2_i8);
+	// ldloca.s loc_3
+	tmp_0_ptr = &loc_3;
+	// initobj CodeGenTester.TestValueType/MyStru
+	*(stru_3_CodeGenTester_TestValueType_MyStru*)tmp_0_ptr = stru_3_CodeGenTester_TestValueType_MyStru();
+	// ldloc.3
+	tmp_0_stru_3_CodeGenTester_TestValueType_MyStru = loc_3;
+	// ldloca.s loc_0
+	tmp_1_ptr = &loc_0;
+	// ldloca.s loc_1
+	tmp_2_ptr = &loc_1;
+	// call static [valuetype]CodeGenTester.TestValueType/MyStru CodeGenTester.TestValueType::Foo([valuetype]CodeGenTester.TestValueType/MyStru,[valuetype]CodeGenTester.TestValueType/MyStru&,[valuetype]CodeGenTester.TestValueType/MyStru&)
+	tmp_0_stru_3_CodeGenTester_TestValueType_MyStru = met_4_CodeGenTester_TestValueType__Foo(tmp_0_stru_3_CodeGenTester_TestValueType_MyStru, (stru_3_CodeGenTester_TestValueType_MyStru*)tmp_1_ptr, (stru_3_CodeGenTester_TestValueType_MyStru*)tmp_2_ptr);
+	// stloc.2
+	loc_2 = tmp_0_stru_3_CodeGenTester_TestValueType_MyStru;
+	// ldloc.0
+	tmp_0_stru_3_CodeGenTester_TestValueType_MyStru = loc_0;
+	// ldfld float [valuetype]CodeGenTester.TestValueType/MyStru::f_float
+	tmp_0_r4 = tmp_0_stru_3_CodeGenTester_TestValueType_MyStru.fld_5_f_float;
+	// ldloc.1
+	tmp_1_stru_3_CodeGenTester_TestValueType_MyStru = loc_1;
+	// ldfld float [valuetype]CodeGenTester.TestValueType/MyStru::f_float
+	tmp_1_r4 = tmp_1_stru_3_CodeGenTester_TestValueType_MyStru.fld_5_f_float;
+	// bne.un.s label_34
+	if (tmp_0_r4 != tmp_1_r4) goto label_34;
+	// ldloc.0
+	tmp_0_stru_3_CodeGenTester_TestValueType_MyStru = loc_0;
+	// ldfld long [valuetype]CodeGenTester.TestValueType/MyStru::f_long
+	tmp_0_i8 = tmp_0_stru_3_CodeGenTester_TestValueType_MyStru.fld_6_f_long;
+	// ldloc.1
+	tmp_1_stru_3_CodeGenTester_TestValueType_MyStru = loc_1;
+	// ldfld long [valuetype]CodeGenTester.TestValueType/MyStru::f_long
+	tmp_1_i8 = tmp_1_stru_3_CodeGenTester_TestValueType_MyStru.fld_6_f_long;
+	// bne.un.s label_34
+	if ((uint64_t)tmp_0_i8 != (uint64_t)tmp_1_i8) goto label_34;
+	// ldloc.2
+	tmp_0_stru_3_CodeGenTester_TestValueType_MyStru = loc_2;
+	// ldfld float [valuetype]CodeGenTester.TestValueType/MyStru::f_float
+	tmp_0_r4 = tmp_0_stru_3_CodeGenTester_TestValueType_MyStru.fld_5_f_float;
+	// ldloc.1
+	tmp_1_stru_3_CodeGenTester_TestValueType_MyStru = loc_1;
+	// ldfld float [valuetype]CodeGenTester.TestValueType/MyStru::f_float
+	tmp_1_r4 = tmp_1_stru_3_CodeGenTester_TestValueType_MyStru.fld_5_f_float;
+	// bne.un.s label_34
+	if (tmp_0_r4 != tmp_1_r4) goto label_34;
+	// ldloc.2
+	tmp_0_stru_3_CodeGenTester_TestValueType_MyStru = loc_2;
+	// ldfld long [valuetype]CodeGenTester.TestValueType/MyStru::f_long
+	tmp_0_i8 = tmp_0_stru_3_CodeGenTester_TestValueType_MyStru.fld_6_f_long;
+	// ldloc.1
+	tmp_1_stru_3_CodeGenTester_TestValueType_MyStru = loc_1;
+	// ldfld long [valuetype]CodeGenTester.TestValueType/MyStru::f_long
+	tmp_1_i8 = tmp_1_stru_3_CodeGenTester_TestValueType_MyStru.fld_6_f_long;
+	// ceq
+	tmp_0_i4 = tmp_0_i8 == tmp_1_i8 ? 1 : 0;
+	// br.s label_35
+	goto label_35;
+	// ldc.i4.0
+label_34:
+	tmp_0_i4 = 0;
+	// stloc.s loc_4
+label_35:
+	loc_4 = tmp_0_i4;
+	// ldloc.s loc_4
+	tmp_0_i4 = loc_4;
+	// brfalse.s label_42
+	if (!tmp_0_i4) goto label_42;
+	// nop
+	// ldc.i4.1
+	tmp_0_i4 = 1;
+	// stloc.s loc_5
+	loc_5 = tmp_0_i4;
+	// br.s label_45
+	goto label_45;
+	// ldc.i4.0
+label_42:
+	tmp_0_i4 = 0;
+	// stloc.s loc_5
+	loc_5 = tmp_0_i4;
+	// br.s label_45
+	goto label_45;
+	// ldloc.s loc_5
+label_45:
+	tmp_0_i4 = loc_5;
+	// ret
+	return tmp_0_i4;
+}
+// static [valuetype]CodeGenTester.TestValueType/MyStru CodeGenTester.TestValueType::Foo([valuetype]CodeGenTester.TestValueType/MyStru,[valuetype]CodeGenTester.TestValueType/MyStru&,[valuetype]CodeGenTester.TestValueType/MyStru&)
+stru_3_CodeGenTester_TestValueType_MyStru met_4_CodeGenTester_TestValueType__Foo(stru_3_CodeGenTester_TestValueType_MyStru arg_0, stru_3_CodeGenTester_TestValueType_MyStru* arg_1, stru_3_CodeGenTester_TestValueType_MyStru* arg_2)
+{
+	// locals
+	stru_3_CodeGenTester_TestValueType_MyStru loc_0 = stru_3_CodeGenTester_TestValueType_MyStru();
+
+	// temps
+	void* tmp_0_ref;
+	stru_3_CodeGenTester_TestValueType_MyStru tmp_0_stru_3_CodeGenTester_TestValueType_MyStru;
+	stru_3_CodeGenTester_TestValueType_MyStru tmp_1_stru_3_CodeGenTester_TestValueType_MyStru;
+	float tmp_1_r4;
+	int32_t tmp_1_i4;
+	int64_t tmp_1_i8;
+	void* tmp_1_ref;
+	float tmp_2_r4;
+
+	// nop
+	// ldarg.1
+	tmp_0_ref = arg_1;
+	// ldarg.0
+	tmp_1_stru_3_CodeGenTester_TestValueType_MyStru = arg_0;
+	// ldfld float [valuetype]CodeGenTester.TestValueType/MyStru::f_float
+	tmp_1_r4 = tmp_1_stru_3_CodeGenTester_TestValueType_MyStru.fld_5_f_float;
+	// ldc.r4 100
+	tmp_2_r4 = 100;
+	// add
+	tmp_1_r4 = tmp_1_r4 + tmp_2_r4;
+	// stfld float [valuetype]CodeGenTester.TestValueType/MyStru::f_float
+	((stru_3_CodeGenTester_TestValueType_MyStru*)tmp_0_ref)->fld_5_f_float = tmp_1_r4;
+	// ldarg.1
+	tmp_0_ref = arg_1;
+	// ldc.i4 789
+	tmp_1_i4 = 789;
+	// conv.i8
+	tmp_1_i8 = tmp_1_i4;
+	// stfld long [valuetype]CodeGenTester.TestValueType/MyStru::f_long
+	((stru_3_CodeGenTester_TestValueType_MyStru*)tmp_0_ref)->fld_6_f_long = tmp_1_i8;
+	// ldarg.2
+	tmp_0_ref = arg_2;
+	// ldarg.1
+	tmp_1_ref = arg_1;
+	// ldobj CodeGenTester.TestValueType/MyStru
+	tmp_1_stru_3_CodeGenTester_TestValueType_MyStru = *(stru_3_CodeGenTester_TestValueType_MyStru*)tmp_1_ref;
+	// stobj CodeGenTester.TestValueType/MyStru
+	*(stru_3_CodeGenTester_TestValueType_MyStru*)tmp_0_ref = tmp_1_stru_3_CodeGenTester_TestValueType_MyStru;
+	// ldarg.2
+	tmp_0_ref = arg_2;
+	// ldobj CodeGenTester.TestValueType/MyStru
+	tmp_0_stru_3_CodeGenTester_TestValueType_MyStru = *(stru_3_CodeGenTester_TestValueType_MyStru*)tmp_0_ref;
+	// stloc.0
+	loc_0 = tmp_0_stru_3_CodeGenTester_TestValueType_MyStru;
+	// br.s label_19
+	goto label_19;
+	// ldloc.0
+label_19:
+	tmp_0_stru_3_CodeGenTester_TestValueType_MyStru = loc_0;
+	// ret
+	return tmp_0_stru_3_CodeGenTester_TestValueType_MyStru;
+}
+
+")]
 	class TestValueType
 	{
 		struct MyStru
@@ -734,7 +973,150 @@ void il2cpp_InitStaticVars()
 		}
 	}
 
-	[TestClass(@"")]
+	[TestClass(@"[CppUnit_0.h]
+#pragma once
+#include ""il2cpp.h""
+// object
+struct cls_0_System_Object
+{
+	uint32_t objectTypeID;
+};
+// CodeGenTester.TestCycleCctor/A
+struct cls_4_CodeGenTester_TestCycleCctor_A : cls_0_System_Object
+{
+};
+// static int CodeGenTester.TestCycleCctor/A::sfld
+extern int32_t sfld_3_CodeGenTester_TestCycleCctor_A__sfld;
+extern int8_t onceflag_cls_4_CodeGenTester_TestCycleCctor_A;
+extern uintptr_t locktid_cls_4_CodeGenTester_TestCycleCctor_A;
+// static void CodeGenTester.TestCycleCctor/A::.cctor()
+void met_2_CodeGenTester_TestCycleCctor_A___cctor();
+// CodeGenTester.TestCycleCctor/B
+struct cls_7_CodeGenTester_TestCycleCctor_B : cls_0_System_Object
+{
+};
+// static int CodeGenTester.TestCycleCctor/B::sfld
+extern int32_t sfld_6_CodeGenTester_TestCycleCctor_B__sfld;
+extern int8_t onceflag_cls_7_CodeGenTester_TestCycleCctor_B;
+extern uintptr_t locktid_cls_7_CodeGenTester_TestCycleCctor_B;
+// static void CodeGenTester.TestCycleCctor/B::.cctor()
+void met_5_CodeGenTester_TestCycleCctor_B___cctor();
+// CodeGenTester.TestCycleCctor
+struct cls_1_CodeGenTester_TestCycleCctor : cls_0_System_Object
+{
+};
+// static bool CodeGenTester.TestCycleCctor::Entry()
+int32_t met_8_CodeGenTester_TestCycleCctor__Entry();
+void il2cpp_InitStaticVars();
+
+[CppUnit_0.cpp]
+#include ""CppUnit_0.h""
+// static int CodeGenTester.TestCycleCctor/A::sfld
+int32_t sfld_3_CodeGenTester_TestCycleCctor_A__sfld;
+int8_t onceflag_cls_4_CodeGenTester_TestCycleCctor_A;
+uintptr_t locktid_cls_4_CodeGenTester_TestCycleCctor_A;
+static void once_met_2_CodeGenTester_TestCycleCctor_A___cctor()
+{
+	// temps
+	int32_t tmp_0_i4;
+	int32_t tmp_1_i4;
+
+	// nop
+	// ldsfld static int CodeGenTester.TestCycleCctor/B::sfld
+	met_5_CodeGenTester_TestCycleCctor_B___cctor();
+	tmp_0_i4 = sfld_6_CodeGenTester_TestCycleCctor_B__sfld;
+	// ldc.i4.1
+	tmp_1_i4 = 1;
+	// add
+	tmp_0_i4 = tmp_0_i4 + tmp_1_i4;
+	// stsfld static int CodeGenTester.TestCycleCctor/A::sfld
+	sfld_3_CodeGenTester_TestCycleCctor_A__sfld = tmp_0_i4;
+	// ret
+	return;
+}
+// static void CodeGenTester.TestCycleCctor/A::.cctor()
+void met_2_CodeGenTester_TestCycleCctor_A___cctor()
+{
+	IL2CPP_CALL_ONCE(
+		onceflag_cls_4_CodeGenTester_TestCycleCctor_A,
+		locktid_cls_4_CodeGenTester_TestCycleCctor_A,
+		once_met_2_CodeGenTester_TestCycleCctor_A___cctor);
+}
+// static int CodeGenTester.TestCycleCctor/B::sfld
+int32_t sfld_6_CodeGenTester_TestCycleCctor_B__sfld;
+int8_t onceflag_cls_7_CodeGenTester_TestCycleCctor_B;
+uintptr_t locktid_cls_7_CodeGenTester_TestCycleCctor_B;
+static void once_met_5_CodeGenTester_TestCycleCctor_B___cctor()
+{
+	// temps
+	int32_t tmp_0_i4;
+	int32_t tmp_1_i4;
+
+	// nop
+	// ldsfld static int CodeGenTester.TestCycleCctor/A::sfld
+	met_2_CodeGenTester_TestCycleCctor_A___cctor();
+	tmp_0_i4 = sfld_3_CodeGenTester_TestCycleCctor_A__sfld;
+	// ldc.i4.1
+	tmp_1_i4 = 1;
+	// add
+	tmp_0_i4 = tmp_0_i4 + tmp_1_i4;
+	// stsfld static int CodeGenTester.TestCycleCctor/B::sfld
+	sfld_6_CodeGenTester_TestCycleCctor_B__sfld = tmp_0_i4;
+	// ret
+	return;
+}
+// static void CodeGenTester.TestCycleCctor/B::.cctor()
+void met_5_CodeGenTester_TestCycleCctor_B___cctor()
+{
+	IL2CPP_CALL_ONCE(
+		onceflag_cls_7_CodeGenTester_TestCycleCctor_B,
+		locktid_cls_7_CodeGenTester_TestCycleCctor_B,
+		once_met_5_CodeGenTester_TestCycleCctor_B___cctor);
+}
+// static bool CodeGenTester.TestCycleCctor::Entry()
+int32_t met_8_CodeGenTester_TestCycleCctor__Entry()
+{
+	// locals
+	int32_t loc_0 = 0;
+
+	// temps
+	int32_t tmp_0_i4;
+	int32_t tmp_1_i4;
+
+	// nop
+	// ldsfld static int CodeGenTester.TestCycleCctor/A::sfld
+	met_2_CodeGenTester_TestCycleCctor_A___cctor();
+	tmp_0_i4 = sfld_3_CodeGenTester_TestCycleCctor_A__sfld;
+	// ldsfld static int CodeGenTester.TestCycleCctor/B::sfld
+	met_5_CodeGenTester_TestCycleCctor_B___cctor();
+	tmp_1_i4 = sfld_6_CodeGenTester_TestCycleCctor_B__sfld;
+	// sub
+	tmp_0_i4 = tmp_0_i4 - tmp_1_i4;
+	// ldc.i4.1
+	tmp_1_i4 = 1;
+	// ceq
+	tmp_0_i4 = tmp_0_i4 == tmp_1_i4 ? 1 : 0;
+	// stloc.0
+	loc_0 = tmp_0_i4;
+	// br.s label_8
+	goto label_8;
+	// ldloc.0
+label_8:
+	tmp_0_i4 = loc_0;
+	// ret
+	return tmp_0_i4;
+}
+void il2cpp_InitStaticVars()
+{
+	sfld_3_CodeGenTester_TestCycleCctor_A__sfld = 0;
+	onceflag_cls_4_CodeGenTester_TestCycleCctor_A = 0;
+	locktid_cls_4_CodeGenTester_TestCycleCctor_A = 0;
+	sfld_6_CodeGenTester_TestCycleCctor_B__sfld = 0;
+	onceflag_cls_7_CodeGenTester_TestCycleCctor_B = 0;
+	locktid_cls_7_CodeGenTester_TestCycleCctor_B = 0;
+}
+
+")]
 	class TestCycleCctor
 	{
 		class A

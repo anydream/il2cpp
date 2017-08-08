@@ -158,7 +158,8 @@ namespace il2cpp
 			// 构造类型结构体代码
 			string typeName;
 			string baseTypeName = null;
-			if (currType.BaseType != null)
+			if (currType.BaseType != null &&
+				currType.BaseType.FullName != "System.ValueType")
 			{
 				baseTypeName = currType.BaseType.GetCppName();
 				typeName = currType.GetCppName();
