@@ -50,7 +50,7 @@ namespace il2cpp
 	}
 
 	// 包装的指令
-	public class InstructionInfo
+	class InstructionInfo
 	{
 		public OpCode OpCode;
 		public object Operand;
@@ -105,6 +105,18 @@ namespace il2cpp
 
 			return string.Format("{0}{1}", OpCode, strOperand != null ? ' ' + strOperand : "");
 		}
+	}
+
+	// 异常处理器信息
+	class ExceptionHandlerInfo
+	{
+		public int TryStart;
+		public int TryEnd;
+		public int FilterStart;
+		public int HandlerStart;
+		public int HandlerEnd;
+		public TypeSig CatchType;
+		public ExceptionHandlerType HandlerType;
 	}
 
 	// 方法生成器

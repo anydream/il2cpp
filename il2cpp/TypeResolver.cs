@@ -471,8 +471,12 @@ namespace il2cpp
 		public bool InitLocals => Def.Body?.InitLocals ?? false;
 
 		// 指令列表
-		public InstructionInfo[] InstList;
-		public bool HasInstList => InstList != null;
+		internal InstructionInfo[] InstList;
+		internal bool HasInstList => InstList != null;
+
+		// 异常处理信息列表
+		internal ExceptionHandlerInfo[] HandlerList;
+		internal bool HasHandlerList => HandlerList != null;
 
 		// 方法覆盖集合
 		private HashSet<MethodX> OverrideImpls_;
@@ -505,11 +509,9 @@ namespace il2cpp
 			Def = metDef;
 			DeclType = declType;
 			SetGenericArgs(genArgs);
-
-			BuildInstructions();
 		}
 
-		private void BuildInstructions()
+		internal void BuildInstructions(Func<TypeSig, TypeSig> resolverFunc)
 		{
 			if (!Def.HasBody)
 				return;
@@ -565,6 +567,25 @@ namespace il2cpp
 							InstList[idx].Operand = targets;
 						}
 						break;
+				}
+			}
+
+			// 重建异常处理信息
+			if (Def.Body.HasExceptionHandlers)
+			{
+				var origHandlers = Def.Body.ExceptionHandlers;
+				HandlerList = new ExceptionHandlerInfo[origHandlers.Count];
+				for (int i = 0; i < HandlerList.Length; ++i)
+				{
+					var curr = HandlerList[i] = new ExceptionHandlerInfo();
+					var orig = origHandlers[i];
+					curr.TryStart = offsetMap[orig.TryStart.Offset];
+					curr.TryEnd = offsetMap[orig.TryEnd.Offset];
+					curr.FilterStart = offsetMap[orig.FilterStart.Offset];
+					curr.HandlerStart = offsetMap[orig.HandlerStart.Offset];
+					curr.HandlerEnd = offsetMap[orig.HandlerEnd.Offset];
+					curr.CatchType = resolverFunc(orig.CatchType.ToTypeSig());
+					curr.HandlerType = orig.HandlerType;
 				}
 			}
 		}
@@ -1407,6 +1428,9 @@ namespace il2cpp
 				foreach (var loc in metX.Def.Body.Variables)
 					metX.LocalTypes.Add(ResolveTypeSig(loc.Type, replacer));
 			}
+
+			// 展开指令集和异常处理信息
+			metX.BuildInstructions(sig => ResolveTypeSig(sig, replacer));
 		}
 
 		// 解析无泛型方法
