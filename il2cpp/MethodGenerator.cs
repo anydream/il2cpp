@@ -110,6 +110,7 @@ namespace il2cpp
 	// 异常处理器信息
 	class ExceptionHandlerInfo
 	{
+		public int Index;
 		public int TryStart;
 		public int TryEnd;
 		public int? FilterStart;
@@ -117,6 +118,9 @@ namespace il2cpp
 		public int HandlerEnd;
 		public TypeSig CatchType;
 		public ExceptionHandlerType HandlerType;
+
+		// 跳转离开的目标指令位置
+		public HashSet<int> ThroughLeaves;
 	}
 
 	// 方法生成器

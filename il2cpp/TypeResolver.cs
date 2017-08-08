@@ -579,13 +579,15 @@ namespace il2cpp
 				{
 					var curr = HandlerList[i] = new ExceptionHandlerInfo();
 					var orig = origHandlers[i];
+					curr.Index = i;
 					curr.TryStart = offsetMap[orig.TryStart.Offset];
 					curr.TryEnd = offsetMap[orig.TryEnd.Offset];
 					if (orig.FilterStart != null)
 						curr.FilterStart = offsetMap[orig.FilterStart.Offset];
 					curr.HandlerStart = offsetMap[orig.HandlerStart.Offset];
 					curr.HandlerEnd = offsetMap[orig.HandlerEnd.Offset];
-					curr.CatchType = resolverFunc(orig.CatchType.ToTypeSig());
+					if (orig.CatchType != null)
+						curr.CatchType = resolverFunc(orig.CatchType.ToTypeSig());
 					curr.HandlerType = orig.HandlerType;
 				}
 			}
