@@ -35,8 +35,8 @@ int32_t met_2_CodeGenTester_TestBasicInst__Fibonacci(int32_t arg_0);
 void met_3_CodeGenTester_TestBasicInst__Entry()
 {
 	// locals
-	int32_t loc_0;
-	int32_t loc_1;
+	int32_t loc_0 = 0;
+	int32_t loc_1 = 0;
 
 	// temps
 	int32_t tmp_0_i4;
@@ -85,12 +85,12 @@ label_13:
 int32_t met_2_CodeGenTester_TestBasicInst__Fibonacci(int32_t arg_0)
 {
 	// locals
-	int32_t loc_0;
-	int32_t loc_1;
-	int32_t loc_2;
-	int32_t loc_3;
-	int32_t loc_4;
-	int32_t loc_5;
+	int32_t loc_0 = 0;
+	int32_t loc_1 = 0;
+	int32_t loc_2 = 0;
+	int32_t loc_3 = 0;
+	int32_t loc_4 = 0;
+	int32_t loc_5 = 0;
 
 	// temps
 	int32_t tmp_0_i4;
@@ -213,7 +213,7 @@ uint16_t met_2_CodeGenTester_TestBasicTypes__Foo(int8_t arg_0, uint8_t arg_1, in
 void met_3_CodeGenTester_TestBasicTypes__Entry()
 {
 	// locals
-	uint16_t loc_0;
+	uint16_t loc_0 = 0;
 
 	// temps
 	int32_t tmp_0_i4;
@@ -323,7 +323,7 @@ void met_3_CodeGenTester_TestBasicTypes__Entry()
 uint16_t met_2_CodeGenTester_TestBasicTypes__Foo(int8_t arg_0, uint8_t arg_1, int16_t arg_2, uint16_t arg_3, int32_t arg_4, uint32_t arg_5, int64_t arg_6, uint64_t arg_7, float arg_8, double arg_9, uint16_t arg_10, int32_t arg_11, intptr_t arg_12, uintptr_t arg_13, struct cls_0_System_Object* arg_14)
 {
 	// locals
-	uint16_t loc_0;
+	uint16_t loc_0 = 0;
 
 	// temps
 	int32_t tmp_0_i4;
@@ -428,6 +428,7 @@ extern uint32_t sfld_7_CodeGenTester_TestStatic_Cls__s_uint;
 // static byte CodeGenTester.TestStatic/Cls::s_byte
 extern uint8_t sfld_b_CodeGenTester_TestStatic_Cls__s_byte;
 extern int8_t onceflag_cls_8_CodeGenTester_TestStatic_Cls;
+extern uintptr_t locktid_cls_8_CodeGenTester_TestStatic_Cls;
 // static void CodeGenTester.TestStatic/Cls::.cctor()
 void met_6_CodeGenTester_TestStatic_Cls___cctor();
 // void CodeGenTester.TestStatic/Cls::.ctor()
@@ -443,6 +444,7 @@ extern uint32_t sfld_4_CodeGenTester_TestStatic__s_uint;
 // static byte CodeGenTester.TestStatic::s_byte
 extern uint8_t sfld_5_CodeGenTester_TestStatic__s_byte;
 extern int8_t onceflag_cls_3_CodeGenTester_TestStatic;
+extern uintptr_t locktid_cls_3_CodeGenTester_TestStatic;
 // static uint CodeGenTester.TestStatic::Entry()
 uint32_t met_c_CodeGenTester_TestStatic__Entry();
 // static void CodeGenTester.TestStatic::.cctor()
@@ -481,6 +483,7 @@ uint32_t sfld_7_CodeGenTester_TestStatic_Cls__s_uint;
 // static byte CodeGenTester.TestStatic/Cls::s_byte
 uint8_t sfld_b_CodeGenTester_TestStatic_Cls__s_byte;
 int8_t onceflag_cls_8_CodeGenTester_TestStatic_Cls;
+uintptr_t locktid_cls_8_CodeGenTester_TestStatic_Cls;
 static void once_met_6_CodeGenTester_TestStatic_Cls___cctor()
 {
 	// temps
@@ -501,7 +504,10 @@ static void once_met_6_CodeGenTester_TestStatic_Cls___cctor()
 // static void CodeGenTester.TestStatic/Cls::.cctor()
 void met_6_CodeGenTester_TestStatic_Cls___cctor()
 {
-	IL2CPP_CALL_ONCE(onceflag_cls_8_CodeGenTester_TestStatic_Cls, once_met_6_CodeGenTester_TestStatic_Cls___cctor);
+	IL2CPP_CALL_ONCE(
+		onceflag_cls_8_CodeGenTester_TestStatic_Cls,
+		locktid_cls_8_CodeGenTester_TestStatic_Cls,
+		once_met_6_CodeGenTester_TestStatic_Cls___cctor);
 }
 // void CodeGenTester.TestStatic/Cls::.ctor()
 void met_9_CodeGenTester_TestStatic_Cls___ctor(struct cls_8_CodeGenTester_TestStatic_Cls* arg_0)
@@ -556,13 +562,14 @@ uint32_t sfld_4_CodeGenTester_TestStatic__s_uint;
 // static byte CodeGenTester.TestStatic::s_byte
 uint8_t sfld_5_CodeGenTester_TestStatic__s_byte;
 int8_t onceflag_cls_3_CodeGenTester_TestStatic;
+uintptr_t locktid_cls_3_CodeGenTester_TestStatic;
 // static uint CodeGenTester.TestStatic::Entry()
 uint32_t met_c_CodeGenTester_TestStatic__Entry()
 {
 	met_d_CodeGenTester_TestStatic___cctor();
 
 	// locals
-	uint32_t loc_0;
+	uint32_t loc_0 = 0;
 
 	// temps
 	int32_t tmp_0_i4;
@@ -630,16 +637,21 @@ static void once_met_d_CodeGenTester_TestStatic___cctor()
 // static void CodeGenTester.TestStatic::.cctor()
 void met_d_CodeGenTester_TestStatic___cctor()
 {
-	IL2CPP_CALL_ONCE(onceflag_cls_3_CodeGenTester_TestStatic, once_met_d_CodeGenTester_TestStatic___cctor);
+	IL2CPP_CALL_ONCE(
+		onceflag_cls_3_CodeGenTester_TestStatic,
+		locktid_cls_3_CodeGenTester_TestStatic,
+		once_met_d_CodeGenTester_TestStatic___cctor);
 }
 void il2cpp_InitStaticVars()
 {
 	sfld_4_CodeGenTester_TestStatic__s_uint = 0;
 	sfld_5_CodeGenTester_TestStatic__s_byte = 0;
 	onceflag_cls_3_CodeGenTester_TestStatic = 0;
+	locktid_cls_3_CodeGenTester_TestStatic = 0;
 	sfld_7_CodeGenTester_TestStatic_Cls__s_uint = 0;
 	sfld_b_CodeGenTester_TestStatic_Cls__s_byte = 0;
 	onceflag_cls_8_CodeGenTester_TestStatic_Cls = 0;
+	locktid_cls_8_CodeGenTester_TestStatic_Cls = 0;
 }
 
 ")]
