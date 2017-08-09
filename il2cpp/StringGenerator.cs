@@ -106,7 +106,7 @@ namespace il2cpp
 				}
 				else
 				{
-					charArray += "0x" + ((ushort)ch).ToString("X");
+					charArray += ((ushort)ch).ToString();
 				}
 				charArray += ',';
 			}
