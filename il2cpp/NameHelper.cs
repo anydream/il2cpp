@@ -174,7 +174,12 @@ namespace il2cpp
 		public static string GetCppName(this MethodX metX, string prefix)
 		{
 			if (metX.CppName_ == null)
-				metX.CppName_ = ToCppName(metX.Name);
+			{
+				if (metX.Def.IsInternalCall)
+					metX.CppName_ = "icall_" + ToCppName(metX.Name, false);
+				else
+					metX.CppName_ = ToCppName(metX.Name);
+			}
 
 			return prefix + metX.CppName_;
 		}
@@ -190,12 +195,15 @@ namespace il2cpp
 			return fldX.CppName_;
 		}
 
-		private static string ToCppName(string fullName)
+		private static string ToCppName(string fullName, bool hasHash = true)
 		{
 			StringBuilder sb = new StringBuilder();
 
-			string hash = ToRadix(NameCounter++, (uint)DigMap.Length);
-			sb.Append(hash + '_');
+			if (hasHash)
+			{
+				string hash = ToRadix(NameCounter++, (uint)DigMap.Length);
+				sb.Append(hash + '_');
+			}
 
 			for (int i = 0; i < fullName.Length; ++i)
 			{
