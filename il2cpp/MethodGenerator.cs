@@ -151,6 +151,8 @@ namespace il2cpp
 		public readonly HashSet<string> DeclDependNames = new HashSet<string>();
 		// 实现依赖的类型
 		public readonly HashSet<string> ImplDependNames = new HashSet<string>();
+		// 实现依赖的字符串常量
+		public readonly HashSet<string> DependStrings = new HashSet<string>();
 
 		internal MethodGenerator(TypeManager typeMgr, StringGenerator strGen, TypeGenerator typeGen)
 		{
@@ -648,6 +650,13 @@ namespace il2cpp
 			{
 				case Code.Ldnull:
 					Load(inst, StackType.Obj, "nullptr");
+					return;
+
+				case Code.Ldstr:
+					{
+						string str = (string)operand;
+						Ldstr(inst, str);
+					}
 					return;
 
 				case Code.Ldc_I4_M1:
@@ -1239,6 +1248,17 @@ namespace il2cpp
 			inst.CppCode += string.Format("{0} = {1};",
 				lval,
 				StorePoped(ref poped, cast));
+		}
+
+		private void Ldstr(InstructionInfo inst, string str)
+		{
+			int idx = StringGen.AddString(str);
+
+			string rval = string.Format("(il2cppString*)&str_{0};",
+				idx);
+			Load(inst, StackType.Obj, rval);
+
+			DependStrings.Add(str);
 		}
 
 		private void Conv(InstructionInfo inst)
