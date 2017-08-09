@@ -77,6 +77,8 @@ namespace il2cpp
 	{
 		// 类型管理器
 		private readonly TypeManager TypeMgr;
+		// 字符串生成器
+		private readonly StringGenerator StringGen;
 		// 方法生成器
 		private readonly MethodGenerator MethodGen;
 
@@ -84,7 +86,7 @@ namespace il2cpp
 		private readonly Dictionary<string, TypeCppCode> CodeMap = new Dictionary<string, TypeCppCode>();
 
 		// 静态变量初始化代码体
-		private StringBuilder StaticInitBody = new StringBuilder();
+		private readonly StringBuilder StaticInitBody = new StringBuilder();
 
 		// 编译单元列表
 		public readonly List<CppCompileUnit> CompileUnits = new List<CppCompileUnit>();
@@ -96,7 +98,8 @@ namespace il2cpp
 		public TypeGenerator(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
-			MethodGen = new MethodGenerator(typeMgr, this);
+			StringGen = new StringGenerator(this);
+			MethodGen = new MethodGenerator(typeMgr, StringGen, this);
 		}
 
 		public void GenerateAll()
@@ -159,13 +162,19 @@ namespace il2cpp
 			string typeName;
 			string baseTypeName = null;
 			if (currType.BaseType != null &&
-				currType.BaseType.FullName != "System.ValueType")
+				!currType.Def.IsValueType)
 			{
 				baseTypeName = currType.BaseType.GetCppName();
 				typeName = currType.GetCppName();
 				prt.AppendFormatLine("struct {0} : {1}\n{{",
 					typeName,
 					baseTypeName);
+			}
+			else if (currType.Def.ToTypeSig().ElementType == ElementType.Object)
+			{
+				typeName = currType.GetCppName();
+				prt.AppendFormatLine("struct {0} : il2cppObject\n{{",
+					typeName);
 			}
 			else
 			{
@@ -183,12 +192,6 @@ namespace il2cpp
 				cppCode.DeclDependNames.Add(baseTypeName);
 
 			++prt.Indents;
-
-			// object 添加类型字段
-			if (currType.Def.ToTypeSig().ElementType == ElementType.Object)
-			{
-				prt.AppendLine("uint32_t objectTypeID;");
-			}
 
 			// 构造结构体成员
 			List<FieldX> staticFields = new List<FieldX>();

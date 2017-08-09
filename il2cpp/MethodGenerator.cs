@@ -50,7 +50,7 @@ namespace il2cpp
 	}
 
 	// 包装的指令
-	class InstructionInfo
+	internal class InstructionInfo
 	{
 		public OpCode OpCode;
 		public object Operand;
@@ -108,7 +108,7 @@ namespace il2cpp
 	}
 
 	// 异常处理器信息
-	class ExceptionHandlerInfo
+	internal class ExceptionHandlerInfo
 	{
 		public int Index;
 		public int TryStart;
@@ -128,6 +128,9 @@ namespace il2cpp
 	{
 		// 类型管理器
 		private readonly TypeManager TypeMgr;
+		// 字符串生成器
+		private readonly StringGenerator StringGen;
+		// 类型生成器
 		private readonly TypeGenerator TypeGen;
 
 		// 当前方法
@@ -149,9 +152,10 @@ namespace il2cpp
 		// 实现依赖的类型
 		public readonly HashSet<string> ImplDependNames = new HashSet<string>();
 
-		public MethodGenerator(TypeManager typeMgr, TypeGenerator typeGen)
+		internal MethodGenerator(TypeManager typeMgr, StringGenerator strGen, TypeGenerator typeGen)
 		{
 			TypeMgr = typeMgr;
+			StringGen = strGen;
 			TypeGen = typeGen;
 		}
 
@@ -1517,9 +1521,8 @@ namespace il2cpp
 			SlotInfo poped = Pop();
 			Debug.Assert(poped.SlotType == StackType.Obj);
 
-			string rval = string.Format("{0}((({1}*){2})->objectTypeID)",
+			string rval = string.Format("{0}(((il2cppObject*){1})->objectTypeID)",
 				metX.GetCppName(PrefixVFtn),
-				TypeMgr.GetNamedType("System.Object").GetCppName(),
 				SlotInfoName(ref poped));
 			Load(inst, StackType.Ptr, rval);
 
