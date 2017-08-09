@@ -60,15 +60,25 @@ namespace il2cpp
 		// 包含的代码对象
 		internal List<TypeCppCode> CodeList = new List<TypeCppCode>();
 
+		private int ImplLength;
+		private int DeclLength;
+
 		public CppCompileUnit(string name)
 		{
 			Name = name;
 		}
 
+		internal void AddCode(TypeCppCode cppCode)
+		{
+			CodeList.Add(cppCode);
+			ImplLength += cppCode.ImplCode.Length;
+			DeclLength += cppCode.DeclCode.Length;
+		}
+
 		public bool IsFull()
 		{
-			return ImplCode.Length > 50000 ||
-				   DeclCode.Length > 10000;
+			return ImplLength > 50000 ||
+				   DeclLength > 10000;
 		}
 	}
 
@@ -382,7 +392,7 @@ namespace il2cpp
 				foreach (var cppCode in codeSorter)
 				{
 					var unit = GetCompileUnit();
-					unit.CodeList.Add(cppCode);
+					unit.AddCode(cppCode);
 					cppCode.CompileUnit = unit;
 				}
 
