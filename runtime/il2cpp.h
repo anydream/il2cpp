@@ -41,7 +41,7 @@ struct il2cppObject
 struct il2cppString : il2cppObject
 {
 	int len;
-	char str[1];
+	uint16_t str[1];
 };
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID);
