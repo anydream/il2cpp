@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using dnlib.DotNet;
 
@@ -112,6 +113,66 @@ namespace il2cpp
 			TypeMgr = typeMgr;
 			StringGen = new StringGenerator(this);
 			MethodGen = new MethodGenerator(typeMgr, StringGen, this);
+		}
+
+		public override string ToString()
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (var unit in CompileUnits)
+			{
+				sb.AppendFormat("[{0}.h]\n{1}\n",
+					unit.Name,
+					unit.DeclCode);
+
+				if (unit.ImplCode.Length > 0)
+				{
+					sb.AppendFormat("[{0}.cpp]\n{1}\n",
+						unit.Name,
+						unit.ImplCode);
+				}
+			}
+			return sb.ToString();
+		}
+
+		public void ToFolder(string folder)
+		{
+			Directory.CreateDirectory(folder);
+			List<string> unitNames = new List<string>();
+			foreach (var unit in CompileUnits)
+			{
+				string path = Path.Combine(folder, unit.Name + ".h");
+				File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.DeclCode.ToString()));
+
+				if (unit.ImplCode.Length > 0)
+				{
+					unitNames.Add(unit.Name);
+					path = Path.Combine(folder, unit.Name + ".cpp");
+					File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.ImplCode.ToString()));
+				}
+			}
+
+			string compileCmd = "clang -O3 -S -emit-llvm il2cpp.cpp main.cpp ";
+			string linkCmd = "llvm-link -S -o linked.ll il2cpp.ll main.ll ";
+			string optCmd = "opt -O3 -S -o opted.ll linked.ll";
+			string genCmd = "clang -O3 -o final.exe opted.ll";
+
+			StringBuilder sbShell = new StringBuilder();
+
+			sbShell.Append(compileCmd);
+			foreach (var unit in unitNames)
+				sbShell.AppendFormat("{0}.cpp", unit);
+			sbShell.AppendLine();
+
+			sbShell.Append(linkCmd);
+			foreach (var unit in unitNames)
+				sbShell.AppendFormat("{0}.ll", unit);
+			sbShell.AppendLine();
+
+			sbShell.AppendLine(optCmd);
+
+			sbShell.AppendLine(genCmd);
+
+			File.WriteAllText(Path.Combine(folder, "build.cmd"), sbShell.ToString());
 		}
 
 		public void GenerateAll()
@@ -415,7 +476,6 @@ namespace il2cpp
 
 					unit.DeclCode.Append("#pragma once\n");
 					unit.DeclCode.Append("#include \"il2cpp.h\"\n");
-					unit.ImplCode.AppendFormat("#include \"{0}.h\"\n", unit.Name);
 
 					foreach (var cppCode in unit.CodeList)
 					{
@@ -477,6 +537,10 @@ namespace il2cpp
 						cppCode.ImplCode = null;
 						cppCode.ImplDependTypes = null;
 					}
+
+					// 如果包含内容则追加头文件
+					if (unit.ImplCode.Length > 0)
+						unit.ImplCode.Insert(0, string.Format("#include \"{0}.h\"\n", unit.Name));
 
 					unit.CodeList = null;
 					dependSet.Clear();

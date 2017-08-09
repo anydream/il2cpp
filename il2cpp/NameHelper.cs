@@ -164,6 +164,8 @@ namespace il2cpp
 
 		public static uint GetCppTypeID(this TypeX tyX)
 		{
+			if (tyX == null)
+				return 0;
 			if (tyX.CppTypeID_ == 0)
 				tyX.CppTypeID_ = ++TypeIDCounter;
 			return tyX.CppTypeID_;

@@ -41,10 +41,7 @@ namespace il2cpp
 			codeMap = new Dictionary<int, StringBuilder>();
 			HashSet<int> lenSet = new HashSet<int>();
 
-			uint strTypeID = 0;
-			TypeX strType = TypeGen.TypeMgr.GetNamedType("System.String");
-			if (strType != null)
-				strTypeID = strType.GetCppTypeID();
+			uint strTypeID = TypeGen.TypeMgr.GetNamedType("System.String").GetCppTypeID();
 
 			int index = 0;
 			int counter = 0;
@@ -115,7 +112,8 @@ namespace il2cpp
 			}
 			charArray += '0';
 
-			return string.Format("const il2cppString_{0} str_{1} {{ {2}, {3}, {{{4}}} }};\n",
+			return string.Format("// {0}\nconst il2cppString_{1} str_{2} {{ {3}, {4}, {{{5}}} }};\n",
+				str,
 				str.Length + 1,
 				StringMap[str],
 				strTypeID,

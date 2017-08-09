@@ -128,7 +128,6 @@ namespace test
 		{
 			TypeGenerator typeGen = new TypeGenerator(typeMgr);
 			// typeGen.IsAllInOne = true;
-			StringBuilder sb = new StringBuilder();
 
 			foreach (var typeDef in typeMgr.Module.Types)
 			{
@@ -143,16 +142,8 @@ namespace test
 					typeMgr.Process();
 					typeGen.GenerateAll();
 
-					foreach (var unit in typeGen.CompileUnits)
-					{
-						sb.AppendFormat("[{0}.h]\n{1}\n[{0}.cpp]\n{2}\n",
-							unit.Name,
-							unit.DeclCode,
-							unit.ImplCode);
-					}
-
-					string result = sb.ToString();
-					sb.Clear();
+					string result = typeGen.ToString();
+					typeGen.ToFolder("../gen");
 
 					if (result == expected)
 					{
