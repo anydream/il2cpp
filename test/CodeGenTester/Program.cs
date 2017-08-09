@@ -16,9 +16,8 @@ namespace CodeGenTester
 #pragma once
 #include ""il2cpp.h""
 // object
-struct cls_0_System_Object
+struct cls_0_System_Object : il2cppObject
 {
-	uint32_t objectTypeID;
 };
 // CodeGenTester.TestBasicInst
 struct cls_1_CodeGenTester_TestBasicInst : cls_0_System_Object
@@ -194,9 +193,8 @@ label_31:
 #pragma once
 #include ""il2cpp.h""
 // object
-struct cls_0_System_Object
+struct cls_0_System_Object : il2cppObject
 {
-	uint32_t objectTypeID;
 };
 // CodeGenTester.TestBasicTypes
 struct cls_1_CodeGenTester_TestBasicTypes : cls_0_System_Object
@@ -407,9 +405,8 @@ label_4:
 #pragma once
 #include ""il2cpp.h""
 // object
-struct cls_0_System_Object
+struct cls_0_System_Object : il2cppObject
 {
-	uint32_t objectTypeID;
 };
 // void object::.ctor()
 void met_1_System_Object___ctor(struct cls_0_System_Object* arg_0);
@@ -709,9 +706,8 @@ struct stru_3_CodeGenTester_TestValueType_MyStru
 // void [valuetype]CodeGenTester.TestValueType/MyStru::.ctor(float,long)
 void met_2_CodeGenTester_TestValueType_MyStru___ctor(stru_3_CodeGenTester_TestValueType_MyStru* arg_0, float arg_1, int64_t arg_2);
 // object
-struct cls_0_System_Object
+struct cls_0_System_Object : il2cppObject
 {
-	uint32_t objectTypeID;
 };
 // CodeGenTester.TestValueType
 struct cls_1_CodeGenTester_TestValueType : cls_0_System_Object
@@ -977,9 +973,8 @@ label_19:
 #pragma once
 #include ""il2cpp.h""
 // object
-struct cls_0_System_Object
+struct cls_0_System_Object : il2cppObject
 {
-	uint32_t objectTypeID;
 };
 // CodeGenTester.TestCycleCctor/A
 struct cls_4_CodeGenTester_TestCycleCctor_A : cls_0_System_Object
