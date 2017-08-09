@@ -1254,7 +1254,7 @@ namespace il2cpp
 		{
 			int idx = StringGen.AddString(str);
 
-			string rval = string.Format("(il2cppString*)&str_{0};",
+			string rval = string.Format("(il2cppString*)&str_{0}",
 				idx);
 			Load(inst, StackType.Obj, rval);
 

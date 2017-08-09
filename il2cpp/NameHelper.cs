@@ -67,18 +67,19 @@ namespace il2cpp
 						if (type != null)
 							sb.Append(type.GetCppName());
 						else
-							sb.Append("il2cppDummy");
+							sb.Append("il2cppValueType");
 					}
 					return;
 
 				case ElementType.Object:
 				case ElementType.Class:
+				case ElementType.String:
 					{
 						TypeX type = typeMgr.GetNamedType(sig.FullName, sig.Module.RuntimeVersion);
 						if (type != null)
 							sb.Append("struct " + type.GetCppName() + '*');
 						else
-							sb.Append("il2cppDummy*");
+							sb.Append("il2cppObject*");
 					}
 					return;
 

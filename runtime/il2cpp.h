@@ -33,15 +33,22 @@
 			} \
 		}
 
+#define IL2CPP_OBJECT_BODY \
+		uint32_t objectTypeID
+
 struct il2cppObject
 {
-	uint32_t objectTypeID;
+	IL2CPP_OBJECT_BODY;
 };
 
 struct il2cppString : il2cppObject
 {
 	int len;
 	uint16_t str[1];
+};
+
+struct il2cppValueType
+{
 };
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID);

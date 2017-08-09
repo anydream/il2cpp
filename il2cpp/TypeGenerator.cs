@@ -20,6 +20,8 @@ namespace il2cpp
 		// 实现依赖的类型
 		public HashSet<string> ImplDependNames = new HashSet<string>();
 		public HashSet<TypeCppCode> ImplDependTypes = new HashSet<TypeCppCode>();
+		// 实现依赖的字符串常量
+		public HashSet<string> DependStrings = new HashSet<string>();
 
 		// 编译单元
 		public CppCompileUnit CompileUnit;
@@ -86,7 +88,7 @@ namespace il2cpp
 	public class TypeGenerator
 	{
 		// 类型管理器
-		private readonly TypeManager TypeMgr;
+		internal readonly TypeManager TypeMgr;
 		// 字符串生成器
 		private readonly StringGenerator StringGen;
 		// 方法生成器
@@ -157,6 +159,8 @@ namespace il2cpp
 
 				cppCode.DeclDependNames.UnionWith(MethodGen.DeclDependNames);
 				cppCode.ImplDependNames.UnionWith(MethodGen.ImplDependNames);
+
+				cppCode.DependStrings.UnionWith(MethodGen.DependStrings);
 			}
 		}
 
@@ -396,6 +400,12 @@ namespace il2cpp
 					cppCode.CompileUnit = unit;
 				}
 
+				StringGen.GenDefineCode(
+					100,
+					out var strSplitMap,
+					out var strCodeMap,
+					out string strTypeDefs);
+
 				// 生成代码
 				HashSet<string> dependSet = new HashSet<string>();
 				foreach (var unit in CompileUnits)
@@ -420,7 +430,9 @@ namespace il2cpp
 									unitName);
 							}
 						}
-
+					}
+					foreach (var cppCode in unit.CodeList)
+					{
 						// 拼接声明代码
 						unit.DeclCode.Append(cppCode.DeclCode);
 						cppCode.DeclCode = null;
@@ -441,14 +453,49 @@ namespace il2cpp
 							}
 						}
 
+						// 生成字符串包含
+						if (strSplitMap != null &&
+							cppCode.DependStrings.Count > 0)
+						{
+							HashSet<int> strUnitSet = new HashSet<int>();
+							foreach (string str in cppCode.DependStrings)
+								strUnitSet.Add(strSplitMap[str]);
+							cppCode.DependStrings = null;
+
+							foreach (var strUnitId in strUnitSet)
+							{
+								string strUnit = "StringUnit_" + strUnitId;
+								unit.ImplCode.AppendFormat("#include \"{0}.h\"\n",
+									strUnit);
+							}
+						}
+					}
+					foreach (var cppCode in unit.CodeList)
+					{
 						// 拼接实现代码
 						unit.ImplCode.Append(cppCode.ImplCode);
 						cppCode.ImplCode = null;
 						cppCode.ImplDependTypes = null;
 					}
+
 					unit.CodeList = null;
 					dependSet.Clear();
 				}
+
+				foreach (var item in strCodeMap)
+				{
+					var strUnit = new CppCompileUnit("StringUnit_" + item.Key);
+					CompileUnits.Add(strUnit);
+					strUnit.DeclCode.Append("#pragma once\n");
+					strUnit.DeclCode.Append("#include \"StringTypes.h\"\n");
+					strUnit.DeclCode.Append(item.Value);
+				}
+
+				var strTypeDefUnit = new CppCompileUnit("StringTypes");
+				CompileUnits.Add(strTypeDefUnit);
+				strTypeDefUnit.DeclCode.Append("#pragma once\n");
+				strTypeDefUnit.DeclCode.Append("#include \"il2cpp.h\"\n");
+				strTypeDefUnit.DeclCode.Append(strTypeDefs);
 			}
 
 			// 添加初始化静态变量的函数
