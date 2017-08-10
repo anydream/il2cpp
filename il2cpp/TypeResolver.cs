@@ -396,6 +396,19 @@ namespace il2cpp
 			throw new InvalidOperationException();
 		}
 
+		public TypeSig ToTypeSig()
+		{
+			var sig = Def.ToTypeSig();
+			if (HasGenArgs)
+			{
+				GenericInstSig genInst = new GenericInstSig(
+					(ClassOrValueTypeSig)sig,
+					new List<TypeSig>(GenArgs));
+				return genInst;
+			}
+			return sig;
+		}
+
 		public bool AddMethod(MethodX metX, out MethodX ometX)
 		{
 			if (!MethodMap.TryGetValue(metX, out ometX))
@@ -1414,7 +1427,7 @@ namespace il2cpp
 			{
 				Debug.Assert(metX.Def.HasThis);
 				// 添加 this 类型
-				paramSigs.Add(metX.Def.Parameters[0].Type);
+				paramSigs.Add(metX.DeclType.ToTypeSig());
 			}
 			else
 				Debug.Assert(!metX.Def.HasThis);

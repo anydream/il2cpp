@@ -61,25 +61,30 @@ namespace il2cpp
 					sb.Append("uintptr_t");
 					return;
 
-				case ElementType.ValueType:
-					{
-						TypeX type = typeMgr.GetNamedType(sig.FullName, sig.Module.RuntimeVersion);
-						if (type != null)
-							sb.Append(type.GetCppName());
-						else
-							sb.Append("il2cppValueType");
-					}
+				case ElementType.String:
+					sb.Append("il2cppString*");
 					return;
 
 				case ElementType.Object:
 				case ElementType.Class:
-				case ElementType.String:
+				case ElementType.ValueType:
+				case ElementType.GenericInst:
 					{
 						TypeX type = typeMgr.GetNamedType(sig.FullName, sig.Module.RuntimeVersion);
 						if (type != null)
-							sb.Append("struct " + type.GetCppName() + '*');
+						{
+							if (type.Def.IsValueType)
+								sb.Append(type.GetCppName());
+							else
+								sb.Append("struct " + type.GetCppName() + '*');
+						}
 						else
-							sb.Append("il2cppObject*");
+						{
+							if (sig.IsValueType)
+								sb.Append("il2cppValueType");
+							else
+								sb.Append("il2cppObject*");
+						}
 					}
 					return;
 
