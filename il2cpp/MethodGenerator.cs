@@ -120,7 +120,7 @@ namespace il2cpp
 		public ExceptionHandlerType HandlerType;
 
 		// 跳转离开的目标指令位置
-		public HashSet<int> ThroughLeaves;
+		public readonly HashSet<int> LeaveTargets = new HashSet<int>();
 	}
 
 	// 方法生成器
@@ -142,6 +142,9 @@ namespace il2cpp
 		private readonly Dictionary<int, HashSet<StackType>> SlotMap = new Dictionary<int, HashSet<StackType>>();
 		// 待处理的分支
 		private readonly Queue<Tuple<int, Stack<StackType>>> Branches = new Queue<Tuple<int, Stack<StackType>>>();
+		// 跳出异常目标映射
+		private readonly Dictionary<int, int> LeaveMap = new Dictionary<int, int>();
+		private int LeaveCounter;
 
 		// 声明代码
 		public readonly StringBuilder DeclCode = new StringBuilder();
@@ -217,6 +220,8 @@ namespace il2cpp
 			TypeStack.Clear();
 			SlotMap.Clear();
 			Branches.Clear();
+			LeaveMap.Clear();
+			LeaveCounter = 0;
 		}
 
 		public void Process(MethodX metX)
@@ -541,7 +546,17 @@ namespace il2cpp
 			codeImpl = prt.ToString();
 		}
 
-		private List<ExceptionHandlerInfo> GetLeaveThroughHandlers(int offset)
+		private int AddLeaveTarget(int target)
+		{
+			if (!LeaveMap.TryGetValue(target, out int idx))
+			{
+				idx = ++LeaveCounter;
+				LeaveMap.Add(target, idx);
+			}
+			return idx;
+		}
+
+		private List<ExceptionHandlerInfo> GetLeaveThroughHandlers(int offset, int target)
 		{
 			Debug.Assert(CurrMethod.Def.HasBody);
 			if (!CurrMethod.HasHandlerList)
@@ -555,7 +570,8 @@ namespace il2cpp
 					handler.HandlerType != ExceptionHandlerType.Fault)
 					continue;
 
-				if (offset >= handler.TryStart && offset < handler.TryEnd)
+				if (offset >= handler.TryStart && offset < handler.TryEnd &&
+					!(target >= handler.TryStart && target < handler.TryEnd))
 					result.Add(handler);
 			}
 
@@ -1044,6 +1060,29 @@ namespace il2cpp
 					Stind(inst, opCode.Code);
 					return;
 
+				case Code.Leave:
+				case Code.Leave_S:
+					{
+						int target = ((InstructionInfo)operand).Offset;
+						int targetIdx = AddLeaveTarget(target);
+
+						var leaveHandlers = GetLeaveThroughHandlers(inst.Offset, target);
+						if (leaveHandlers != null)
+						{
+							foreach (var handler in leaveHandlers)
+								handler.LeaveTargets.Add(target);
+
+							inst.CppCode = string.Format("leaveTarget = {0};\ngoto {1};",
+								targetIdx,
+								LeaveLabelName(leaveHandlers[0]));
+						}
+						else
+						{
+							inst.CppCode = "goto " + LabelName(target) + ';';
+						}
+					}
+					return;
+
 				default:
 					throw new NotImplementedException("OpCode: " + opCode);
 			}
@@ -1066,6 +1105,13 @@ namespace il2cpp
 		private static string LabelName(int offset)
 		{
 			return "label_" + offset;
+		}
+
+		private static string LeaveLabelName(ExceptionHandlerInfo handler)
+		{
+			return "label_" +
+				handler.HandlerType + '_' +
+				handler.Index;
 		}
 
 		private static string TempName(int stackIndex, StackType stype)
