@@ -123,12 +123,50 @@ namespace il2cpp
 		public SortedSet<int> LeaveTargets;
 	}
 
+	internal class InsertCode
+	{
+		public string CppCode;
+		public int Indent;
+
+		public InsertCode(string code, int indent)
+		{
+			CppCode = code;
+			Indent = indent;
+		}
+	}
+
 	internal class ExceptionInsertCode
 	{
-		public string PreInsertCode;
-		public string PostInsertCode;
-		public int PreIndent;
-		public int PostIndent;
+		private readonly SortedDictionary<int, InsertCode> PreInsert = new SortedDictionary<int, InsertCode>(Comparer<int>.Create((x, y) => y.CompareTo(x)));
+		private readonly SortedDictionary<int, InsertCode> PostInsert = new SortedDictionary<int, InsertCode>();
+
+		public void AddPreInsert(int handlerIdx, string code, int indent)
+		{
+			PreInsert.Add(handlerIdx, new InsertCode(code, indent));
+		}
+
+		public void AddPostInsert(int handlerIdx, string code, int indent)
+		{
+			PostInsert.Add(handlerIdx, new InsertCode(code, indent));
+		}
+
+		public void PreAppendTo(CodePrinter prt)
+		{
+			foreach (var code in PreInsert.Values)
+			{
+				prt.Indents += code.Indent;
+				prt.Append(code.CppCode);
+			}
+		}
+
+		public void PostAppendTo(CodePrinter prt)
+		{
+			foreach (var code in PostInsert.Values)
+			{
+				prt.Append(code.CppCode);
+				prt.Indents += code.Indent;
+			}
+		}
 	}
 
 	internal class ExceptionInsertMap
@@ -439,15 +477,21 @@ namespace il2cpp
 				prt.AppendLine();
 			}
 
+			// 构造异常辅助变量
+			if (CurrMethod.HasHandlerList)
+			{
+				prt.AppendLine("// exceptions");
+				prt.AppendLine("il2cppObject* lastException = nullptr;");
+				prt.AppendLine("int leaveTarget = 0;");
+				prt.AppendLine();
+			}
+
 			// 构造指令代码
 			foreach (var inst in CurrMethod.InstList)
 			{
 				var insertCode = ExpInsertMap[inst.Offset];
 				if (insertCode != null)
-				{
-					prt.Indents += insertCode.PreIndent;
-					prt.Append(insertCode.PreInsertCode);
-				}
+					insertCode.PreAppendTo(prt);
 
 				// 指令注释
 				prt.AppendFormatLine("// {0}", inst);
@@ -469,10 +513,7 @@ namespace il2cpp
 				}
 
 				if (insertCode != null)
-				{
-					prt.Append(insertCode.PostInsertCode);
-					prt.Indents += insertCode.PostIndent;
-				}
+					insertCode.PostAppendTo(prt);
 
 				// 指令代码
 				if (inst.CppCode != null)
@@ -638,6 +679,27 @@ namespace il2cpp
 			if (!CurrMethod.HasHandlerList)
 				return;
 
+			// 处理异常块内的指令
+			foreach (var handler in CurrMethod.HandlerList)
+			{
+				if (handler.HandlerType == ExceptionHandlerType.Filter)
+				{
+					Push(StackType.Obj);
+					ProcessLoop((int)handler.FilterStart);
+				}
+				else if (handler.HandlerType == ExceptionHandlerType.Catch)
+				{
+					Push(StackType.Obj);
+					ProcessLoop(handler.HandlerStart);
+				}
+				else
+				{
+					Debug.Assert(handler.HandlerType == ExceptionHandlerType.Finally ||
+								 handler.HandlerType == ExceptionHandlerType.Fault);
+					ProcessLoop(handler.HandlerStart);
+				}
+			}
+
 			// 合并连续的 catch/filter 链
 			Dictionary<Tuple<int, int>, List<ExceptionHandlerInfo>> mergeMap =
 				new Dictionary<Tuple<int, int>, List<ExceptionHandlerInfo>>();
@@ -687,18 +749,22 @@ namespace il2cpp
 				var firstHandler = lst[0];
 
 				var tryStart = ExpInsertMap.GetOrAdd(firstHandler.TryStart);
-				tryStart.PostInsertCode = "try\n{\n";
-				tryStart.PostIndent = 1;
+				tryStart.AddPostInsert(
+					firstHandler.Index,
+					"try\n{\n",
+					1);
 
 				var tryEnd = ExpInsertMap.GetOrAdd(firstHandler.TryEnd);
-				tryEnd.PreIndent = -1;
 				int entry = firstHandler.FilterStart ?? firstHandler.HandlerStart;
-				tryEnd.PreInsertCode = "}\n" +
-									   "catch (il2cppException& ex)\n" +
-									   "{\n" +
-									   "\tlastException = ex.obj;\n" +
-									   "}\n" +
-									   "goto " + LabelName(entry) + ";\n";
+				tryEnd.AddPreInsert(
+					firstHandler.Index,
+					"}\n" +
+					"catch (il2cppException& ex)\n" +
+					"{\n" +
+					"\tlastException = ex.obj;\n" +
+					"}\n" +
+					"goto " + LabelName(entry) + ";\n",
+					-1);
 
 				if (firstHandler.HandlerType == ExceptionHandlerType.Catch ||
 					firstHandler.HandlerType == ExceptionHandlerType.Filter)
@@ -706,20 +772,25 @@ namespace il2cpp
 					for (int i = 0; i < lst.Count; ++i)
 					{
 						var handler = lst[i];
-						var hEnd = ExpInsertMap.GetOrAdd(handler.HandlerEnd);
+
+						string endCode = null;
+						int endIndent = 0;
+
 						if (handler.HandlerType == ExceptionHandlerType.Catch)
 						{
 							TypeX catchTyX = TypeMgr.GetNamedType(handler.CatchType.FullName);
 							Debug.Assert(catchTyX != null);
 
 							var hStart = ExpInsertMap.GetOrAdd(handler.HandlerStart);
-							hStart.PostInsertCode = string.Format(
-								"if (isinst_{0}(lastException))\n{{\n",
-								catchTyX.GetCppName());
-							hStart.PostIndent = 1;
+							hStart.AddPostInsert(
+								handler.Index,
+								string.Format(
+									"if (isinst_{0}(lastException))\n{{\n",
+									catchTyX.GetCppName()),
+								1);
 
-							hEnd.PreIndent = -1;
-							hEnd.PreInsertCode = "}\n";
+							endCode = "}\n";
+							endIndent = -1;
 						}
 						else
 							Debug.Assert(handler.HandlerType == ExceptionHandlerType.Filter);
@@ -727,15 +798,22 @@ namespace il2cpp
 						if (i == lst.Count - 1)
 						{
 							// 异常处理链最后一项末尾向上抛出异常
-							hEnd.PreInsertCode += "IL2CPP_THROW(lastException);\n";
+							endCode += "IL2CPP_THROW(lastException);\n";
 						}
 						else
 						{
 							// 跳到下一个异常处理代码
 							var next = lst[i + 1];
 							int nextEntry = next.FilterStart ?? next.HandlerStart;
-							hEnd.PreInsertCode += "goto " + LabelName(nextEntry) + ";\n";
+
+							endCode += "goto " + LabelName(nextEntry) + ";\n";
 						}
+
+						var hEnd = ExpInsertMap.GetOrAdd(handler.HandlerEnd);
+						hEnd.AddPreInsert(
+							handler.Index,
+							endCode,
+							endIndent);
 					}
 				}
 				else
@@ -757,27 +835,20 @@ namespace il2cpp
 						}
 						sb.Append("}\nabort();\n");
 
-						hEnd.PreInsertCode = sb.ToString();
+						hEnd.AddPreInsert(
+							firstHandler.Index,
+							sb.ToString(),
+							0);
 					}
 					else
 					{
 						Debug.Assert(firstHandler.HandlerType == ExceptionHandlerType.Fault);
-						hEnd.PreInsertCode = "IL2CPP_THROW(lastException);\n";
+						hEnd.AddPreInsert(
+							firstHandler.Index,
+							"IL2CPP_THROW(lastException);\n",
+							0);
 					}
 				}
-			}
-
-			// 生成异常块内代码
-			foreach (var handler in CurrMethod.HandlerList)
-			{
-				ProcessLoop(handler.TryStart);
-				if (handler.FilterStart != null)
-				{
-					Push(StackType.Obj);
-					ProcessLoop((int)handler.FilterStart);
-				}
-				Push(StackType.Obj);
-				ProcessLoop(handler.HandlerStart);
 			}
 		}
 
@@ -1263,7 +1334,6 @@ namespace il2cpp
 				case Code.Leave_S:
 					{
 						int target = ((InstructionInfo)operand).Offset;
-						int targetIdx = AddLeaveTarget(target);
 
 						var leaveHandlers = GetLeaveThroughHandlers(inst.Offset, target);
 						if (leaveHandlers != null)
@@ -1275,6 +1345,7 @@ namespace il2cpp
 								handler.LeaveTargets.Add(target);
 							}
 
+							int targetIdx = AddLeaveTarget(target);
 							inst.CppCode = string.Format("leaveTarget = {0};\ngoto {1};",
 								targetIdx,
 								LabelName(leaveHandlers[0].HandlerStart));
