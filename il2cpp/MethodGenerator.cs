@@ -776,24 +776,35 @@ namespace il2cpp
 						string endCode = null;
 						int endIndent = 0;
 
+						var hStart = ExpInsertMap.GetOrAdd(handler.HandlerStart);
+						SlotInfo tmp0 = new SlotInfo { StackIndex = 0, SlotType = StackType.Obj };
+						string storeLastExp = LoadPushed(ref tmp0, null) + "lastException;\n";
+
 						if (handler.HandlerType == ExceptionHandlerType.Catch)
 						{
 							TypeX catchTyX = TypeMgr.GetNamedType(handler.CatchType.FullName);
 							Debug.Assert(catchTyX != null);
 
-							var hStart = ExpInsertMap.GetOrAdd(handler.HandlerStart);
 							hStart.AddPostInsert(
 								handler.Index,
 								string.Format(
-									"if (isinst_{0}(lastException))\n{{\n",
-									catchTyX.GetCppName()),
-									1);
+									"if (isinst_{0}(lastException))\n{{\n\t",
+									catchTyX.GetCppName()) +
+								storeLastExp,
+								1);
 
 							endCode = "}\n";
 							endIndent = -1;
 						}
 						else
+						{
 							Debug.Assert(handler.HandlerType == ExceptionHandlerType.Filter);
+
+							hStart.AddPostInsert(
+								handler.Index,
+								storeLastExp,
+								0);
+						}
 
 						if (i == lst.Count - 1)
 						{
