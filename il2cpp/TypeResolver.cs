@@ -336,6 +336,11 @@ namespace il2cpp
 		// 运行时类型
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
 
+		// 继承的类型
+		private HashSet<TypeX> DerivedTypes_;
+		public HashSet<TypeX> DerivedTypes => DerivedTypes_ ?? (DerivedTypes_ = new HashSet<TypeX>());
+		public bool HasDerivedTypes => DerivedTypes_ != null && DerivedTypes_.Count > 0;
+
 		// 方法签名映射
 		public readonly Dictionary<MethodSignature, MethodDef> MethodSigMap =
 			new Dictionary<MethodSignature, MethodDef>();
@@ -1132,6 +1137,20 @@ namespace il2cpp
 			{
 				foreach (var inf in tyX.Def.Interfaces)
 					tyX.Interfaces.Add(ResolveInstanceType(inf.Interface, replacer));
+			}
+
+			// 添加当前类型到所有继承的类
+			if (!tyX.Def.IsInterface &&
+				!tyX.Def.IsAbstract)
+			{
+				if (tyX.BaseType != null)
+					tyX.BaseType.DerivedTypes.Add(tyX);
+
+				if (tyX.HasInterfaces)
+				{
+					foreach (var inf in tyX.Interfaces)
+						inf.DerivedTypes.Add(tyX);
+				}
 			}
 
 			ResolveVTable(tyX, replacer);
