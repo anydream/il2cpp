@@ -120,7 +120,7 @@ namespace il2cpp
 		public ExceptionHandlerType HandlerType;
 
 		// 跳转离开的目标指令位置
-		public readonly HashSet<int> LeaveTargets = new HashSet<int>();
+		public HashSet<int> LeaveTargets;
 	}
 
 	// 方法生成器
@@ -1060,6 +1060,18 @@ namespace il2cpp
 					Stind(inst, opCode.Code);
 					return;
 
+				case Code.Throw:
+					{
+						SlotInfo poped = Pop();
+						Debug.Assert(poped.SlotType == StackType.Obj);
+						inst.CppCode = string.Format("IL2CPP_THROW({0});",
+							StorePoped(ref poped, null));
+					}
+					return;
+				case Code.Rethrow:
+					inst.CppCode = "IL2CPP_THROW(lastException);";
+					return;
+
 				case Code.Leave:
 				case Code.Leave_S:
 					{
@@ -1070,7 +1082,11 @@ namespace il2cpp
 						if (leaveHandlers != null)
 						{
 							foreach (var handler in leaveHandlers)
+							{
+								if (handler.LeaveTargets == null)
+									handler.LeaveTargets = new HashSet<int>();
 								handler.LeaveTargets.Add(target);
+							}
 
 							inst.CppCode = string.Format("leaveTarget = {0};\ngoto {1};",
 								targetIdx,
