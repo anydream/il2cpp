@@ -787,7 +787,7 @@ namespace il2cpp
 								string.Format(
 									"if (isinst_{0}(lastException))\n{{\n",
 									catchTyX.GetCppName()),
-								1);
+									1);
 
 							endCode = "}\n";
 							endIndent = -1;
@@ -1335,6 +1335,8 @@ namespace il2cpp
 					{
 						int target = ((InstructionInfo)operand).Offset;
 
+						inst.CppCode = "lastException = nullptr;\n";
+
 						var leaveHandlers = GetLeaveThroughHandlers(inst.Offset, target);
 						if (leaveHandlers != null)
 						{
@@ -1346,13 +1348,13 @@ namespace il2cpp
 							}
 
 							int targetIdx = AddLeaveTarget(target);
-							inst.CppCode = string.Format("leaveTarget = {0};\ngoto {1};",
+							inst.CppCode += string.Format("leaveTarget = {0};\ngoto {1};",
 								targetIdx,
 								LabelName(leaveHandlers[0].HandlerStart));
 						}
 						else
 						{
-							inst.CppCode = "goto " + LabelName(target) + ';';
+							inst.CppCode += "goto " + LabelName(target) + ';';
 						}
 					}
 					return;
