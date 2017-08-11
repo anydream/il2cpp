@@ -15,56 +15,56 @@ namespace il2cpp
 			TypeIDCounter = 0;
 		}
 
-		private static void SigToCppName(TypeSig sig, StringBuilder sb, TypeManager typeMgr)
+		private static string GetElemTypeName(ElementType et)
 		{
-			switch (sig.ElementType)
+			switch (et)
 			{
 				case ElementType.Void:
-					sb.Append("void");
-					return;
+					return "void";
 				case ElementType.I1:
-					sb.Append("int8_t");
-					return;
+					return "int8_t";
 				case ElementType.U1:
-					sb.Append("uint8_t");
-					return;
+					return "uint8_t";
 				case ElementType.I2:
-					sb.Append("int16_t");
-					return;
+					return "int16_t";
 				case ElementType.U2:
 				case ElementType.Char:
-					sb.Append("uint16_t");
-					return;
+					return "uint16_t";
 				case ElementType.I4:
 				case ElementType.Boolean:
-					sb.Append("int32_t");
-					return;
+					return "int32_t";
 				case ElementType.U4:
-					sb.Append("uint32_t");
-					return;
+					return "uint32_t";
 				case ElementType.I8:
-					sb.Append("int64_t");
-					return;
+					return "int64_t";
 				case ElementType.U8:
-					sb.Append("uint64_t");
-					return;
+					return "uint64_t";
 				case ElementType.R4:
-					sb.Append("float");
-					return;
+					return "float";
 				case ElementType.R8:
-					sb.Append("double");
-					return;
+					return "double";
 				case ElementType.I:
-					sb.Append("intptr_t");
-					return;
+					return "intptr_t";
 				case ElementType.U:
-					sb.Append("uintptr_t");
-					return;
+					return "uintptr_t";
 
 				case ElementType.String:
-					sb.Append("il2cppString*");
-					return;
+					return "il2cppString*";
+			}
+			return null;
+		}
 
+		private static void SigToCppName(TypeSig sig, StringBuilder sb, TypeManager typeMgr)
+		{
+			string elemName = GetElemTypeName(sig.ElementType);
+			if (elemName != null)
+			{
+				sb.Append(elemName);
+				return;
+			}
+
+			switch (sig.ElementType)
+			{
 				case ElementType.Object:
 				case ElementType.Class:
 				case ElementType.ValueType:
@@ -160,8 +160,15 @@ namespace il2cpp
 			return "nullptr";
 		}
 
-		public static string GetCppName(this TypeX tyX)
+		public static string GetCppName(this TypeX tyX, bool elemType = false)
 		{
+			if (elemType)
+			{
+				string elemName = GetElemTypeName(tyX.ToTypeSig().ElementType);
+				if (elemName != null)
+					return elemName;
+			}
+
 			if (tyX.CppName_ == null)
 				tyX.CppName_ = (tyX.Def.IsValueType ? "stru_" : "cls_") + ToCppName(tyX.FullName);
 			return tyX.CppName_;

@@ -311,6 +311,7 @@ namespace il2cpp
 			ImplCode.Clear();
 			DeclDependNames.Clear();
 			ImplDependNames.Clear();
+			DependStrings.Clear();
 
 			string codeDecl, codeImpl;
 			if (metX.HasInstList)
@@ -1469,17 +1470,6 @@ namespace il2cpp
 				   stype == StackType.Obj;
 		}
 
-		private static bool StackTypeIsValueType(StackType stype)
-		{
-			return stype != StackType.I4 &&
-				   stype != StackType.I8 &&
-				   stype != StackType.R4 &&
-				   stype != StackType.R8 &&
-				   stype != StackType.Ptr &&
-				   stype != StackType.Ref &&
-				   stype != StackType.Obj;
-		}
-
 		private StackType ToStackType(TypeSig sig)
 		{
 			if (sig.IsByRef)
@@ -1578,11 +1568,6 @@ namespace il2cpp
 					cast = null;
 			}
 
-			if (StackTypeIsValueType(poped.SlotType))
-			{
-				return (cast != null ? "*(" + cast + "*)&" : "") +
-					   SlotInfoName(ref poped);
-			}
 			return (cast != null ? '(' + cast + ')' : "") +
 				   SlotInfoName(ref poped);
 		}
@@ -1981,7 +1966,7 @@ namespace il2cpp
 			SlotInfo[] popList = Pop(argNum);
 
 			TypeX declTyX = metX.DeclType;
-			string declTypeName = declTyX.GetCppName();
+			string declTypeName = declTyX.GetCppName(true);
 
 			if (declTyX.Def.IsValueType)
 			{
@@ -2016,12 +2001,13 @@ namespace il2cpp
 
 			inst.CppCode += sb.ToString();
 
-			ImplDependNames.Add(declTypeName);
+			ImplDependNames.Add(declTyX.GetCppName());
 		}
 
 		private void Ldfld(InstructionInfo inst, FieldX fldX, bool isLoadAddr)
 		{
 			SlotInfo self = Pop();
+
 			string fldDeclTypeName = fldX.DeclType.GetCppName();
 
 			string rval;
@@ -2035,11 +2021,22 @@ namespace il2cpp
 			}
 			else
 			{
-				Debug.Assert(fldDeclTypeName == self.SlotType);
-				rval = string.Format("{0}{1}.{2}",
-					isLoadAddr ? "&" : "",
-					SlotInfoName(ref self),
-					fldX.GetCppName());
+				if (fldDeclTypeName == self.SlotType)
+				{
+					rval = string.Format("{0}{1}.{2}",
+						isLoadAddr ? "&" : "",
+						SlotInfoName(ref self),
+						fldX.GetCppName());
+				}
+				else
+				{
+					Debug.Assert(fldX.DeclType.GetCppName(true) == self.SlotType);
+					rval = string.Format("{0}(({1}*)&{2})->{3}",
+										isLoadAddr ? "&" : "",
+										fldDeclTypeName,
+										SlotInfoName(ref self),
+										fldX.GetCppName());
+				}
 			}
 
 			StackType stype;
