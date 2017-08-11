@@ -1443,8 +1443,14 @@ namespace il2cpp
 			if (!metX.Def.IsStatic)
 			{
 				Debug.Assert(metX.Def.HasThis);
+
+				// 值类型需要加引用
+				TypeSig thisSig = metX.DeclType.ToTypeSig();
+				if (thisSig.IsValueType)
+					thisSig = new ByRefSig(thisSig);
+
 				// 添加 this 类型
-				paramSigs.Add(metX.DeclType.ToTypeSig());
+				paramSigs.Add(thisSig);
 			}
 			else
 				Debug.Assert(!metX.Def.HasThis);

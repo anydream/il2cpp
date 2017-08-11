@@ -17,7 +17,11 @@ il2cppObject* il2cpp_New(uint32_t sz, uint32_t typeID)
 
 void il2cpp_Yield()
 {
+#if defined(_WIN32)
+	Sleep(0);
+#else
 	std::this_thread::yield();
+#endif
 }
 
 uintptr_t il2cpp_ThreadID()
@@ -27,4 +31,9 @@ uintptr_t il2cpp_ThreadID()
 #else
 	return (uintptr_t)gettid();
 #endif
+}
+
+il2cppString* met_icall_System_Environment__GetResourceFromDefault(il2cppString* str)
+{
+	return nullptr;
 }

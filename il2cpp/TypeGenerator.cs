@@ -80,8 +80,8 @@ namespace il2cpp
 
 		public bool IsFull()
 		{
-			return ImplLength > 50000 ||
-				   DeclLength > 10000;
+			return ImplLength > 0 ||
+				   DeclLength > 0;
 		}
 	}
 
@@ -98,15 +98,13 @@ namespace il2cpp
 		// 类型代码映射
 		private readonly Dictionary<string, TypeCppCode> CodeMap = new Dictionary<string, TypeCppCode>();
 
-		// 静态变量初始化代码体
+		// 静态变量初始化代码
 		private readonly StringBuilder StaticInitBody = new StringBuilder();
+		private readonly StringBuilder StaticInitDecl = new StringBuilder();
 
 		// 编译单元列表
 		public readonly List<CppCompileUnit> CompileUnits = new List<CppCompileUnit>();
 		private int CppUnitName;
-
-		// 是否把所有代码都生成到一个文件
-		public bool IsAllInOne = false;
 
 		public TypeGenerator(TypeManager typeMgr)
 		{
@@ -160,12 +158,12 @@ namespace il2cpp
 
 			sbShell.Append(compileCmd);
 			foreach (var unit in unitNames)
-				sbShell.AppendFormat("{0}.cpp", unit);
+				sbShell.AppendFormat("{0}.cpp ", unit);
 			sbShell.AppendLine();
 
 			sbShell.Append(linkCmd);
 			foreach (var unit in unitNames)
-				sbShell.AppendFormat("{0}.ll", unit);
+				sbShell.AppendFormat("{0}.ll ", unit);
 			sbShell.AppendLine();
 
 			sbShell.AppendLine(optCmd);
@@ -180,6 +178,7 @@ namespace il2cpp
 			NameHelper.Reset();
 			CodeMap.Clear();
 			StaticInitBody.Clear();
+			StaticInitDecl.Clear();
 			CompileUnits.Clear();
 			CppUnitName = 0;
 
@@ -223,6 +222,10 @@ namespace il2cpp
 
 				cppCode.DependStrings.UnionWith(MethodGen.DependStrings);
 			}
+
+			GenIsinstCode(currType, out var declCode, out var implCode);
+			cppCode.DeclCode.Append(declCode);
+			cppCode.ImplCode.Append(implCode);
 		}
 
 		private TypeCppCode GenDeclCode(TypeX currType)
@@ -293,7 +296,7 @@ namespace il2cpp
 			prt.AppendLine("};");
 
 			// 构造静态字段全局变量
-			StringBuilder sbImpl = IsAllInOne ? null : new StringBuilder();
+			StringBuilder sbImpl = new StringBuilder();
 			foreach (var sfldX in staticFields)
 			{
 				string sfldTypeName = sfldX.FieldType.GetCppName(TypeMgr);
@@ -303,21 +306,20 @@ namespace il2cpp
 					sfldTypeName,
 					sfldCppName);
 
-				prt.AppendFormat("// {0}\n{1}{2}",
+				prt.AppendFormat("// {0}\nextern {1}",
 					sfldPrettyName,
-					IsAllInOne ? "static " : "extern ",
 					sfldDef);
 
-				if (!IsAllInOne)
-				{
-					sbImpl.AppendFormat("// {0}\n{1}",
-										sfldPrettyName,
-										sfldDef);
-				}
+				sbImpl.AppendFormat("// {0}\n{1}",
+									sfldPrettyName,
+									sfldDef);
 
 				StaticInitBody.AppendFormat("{0} = {1};\n",
 					sfldCppName,
 					sfldX.FieldType.GetInitValue(TypeMgr));
+
+				StaticInitDecl.AppendFormat("extern {0}",
+					sfldDef);
 
 				// 添加字段类型依赖
 				if (sfldX.FieldType.IsValueType)
@@ -340,14 +342,11 @@ namespace il2cpp
 				string locktidDef = string.Format("uintptr_t {0};\n",
 					locktidName);
 
-				prt.Append((IsAllInOne ? "static " : "extern ") + onceDef);
-				prt.Append((IsAllInOne ? "static " : "extern ") + locktidDef);
+				prt.Append("extern " + onceDef);
+				prt.Append("extern " + locktidDef);
 
-				if (!IsAllInOne)
-				{
-					sbImpl.Append(onceDef);
-					sbImpl.Append(locktidDef);
-				}
+				sbImpl.Append(onceDef);
+				sbImpl.Append(locktidDef);
 
 				StaticInitBody.AppendFormat("{0} = 0;\n",
 					onceName);
@@ -356,10 +355,49 @@ namespace il2cpp
 			}
 
 			cppCode.DeclCode.Append(prt);
-			if (!IsAllInOne)
-				cppCode.ImplCode.Append(sbImpl);
+			cppCode.ImplCode.Append(sbImpl);
 
 			return cppCode;
+		}
+
+		private void GenIsinstCode(TypeX currType, out string codeDecl, out string codeImpl)
+		{
+			List<TypeX> typeIDs = new List<TypeX>(currType.DerivedTypes);
+			typeIDs.Add(currType);
+			typeIDs.Sort((x, y) => x.GetCppTypeID().CompareTo(y.GetCppTypeID()));
+
+			CodePrinter prt = new CodePrinter();
+			prt.AppendFormat("bool isinst_{0}(uint32_t typeID)",
+				currType.GetCppName());
+
+			codeDecl = prt + ";\n";
+
+			prt.AppendLine("\n{");
+			++prt.Indents;
+
+			prt.AppendLine("switch (typeID)");
+			prt.AppendLine("{");
+			++prt.Indents;
+
+			foreach (var tyX in typeIDs)
+			{
+				prt.AppendFormatLine("// {0}\ncase {1}:",
+					tyX.PrettyName(),
+					tyX.GetCppTypeID());
+			}
+
+			++prt.Indents;
+			prt.AppendLine("return true;");
+			prt.Indents -= 2;
+
+			prt.AppendLine("}");
+
+			prt.AppendLine("return false;");
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			codeImpl = prt.ToString();
 		}
 
 		private CppCompileUnit GetCompileUnit()
@@ -425,153 +463,125 @@ namespace il2cpp
 				return cmp;
 			});
 
-			if (IsAllInOne)
+			// 划分编译单元
+			foreach (var cppCode in codeSorter)
 			{
-				var unit = new CppCompileUnit("CppUnitAll");
-				CompileUnits.Add(unit);
+				var unit = GetCompileUnit();
+				unit.AddCode(cppCode);
+				cppCode.CompileUnit = unit;
+			}
 
-				StringBuilder sbDecl = new StringBuilder();
-				StringBuilder sbImpl = new StringBuilder();
+			StringGen.GenDefineCode(
+				100,
+				out var strSplitMap,
+				out var strCodeMap,
+				out string strTypeDefs);
+
+			// 生成代码
+			HashSet<string> dependSet = new HashSet<string>();
+			foreach (var unit in CompileUnits)
+			{
+				// 防止包含自身
+				dependSet.Add(unit.Name);
 
 				unit.DeclCode.Append("#pragma once\n");
-				sbDecl.Append("#include \"il2cpp.h\"\n");
+				unit.DeclCode.Append("#include \"il2cpp.h\"\n");
 
-				foreach (var cppCode in codeSorter)
+				foreach (var cppCode in unit.CodeList)
 				{
-					sbDecl.Append(cppCode.DeclCode);
-					sbImpl.Append(cppCode.ImplCode);
-
+					// 生成头文件依赖包含
+					foreach (var typeCode in cppCode.DeclDependTypes)
+					{
+						string unitName = typeCode.CompileUnit.Name;
+						if (!dependSet.Contains(unitName))
+						{
+							dependSet.Add(unitName);
+							unit.DeclCode.AppendFormat("#include \"{0}.h\"\n",
+								unitName);
+						}
+					}
+				}
+				foreach (var cppCode in unit.CodeList)
+				{
+					// 拼接声明代码
+					unit.DeclCode.Append(cppCode.DeclCode);
 					cppCode.DeclCode = null;
 					cppCode.DeclDependTypes = null;
+				}
+
+				foreach (var cppCode in unit.CodeList)
+				{
+					// 生成源文件依赖包含
+					foreach (var typeCode in cppCode.ImplDependTypes)
+					{
+						string unitName = typeCode.CompileUnit.Name;
+						if (!dependSet.Contains(unitName))
+						{
+							dependSet.Add(unitName);
+							unit.ImplCode.AppendFormat("#include \"{0}.h\"\n",
+								unitName);
+						}
+					}
+
+					// 生成字符串包含
+					if (strSplitMap != null &&
+						cppCode.DependStrings.Count > 0)
+					{
+						HashSet<int> strUnitSet = new HashSet<int>();
+						foreach (string str in cppCode.DependStrings)
+							strUnitSet.Add(strSplitMap[str]);
+						cppCode.DependStrings = null;
+
+						foreach (var strUnitId in strUnitSet)
+						{
+							string strUnit = "StringUnit_" + strUnitId;
+							unit.ImplCode.AppendFormat("#include \"{0}.h\"\n",
+								strUnit);
+						}
+					}
+				}
+				foreach (var cppCode in unit.CodeList)
+				{
+					// 拼接实现代码
+					unit.ImplCode.Append(cppCode.ImplCode);
 					cppCode.ImplCode = null;
 					cppCode.ImplDependTypes = null;
 				}
 
-				sbDecl.Append(sbImpl);
-				sbImpl = null;
-				unit.ImplCode = sbDecl;
+				// 如果包含内容则追加头文件
+				if (unit.ImplCode.Length > 0)
+					unit.ImplCode.Insert(0, string.Format("#include \"{0}.h\"\n", unit.Name));
+
+				unit.CodeList = null;
+				dependSet.Clear();
 			}
-			else
+
+			foreach (var item in strCodeMap)
 			{
-				// 划分编译单元
-				foreach (var cppCode in codeSorter)
-				{
-					var unit = GetCompileUnit();
-					unit.AddCode(cppCode);
-					cppCode.CompileUnit = unit;
-				}
-
-				StringGen.GenDefineCode(
-					100,
-					out var strSplitMap,
-					out var strCodeMap,
-					out string strTypeDefs);
-
-				// 生成代码
-				HashSet<string> dependSet = new HashSet<string>();
-				foreach (var unit in CompileUnits)
-				{
-					// 防止包含自身
-					dependSet.Add(unit.Name);
-
-					unit.DeclCode.Append("#pragma once\n");
-					unit.DeclCode.Append("#include \"il2cpp.h\"\n");
-
-					foreach (var cppCode in unit.CodeList)
-					{
-						// 生成头文件依赖包含
-						foreach (var typeCode in cppCode.DeclDependTypes)
-						{
-							string unitName = typeCode.CompileUnit.Name;
-							if (!dependSet.Contains(unitName))
-							{
-								dependSet.Add(unitName);
-								unit.DeclCode.AppendFormat("#include \"{0}.h\"\n",
-									unitName);
-							}
-						}
-					}
-					foreach (var cppCode in unit.CodeList)
-					{
-						// 拼接声明代码
-						unit.DeclCode.Append(cppCode.DeclCode);
-						cppCode.DeclCode = null;
-						cppCode.DeclDependTypes = null;
-					}
-
-					foreach (var cppCode in unit.CodeList)
-					{
-						// 生成源文件依赖包含
-						foreach (var typeCode in cppCode.ImplDependTypes)
-						{
-							string unitName = typeCode.CompileUnit.Name;
-							if (!dependSet.Contains(unitName))
-							{
-								dependSet.Add(unitName);
-								unit.ImplCode.AppendFormat("#include \"{0}.h\"\n",
-									unitName);
-							}
-						}
-
-						// 生成字符串包含
-						if (strSplitMap != null &&
-							cppCode.DependStrings.Count > 0)
-						{
-							HashSet<int> strUnitSet = new HashSet<int>();
-							foreach (string str in cppCode.DependStrings)
-								strUnitSet.Add(strSplitMap[str]);
-							cppCode.DependStrings = null;
-
-							foreach (var strUnitId in strUnitSet)
-							{
-								string strUnit = "StringUnit_" + strUnitId;
-								unit.ImplCode.AppendFormat("#include \"{0}.h\"\n",
-									strUnit);
-							}
-						}
-					}
-					foreach (var cppCode in unit.CodeList)
-					{
-						// 拼接实现代码
-						unit.ImplCode.Append(cppCode.ImplCode);
-						cppCode.ImplCode = null;
-						cppCode.ImplDependTypes = null;
-					}
-
-					// 如果包含内容则追加头文件
-					if (unit.ImplCode.Length > 0)
-						unit.ImplCode.Insert(0, string.Format("#include \"{0}.h\"\n", unit.Name));
-
-					unit.CodeList = null;
-					dependSet.Clear();
-				}
-
-				foreach (var item in strCodeMap)
-				{
-					var strUnit = new CppCompileUnit("StringUnit_" + item.Key);
-					CompileUnits.Add(strUnit);
-					strUnit.DeclCode.Append("#pragma once\n");
-					strUnit.DeclCode.Append("#include \"StringTypes.h\"\n");
-					strUnit.DeclCode.Append(item.Value);
-				}
-
-				var strTypeDefUnit = new CppCompileUnit("StringTypes");
-				CompileUnits.Add(strTypeDefUnit);
-				strTypeDefUnit.DeclCode.Append("#pragma once\n");
-				strTypeDefUnit.DeclCode.Append("#include \"il2cpp.h\"\n");
-				strTypeDefUnit.DeclCode.Append(strTypeDefs);
+				var strUnit = new CppCompileUnit("StringUnit_" + item.Key);
+				CompileUnits.Add(strUnit);
+				strUnit.DeclCode.Append("#pragma once\n");
+				strUnit.DeclCode.Append("#include \"StringTypes.h\"\n");
+				strUnit.DeclCode.Append(item.Value);
 			}
+
+			var strTypeDefUnit = new CppCompileUnit("StringTypes");
+			CompileUnits.Add(strTypeDefUnit);
+			strTypeDefUnit.DeclCode.Append("#pragma once\n");
+			strTypeDefUnit.DeclCode.Append("#include \"il2cpp.h\"\n");
+			strTypeDefUnit.DeclCode.Append(strTypeDefs);
 
 			// 添加初始化静态变量的函数
 			if (StaticInitBody.Length > 0)
 			{
 				var firstUnit = CompileUnits[0];
 
+				string initDecl = "void il2cpp_InitStaticVars()";
+				firstUnit.DeclCode.Append(initDecl + ";\n");
+
 				CodePrinter staticInitPrt = new CodePrinter();
-				staticInitPrt.Append("void il2cpp_InitStaticVars()");
-
-				firstUnit.DeclCode.AppendFormat("{0};\n", staticInitPrt);
-
+				staticInitPrt.Append(StaticInitDecl.ToString());
+				staticInitPrt.Append(initDecl);
 				staticInitPrt.AppendLine("\n{");
 				++staticInitPrt.Indents;
 				staticInitPrt.Append(StaticInitBody.ToString());

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #if defined(__clang__) || defined(__GNUC__)
 #define GNU_LIKE
@@ -33,6 +34,9 @@
 			} \
 		}
 
+#define IL2CPP_THROW(_obj) \
+		throw il2cppException((il2cppObject*)_obj)
+
 #define IL2CPP_OBJECT_BODY \
 		uint32_t objectTypeID
 
@@ -51,6 +55,15 @@ struct il2cppValueType
 {
 };
 
+struct il2cppException
+{
+	il2cppObject* obj;
+
+	il2cppException(il2cppObject* p) : obj(p) {}
+};
+
 il2cppObject* il2cpp_New(uint32_t sz, uint32_t typeID);
 void il2cpp_Yield();
 uintptr_t il2cpp_ThreadID();
+
+il2cppString* met_icall_System_Environment__GetResourceFromDefault(il2cppString* str);

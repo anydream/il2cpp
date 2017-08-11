@@ -373,9 +373,8 @@ namespace il2cpp
 
 			string metName = CurrMethod.GetCppName(PrefixMet);
 			// 构造声明
-			prt.AppendFormat("// {0}\n{1}{2} {3}(",
+			prt.AppendFormat("// {0}\n{1} {2}(",
 				CurrMethod.PrettyName(true),
-				TypeGen.IsAllInOne ? "static " : "",
 				retTypeName,
 				metName);
 
@@ -544,8 +543,7 @@ namespace il2cpp
 
 			// 构造声明
 			string retTypeName = CurrMethod.ReturnType.GetCppName(TypeMgr);
-			prt.AppendFormat("{0}{1} {2}(",
-				TypeGen.IsAllInOne ? "static " : "",
+			prt.AppendFormat("{0} {1}(",
 				retTypeName,
 				CurrMethod.GetCppName(PrefixVMet));
 
@@ -614,8 +612,7 @@ namespace il2cpp
 
 			CodePrinter prt = new CodePrinter();
 			// 构造声明
-			prt.AppendFormat("{0}void* {1}(uint32_t typeID)",
-				TypeGen.IsAllInOne ? "static " : "",
+			prt.AppendFormat("void* {0}(uint32_t typeID)",
 				CurrMethod.GetCppName(PrefixVFtn));
 			codeDecl = prt + ";\n";
 
@@ -784,12 +781,14 @@ namespace il2cpp
 						{
 							TypeX catchTyX = TypeMgr.GetNamedType(handler.CatchType.FullName);
 							Debug.Assert(catchTyX != null);
+							string catchTypeName = catchTyX.GetCppName();
+							ImplDependNames.Add(catchTypeName);
 
 							hStart.AddPostInsert(
 								handler.Index,
 								string.Format(
-									"if (isinst_{0}(lastException))\n{{\n\t",
-									catchTyX.GetCppName()) +
+									"if (isinst_{0}(lastException->objectTypeID))\n{{\n\t",
+									catchTypeName) +
 								storeLastExp,
 								1);
 
@@ -837,7 +836,7 @@ namespace il2cpp
 					{
 						StringBuilder sb = new StringBuilder();
 						sb.Append("if (lastException) IL2CPP_THROW(lastException);\n");
-						sb.Append("switch (leaveTargets)\n{\n");
+						sb.Append("switch (leaveTarget)\n{\n");
 						foreach (int leaveTarget in firstHandler.LeaveTargets)
 						{
 							sb.AppendFormat("\tcase {0}: goto {1};\n",
@@ -1470,6 +1469,17 @@ namespace il2cpp
 				   stype == StackType.Obj;
 		}
 
+		private static bool StackTypeIsValueType(StackType stype)
+		{
+			return stype != StackType.I4 &&
+				   stype != StackType.I8 &&
+				   stype != StackType.R4 &&
+				   stype != StackType.R8 &&
+				   stype != StackType.Ptr &&
+				   stype != StackType.Ref &&
+				   stype != StackType.Obj;
+		}
+
 		private StackType ToStackType(TypeSig sig)
 		{
 			if (sig.IsByRef)
@@ -1568,6 +1578,11 @@ namespace il2cpp
 					cast = null;
 			}
 
+			if (StackTypeIsValueType(poped.SlotType))
+			{
+				return (cast != null ? "*(" + cast + "*)&" : "") +
+					   SlotInfoName(ref poped);
+			}
 			return (cast != null ? '(' + cast + ')' : "") +
 				   SlotInfoName(ref poped);
 		}
@@ -1960,21 +1975,36 @@ namespace il2cpp
 			Debug.Assert(!metX.Def.IsStatic);
 			Debug.Assert(metX.ReturnType.IsVoidSig());
 
-			int argNum = metX.ParamTypes.Count - 1;
-			SlotInfo[] popList = Pop(argNum);
-			SlotInfo self = Push(StackType.Obj);
-
 			StringBuilder sb = new StringBuilder();
 
-			string metDeclTypeName = metX.DeclType.GetCppName();
-			sb.AppendFormat("{0} = il2cpp_New(sizeof({1}), {2});\n",
-				SlotInfoName(ref self),
-				metDeclTypeName,
-				metX.DeclType.GetCppTypeID());
+			int argNum = metX.ParamTypes.Count - 1;
+			SlotInfo[] popList = Pop(argNum);
 
-			sb.AppendFormat("{0}({1}",
-				metX.GetCppName(PrefixMet),
-				StorePoped(ref self, metX.ParamTypes[0].GetCppName(TypeMgr)));
+			TypeX declTyX = metX.DeclType;
+			string declTypeName = declTyX.GetCppName();
+
+			if (declTyX.Def.IsValueType)
+			{
+				SlotInfo self = Push(declTypeName);
+
+				sb.AppendFormat("{0}(({1})&{2}",
+					metX.GetCppName(PrefixMet),
+					metX.ParamTypes[0].GetCppName(TypeMgr),
+					SlotInfoName(ref self));
+			}
+			else
+			{
+				SlotInfo self = Push(StackType.Obj);
+
+				sb.AppendFormat("{0} = il2cpp_New(sizeof({1}), {2});\n",
+					SlotInfoName(ref self),
+					declTypeName,
+					declTyX.GetCppTypeID());
+
+				sb.AppendFormat("{0}({1}",
+					metX.GetCppName(PrefixMet),
+					StorePoped(ref self, metX.ParamTypes[0].GetCppName(TypeMgr)));
+			}
 
 			for (int i = 0; i < argNum; ++i)
 			{
@@ -1986,7 +2016,7 @@ namespace il2cpp
 
 			inst.CppCode += sb.ToString();
 
-			ImplDependNames.Add(metDeclTypeName);
+			ImplDependNames.Add(declTypeName);
 		}
 
 		private void Ldfld(InstructionInfo inst, FieldX fldX, bool isLoadAddr)
