@@ -377,8 +377,7 @@ namespace il2cpp
 			prt.AppendLine("\n{");
 			++prt.Indents;
 
-			prt.AppendLine("switch (typeID)");
-			prt.AppendLine("{");
+			prt.AppendLine("switch (typeID)\n{");
 			++prt.Indents;
 
 			foreach (var tyX in typeIDs)

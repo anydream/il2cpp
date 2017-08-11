@@ -623,11 +623,15 @@ namespace il2cpp
 			++prt.Indents;
 
 			// 构造查询跳转分支
+			SortedDictionary<uint, MethodX> sortedCases = new SortedDictionary<uint, MethodX>();
 			foreach (var metX in CurrMethod.OverrideImpls)
+				sortedCases.Add(metX.DeclType.GetCppTypeID(), metX);
+
+			foreach (var kv in sortedCases)
 			{
 				prt.AppendFormatLine("case {0}: return (void*)&{1};",
-					metX.DeclType.GetCppTypeID(),
-					metX.GetCppName(PrefixMet));
+					kv.Key,
+					kv.Value.GetCppName(PrefixMet));
 			}
 
 			--prt.Indents;
