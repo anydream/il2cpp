@@ -562,7 +562,6 @@ namespace il2cpp
 					case Instruction branchInst:
 						{
 							InstructionInfo targetInst = InstList[offsetMap[branchInst.Offset]];
-							targetInst.IsBrTarget = true;
 							InstList[idx].Operand = targetInst;
 						}
 						break;
@@ -573,7 +572,6 @@ namespace il2cpp
 							for (int i = 0; i < targets.Length; ++i)
 							{
 								InstructionInfo targetInst = InstList[offsetMap[branchInstList[i].Offset]];
-								targetInst.IsBrTarget = true;
 								targets[i] = targetInst;
 							}
 
