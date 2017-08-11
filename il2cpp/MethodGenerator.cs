@@ -120,7 +120,7 @@ namespace il2cpp
 		public ExceptionHandlerType HandlerType;
 
 		// 跳转离开的目标指令位置
-		public SortedSet<int> LeaveTargets;
+		public HashSet<int> LeaveTargets;
 	}
 
 	internal class InsertCode
@@ -838,11 +838,16 @@ namespace il2cpp
 						StringBuilder sb = new StringBuilder();
 						sb.Append("if (lastException) IL2CPP_THROW(lastException);\n");
 						sb.Append("switch (leaveTarget)\n{\n");
+
+						SortedDictionary<int, int> sortedCases = new SortedDictionary<int, int>();
 						foreach (int leaveTarget in firstHandler.LeaveTargets)
+							sortedCases.Add(LeaveMap[leaveTarget], leaveTarget);
+
+						foreach (var kv in sortedCases)
 						{
 							sb.AppendFormat("\tcase {0}: goto {1};\n",
-								LeaveMap[leaveTarget],
-								LabelName(leaveTarget));
+								kv.Key,
+								LabelName(kv.Value));
 						}
 						sb.Append("}\nabort();\n");
 
@@ -1354,7 +1359,7 @@ namespace il2cpp
 							foreach (var handler in leaveHandlers)
 							{
 								if (handler.LeaveTargets == null)
-									handler.LeaveTargets = new SortedSet<int>();
+									handler.LeaveTargets = new HashSet<int>();
 								handler.LeaveTargets.Add(target);
 							}
 
