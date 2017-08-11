@@ -493,9 +493,6 @@ namespace il2cpp
 				if (insertCode != null)
 					insertCode.PreAppendTo(prt);
 
-				// 指令注释
-				prt.AppendFormatLine("// {0}", inst);
-
 				// 跳转标签
 				if (inst.IsBrTarget)
 				{
@@ -514,6 +511,9 @@ namespace il2cpp
 
 				if (insertCode != null)
 					insertCode.PostAppendTo(prt);
+
+				// 指令注释
+				prt.AppendFormatLine("// {0}", inst);
 
 				// 指令代码
 				if (inst.CppCode != null)

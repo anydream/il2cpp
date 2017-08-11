@@ -99,8 +99,8 @@ namespace il2cpp
 		private readonly Dictionary<string, TypeCppCode> CodeMap = new Dictionary<string, TypeCppCode>();
 
 		// 静态变量初始化代码
-		private readonly StringBuilder StaticInitBody = new StringBuilder();
 		private readonly StringBuilder StaticInitDecl = new StringBuilder();
+		private readonly StringBuilder StaticInitBody = new StringBuilder();
 
 		// 编译单元列表
 		public readonly List<CppCompileUnit> CompileUnits = new List<CppCompileUnit>();
@@ -152,7 +152,7 @@ namespace il2cpp
 			string compileCmd = "clang -O3 -S -emit-llvm il2cpp.cpp main.cpp ";
 			string linkCmd = "llvm-link -S -o linked.ll il2cpp.ll main.ll ";
 			string optCmd = "opt -O3 -S -o opted.ll linked.ll";
-			string genCmd = "clang -O3 -o final.exe opted.ll";
+			string genCmd = "clang -g -O3 -o final.exe opted.ll";
 
 			StringBuilder sbShell = new StringBuilder();
 
@@ -177,8 +177,8 @@ namespace il2cpp
 		{
 			NameHelper.Reset();
 			CodeMap.Clear();
-			StaticInitBody.Clear();
 			StaticInitDecl.Clear();
+			StaticInitBody.Clear();
 			CompileUnits.Clear();
 			CppUnitName = 0;
 
@@ -314,12 +314,11 @@ namespace il2cpp
 									sfldPrettyName,
 									sfldDef);
 
+				StaticInitDecl.Append("extern " + sfldDef);
+
 				StaticInitBody.AppendFormat("{0} = {1};\n",
 					sfldCppName,
 					sfldX.FieldType.GetInitValue(TypeMgr));
-
-				StaticInitDecl.AppendFormat("extern {0}",
-					sfldDef);
 
 				// 添加字段类型依赖
 				if (sfldX.FieldType.IsValueType)
@@ -347,6 +346,9 @@ namespace il2cpp
 
 				sbImpl.Append(onceDef);
 				sbImpl.Append(locktidDef);
+
+				StaticInitDecl.Append("extern " + onceDef);
+				StaticInitDecl.Append("extern " + locktidDef);
 
 				StaticInitBody.AppendFormat("{0} = 0;\n",
 					onceName);
