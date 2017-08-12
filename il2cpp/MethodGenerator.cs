@@ -1367,6 +1367,12 @@ namespace il2cpp
 						Box(inst, sig);
 					}
 					return;
+				case Code.Unbox:
+					{
+						TypeSig sig = (TypeSig)operand;
+						Unbox(inst, sig);
+					}
+					return;
 
 				default:
 					throw new NotImplementedException("OpCode: " + opCode);
@@ -2448,6 +2454,38 @@ namespace il2cpp
 
 				ImplDependNames.Add(typeName);
 			}
+		}
+
+		private void Unbox(InstructionInfo inst, TypeSig sig)
+		{
+			SlotInfo poped = Pop();
+			Debug.Assert(poped.SlotType == StackType.Obj);
+			SlotInfo addr = Push(StackType.Ref);
+
+			TypeX tyX = TypeMgr.GetNamedType(sig.FullName);
+			Debug.Assert(tyX.Def.IsValueType);
+			string typeName = tyX.GetCppName();
+			string boxTypeName = "box_" + typeName;
+
+			CodePrinter prt = new CodePrinter();
+			prt.AppendFormatLine("if (isinst_{0}({1})\n{{",
+				typeName,
+				SlotInfoName(ref poped));
+			++prt.Indents;
+			prt.AppendFormatLine("{0} = &(({1}*){2})->value;",
+				SlotInfoName(ref addr),
+				boxTypeName,
+				SlotInfoName(ref poped));
+			--prt.Indents;
+			prt.AppendLine("else");
+			++prt.Indents;
+			prt.AppendFormat("{0} = nullptr;",
+				SlotInfoName(ref addr));
+			--prt.Indents;
+
+			inst.CppCode = prt.ToString();
+
+			ImplDependNames.Add(typeName);
 		}
 
 		private static bool IsCppTypeConvertValid(string ltype, string rtype)
