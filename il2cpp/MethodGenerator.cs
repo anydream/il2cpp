@@ -1373,6 +1373,19 @@ namespace il2cpp
 						Unbox(inst, sig);
 					}
 					return;
+				case Code.Unbox_Any:
+					{
+						TypeSig sig = (TypeSig)operand;
+						UnboxAny(inst, sig);
+					}
+					return;
+
+				case Code.Isinst:
+					{
+						TypeSig sig = (TypeSig)operand;
+						Isinst(inst, sig);
+					}
+					return;
 
 				default:
 					throw new NotImplementedException("OpCode: " + opCode);
@@ -2113,7 +2126,6 @@ namespace il2cpp
 				typeName,
 				SlotInfoName(ref poped));
 
-			//! typeName 是否需要转换基础类型名为简化的别名
 			//! 是否需要转换为栈类型名
 			Load(inst, typeName, rval);
 
@@ -2458,6 +2470,8 @@ namespace il2cpp
 
 		private void Unbox(InstructionInfo inst, TypeSig sig)
 		{
+			Debug.Assert(sig.IsValueType);
+
 			SlotInfo poped = Pop();
 			Debug.Assert(poped.SlotType == StackType.Obj);
 			SlotInfo addr = Push(StackType.Ref);
@@ -2481,6 +2495,58 @@ namespace il2cpp
 			++prt.Indents;
 			prt.AppendFormat("{0} = nullptr;",
 				SlotInfoName(ref addr));
+			--prt.Indents;
+
+			inst.CppCode = prt.ToString();
+
+			ImplDependNames.Add(typeName);
+		}
+
+		private void UnboxAny(InstructionInfo inst, TypeSig sig)
+		{
+			if (sig.IsValueType)
+			{
+				Unbox(inst, sig);
+				inst.CppCode += '\n';
+				Ldobj(inst, sig);
+			}
+			else
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		private void Isinst(InstructionInfo inst, TypeSig sig)
+		{
+			if (sig.IsValueType)
+			{
+				if (sig.IsNullableSig())
+				{
+					GenericInstSig nullableSig = (GenericInstSig)sig;
+					sig = nullableSig.GenericArguments[0];
+				}
+			}
+
+			SlotInfo poped = Pop();
+			Debug.Assert(poped.SlotType == StackType.Obj);
+			SlotInfo pushed = Push(StackType.Obj);
+
+			TypeX tyX = TypeMgr.GetNamedType(sig.FullName);
+			string typeName = tyX.GetCppName();
+
+			CodePrinter prt = new CodePrinter();
+			prt.AppendFormatLine("if ({1} && isinst_{0}({1})\n{{",
+				typeName,
+				SlotInfoName(ref poped));
+			++prt.Indents;
+			prt.AppendFormatLine("{0} = {1};",
+				SlotInfoName(ref pushed),
+				SlotInfoName(ref poped));
+			--prt.Indents;
+			prt.AppendLine("else");
+			++prt.Indents;
+			prt.AppendFormat("{0} = nullptr;",
+				SlotInfoName(ref pushed));
 			--prt.Indents;
 
 			inst.CppCode = prt.ToString();
