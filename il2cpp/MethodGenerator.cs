@@ -1354,32 +1354,18 @@ namespace il2cpp
 				case Code.Leave_S:
 					{
 						int target = ((InstructionInfo)operand).Offset;
-
-						inst.CppCode = "lastException = nullptr;\n";
-
-						var leaveHandlers = GetLeaveThroughHandlers(inst.Offset, target);
-						if (leaveHandlers != null)
-						{
-							foreach (var handler in leaveHandlers)
-							{
-								if (handler.LeaveTargets == null)
-									handler.LeaveTargets = new HashSet<int>();
-								handler.LeaveTargets.Add(target);
-							}
-
-							int targetIdx = AddLeaveTarget(target);
-							inst.CppCode += string.Format("leaveTarget = {0};\ngoto {1};",
-								targetIdx,
-								LabelName(leaveHandlers[0].HandlerStart));
-						}
-						else
-						{
-							inst.CppCode += "goto " + LabelName(target) + ';';
-						}
+						Leave(inst, target);
 					}
 					return;
 
 				case Code.Endfinally:
+					return;
+
+				case Code.Box:
+					{
+						TypeSig sig = (TypeSig)operand;
+						Box(inst, sig);
+					}
 					return;
 
 				default:
@@ -1475,6 +1461,17 @@ namespace il2cpp
 		private static bool StackTypeIsPtrOrObj(StackType stype)
 		{
 			return stype == StackType.Ptr ||
+				   stype == StackType.Ref ||
+				   stype == StackType.Obj;
+		}
+
+		private static bool StackTypeIsValueType(StackType stype)
+		{
+			return stype == StackType.I4 ||
+				   stype == StackType.I8 ||
+				   stype == StackType.R4 ||
+				   stype == StackType.R8 ||
+				   stype == StackType.Ptr ||
 				   stype == StackType.Ref ||
 				   stype == StackType.Obj;
 		}
@@ -2344,6 +2341,113 @@ namespace il2cpp
 				CurrMethod.InitLocals ? "true" : "false");
 
 			Load(inst, StackType.Ptr, rval);
+		}
+
+		private void Leave(InstructionInfo inst, int target)
+		{
+			inst.CppCode = "lastException = nullptr;\n";
+
+			var leaveHandlers = GetLeaveThroughHandlers(inst.Offset, target);
+			if (leaveHandlers != null)
+			{
+				foreach (var handler in leaveHandlers)
+				{
+					if (handler.LeaveTargets == null)
+						handler.LeaveTargets = new HashSet<int>();
+					handler.LeaveTargets.Add(target);
+				}
+
+				int targetIdx = AddLeaveTarget(target);
+				inst.CppCode += string.Format("leaveTarget = {0};\ngoto {1};",
+					targetIdx,
+					LabelName(leaveHandlers[0].HandlerStart));
+			}
+			else
+			{
+				inst.CppCode += "goto " + LabelName(target) + ';';
+			}
+		}
+
+		private void Box(InstructionInfo inst, TypeSig sig)
+		{
+			if (sig.IsValueType)
+			{
+				SlotInfo poped = Pop();
+				Debug.Assert(StackTypeIsValueType(poped.SlotType));
+				SlotInfo boxed = Push(StackType.Obj);
+
+				if (sig.IsNullableSig())
+				{
+					GenericInstSig nullableSig = (GenericInstSig)sig;
+					TypeX nullableTyX = TypeMgr.GetNamedType(sig.FullName);
+					string nullableTypeName = nullableTyX.GetCppName();
+
+					FieldX fldHasValue = null;
+					FieldX fldValue = null;
+					foreach (var fldX in nullableTyX.Fields)
+					{
+						if (fldX.FieldType.ElementType == ElementType.Boolean)
+						{
+							fldHasValue = fldX;
+						}
+						else
+						{
+							Debug.Assert(fldX.FieldType.Equals(nullableSig.GenericArguments[0]));
+							fldValue = fldX;
+						}
+					}
+					Debug.Assert(fldHasValue != null && fldValue == null);
+
+					TypeX fldTypeX = TypeMgr.GetNamedType(fldValue.FieldType.FullName);
+					string fldTypeName = fldTypeX.GetCppName();
+					string boxTypeName = "box_" + fldTypeName;
+
+					CodePrinter prt = new CodePrinter();
+					prt.AppendFormatLine("if ({0}.{1})\n{{",
+						SlotInfoName(ref poped),
+						fldHasValue.GetCppName());
+					++prt.Indents;
+					prt.AppendFormatLine("{0} = il2cpp_New(sizeof({1}), {2});",
+						SlotInfoName(ref boxed),
+						boxTypeName,
+						fldTypeX.GetCppTypeID());
+					prt.AppendFormatLine("(({0}*){1})->value = {2}.{3};",
+						boxTypeName,
+						SlotInfoName(ref boxed),
+						SlotInfoName(ref poped),
+						fldValue.GetCppName());
+					--prt.Indents;
+					prt.AppendLine("}\nelse");
+					++prt.Indents;
+					prt.AppendFormatLine("{0} = nullptr;",
+						SlotInfoName(ref boxed));
+					--prt.Indents;
+
+					inst.CppCode = prt.ToString();
+
+					ImplDependNames.Add(nullableTypeName);
+					ImplDependNames.Add(fldTypeName);
+				}
+				else
+				{
+					TypeX tyX = TypeMgr.GetNamedType(sig.FullName);
+					string typeName = tyX.GetCppName();
+					string boxTypeName = "box_" + typeName;
+
+					StringBuilder sb = new StringBuilder();
+					sb.AppendFormat("{0} = il2cpp_New(sizeof({1}), {2});\n",
+						SlotInfoName(ref boxed),
+						boxTypeName,
+						tyX.GetCppTypeID());
+
+					sb.AppendFormat("(({0}*){1})->value = {2};",
+						boxTypeName,
+						SlotInfoName(ref boxed),
+						SlotInfoName(ref poped));
+
+					ImplDependNames.Add(typeName);
+				}
+			}
 		}
 
 		private static bool IsCppTypeConvertValid(string ltype, string rtype)

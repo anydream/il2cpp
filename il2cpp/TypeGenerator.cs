@@ -187,7 +187,7 @@ namespace il2cpp
 			for (int i = 0; i < types.Count; ++i)
 			{
 				var type = types[i];
-				if (type.Def.ToTypeSig().ElementType == ElementType.Object)
+				if (type.Def.ToTypeSig().IsObjectSig())
 				{
 					types[i] = types[0];
 					types[0] = type;
@@ -248,7 +248,7 @@ namespace il2cpp
 					typeName,
 					baseTypeName);
 			}
-			else if (currType.Def.ToTypeSig().ElementType == ElementType.Object)
+			else if (currType.Def.ToTypeSig().IsObjectSig())
 			{
 				typeName = currType.GetCppName();
 				prt.AppendFormatLine("struct {0} : il2cppObject\n{{",

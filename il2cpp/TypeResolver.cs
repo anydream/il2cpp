@@ -1254,7 +1254,7 @@ namespace il2cpp
 
 					if (metDef.IsNewSlot ||
 						!metDef.IsVirtual ||
-						currType.Def.ToTypeSig().ElementType == ElementType.Object)
+						currType.Def.ToTypeSig().IsObjectSig())
 					{
 						Debug.Assert(currType.Def.ToTypeSig().ElementType != ElementType.Object ||
 									 currType.Def.FullName == "System.Object");

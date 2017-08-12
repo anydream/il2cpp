@@ -206,17 +206,30 @@ namespace il2cpp
 			return sig.ElementType == ElementType.Void;
 		}
 
+		public static bool IsObjectSig(this TypeSig sig)
+		{
+			return sig.ElementType == ElementType.Object;
+		}
+
+		public static bool IsNullableSig(this TypeSig sig)
+		{
+			return sig.ElementType == ElementType.GenericInst &&
+				   ((GenericInstSig)sig).GenericType.FullName == "System.Nullable`1";
+		}
+
 		public static TypeSig GetLeafSig(this TypeSig sig)
 		{
-			TypeSig result = null;
 			while (sig != null)
 			{
-				result = sig;
+				if (sig is LeafSig)
+				{
+					Debug.Assert(sig.Next == null);
+					return sig;
+				}
 				sig = sig.Next;
 			}
 
-			Debug.Assert(result is LeafSig);
-			return result;
+			throw new ArgumentOutOfRangeException();
 		}
 
 		public static int SigListHashCode(IList<TypeSig> sigList)
