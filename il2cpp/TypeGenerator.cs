@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using dnlib.DotNet;
@@ -256,6 +257,8 @@ namespace il2cpp
 			}
 			else
 			{
+				Debug.Assert(currType.Def.IsValueType);
+
 				typeName = currType.GetCppName();
 				prt.AppendFormatLine("struct {0}\n{{",
 					typeName);
@@ -294,6 +297,20 @@ namespace il2cpp
 
 			--prt.Indents;
 			prt.AppendLine("};");
+
+			// 构造装箱类型
+			if (currType.Def.IsValueType)
+			{
+				prt.AppendFormatLine("struct box_{0} : il2cppObject\n{{",
+					typeName);
+				++prt.Indents;
+
+				prt.AppendFormatLine("{0} value;",
+					currType.ToTypeSig().GetCppName(TypeMgr));
+
+				--prt.Indents;
+				prt.AppendLine("};");
+			}
 
 			// 构造静态字段全局变量
 			StringBuilder sbImpl = new StringBuilder();
@@ -417,7 +434,10 @@ namespace il2cpp
 
 		private bool GetCodeFromMap(string typeName, out TypeCppCode typeCode)
 		{
-			return CodeMap.TryGetValue(typeName, out typeCode);
+			bool res = CodeMap.TryGetValue(typeName, out typeCode);
+			if (!res)
+				Console.WriteLine("Can't find type: {0}", typeName);
+			return res;
 		}
 
 		private void GenerateCompileUnits()

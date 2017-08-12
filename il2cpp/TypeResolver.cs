@@ -331,7 +331,7 @@ namespace il2cpp
 		public bool HasMethods => MethodMap.Count > 0;
 		// 字段映射
 		private readonly Dictionary<FieldX, FieldX> FieldMap = new Dictionary<FieldX, FieldX>();
-		public Dictionary<FieldX, FieldX>.ValueCollection Fields => FieldMap.Values;
+		public IList<FieldX> Fields => GetSortedFields();
 		public bool HasFields => FieldMap.Count > 0;
 		// 运行时类型
 		public string RuntimeVersion => Def.Module.RuntimeVersion;
@@ -468,6 +468,16 @@ namespace il2cpp
 					inf.CollectInterfaces(infs);
 				}
 			}
+		}
+
+		public IList<FieldX> GetSortedFields()
+		{
+			List<FieldX> fldList = new List<FieldX>(FieldMap.Values);
+			fldList.Sort((x, y) =>
+			{
+				return x.Def.Rid.CompareTo(y.Def.Rid);
+			});
+			return fldList;
 		}
 	}
 
