@@ -1436,8 +1436,9 @@ namespace il2cpp
 					return "double";
 				case StackType.Ptr:
 				case StackType.Ref:
-				case StackType.Obj:
 					return "void*";
+				case StackType.Obj:
+					return "il2cppObject*";
 				default:
 					return stype;
 			}
@@ -1991,7 +1992,7 @@ namespace il2cpp
 
 			if (declTyX.Def.IsValueType)
 			{
-				SlotInfo self = Push(declTypeName);
+				SlotInfo self = Push(ToStackType(declTyX.ToTypeSig()));
 
 				sb.AppendFormat("{0}(({1})&{2}",
 					metX.GetCppName(PrefixMet),
@@ -2545,9 +2546,9 @@ namespace il2cpp
 					SlotInfo pushed = Push(nullableTypeName);
 
 					CodePrinter prt = new CodePrinter();
-					prt.AppendFormatLine("if (isinst_{0}(((il2cppObject*){1})->objectTypeID))\n{{",
-						typeName,
-						SlotInfoName(ref poped));
+					prt.AppendFormatLine("if ({0} && isinst_{1}({0}->objectTypeID))\n{{",
+						SlotInfoName(ref poped),
+						typeName);
 					++prt.Indents;
 					prt.AppendFormatLine("{0}.{1} = 1;",
 						SlotInfoName(ref pushed),
@@ -2560,9 +2561,7 @@ namespace il2cpp
 					--prt.Indents;
 					prt.AppendLine("}\nelse");
 					++prt.Indents;
-					prt.AppendFormat("{0} = {1};",
-						SlotInfoName(ref pushed),
-						sig.GetInitValue(TypeMgr));
+					prt.AppendLine("Il2CPP_THROW_INVALID_CAST;");
 					--prt.Indents;
 
 					inst.CppCode = prt.ToString();
@@ -2573,23 +2572,21 @@ namespace il2cpp
 					string typeName = tyX.GetCppName();
 					string boxTypeName = "box_" + typeName;
 
-					SlotInfo pushed = Push(sig.GetCppName(TypeMgr));
+					SlotInfo pushed = Push(ToStackType(sig));
 
 					CodePrinter prt = new CodePrinter();
-					prt.AppendFormatLine("if (isinst_{0}(((il2cppObject*){1})->objectTypeID))",
-						typeName,
-						SlotInfoName(ref poped));
+					prt.AppendFormatLine("if ({0} && isinst_{1}({0}->objectTypeID))",
+						SlotInfoName(ref poped),
+						typeName);
 					++prt.Indents;
-					prt.AppendFormatLine("{0} = (({1}*){2})->value;",
-						SlotInfoName(ref pushed),
+					prt.AppendFormatLine("{0}(({1}*){2})->value;",
+						LoadPushed(ref pushed, tyX.ToTypeSig().GetCppName(TypeMgr)),
 						boxTypeName,
 						SlotInfoName(ref poped));
 					--prt.Indents;
 					prt.AppendLine("else");
 					++prt.Indents;
-					prt.AppendFormat("{0} = {1};",
-						SlotInfoName(ref pushed),
-						sig.GetInitValue(TypeMgr));
+					prt.AppendLine("Il2CPP_THROW_INVALID_CAST;");
 					--prt.Indents;
 
 					ImplDependNames.Add(typeName);
@@ -2620,15 +2617,9 @@ namespace il2cpp
 			string typeName = tyX.GetCppName();
 
 			CodePrinter prt = new CodePrinter();
-			prt.AppendFormatLine("if ({1} && isinst_{0}(((il2cppObject*){1})->objectTypeID))",
-				typeName,
-				SlotInfoName(ref poped));
-			++prt.Indents;
-			prt.AppendFormatLine("{0} = {1};",
-				SlotInfoName(ref pushed),
-				SlotInfoName(ref poped));
-			--prt.Indents;
-			prt.AppendLine("else");
+			prt.AppendFormatLine("if (!{0} || !isinst_{1}({0}->objectTypeID))",
+				SlotInfoName(ref poped),
+				typeName);
 			++prt.Indents;
 			prt.AppendFormat("{0} = nullptr;",
 				SlotInfoName(ref pushed));

@@ -24,6 +24,7 @@ namespace il2cpp
 				case ElementType.I1:
 					return "int8_t";
 				case ElementType.U1:
+				case ElementType.Boolean:
 					return "uint8_t";
 				case ElementType.I2:
 					return "int16_t";
@@ -31,7 +32,6 @@ namespace il2cpp
 				case ElementType.Char:
 					return "uint16_t";
 				case ElementType.I4:
-				case ElementType.Boolean:
 					return "int32_t";
 				case ElementType.U4:
 					return "uint32_t";
@@ -48,6 +48,8 @@ namespace il2cpp
 				case ElementType.U:
 					return "uintptr_t";
 
+				case ElementType.Object:
+					return "il2cppObject*";
 				case ElementType.String:
 					return "il2cppString*";
 			}
@@ -65,7 +67,6 @@ namespace il2cpp
 
 			switch (sig.ElementType)
 			{
-				case ElementType.Object:
 				case ElementType.Class:
 				case ElementType.ValueType:
 				case ElementType.GenericInst:
@@ -111,18 +112,6 @@ namespace il2cpp
 					return;
 
 				default:
-					/*if (sig is CorLibTypeSig corTypeSig)
-					{
-						// 基础类型
-						switch (corTypeSig.FullName)
-						{
-							default:
-								throw new ArgumentOutOfRangeException("SigToCppName CorLibTypeSig " + corTypeSig);
-						}
-
-						return;
-					}*/
-
 					throw new ArgumentOutOfRangeException("SigToCppName TypeSig " + sig.FullName);
 			}
 		}
@@ -142,9 +131,7 @@ namespace il2cpp
 				case ElementType.U1:
 				case ElementType.I2:
 				case ElementType.U2:
-				case ElementType.Char:
 				case ElementType.I4:
-				case ElementType.Boolean:
 				case ElementType.U4:
 				case ElementType.I8:
 				case ElementType.U8:
@@ -152,6 +139,8 @@ namespace il2cpp
 				case ElementType.R8:
 				case ElementType.I:
 				case ElementType.U:
+				case ElementType.Char:
+				case ElementType.Boolean:
 					return "0";
 			}
 
