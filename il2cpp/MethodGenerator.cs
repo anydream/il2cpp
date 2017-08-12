@@ -2382,6 +2382,44 @@ namespace il2cpp
 			}
 		}
 
+		private void GetNullableType(
+			TypeSig sig,
+			out TypeX nullableTyX,
+			out string nullableTypeName,
+			out TypeX tyX,
+			out string typeName,
+			out FieldX fldHasValue,
+			out FieldX fldValue)
+		{
+			Debug.Assert(sig.IsNullableSig());
+
+			nullableTyX = TypeMgr.GetNamedType(sig.FullName);
+			nullableTypeName = nullableTyX.GetCppName();
+
+			var fldList = nullableTyX.Fields;
+			Debug.Assert(fldList.Count == 2);
+
+			if (fldList[1].Def.Name.ToLower() == "value")
+			{
+				fldValue = fldList[1];
+				fldHasValue = fldList[0];
+			}
+			else
+			{
+				fldValue = fldList[0];
+				fldHasValue = fldList[1];
+			}
+
+			Debug.Assert(fldHasValue.FieldType.ElementType == ElementType.Boolean);
+			Debug.Assert(fldValue.FieldType.Equals(((GenericInstSig)sig).GenericArguments[0]));
+
+			tyX = TypeMgr.GetNamedType(fldValue.FieldType.FullName);
+			typeName = tyX.GetCppName();
+
+			ImplDependNames.Add(nullableTypeName);
+			ImplDependNames.Add(typeName);
+		}
+
 		private void Box(InstructionInfo inst, TypeSig sig)
 		{
 			if (!sig.IsValueType)
@@ -2393,31 +2431,16 @@ namespace il2cpp
 
 			if (sig.IsNullableSig())
 			{
-				TypeX nullableTyX = TypeMgr.GetNamedType(sig.FullName);
-				string nullableTypeName = nullableTyX.GetCppName();
+				GetNullableType(
+					sig,
+					out var nullableTyX,
+					out var nullableTypeName,
+					out var tyX,
+					out var typeName,
+					out var fldHasValue,
+					out var fldValue);
 
-				var fldList = nullableTyX.Fields;
-				Debug.Assert(fldList.Count == 2);
-
-				FieldX fldHasValue;
-				FieldX fldValue;
-				if (fldList[1].Def.Name.ToLower() == "value")
-				{
-					fldValue = fldList[1];
-					fldHasValue = fldList[0];
-				}
-				else
-				{
-					fldValue = fldList[0];
-					fldHasValue = fldList[1];
-				}
-
-				Debug.Assert(fldHasValue.FieldType.ElementType == ElementType.Boolean);
-				Debug.Assert(fldValue.FieldType.Equals(((GenericInstSig)sig).GenericArguments[0]));
-
-				TypeX fldTypeX = TypeMgr.GetNamedType(fldValue.FieldType.FullName);
-				string fldTypeName = fldTypeX.GetCppName();
-				string boxTypeName = "box_" + fldTypeName;
+				string boxTypeName = "box_" + typeName;
 
 				CodePrinter prt = new CodePrinter();
 				prt.AppendFormatLine("if ({0}.{1})\n{{",
@@ -2427,7 +2450,7 @@ namespace il2cpp
 				prt.AppendFormatLine("{0} = il2cpp_New(sizeof({1}), {2});",
 					SlotInfoName(ref boxed),
 					boxTypeName,
-					fldTypeX.GetCppTypeID());
+					tyX.GetCppTypeID());
 				prt.AppendFormatLine("(({0}*){1})->value = {2}.{3};",
 					boxTypeName,
 					SlotInfoName(ref boxed),
@@ -2436,14 +2459,11 @@ namespace il2cpp
 				--prt.Indents;
 				prt.AppendLine("}\nelse");
 				++prt.Indents;
-				prt.AppendFormatLine("{0} = nullptr;",
+				prt.AppendFormat("{0} = nullptr;",
 					SlotInfoName(ref boxed));
 				--prt.Indents;
 
 				inst.CppCode = prt.ToString();
-
-				ImplDependNames.Add(nullableTypeName);
-				ImplDependNames.Add(fldTypeName);
 			}
 			else
 			{
@@ -2470,7 +2490,8 @@ namespace il2cpp
 
 		private void Unbox(InstructionInfo inst, TypeSig sig)
 		{
-			Debug.Assert(sig.IsValueType);
+			throw new NotImplementedException();
+			/*Debug.Assert(sig.IsValueType);
 
 			SlotInfo poped = Pop();
 			Debug.Assert(poped.SlotType == StackType.Obj);
@@ -2482,7 +2503,7 @@ namespace il2cpp
 			string boxTypeName = "box_" + typeName;
 
 			CodePrinter prt = new CodePrinter();
-			prt.AppendFormatLine("if (isinst_{0}({1})\n{{",
+			prt.AppendFormatLine("if (isinst_{0}({1})",
 				typeName,
 				SlotInfoName(ref poped));
 			++prt.Indents;
@@ -2499,16 +2520,80 @@ namespace il2cpp
 
 			inst.CppCode = prt.ToString();
 
-			ImplDependNames.Add(typeName);
+			ImplDependNames.Add(typeName);*/
 		}
 
 		private void UnboxAny(InstructionInfo inst, TypeSig sig)
 		{
+			SlotInfo poped = Pop();
+			Debug.Assert(poped.SlotType == StackType.Obj);
+
 			if (sig.IsValueType)
 			{
-				Unbox(inst, sig);
-				inst.CppCode += '\n';
-				Ldobj(inst, sig);
+				if (sig.IsNullableSig())
+				{
+					GetNullableType(
+						sig,
+						out var nullableTyX,
+						out var nullableTypeName,
+						out var tyX,
+						out var typeName,
+						out var fldHasValue,
+						out var fldValue);
+					string boxTypeName = "box_" + typeName;
+
+					SlotInfo pushed = Push(nullableTypeName);
+
+					CodePrinter prt = new CodePrinter();
+					prt.AppendFormatLine("if (isinst_{0}(((il2cppObject*){1})->objectTypeID))\n{{",
+						typeName,
+						SlotInfoName(ref poped));
+					++prt.Indents;
+					prt.AppendFormatLine("{0}.{1} = 1;",
+						SlotInfoName(ref pushed),
+						fldHasValue.GetCppName());
+					prt.AppendFormatLine("{0}.{1} = (({2}*){3})->value;",
+						SlotInfoName(ref pushed),
+						fldValue.GetCppName(),
+						boxTypeName,
+						SlotInfoName(ref poped));
+					--prt.Indents;
+					prt.AppendLine("}\nelse");
+					++prt.Indents;
+					prt.AppendFormat("{0} = {1};",
+						SlotInfoName(ref pushed),
+						sig.GetInitValue(TypeMgr));
+					--prt.Indents;
+
+					inst.CppCode = prt.ToString();
+				}
+				else
+				{
+					TypeX tyX = TypeMgr.GetNamedType(sig.FullName);
+					string typeName = tyX.GetCppName();
+					string boxTypeName = "box_" + typeName;
+
+					SlotInfo pushed = Push(sig.GetCppName(TypeMgr));
+
+					CodePrinter prt = new CodePrinter();
+					prt.AppendFormatLine("if (isinst_{0}(((il2cppObject*){1})->objectTypeID))",
+						typeName,
+						SlotInfoName(ref poped));
+					++prt.Indents;
+					prt.AppendFormatLine("{0} = (({1}*){2})->value;",
+						SlotInfoName(ref pushed),
+						boxTypeName,
+						SlotInfoName(ref poped));
+					--prt.Indents;
+					prt.AppendLine("else");
+					++prt.Indents;
+					prt.AppendFormat("{0} = {1};",
+						SlotInfoName(ref pushed),
+						sig.GetInitValue(TypeMgr));
+					--prt.Indents;
+
+					ImplDependNames.Add(typeName);
+				}
 			}
 			else
 			{
@@ -2535,7 +2620,7 @@ namespace il2cpp
 			string typeName = tyX.GetCppName();
 
 			CodePrinter prt = new CodePrinter();
-			prt.AppendFormatLine("if ({1} && isinst_{0}({1})\n{{",
+			prt.AppendFormatLine("if ({1} && isinst_{0}(((il2cppObject*){1})->objectTypeID))",
 				typeName,
 				SlotInfoName(ref poped));
 			++prt.Indents;

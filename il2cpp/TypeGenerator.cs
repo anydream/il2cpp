@@ -257,7 +257,9 @@ namespace il2cpp
 			}
 			else
 			{
-				Debug.Assert(currType.Def.IsValueType);
+				Debug.Assert(
+					currType.Def.IsValueType ||
+					currType.Def.IsInterface);
 
 				typeName = currType.GetCppName();
 				prt.AppendFormatLine("struct {0}\n{{",

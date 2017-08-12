@@ -865,6 +865,35 @@ namespace il2cpp
 
 				ResolveVCalls();
 			}
+
+			// 补齐 BCL 中基础类型的字段
+			FixFields("System.Boolean");
+			FixFields("System.Char");
+			FixFields("System.SByte");
+			FixFields("System.Byte");
+			FixFields("System.Int16");
+			FixFields("System.UInt16");
+			FixFields("System.Int32");
+			FixFields("System.UInt32");
+			FixFields("System.Int64");
+			FixFields("System.UInt64");
+			FixFields("System.Single");
+			FixFields("System.Double");
+			FixFields("System.IntPtr");
+			FixFields("System.UIntPtr");
+			FixFields("System.String");
+		}
+
+		private void FixFields(string typeName)
+		{
+			TypeX tyX = GetNamedType(typeName);
+			if (tyX == null)
+				return;
+			foreach (var fld in tyX.Def.Fields)
+			{
+				if (!fld.IsStatic)
+					ResolveField(fld);
+			}
 		}
 
 		// 解析指令
