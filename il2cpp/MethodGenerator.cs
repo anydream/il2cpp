@@ -279,9 +279,13 @@ namespace il2cpp
 			return sinfos;
 		}
 
-		private void Dup()
+		private SlotInfo Peek()
 		{
-			TypeStack.Push(TypeStack.Peek());
+			return new SlotInfo
+			{
+				SlotType = TypeStack.Peek(),
+				StackIndex = TypeStack.Count - 1
+			};
 		}
 
 		private void AddBranch(int targetIP)
@@ -893,10 +897,6 @@ namespace il2cpp
 					Pop();
 					break;
 
-				case Code.Dup:
-					Dup();
-					break;
-
 				default:
 					ProcessInstruction(inst);
 					break;
@@ -946,6 +946,13 @@ namespace il2cpp
 
 			switch (opCode.Code)
 			{
+				case Code.Dup:
+					{
+						SlotInfo top = Peek();
+						Load(inst, top.SlotType, SlotInfoName(ref top));
+					}
+					return;
+
 				case Code.Ldnull:
 					Load(inst, StackType.Obj, "nullptr");
 					return;
