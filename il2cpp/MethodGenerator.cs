@@ -1383,7 +1383,13 @@ namespace il2cpp
 				case Code.Isinst:
 					{
 						TypeSig sig = (TypeSig)operand;
-						Isinst(inst, sig);
+						IsinstOrCast(inst, sig, true);
+					}
+					return;
+				case Code.Castclass:
+					{
+						TypeSig sig = (TypeSig)operand;
+						IsinstOrCast(inst, sig, false);
 					}
 					return;
 
@@ -2598,7 +2604,7 @@ namespace il2cpp
 			}
 		}
 
-		private void Isinst(InstructionInfo inst, TypeSig sig)
+		private void IsinstOrCast(InstructionInfo inst, TypeSig sig, bool isInst)
 		{
 			if (sig.IsValueType)
 			{
@@ -2612,17 +2618,25 @@ namespace il2cpp
 			SlotInfo poped = Pop();
 			Debug.Assert(poped.SlotType == StackType.Obj);
 			SlotInfo pushed = Push(StackType.Obj);
+			Debug.Assert(SlotInfoName(ref poped) == SlotInfoName(ref pushed));
 
 			TypeX tyX = TypeMgr.GetNamedType(sig.FullName);
 			string typeName = tyX.GetCppName();
 
 			CodePrinter prt = new CodePrinter();
-			prt.AppendFormatLine("if (!{0} || !isinst_{1}({0}->objectTypeID))",
+			prt.AppendFormatLine("if ({0} && !isinst_{1}({0}->objectTypeID))",
 				SlotInfoName(ref poped),
 				typeName);
 			++prt.Indents;
-			prt.AppendFormat("{0} = nullptr;",
-				SlotInfoName(ref pushed));
+			if (isInst)
+			{
+				prt.AppendFormat("{0} = nullptr;",
+					SlotInfoName(ref pushed));
+			}
+			else
+			{
+				prt.Append("Il2CPP_THROW_INVALID_CAST;");
+			}
 			--prt.Indents;
 
 			inst.CppCode = prt.ToString();
