@@ -356,7 +356,7 @@ namespace il2cpp
 				else
 					break;
 			}
-			
+
 			TypeStack.Clear();
 		}
 
@@ -781,7 +781,7 @@ namespace il2cpp
 
 						var hStart = ExpInsertMap.GetOrAdd(handler.HandlerStart);
 						SlotInfo tmp0 = new SlotInfo { StackIndex = 0, SlotType = StackType.Obj };
-						string saveLastExp = LoadPushed(ref tmp0, null) + "lastException;\n";
+						string pushLastExp = LoadPushed(ref tmp0, null) + "lastException;\n";
 
 						if (handler.HandlerType == ExceptionHandlerType.Catch)
 						{
@@ -795,7 +795,7 @@ namespace il2cpp
 								string.Format(
 									"if (isinst_{0}(lastException->objectTypeID))\n{{\n\t",
 									catchTypeName) +
-								saveLastExp,
+								pushLastExp,
 								1);
 
 							endCode = "}\n";
@@ -807,7 +807,7 @@ namespace il2cpp
 
 							hStart.AddPostInsert(
 								handler.Index,
-								"{\n\t" + saveLastExp,
+								"{\n\t" + pushLastExp,
 								1);
 
 							endCode = "}\n";
