@@ -356,8 +356,7 @@ namespace il2cpp
 				else
 					break;
 			}
-
-			Debug.Assert(TypeStack.Count == 0);
+			
 			TypeStack.Clear();
 		}
 
@@ -688,6 +687,8 @@ namespace il2cpp
 				{
 					Push(StackType.Obj);
 					ProcessLoop((int)handler.FilterStart);
+					Push(StackType.Obj);
+					ProcessLoop(handler.HandlerStart);
 				}
 				else if (handler.HandlerType == ExceptionHandlerType.Catch)
 				{
@@ -780,7 +781,7 @@ namespace il2cpp
 
 						var hStart = ExpInsertMap.GetOrAdd(handler.HandlerStart);
 						SlotInfo tmp0 = new SlotInfo { StackIndex = 0, SlotType = StackType.Obj };
-						string storeLastExp = LoadPushed(ref tmp0, null) + "lastException;\n";
+						string saveLastExp = LoadPushed(ref tmp0, null) + "lastException;\n";
 
 						if (handler.HandlerType == ExceptionHandlerType.Catch)
 						{
@@ -794,7 +795,7 @@ namespace il2cpp
 								string.Format(
 									"if (isinst_{0}(lastException->objectTypeID))\n{{\n\t",
 									catchTypeName) +
-								storeLastExp,
+								saveLastExp,
 								1);
 
 							endCode = "}\n";
@@ -806,8 +807,11 @@ namespace il2cpp
 
 							hStart.AddPostInsert(
 								handler.Index,
-								storeLastExp,
-								0);
+								"{\n\t" + saveLastExp,
+								1);
+
+							endCode = "}\n";
+							endIndent = -1;
 						}
 
 						if (i == lst.Count - 1)
@@ -1359,6 +1363,15 @@ namespace il2cpp
 					return;
 
 				case Code.Endfinally:
+					return;
+				case Code.Endfilter:
+					{
+						SlotInfo poped = Pop();
+						Debug.Assert(poped.SlotType == StackType.I4);
+
+						inst.CppCode = string.Format("if ({0})",
+							SlotInfoName(ref poped));
+					}
 					return;
 
 				case Code.Box:
