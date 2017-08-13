@@ -579,20 +579,23 @@ namespace il2cpp
 				dependSet.Clear();
 			}
 
-			foreach (var item in strCodeMap)
+			if (strTypeDefs.Length > 0)
 			{
-				var strUnit = new CppCompileUnit("StringUnit_" + item.Key);
-				CompileUnits.Add(strUnit);
-				strUnit.DeclCode.Append("#pragma once\n");
-				strUnit.DeclCode.Append("#include \"StringTypes.h\"\n");
-				strUnit.DeclCode.Append(item.Value);
-			}
+				foreach (var item in strCodeMap)
+				{
+					var strUnit = new CppCompileUnit("StringUnit_" + item.Key);
+					CompileUnits.Add(strUnit);
+					strUnit.DeclCode.Append("#pragma once\n");
+					strUnit.DeclCode.Append("#include \"StringTypes.h\"\n");
+					strUnit.DeclCode.Append(item.Value);
+				}
 
-			var strTypeDefUnit = new CppCompileUnit("StringTypes");
-			CompileUnits.Add(strTypeDefUnit);
-			strTypeDefUnit.DeclCode.Append("#pragma once\n");
-			strTypeDefUnit.DeclCode.Append("#include \"il2cpp.h\"\n");
-			strTypeDefUnit.DeclCode.Append(strTypeDefs);
+				var strTypeDefUnit = new CppCompileUnit("StringTypes");
+				CompileUnits.Add(strTypeDefUnit);
+				strTypeDefUnit.DeclCode.Append("#pragma once\n");
+				strTypeDefUnit.DeclCode.Append("#include \"il2cpp.h\"\n");
+				strTypeDefUnit.DeclCode.Append(strTypeDefs);
+			}
 
 			// 添加初始化静态变量的函数
 			if (StaticInitBody.Length > 0)
