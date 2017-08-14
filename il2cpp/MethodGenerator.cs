@@ -689,6 +689,8 @@ namespace il2cpp
 			{
 				if (handler.HandlerType == ExceptionHandlerType.Filter)
 				{
+					Debug.Assert(CurrMethod.InstList[handler.HandlerStart - 1].OpCode.Code == Code.Endfilter);
+
 					Push(StackType.Obj);
 					ProcessLoop((int)handler.FilterStart);
 					Push(StackType.Obj);
@@ -703,6 +705,8 @@ namespace il2cpp
 				{
 					Debug.Assert(handler.HandlerType == ExceptionHandlerType.Finally ||
 								 handler.HandlerType == ExceptionHandlerType.Fault);
+					Debug.Assert(CurrMethod.InstList[handler.HandlerEnd - 1].OpCode.Code == Code.Endfinally);
+
 					ProcessLoop(handler.HandlerStart);
 				}
 			}
@@ -1370,6 +1374,7 @@ namespace il2cpp
 					return;
 
 				case Code.Endfinally:
+					TypeStack.Clear();
 					return;
 				case Code.Endfilter:
 					{
@@ -2386,6 +2391,8 @@ namespace il2cpp
 
 		private void Leave(InstructionInfo inst, int target)
 		{
+			TypeStack.Clear();
+
 			inst.CppCode = "lastException = nullptr;\n";
 
 			var leaveHandlers = GetLeaveThroughHandlers(inst.Offset, target);
