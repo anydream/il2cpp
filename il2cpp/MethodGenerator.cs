@@ -2559,11 +2559,11 @@ namespace il2cpp
 
 		private void UnboxAny(InstructionInfo inst, TypeSig sig)
 		{
-			SlotInfo poped = Pop();
-			Debug.Assert(poped.SlotType == StackType.Obj);
-
 			if (sig.IsValueType)
 			{
+				SlotInfo poped = Pop();
+				Debug.Assert(poped.SlotType == StackType.Obj);
+
 				if (sig.IsNullableSig())
 				{
 					GetNullableType(
@@ -2608,7 +2608,7 @@ namespace il2cpp
 					SlotInfo pushed = Push(ToStackType(sig));
 
 					CodePrinter prt = new CodePrinter();
-					prt.AppendFormatLine("if ({0} && isinst_{1}({0}->objectTypeID))",
+					prt.AppendFormatLine("IL2CPP_NULL_CHECK({0});\nif (isinst_{1}({0}->objectTypeID))",
 						SlotInfoName(ref poped),
 						typeName);
 					++prt.Indents;
@@ -2627,7 +2627,7 @@ namespace il2cpp
 			}
 			else
 			{
-				throw new NotImplementedException();
+				IsinstOrCast(inst, sig, false);
 			}
 		}
 
