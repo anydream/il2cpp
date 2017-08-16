@@ -369,6 +369,7 @@ namespace il2cpp
 
 		public TypeX(TypeDef typeDef)
 		{
+			Debug.Assert(typeDef != null);
 			Def = typeDef;
 		}
 
@@ -864,7 +865,20 @@ namespace il2cpp
 			}
 
 			// 补齐指令可能抛出的异常
-
+			FixBCLType("System", "NullReferenceException");
+			FixBCLType("System", "OutOfMemoryException");
+			FixBCLType("System", "StackOverflowException");
+			FixBCLType("System", "OverflowException");
+			FixBCLType("System", "InvalidCastException");
+			FixBCLType("System", "IndexOutOfRangeException");
+			FixBCLType("System", "ArrayTypeMismatchException");
+			FixBCLType("System", "MethodAccessException");
+			FixBCLType("System", "MissingMethodException");
+			FixBCLType("System", "FieldAccessException");
+			FixBCLType("System", "MissingFieldException");
+			FixBCLType("System", "ArithmeticException");
+			FixBCLType("System", "DivideByZeroException");
+			FixBCLType("System", "InvalidOperationException");
 
 			// 补齐 BCL 中基础类型的字段
 			FixBCLFields("System.Boolean");
@@ -884,9 +898,10 @@ namespace il2cpp
 			FixBCLFields("System.String");
 		}
 
-		private void FixBCLType(string typeName)
+		private void FixBCLType(string ns, string typeName)
 		{
-			//ResolveInstanceType();
+			var typeRef = Module.CorLibTypes.GetTypeRef(ns, typeName);
+			ResolveInstanceType(typeRef);
 		}
 
 		private void FixBCLFields(string typeName)
