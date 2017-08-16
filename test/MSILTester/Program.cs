@@ -1363,7 +1363,6 @@ TestIL.TestFinalizer/Cls
 		}
 	}
 
-#if false
 	[TestClass(@"======
 TestIL.TestDifferentBCL
 -> static void Entry()
@@ -1374,7 +1373,6 @@ object
    \ int GetHashCode(): TestAdapter1.Test/Cls
 -> void .ctor()
 -> void Finalize()
-   | void Finalize(): object
    \ void Finalize(): object
 
 TestAdapter2.Test
@@ -1384,15 +1382,6 @@ TestAdapter2.Test
 TestAdapter1.Test
 -> static void Accept(object)
 -> static object Create()
-
-object
--> int GetHashCode() = 0
-   | int GetHashCode(): TestAdapter2.Test/Cls
-   \ int GetHashCode(): TestAdapter1.Test/Cls
--> void .ctor()
--> void Finalize()
-   | void Finalize(): object
-   \ void Finalize(): object
 
 TestAdapter2.Test/Cls
 -> void .ctor()
@@ -1412,7 +1401,6 @@ TestAdapter1.Test/Cls
 			TestAdapter2.Test.Accept(TestAdapter1.Test.Create());
 		}
 	}
-#endif
 
 	[TestClass(@"======
 TestIL.TestNullCall

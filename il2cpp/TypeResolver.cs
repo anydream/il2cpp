@@ -1090,9 +1090,7 @@ namespace il2cpp
 
 						// 添加到接口方法的实现集合
 						result = declType.MethodSigMap.TryGetValue(vInfo.Signature, out var vmetDef);
-						// 不同版本的类型可能方法也不同
-						if (!result)
-							continue;
+						Debug.Assert(result);
 
 						// 添加到接口方法的实现列表
 						MethodX vmetX = new MethodX(vmetDef, declType, vInfo.GenArgs);
