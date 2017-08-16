@@ -333,8 +333,6 @@ namespace il2cpp
 		private readonly Dictionary<FieldX, FieldX> FieldMap = new Dictionary<FieldX, FieldX>();
 		public IList<FieldX> Fields => GetSortedFields();
 		public bool HasFields => FieldMap.Count > 0;
-		// 运行时类型
-		public string RuntimeVersion => Def.Module.RuntimeVersion;
 
 		// 继承的类型
 		private HashSet<TypeX> DerivedTypes_;
@@ -377,8 +375,7 @@ namespace il2cpp
 		public override int GetHashCode()
 		{
 			return Def.Name.GetHashCode() ^
-				   GenericHashCode() ^
-				   RuntimeVersion.GetHashCode();
+				   GenericHashCode();
 		}
 
 		public bool Equals(TypeX other)
@@ -387,8 +384,7 @@ namespace il2cpp
 				return true;
 
 			return TypeEqualityComparer.Instance.Equals(Def, other.Def) &&
-				   GenericEquals(other) &&
-				   RuntimeVersion == other.RuntimeVersion;
+				   GenericEquals(other);
 		}
 
 		public override bool Equals(object obj)
@@ -780,9 +776,9 @@ namespace il2cpp
 		public ModuleDefMD Module { get; private set; }
 		// 类型映射
 		private readonly Dictionary<TypeX, TypeX> TypeMap = new Dictionary<TypeX, TypeX>();
-		// 同名类型集合映射
-		private readonly Dictionary<string, List<TypeX>> NameTypeMap = new Dictionary<string, List<TypeX>>();
-		public Dictionary<TypeX, TypeX>.ValueCollection Types => TypeMap.Values;
+		// 类型名称映射
+		private readonly Dictionary<string, TypeX> NameTypeMap = new Dictionary<string, TypeX>();
+		public Dictionary<string, TypeX>.ValueCollection Types => NameTypeMap.Values;
 		// 待处理方法队列
 		private readonly Queue<MethodX> PendingMets = new Queue<MethodX>();
 		// 虚调用映射
@@ -802,13 +798,14 @@ namespace il2cpp
 		{
 			Reset();
 
-			Module = ModuleDefMD.Load(path);
-
 			AssemblyResolver asmRes = new AssemblyResolver();
 			ModuleContext modCtx = new ModuleContext(asmRes);
 			asmRes.DefaultModuleContext = modCtx;
 			asmRes.EnableTypeDefCache = true;
+			asmRes.FindExactMatch = false;
+			asmRes.EnableFrameworkRedirect = true;
 
+			Module = ModuleDefMD.Load(path);
 			Module.Context = modCtx;
 			Module.Context.AssemblyResolver.AddToCache(Module);
 		}
@@ -866,27 +863,35 @@ namespace il2cpp
 				ResolveVCalls();
 			}
 
+			// 补齐指令可能抛出的异常
+
+
 			// 补齐 BCL 中基础类型的字段
-			FixFields("System.Boolean");
-			FixFields("System.Char");
-			FixFields("System.SByte");
-			FixFields("System.Byte");
-			FixFields("System.Int16");
-			FixFields("System.UInt16");
-			FixFields("System.Int32");
-			FixFields("System.UInt32");
-			FixFields("System.Int64");
-			FixFields("System.UInt64");
-			FixFields("System.Single");
-			FixFields("System.Double");
-			FixFields("System.IntPtr");
-			FixFields("System.UIntPtr");
-			FixFields("System.String");
+			FixBCLFields("System.Boolean");
+			FixBCLFields("System.Char");
+			FixBCLFields("System.SByte");
+			FixBCLFields("System.Byte");
+			FixBCLFields("System.Int16");
+			FixBCLFields("System.UInt16");
+			FixBCLFields("System.Int32");
+			FixBCLFields("System.UInt32");
+			FixBCLFields("System.Int64");
+			FixBCLFields("System.UInt64");
+			FixBCLFields("System.Single");
+			FixBCLFields("System.Double");
+			FixBCLFields("System.IntPtr");
+			FixBCLFields("System.UIntPtr");
+			FixBCLFields("System.String");
 		}
 
-		private void FixFields(string typeName)
+		private void FixBCLType(string typeName)
 		{
-			TypeX tyX = GetNamedType(typeName);
+			//ResolveInstanceType();
+		}
+
+		private void FixBCLFields(string typeName)
+		{
+			TypeX tyX = GetTypeByName(typeName);
 			if (tyX == null)
 				return;
 			foreach (var fld in tyX.Def.Fields)
@@ -1053,9 +1058,7 @@ namespace il2cpp
 		{
 			foreach (var vInfo in VCalls.Values)
 			{
-				var typeList = GetTypeList(vInfo.TypeName);
-				// 遍历同名的所有类型
-				foreach (var declType in typeList)
+				var declType = GetTypeByName(vInfo.TypeName);
 				{
 					bool result = declType.OverrideImplTypes.TryGetValue(vInfo.Signature, out var implSet);
 					// 跳过无实例化类型的虚调用
@@ -1101,26 +1104,10 @@ namespace il2cpp
 			}
 		}
 
-		public TypeX GetNamedType(string typeName, string version)
+		public TypeX GetTypeByName(string typeName)
 		{
-			if (NameTypeMap.TryGetValue(typeName, out var typeList))
-			{
-				foreach (var type in typeList)
-				{
-					if (type.RuntimeVersion == version)
-						return type;
-				}
-			}
-			return null;
-		}
-
-		public TypeX GetNamedType(string typeName)
-		{
-			if (NameTypeMap.TryGetValue(typeName, out var typeList))
-			{
-				Debug.Assert(typeList.Count == 1);
-				return typeList[0];
-			}
+			if (NameTypeMap.TryGetValue(typeName, out var tyX))
+				return tyX;
 			return null;
 		}
 
@@ -1131,34 +1118,11 @@ namespace il2cpp
 				return otyX;
 
 			TypeMap.Add(tyX, tyX);
-
-			// 添加类型到名称映射
-			string typeName = tyX.FullName;
-			if (!NameTypeMap.TryGetValue(typeName, out var typeList))
-			{
-				typeList = new List<TypeX>();
-				NameTypeMap.Add(typeName, typeList);
-			}
-			else
-			{
-				// 不允许出现相同名称不同版本号的类型
-				throw new NotSupportedException(
-					string.Format("Same type name with different version: {0}, {1}",
-						typeList.First().RuntimeVersion,
-						tyX.RuntimeVersion));
-			}
-			typeList.Add(tyX);
+			NameTypeMap.Add(tyX.FullName, tyX);
 
 			ExpandType(tyX);
 
 			return tyX;
-		}
-
-		private List<TypeX> GetTypeList(string typeName)
-		{
-			bool result = NameTypeMap.TryGetValue(typeName, out var typeList);
-			Debug.Assert(result);
-			return typeList;
 		}
 
 		// 展开类型
@@ -1332,9 +1296,8 @@ namespace il2cpp
 			foreach (var kv in currType.VTable.Table)
 			{
 				var sig = kv.Key.Signature;
-				var typeList = GetTypeList(kv.Key.TypeName);
-				foreach (var type in typeList)
-					type.AddOverrideImplType(sig, currType);
+				var type = GetTypeByName(kv.Key.TypeName);
+				type.AddOverrideImplType(sig, currType);
 			}
 		}
 

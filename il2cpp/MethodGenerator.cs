@@ -793,7 +793,7 @@ namespace il2cpp
 
 						if (handler.HandlerType == ExceptionHandlerType.Catch)
 						{
-							TypeX catchTyX = TypeMgr.GetNamedType(handler.CatchType.FullName);
+							TypeX catchTyX = TypeMgr.GetTypeByName(handler.CatchType.FullName);
 							Debug.Assert(catchTyX != null);
 							string catchTypeName = catchTyX.GetCppName();
 							ImplDependNames.Add(catchTypeName);
@@ -2427,7 +2427,7 @@ namespace il2cpp
 		{
 			Debug.Assert(sig.IsNullableSig());
 
-			nullableTyX = TypeMgr.GetNamedType(sig.FullName);
+			nullableTyX = TypeMgr.GetTypeByName(sig.FullName);
 			nullableTypeName = nullableTyX.GetCppName();
 
 			var fldList = nullableTyX.Fields;
@@ -2447,7 +2447,7 @@ namespace il2cpp
 			Debug.Assert(fldHasValue.FieldType.ElementType == ElementType.Boolean);
 			Debug.Assert(fldValue.FieldType.Equals(((GenericInstSig)sig).GenericArguments[0]));
 
-			tyX = TypeMgr.GetNamedType(fldValue.FieldType.FullName);
+			tyX = TypeMgr.GetTypeByName(fldValue.FieldType.FullName);
 			typeName = tyX.GetCppName();
 
 			ImplDependNames.Add(nullableTypeName);
@@ -2501,7 +2501,7 @@ namespace il2cpp
 			}
 			else
 			{
-				TypeX tyX = TypeMgr.GetNamedType(sig.FullName);
+				TypeX tyX = TypeMgr.GetTypeByName(sig.FullName);
 				string typeName = tyX.GetCppName();
 				string boxTypeName = "box_" + typeName;
 
@@ -2531,7 +2531,7 @@ namespace il2cpp
 			Debug.Assert(poped.SlotType == StackType.Obj);
 			SlotInfo addr = Push(StackType.Ref);
 
-			TypeX tyX = TypeMgr.GetNamedType(sig.FullName);
+			TypeX tyX = TypeMgr.GetTypeByName(sig.FullName);
 			Debug.Assert(tyX.Def.IsValueType);
 			string typeName = tyX.GetCppName();
 			string boxTypeName = "box_" + typeName;
@@ -2601,7 +2601,7 @@ namespace il2cpp
 				}
 				else
 				{
-					TypeX tyX = TypeMgr.GetNamedType(sig.FullName);
+					TypeX tyX = TypeMgr.GetTypeByName(sig.FullName);
 					string typeName = tyX.GetCppName();
 					string boxTypeName = "box_" + typeName;
 
@@ -2647,7 +2647,7 @@ namespace il2cpp
 			SlotInfo pushed = Push(StackType.Obj);
 			Debug.Assert(SlotInfoName(ref poped) == SlotInfoName(ref pushed));
 
-			TypeX tyX = TypeMgr.GetNamedType(sig.FullName);
+			TypeX tyX = TypeMgr.GetTypeByName(sig.FullName);
 			string typeName = tyX.GetCppName();
 
 			CodePrinter prt = new CodePrinter();

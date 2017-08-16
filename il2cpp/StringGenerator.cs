@@ -41,7 +41,7 @@ namespace il2cpp
 			codeMap = new Dictionary<int, StringBuilder>();
 			HashSet<int> lenSet = new HashSet<int>();
 
-			uint strTypeID = TypeGen.TypeMgr.GetNamedType("System.String").GetCppTypeID();
+			uint strTypeID = TypeGen.TypeMgr.GetTypeByName("System.String").GetCppTypeID();
 
 			int index = 0;
 			int counter = 0;

@@ -71,7 +71,7 @@ namespace il2cpp
 				case ElementType.ValueType:
 				case ElementType.GenericInst:
 					{
-						TypeX type = typeMgr.GetNamedType(sig.FullName);
+						TypeX type = typeMgr.GetTypeByName(sig.FullName);
 						if (type != null)
 						{
 							if (type.Def.IsValueType)

@@ -27,7 +27,7 @@ namespace test
 				if (type.IsEmptyType)
 					continue;
 
-				sb.Append(type.PrettyName() + (showVersion ? " [" + type.RuntimeVersion + "]" : "") + '\n');
+				sb.Append(type.PrettyName() + (showVersion ? " [" + type.Def.Module.RuntimeVersion + "]" : "") + '\n');
 
 				foreach (var met in type.Methods)
 				{
@@ -41,7 +41,7 @@ namespace test
 							sb.AppendFormatLine("   {0} {1}: {2}",
 								i + 1 == sz ? '\\' : '|',
 								impl.PrettyName(),
-								impl.DeclType.PrettyName() + (showVersion ? " [" + impl.DeclType.RuntimeVersion + "]" : ""));
+								impl.DeclType.PrettyName() + (showVersion ? " [" + impl.DeclType.Def.Module.RuntimeVersion + "]" : ""));
 						}
 					}
 				}
@@ -179,13 +179,13 @@ namespace test
 
 		private static void Main(string[] args)
 		{
-#if true
+#if false
 			TypeManager typeMgr = new TypeManager();
 			typeMgr.Load(@"../../CodeGenTester/bin/debug/CodeGenTester.exe");
 			TestCodeGen(typeMgr);
 #endif
 
-#if false
+#if true
 			TypeManager typeMgr = new TypeManager();
 			typeMgr.Load(@"../../MSILTester/bin/debug/MSILTester.exe");
 			TestReferenceMarker(typeMgr);
