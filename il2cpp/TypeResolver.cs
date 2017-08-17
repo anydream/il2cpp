@@ -1170,6 +1170,9 @@ namespace il2cpp
 					foreach (var inf in tyX.Interfaces)
 						inf.DerivedTypes.Add(tyX);
 				}
+
+				// 添加自身
+				tyX.DerivedTypes.Add(tyX);
 			}
 
 			ResolveVTable(tyX, replacer);
