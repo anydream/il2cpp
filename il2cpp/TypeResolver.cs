@@ -343,7 +343,7 @@ namespace il2cpp
 		public readonly Dictionary<MethodSignature, MethodDef> MethodSigMap =
 			new Dictionary<MethodSignature, MethodDef>();
 		// 方法覆盖类型集合映射
-		public readonly Dictionary<MethodSignature, HashSet<TypeX>> OverrideImplTypes =
+		private readonly Dictionary<MethodSignature, HashSet<TypeX>> OverrideImplTypes =
 			new Dictionary<MethodSignature, HashSet<TypeX>>();
 
 		// 虚表
@@ -449,6 +449,11 @@ namespace il2cpp
 				OverrideImplTypes.Add(sig, implSet);
 			}
 			implSet.Add(implType);
+		}
+
+		public bool GetOverrideImplType(MethodSignature sig, out HashSet<TypeX> implSet)
+		{
+			return OverrideImplTypes.TryGetValue(sig, out implSet);
 		}
 
 		public void CollectInterfaces(HashSet<TypeX> infs)
@@ -775,8 +780,6 @@ namespace il2cpp
 	{
 		// 主模块
 		public ModuleDefMD Module { get; private set; }
-		// 类型映射
-		private readonly Dictionary<TypeX, TypeX> TypeMap = new Dictionary<TypeX, TypeX>();
 		// 类型名称映射
 		private readonly Dictionary<string, TypeX> NameTypeMap = new Dictionary<string, TypeX>();
 		public Dictionary<string, TypeX>.ValueCollection Types => NameTypeMap.Values;
@@ -788,7 +791,6 @@ namespace il2cpp
 		// 复位
 		public void Reset()
 		{
-			TypeMap.Clear();
 			NameTypeMap.Clear();
 			PendingMets.Clear();
 			VCalls.Clear();
@@ -1075,7 +1077,7 @@ namespace il2cpp
 			{
 				var declType = GetTypeByName(vInfo.TypeName);
 				{
-					bool result = declType.OverrideImplTypes.TryGetValue(vInfo.Signature, out var implSet);
+					bool result = declType.GetOverrideImplType(vInfo.Signature, out var implSet);
 					// 跳过无实例化类型的虚调用
 					if (!result)
 						continue;
@@ -1127,11 +1129,12 @@ namespace il2cpp
 		// 添加类型
 		private TypeX AddType(TypeX tyX)
 		{
-			if (TypeMap.TryGetValue(tyX, out var otyX))
+			string typeName = tyX.FullName;
+
+			if (NameTypeMap.TryGetValue(typeName, out var otyX))
 				return otyX;
 
-			TypeMap.Add(tyX, tyX);
-			NameTypeMap.Add(tyX.FullName, tyX);
+			NameTypeMap.Add(typeName, tyX);
 
 			ExpandType(tyX);
 
