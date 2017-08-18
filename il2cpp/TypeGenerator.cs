@@ -383,13 +383,15 @@ namespace il2cpp
 
 		private void GenIsinstCode(TypeX currType, out string codeDecl, out string codeImpl)
 		{
-			List<TypeX> typeIDs = new List<TypeX>();
+			List<TypeX> sortedTypes = new List<TypeX>();
+			if (currType.IsInstanced)
+				sortedTypes.Add(currType);
 			foreach (var tyX in currType.DerivedTypes)
 			{
 				if (tyX.IsInstanced)
-					typeIDs.Add(tyX);
+					sortedTypes.Add(tyX);
 			}
-			typeIDs.Sort((x, y) => x.GetCppTypeID().CompareTo(y.GetCppTypeID()));
+			sortedTypes.Sort((x, y) => x.GetCppTypeID().CompareTo(y.GetCppTypeID()));
 
 			CodePrinter prt = new CodePrinter();
 			prt.AppendFormat("bool isinst_{0}(uint32_t typeID)",
@@ -403,7 +405,7 @@ namespace il2cpp
 			prt.AppendLine("switch (typeID)\n{");
 			++prt.Indents;
 
-			foreach (var tyX in typeIDs)
+			foreach (var tyX in sortedTypes)
 			{
 				prt.AppendFormatLine("// {0}\ncase {1}:",
 					tyX.PrettyName(),
