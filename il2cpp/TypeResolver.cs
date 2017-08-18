@@ -846,14 +846,26 @@ namespace il2cpp
 					// 设置为已处理过
 					currMetX.IsProcessed = true;
 
-					// 跳过不包含的方法
-					if (!currMetX.HasInstList)
+					// 跳过不包含方法体的方法
+					if (!currMetX.Def.HasBody)
 						continue;
 
 					// 构建方法内的泛型展开器
 					GenericReplacer replacer = new GenericReplacer();
 					replacer.SetType(currMetX.DeclType);
 					replacer.SetMethod(currMetX);
+
+					// 构造指令集和异常处理信息
+					currMetX.BuildInstructions(sig =>
+					{
+						var resTypeSig = ResolveTypeSig(sig, replacer);
+
+						// 解析实例类型
+						TypeSig instSig = resTypeSig.GetLeafSig();
+						ResolveInstanceType(instSig.ToTypeDefOrRef());
+
+						return resTypeSig;
+					});
 
 					// 遍历并解析指令
 					foreach (var inst in currMetX.InstList)
@@ -926,9 +938,7 @@ namespace il2cpp
 				case OperandType.InlineType:
 					{
 						ITypeDefOrRef typeDefRef = (ITypeDefOrRef)inst.Operand;
-						var duplicator = new TypeSigDuplicator();
-						duplicator.GenReplacer = replacer;
-						TypeSig resTypeSig = duplicator.Duplicate(typeDefRef.ToTypeSig());
+						var resTypeSig = ResolveTypeSig(typeDefRef.ToTypeSig(), replacer);
 
 						// 解析实例类型
 						TypeSig instSig = resTypeSig.GetLeafSig();
@@ -1485,18 +1495,6 @@ namespace il2cpp
 				foreach (var loc in metX.Def.Body.Variables)
 					metX.LocalTypes.Add(ResolveTypeSig(loc.Type, replacer));
 			}
-
-			// 构造指令集和异常处理信息
-			metX.BuildInstructions(sig =>
-			{
-				var resTypeSig = ResolveTypeSig(sig, replacer);
-
-				// 解析实例类型
-				TypeSig instSig = resTypeSig.GetLeafSig();
-				ResolveInstanceType(instSig.ToTypeDefOrRef());
-
-				return resTypeSig;
-			});
 		}
 
 		// 解析无泛型方法
