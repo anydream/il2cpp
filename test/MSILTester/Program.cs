@@ -693,6 +693,77 @@ TestIL.TestExplicitOverride7/Inf`1<TestIL.TestExplicitOverride7/Elem>
 	}
 
 	[TestClass(@"======
+TestIL.TestExplicitOverride8
+-> static void Entry()
+
+object
+-> void .ctor()
+-> void Finalize()
+   \ void Finalize(): object
+
+TestIL.TestExplicitOverride8/Cls
+-> void .ctor()
+-> void TestIL.TestExplicitOverride8.Inf.Foo<string>(string)
+-> TestIL.TestExplicitOverride8/Res TestIL.TestExplicitOverride8.Inf.Foo<TestIL.TestExplicitOverride8/Res>()
+-> TestIL.TestExplicitOverride8/Res2 TestIL.TestExplicitOverride8.Inf.Foo<TestIL.TestExplicitOverride8/Res2>()
+-> void TestIL.TestExplicitOverride8.Inf.Foo<TestIL.TestExplicitOverride8/Res,TestIL.TestExplicitOverride8/Res2>(TestIL.TestExplicitOverride8/Res,TestIL.TestExplicitOverride8/Res2)
+
+TestIL.TestExplicitOverride8/Inf
+-> void Foo<string>(string) = 0
+   \ void TestIL.TestExplicitOverride8.Inf.Foo<string>(string): TestIL.TestExplicitOverride8/Cls
+-> TestIL.TestExplicitOverride8/Res Foo<TestIL.TestExplicitOverride8/Res>() = 0
+   \ TestIL.TestExplicitOverride8/Res TestIL.TestExplicitOverride8.Inf.Foo<TestIL.TestExplicitOverride8/Res>(): TestIL.TestExplicitOverride8/Cls
+-> TestIL.TestExplicitOverride8/Res2 Foo<TestIL.TestExplicitOverride8/Res2>() = 0
+   \ TestIL.TestExplicitOverride8/Res2 TestIL.TestExplicitOverride8.Inf.Foo<TestIL.TestExplicitOverride8/Res2>(): TestIL.TestExplicitOverride8/Cls
+-> void Foo<TestIL.TestExplicitOverride8/Res,TestIL.TestExplicitOverride8/Res2>(TestIL.TestExplicitOverride8/Res,TestIL.TestExplicitOverride8/Res2) = 0
+   \ void TestIL.TestExplicitOverride8.Inf.Foo<TestIL.TestExplicitOverride8/Res,TestIL.TestExplicitOverride8/Res2>(TestIL.TestExplicitOverride8/Res,TestIL.TestExplicitOverride8/Res2): TestIL.TestExplicitOverride8/Cls
+
+======
+")]
+	static class TestExplicitOverride8
+	{
+		interface Inf
+		{
+			T Foo<T>();
+			void Foo<T>(T t);
+			void Foo<T, T2>(T t, T2 t2);
+		}
+
+		interface Res
+		{
+		}
+
+		interface Res2
+		{
+		}
+
+		class Cls : Inf
+		{
+			T Inf.Foo<T>()
+			{
+				return default(T);
+			}
+
+			void Inf.Foo<T>(T t)
+			{
+			}
+
+			void Inf.Foo<T, T2>(T t, T2 t2)
+			{
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf i = new Cls();
+			i.Foo("nice");
+			Res res = i.Foo<Res>();
+			Res2 res2 = i.Foo<Res2>();
+			i.Foo(res, res2);
+		}
+	}
+
+	[TestClass(@"======
 TestIL.TestCrossOverride
 -> static void Entry()
 
@@ -1466,10 +1537,67 @@ TestIL.TestCycleTypeRef/C`1<TestIL.TestCycleTypeRef/A`1<int>>
 		}
 	}
 
+	[TestClass(@"")]
+	static class TestVariants
+	{
+		interface IIn<in T>
+		{
+			void Foo(T t);
+		}
+
+		class BlaIn<T> : IIn<T>
+		{
+			public T field;
+
+			public void Foo(T t)
+			{
+				field = t;
+			}
+		}
+
+		interface IOut<out T>
+		{
+			T Foo();
+		}
+
+		class BlaOut<T> : IOut<T>
+		{
+			public T field;
+
+			public T Foo()
+			{
+				return field;
+			}
+		}
+
+		interface IInOut<in T, out T2>
+		{
+			void FooIn(T t);
+			T2 FooOut();
+		}
+
+		public static void Entry()
+		{
+			IOut<string> s = new BlaOut<string>() { field = "123" };
+			IOut<object> o = s;
+			object res = o.Foo();
+
+			IIn<object> o2 = new BlaIn<object>();
+			IIn<string> s2 = o2;
+			s2.Foo("hello");
+
+			IInOut<object, string> i0 = null;
+			IInOut<string, object> i1 = i0;
+			i1.FooIn("a");
+			object o3 = i1.FooOut();
+		}
+	}
+
 	class Program
 	{
 		static void Main()
 		{
+			TestVariants.Entry();
 		}
 	}
 }

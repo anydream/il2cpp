@@ -318,7 +318,7 @@ namespace il2cpp
 			DependStrings.Clear();
 
 			string codeDecl, codeImpl;
-			if (metX.HasInstList)
+			if (!metX.IsCallVirtOnly && metX.HasInstList)
 			{
 				ProcessLoop(0);
 				ProcessHandlers();

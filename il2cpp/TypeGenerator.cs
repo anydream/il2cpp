@@ -383,7 +383,12 @@ namespace il2cpp
 
 		private void GenIsinstCode(TypeX currType, out string codeDecl, out string codeImpl)
 		{
-			List<TypeX> typeIDs = new List<TypeX>(currType.DerivedTypes);
+			List<TypeX> typeIDs = new List<TypeX>();
+			foreach (var tyX in currType.DerivedTypes)
+			{
+				if (tyX.IsInstanced)
+					typeIDs.Add(tyX);
+			}
 			typeIDs.Sort((x, y) => x.GetCppTypeID().CompareTo(y.GetCppTypeID()));
 
 			CodePrinter prt = new CodePrinter();

@@ -395,7 +395,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			throw new InvalidOperationException();
+			return FullName;
 		}
 
 		public TypeSig ToTypeSig()
@@ -648,7 +648,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			throw new InvalidOperationException();
+			return FullName;
 		}
 
 		private string BuildFuncName(bool hasDeclType)
@@ -759,7 +759,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			throw new InvalidOperationException();
+			return FullName;
 		}
 	}
 
@@ -1311,7 +1311,7 @@ namespace il2cpp
 			// 展开虚表
 			currType.VTable.ExpandTable();
 
-			// 追加当前类型到所有虚入口类型
+			// 追加当前类型到所有虚入口
 			foreach (var kv in currType.VTable.Table)
 			{
 				var sig = kv.Key.Signature;
