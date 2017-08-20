@@ -1169,17 +1169,12 @@ namespace il2cpp
 			}
 
 			// 添加当前类型到所有继承的类
-			if (!tyX.Def.IsInterface &&
-				!tyX.Def.IsAbstract)
+			if (tyX.BaseType != null)
+				tyX.BaseType.DerivedTypes.Add(tyX);
+			if (tyX.HasInterfaces)
 			{
-				if (tyX.BaseType != null)
-					tyX.BaseType.DerivedTypes.Add(tyX);
-
-				if (tyX.HasInterfaces)
-				{
-					foreach (var inf in tyX.Interfaces)
-						inf.DerivedTypes.Add(tyX);
-				}
+				foreach (var inf in tyX.Interfaces)
+					inf.DerivedTypes.Add(tyX);
 			}
 
 			ResolveVTable(tyX, replacer);
