@@ -14,14 +14,14 @@ namespace il2cpp
 
 		public TypeSig Replace(GenericVar genVarSig)
 		{
-			if (genVarSig.OwnerType.FullName == OwnerTypeX.GetDefFullName())
+			if (genVarSig.OwnerType.FullName == OwnerTypeX.DefFullName)
 				return OwnerTypeX.GenArgs[(int)genVarSig.Number];
 			return genVarSig;
 		}
 
 		public TypeSig Replace(GenericMVar genMVarSig)
 		{
-			if (genMVarSig.OwnerMethod.FullName == OwnerMethodX.GetDefFullName())
+			if (genMVarSig.OwnerMethod.FullName == OwnerMethodX.DefFullName)
 				return OwnerMethodX.GenArgs[(int)genMVarSig.Number];
 			return genMVarSig;
 		}
@@ -42,7 +42,7 @@ namespace il2cpp
 		}
 
 		// 添加待处理的方法
-		public void AddPendingMethod()
+		public void AddPendingMethod(MethodDef metDef)
 		{
 
 		}
@@ -53,7 +53,34 @@ namespace il2cpp
 
 		}
 
-		private TypeX ResolveITypeDefOrRef(ITypeDefOrRef tyDefRef, GenericReplacer replacer)
+		public MethodX ResolveMethodDef(MethodDef metDef)
+		{
+			MethodX metX = ResolveMethodDefImpl(metDef);
+			return AddMethod(metX);
+		}
+
+		private MethodX ResolveMethodDefImpl(MethodDef metDef)
+		{
+			TypeX declType = ResolveITypeDefOrRef(metDef.DeclaringType, null);
+			return new MethodX(declType, metDef);
+		}
+
+		private MethodX AddMethod(MethodX metX)
+		{
+			Debug.Assert(metX != null);
+
+			string nameKey = metX.GetNameKey();
+			if (metX.DeclType.TryGetMethod(nameKey, out metX))
+				return metX;
+
+			metX.DeclType.AddMethod(nameKey, metX);
+
+			//! expand method
+
+			return metX;
+		}
+
+		public TypeX ResolveITypeDefOrRef(ITypeDefOrRef tyDefRef, GenericReplacer replacer)
 		{
 			TypeX tyX = ResolveITypeDefOrRefImpl(tyDefRef, replacer);
 			Debug.Assert(tyX != null);

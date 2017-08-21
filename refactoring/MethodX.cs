@@ -9,9 +9,15 @@ namespace il2cpp
 {
 	internal class MethodX : GenericArgs
 	{
-		public string GetDefFullName()
-		{
+		public readonly TypeX DeclType;
 
+		// 类型定义的全名
+		public readonly string DefFullName;
+
+		internal MethodX(TypeX declType, MethodDef metDef)
+		{
+			DeclType = declType;
+			DefFullName = metDef.FullName;
 		}
 	}
 }
