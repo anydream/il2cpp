@@ -53,22 +53,23 @@ namespace il2cpp
 
 		}
 
-		private TypeX ResolveITypeDefOrRef(ITypeDefOrRef tyDefRef)
+		private TypeX ResolveITypeDefOrRef(ITypeDefOrRef tyDefRef, GenericReplacer replacer)
 		{
-			TypeX tyX = ResolveITypeDefOrRefImpl(tyDefRef);
+			TypeX tyX = ResolveITypeDefOrRefImpl(tyDefRef, replacer);
 			Debug.Assert(tyX != null);
 
-			if (TypeMap.TryGetValue(tyX.NameKey, out tyX))
+			string nameKey = tyX.GetNameKey();
+			if (TypeMap.TryGetValue(nameKey, out tyX))
 				return tyX;
 
-			TypeMap.Add(tyX.NameKey, tyX);
+			TypeMap.Add(nameKey, tyX);
 
 			//! expandtype
 
 			return tyX;
 		}
 
-		private TypeX ResolveITypeDefOrRefImpl(ITypeDefOrRef tyDefRef)
+		private TypeX ResolveITypeDefOrRefImpl(ITypeDefOrRef tyDefRef, GenericReplacer replacer)
 		{
 			switch (tyDefRef)
 			{
@@ -85,7 +86,26 @@ namespace il2cpp
 					}
 
 				case TypeSpec tySpec:
-					break;
+					return ResolveTypeSig(tySpec.TypeSig, replacer);
+
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		private TypeX ResolveTypeSig(TypeSig tySig, GenericReplacer replacer)
+		{
+			switch (tySig)
+			{
+				case TypeDefOrRefSig tyDefRefSig:
+					return ResolveITypeDefOrRefImpl(tyDefRefSig.TypeDefOrRef, null);
+
+				case GenericInstSig genInstSig:
+					{
+						TypeX genType = ResolveITypeDefOrRefImpl(genInstSig.GenericType.TypeDefOrRef, null);
+						genType.GenArgs = ReplaceGenericSigList(genInstSig.GenericArguments, replacer);
+						return genType;
+					}
 
 				default:
 					throw new ArgumentOutOfRangeException();

@@ -15,7 +15,7 @@ namespace il2cpp
 		private readonly Il2cppContext Context;
 
 		// 全局唯一的名称键
-		public readonly string NameKey;
+		private string NameKey_;
 
 		// 继承的类型
 		private readonly HashSet<TypeX> DerivedTypes = new HashSet<TypeX>();
@@ -27,6 +27,15 @@ namespace il2cpp
 		internal TypeX(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
+		}
+
+		public string GetNameKey()
+		{
+			if (NameKey_ == null)
+			{
+				//!
+			}
+			return NameKey_;
 		}
 
 		public string GetDefFullName()
