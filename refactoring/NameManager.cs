@@ -30,36 +30,47 @@ namespace il2cpp
 			Context = context;
 		}
 
-		public string BuildMethodSigName(
+		public static void MethodSigName(
+			StringBuilder sb,
 			string name,
 			TypeSig retType,
+			IList<TypeSig> genArgs,
 			IList<TypeSig> paramTypes,
 			CallingConvention callConv)
 		{
-			StringBuilder sb = new StringBuilder();
-
 			sb.Append(EscapeName(name));
 			sb.Append('|');
 
-			SigName(sb, retType);
-			sb.Append('(');
-			bool last = false;
-			foreach (var arg in paramTypes)
+			TypeSigName(sb, retType);
+
+			if (genArgs != null)
 			{
-				if (last)
-					sb.Append(',');
-				last = true;
-				SigName(sb, arg);
+				sb.Append('<');
+				TypeSigListName(sb, genArgs);
+				sb.Append('>');
 			}
+
+			sb.Append('(');
+			TypeSigListName(sb, paramTypes);
 			sb.Append(')');
 			sb.Append('|');
 
 			sb.Append(callConv.ToString("X"));
-
-			return sb.ToString();
 		}
 
-		private static void SigName(StringBuilder sb, TypeSig tySig)
+		public static void TypeSigListName(StringBuilder sb, IList<TypeSig> tySigList)
+		{
+			bool last = false;
+			foreach (var tySig in tySigList)
+			{
+				if (last)
+					sb.Append(',');
+				last = true;
+				TypeSigName(sb, tySig);
+			}
+		}
+
+		public static void TypeSigName(StringBuilder sb, TypeSig tySig)
 		{
 			if (tySig == null)
 				return;
@@ -72,27 +83,27 @@ namespace il2cpp
 					return;
 
 				case ElementType.Ptr:
-					SigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next);
 					sb.Append('*');
 					return;
 
 				case ElementType.ByRef:
-					SigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next);
 					sb.Append('&');
 					return;
 
 				case ElementType.Pinned:
-					SigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next);
 					return;
 
 				case ElementType.SZArray:
-					SigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next);
 					sb.Append("[]");
 					return;
 
 				case ElementType.Array:
 					{
-						SigName(sb, tySig.Next);
+						TypeSigName(sb, tySig.Next);
 						ArraySig arySig = (ArraySig)tySig;
 						sb.Append('[');
 						uint rank = arySig.Rank;
@@ -127,28 +138,21 @@ namespace il2cpp
 					}
 
 				case ElementType.CModReqd:
-					SigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next);
 					sb.AppendFormat(" modreq({0})", ((CModReqdSig)tySig).Modifier.FullName);
 					return;
 
 				case ElementType.CModOpt:
-					SigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next);
 					sb.AppendFormat(" modopt({0})", ((CModOptSig)tySig).Modifier.FullName);
 					return;
 
 				case ElementType.GenericInst:
 					{
 						GenericInstSig genInstSig = (GenericInstSig)tySig;
-						SigName(sb, genInstSig.GenericType);
+						TypeSigName(sb, genInstSig.GenericType);
 						sb.Append('<');
-						bool last = false;
-						foreach (var arg in genInstSig.GenericArguments)
-						{
-							if (last)
-								sb.Append(',');
-							last = true;
-							SigName(sb, arg);
-						}
+						TypeSigListName(sb, genInstSig.GenericArguments);
 						sb.Append('>');
 						return;
 					}
@@ -188,8 +192,11 @@ namespace il2cpp
 			if (ch >= 'a' && ch <= 'z' ||
 				ch >= 'A' && ch <= 'Z' ||
 				ch >= '0' && ch <= '9' ||
-				ch == '_' || ch == '.' || ch == ':')
+				ch == '_' || ch == '.' ||
+				ch == ':' || ch == '/')
+			{
 				return null;
+			}
 			return @"\u" + ((uint)ch).ToString("X4");
 		}
 

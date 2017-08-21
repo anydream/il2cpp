@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using dnlib.DotNet;
 
 namespace il2cpp
@@ -69,7 +70,13 @@ namespace il2cpp
 				Debug.Assert(ReturnType != null);
 				Debug.Assert(ParamTypes != null);
 
-				// Name|RetType(ArgList)|CC|Attr
+				// Name|RetType<GenArgs>(ArgList)|CC|Attr
+				StringBuilder sb = new StringBuilder();
+				NameManager.MethodSigName(sb, DefName, ReturnType, GenArgs, ParamTypes, DefSig.CallingConvention);
+				sb.Append('|');
+				sb.Append(DefAttr.ToString("X"));
+
+				NameKey = sb.ToString();
 			}
 			return NameKey;
 		}

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using dnlib.DotNet;
 
 namespace il2cpp
@@ -26,6 +27,9 @@ namespace il2cpp
 		private readonly HashSet<TypeX> DerivedTypes = new HashSet<TypeX>();
 		public bool IsDerivedTypesChanged { get; private set; }
 
+		// 方法映射
+		private readonly Dictionary<string, MethodX> MethodMap = new Dictionary<string, MethodX>();
+
 		// 是否实例化过
 		public OnceBool IsInstantiated;
 
@@ -41,7 +45,17 @@ namespace il2cpp
 		{
 			if (NameKey == null)
 			{
-				//!
+				// Name<GenArgs>
+				StringBuilder sb = new StringBuilder();
+				sb.Append(NameManager.EscapeName(DefFullName));
+				if (HasGenArgs)
+				{
+					sb.Append('<');
+					NameManager.TypeSigListName(sb, GenArgs);
+					sb.Append('>');
+				}
+
+				NameKey = sb.ToString();
 			}
 			return NameKey;
 		}
@@ -59,12 +73,12 @@ namespace il2cpp
 
 		public bool GetMethod(string key, out MethodX metX)
 		{
-
+			return MethodMap.TryGetValue(key, out metX);
 		}
 
 		public void AddMethod(string key, MethodX metX)
 		{
-
+			MethodMap.Add(key, metX);
 		}
 	}
 }
