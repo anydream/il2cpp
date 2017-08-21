@@ -15,7 +15,7 @@ namespace il2cpp
 		// 当前环境
 		public readonly Il2cppContext Context;
 
-		// 类型定义的全名
+		// 类型全名
 		public readonly string DefFullName;
 		// 是否为值类型
 		public readonly bool IsValueType;

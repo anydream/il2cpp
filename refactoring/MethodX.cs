@@ -2,9 +2,21 @@
 using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 namespace il2cpp
 {
+	// 指令
+	internal class InstInfo
+	{
+		public OpCode OpCode;
+		public object Operand;
+		public int Offset;
+
+		public bool IsBrTarget;
+		public bool IsProcessed;
+	}
+
 	internal class MethodX : GenericArgs
 	{
 		// 所属类型
@@ -20,6 +32,10 @@ namespace il2cpp
 		public readonly TypeSig DefThisSig;
 		// 方法属性
 		public readonly MethodAttributes DefAttr;
+		// 方法异常处理器
+		public IList<ExceptionHandler> DefHandlers;
+		// 方法指令列表
+		public IList<Instruction> DefInstList;
 
 		// 唯一名称
 		private string NameKey;
@@ -31,6 +47,9 @@ namespace il2cpp
 		public IList<TypeSig> ParamAfterSentinel;
 		// 局部变量类型列表
 		public IList<TypeSig> LocalTypes;
+		//! 异常处理器列表
+		// 指令列表
+		public InstInfo[] InstList;
 
 		public bool HasThis => DefSig.HasThis;
 
@@ -51,6 +70,9 @@ namespace il2cpp
 
 			if (metDef.HasBody)
 			{
+				if (metDef.Body.HasExceptionHandlers)
+					DefHandlers = metDef.Body.ExceptionHandlers;
+
 				if (metDef.Body.HasVariables)
 				{
 					LocalTypes = new List<TypeSig>();
@@ -60,6 +82,9 @@ namespace il2cpp
 						LocalTypes.Add(loc.Type);
 					}
 				}
+
+				if (metDef.Body.HasInstructions)
+					DefInstList = metDef.Body.Instructions;
 			}
 		}
 

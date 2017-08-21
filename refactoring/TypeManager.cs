@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 namespace il2cpp
 {
@@ -46,7 +47,106 @@ namespace il2cpp
 		// 解析所有引用
 		public void ResolveAll()
 		{
+			while (PendingMethods.Count > 0)
+			{
+				do
+				{
+					MethodX metX = PendingMethods.Dequeue();
 
+					// 展开指令列表
+					BuildInstructions(metX);
+				}
+				while (PendingMethods.Count > 0);
+
+				//! 解析虚调用
+				//! 解析协变
+			}
+		}
+
+		private void BuildInstructions(MethodX metX)
+		{
+			if (metX.InstList != null)
+				return;
+
+			var defInstList = metX.DefInstList;
+			int numInsts = defInstList.Count;
+
+			InstInfo[] instList = new InstInfo[numInsts];
+
+			Dictionary<uint, int> offsetMap = new Dictionary<uint, int>();
+			List<InstInfo> branchInsts = new List<InstInfo>();
+
+			// 构建指令列表
+			for (int ip = 0; ip < numInsts; ++ip)
+			{
+				var defInst = defInstList[ip];
+				var inst = instList[ip] = new InstInfo();
+				inst.OpCode = defInst.OpCode;
+				inst.Operand = defInst.Operand;
+				inst.Offset = ip;
+
+				offsetMap.Add(defInst.Offset, ip);
+				switch (inst.OpCode.OperandType)
+				{
+					case OperandType.InlineBrTarget:
+					case OperandType.ShortInlineBrTarget:
+					case OperandType.InlineSwitch:
+						branchInsts.Add(inst);
+						break;
+
+					default:
+						ResolveOperand(inst);
+						break;
+				}
+			}
+
+			// 修复跳转位置
+			foreach (var inst in branchInsts)
+			{
+				if (inst.Operand is Instruction defInst)
+				{
+					inst.Operand = offsetMap[defInst.Offset];
+				}
+				else if (inst.Operand is Instruction[] defInsts)
+				{
+					int[] insts = new int[defInsts.Length];
+					for (int i = 0; i < defInsts.Length; ++i)
+					{
+						insts[i] = offsetMap[defInsts[i].Offset];
+					}
+					inst.Operand = insts;
+				}
+			}
+
+			metX.InstList = instList;
+			metX.DefInstList = null;
+		}
+
+		private void ResolveOperand(InstInfo inst)
+		{
+			switch (inst.OpCode.OperandType)
+			{
+				case OperandType.InlineMethod:
+					{
+
+						return;
+					}
+
+				case OperandType.InlineField:
+					{
+						return;
+					}
+
+				case OperandType.InlineType:
+					{
+						return;
+					}
+
+				case OperandType.InlineSig:
+					{
+						return;
+					}
+			}
 		}
 
 		// 解析方法定义并添加
@@ -120,6 +220,7 @@ namespace il2cpp
 			metX.LocalTypes = ReplaceGenericSigList(metX.LocalTypes, replacer);
 
 			//! 展开异常处理信息
+			metX.DefHandlers = null;
 
 			// 添加到待处理队列
 			PendingMethods.Enqueue(metX);
