@@ -15,14 +15,16 @@ namespace il2cpp
 
 		public TypeSig Replace(GenericVar genVarSig)
 		{
-			if (genVarSig.OwnerType.FullName == OwnerType.DefFullName)
+			if (genVarSig.OwnerType.Attributes == OwnerType.DefAttr &&
+				genVarSig.OwnerType.FullName == OwnerType.DefFullName)
 				return OwnerType.GenArgs[(int)genVarSig.Number];
 			return genVarSig;
 		}
 
 		public TypeSig Replace(GenericMVar genMVarSig)
 		{
-			if (genMVarSig.OwnerMethod.FullName == OwnerMethod.DefFullName)
+			if (genMVarSig.OwnerMethod.Attributes == OwnerMethod.DefAttr &&
+				genMVarSig.OwnerMethod.FullName == OwnerMethod.DefFullName)
 				return OwnerMethod.GenArgs[(int)genMVarSig.Number];
 			return genMVarSig;
 		}
@@ -68,6 +70,10 @@ namespace il2cpp
 			if (metX.InstList != null)
 				return;
 
+			GenericReplacer replacer = new GenericReplacer();
+			replacer.OwnerType = metX.DeclType;
+			replacer.OwnerMethod = metX;
+
 			var defInstList = metX.DefInstList;
 			int numInsts = defInstList.Count;
 
@@ -95,7 +101,7 @@ namespace il2cpp
 						break;
 
 					default:
-						ResolveOperand(inst);
+						ResolveOperand(inst, replacer);
 						break;
 				}
 			}
@@ -122,7 +128,7 @@ namespace il2cpp
 			metX.DefInstList = null;
 		}
 
-		private void ResolveOperand(InstInfo inst)
+		private void ResolveOperand(InstInfo inst, GenericReplacer replacer)
 		{
 			switch (inst.OpCode.OperandType)
 			{

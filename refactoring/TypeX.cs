@@ -17,6 +17,8 @@ namespace il2cpp
 
 		// 类型全名
 		public readonly string DefFullName;
+		// 类型属性
+		public readonly TypeAttributes DefAttr;
 		// 是否为值类型
 		public readonly bool IsValueType;
 
@@ -37,6 +39,7 @@ namespace il2cpp
 		{
 			Context = context;
 			DefFullName = tyDef.FullName;
+			DefAttr = tyDef.Attributes;
 			IsValueType = tyDef.IsValueType;
 		}
 

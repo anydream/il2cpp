@@ -99,7 +99,7 @@ namespace il2cpp
 				StringBuilder sb = new StringBuilder();
 				NameManager.MethodSigName(sb, DefName, ReturnType, GenArgs, ParamTypes, DefSig.CallingConvention);
 				sb.Append('|');
-				sb.Append(DefAttr.ToString("X"));
+				sb.Append(((uint)DefAttr).ToString("X"));
 
 				NameKey = sb.ToString();
 			}

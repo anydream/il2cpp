@@ -55,7 +55,7 @@ namespace il2cpp
 			sb.Append(')');
 			sb.Append('|');
 
-			sb.Append(callConv.ToString("X"));
+			sb.Append(((uint)callConv).ToString("X"));
 		}
 
 		public static void TypeSigListName(StringBuilder sb, IList<TypeSig> tySigList)
@@ -182,7 +182,7 @@ namespace il2cpp
 
 		private static string ClassSigName(TypeSig tySig)
 		{
-			if (tySig.Namespace == "System")
+			if (tySig.DefinitionAssembly.IsCorLib())
 				return tySig.TypeName;
 			return tySig.FullName;
 		}

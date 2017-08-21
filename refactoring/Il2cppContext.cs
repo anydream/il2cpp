@@ -34,9 +34,14 @@ namespace il2cpp
 			RuntimeVersion = Module.RuntimeVersion;
 		}
 
+		public void AddEntry(MethodDef metDef)
+		{
+			TypeMgr.ResolveMethodDef(metDef);
+		}
+
 		public void Process()
 		{
-
+			TypeMgr.ResolveAll();
 		}
 	}
 }
