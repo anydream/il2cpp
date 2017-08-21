@@ -3,7 +3,13 @@ using dnlib.DotNet;
 
 namespace il2cpp
 {
-	internal class TypeX
+	internal class GenericArgs
+	{
+		public IList<TypeSig> GenArgs;
+		public bool HasGenArgs => GenArgs != null && GenArgs.Count > 0;
+	}
+
+	internal class TypeX : GenericArgs
 	{
 		// 当前环境
 		private readonly Il2cppContext Context;
@@ -21,6 +27,11 @@ namespace il2cpp
 		internal TypeX(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
+		}
+
+		public string GetDefFullName()
+		{
+
 		}
 
 		public HashSet<TypeX> GetDerivedTypes()

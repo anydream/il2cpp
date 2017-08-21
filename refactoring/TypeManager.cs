@@ -6,19 +6,28 @@ using dnlib.DotNet;
 
 namespace il2cpp
 {
+	// 泛型签名替换器
 	internal class GenericReplacer
 	{
+		public TypeX OwnerTypeX;
+		public MethodX OwnerMethodX;
+
 		public TypeSig Replace(GenericVar genVarSig)
 		{
-
+			if (genVarSig.OwnerType.FullName == OwnerTypeX.GetDefFullName())
+				return OwnerTypeX.GenArgs[(int)genVarSig.Number];
+			return genVarSig;
 		}
 
 		public TypeSig Replace(GenericMVar genMVarSig)
 		{
-
+			if (genMVarSig.OwnerMethod.FullName == OwnerMethodX.GetDefFullName())
+				return OwnerMethodX.GenArgs[(int)genMVarSig.Number];
+			return genMVarSig;
 		}
 	}
 
+	// 类型管理器
 	internal class TypeManager
 	{
 		// 当前环境
@@ -94,8 +103,11 @@ namespace il2cpp
 			return tyRef.Resolve();
 		}
 
+		// 替换类型中的泛型签名
 		private static TypeSig ReplaceGenericSig(TypeSig tySig, GenericReplacer replacer)
 		{
+			Debug.Assert(replacer != null);
+
 			if (tySig == null)
 				return null;
 
@@ -166,11 +178,13 @@ namespace il2cpp
 			}
 		}
 
+		// 替换类型签名列表
 		private static IList<TypeSig> ReplaceGenericSigList(IList<TypeSig> tySigList, GenericReplacer replacer)
 		{
 			return tySigList?.Select(tySig => ReplaceGenericSig(tySig, replacer)).ToList();
 		}
 
+		// 是否存在要替换的泛型签名
 		private static bool IsGenericReplaceNeeded(TypeSig tySig)
 		{
 			while (tySig != null)
