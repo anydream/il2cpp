@@ -389,6 +389,132 @@ TestIL.TestGenInfImpl/Cls`1<long*[]>
 		}
 	}
 
+	[TestClass(@"")]
+	static class TestGenInfImpl2
+	{
+		interface Inf<T>
+		{
+			void Foo(T t);
+		}
+
+		class Blae<T> : Inf<int>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf<int> inf = new Blae<int>();
+			inf.Foo(123);
+		}
+	}
+
+	[TestClass(@"")]
+	static class TestGenInfImpl3
+	{
+		interface Inf<T>
+		{
+			void Foo(int t);
+			void Foo(T t);
+		}
+
+		class Blae<T> : Inf<int>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf<int> inf = new Blae<int>();
+			inf.Foo(123);
+		}
+	}
+
+	[TestClass(@"")]
+	static class TestGenInfImpl4
+	{
+		interface Inf<T>
+		{
+			void Foo(int t);
+			void Foo(T t);
+		}
+
+		class Blae<T> : Inf<T>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf<int> inf = new Blae<int>();
+			inf.Foo(123);
+		}
+	}
+
+	[TestClass(@"")]
+	static class TestGenInfImpl5
+	{
+		interface Inf<T>
+		{
+			void Foo(T t);
+		}
+
+		class Blae<T> : Inf<T>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf<int> inf = new Blae<int>();
+			inf.Foo(123);
+		}
+	}
+
 	namespace ExplicitOverride
 	{
 		interface Inf<T>
