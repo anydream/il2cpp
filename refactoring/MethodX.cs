@@ -13,11 +13,22 @@ namespace il2cpp
 
 		// 类型定义的全名
 		public readonly string DefFullName;
+		// 唯一名称
+		private string NameKey;
 
 		internal MethodX(TypeX declType, MethodDef metDef)
 		{
 			DeclType = declType;
 			DefFullName = metDef.FullName;
+		}
+		
+		public string GetNameKey()
+		{
+			if (NameKey == null)
+			{
+				//!
+			}
+			return NameKey;
 		}
 	}
 }

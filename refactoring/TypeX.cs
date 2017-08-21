@@ -16,7 +16,7 @@ namespace il2cpp
 
 		// 类型定义的全名
 		public readonly string DefFullName;
-		// 全局唯一的名称键
+		// 唯一名称
 		private string NameKey;
 
 		// 继承的类型
@@ -32,6 +32,7 @@ namespace il2cpp
 			DefFullName = tyDef.FullName;
 		}
 
+		// 获得类型唯一名称
 		public string GetNameKey()
 		{
 			if (NameKey == null)
@@ -50,6 +51,16 @@ namespace il2cpp
 		{
 			DerivedTypes.Add(tyX);
 			IsDerivedTypesChanged = true;
+		}
+
+		public bool GetMethod(string key, out MethodX metX)
+		{
+
+		}
+
+		public void AddMethod(string key, MethodX metX)
+		{
+
 		}
 	}
 }
