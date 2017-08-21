@@ -16,6 +16,9 @@ namespace il2cpp
 
 		// 类型定义的全名
 		public readonly string DefFullName;
+		// 是否为值类型
+		public readonly bool IsValueType;
+
 		// 唯一名称
 		private string NameKey;
 
@@ -30,6 +33,7 @@ namespace il2cpp
 		{
 			Context = context;
 			DefFullName = tyDef.FullName;
+			IsValueType = tyDef.IsValueType;
 		}
 
 		// 获得类型唯一名称

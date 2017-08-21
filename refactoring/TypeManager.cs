@@ -35,16 +35,12 @@ namespace il2cpp
 
 		// 实例类型映射
 		private readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
+		// 方法待处理队列
+		private readonly Queue<MethodX> PendingMethods = new Queue<MethodX>();
 
 		internal TypeManager(Il2cppContext context)
 		{
 			Context = context;
-		}
-
-		// 添加待处理的方法
-		public void AddPendingMethod(MethodDef metDef)
-		{
-
 		}
 
 		// 解析所有引用
@@ -99,19 +95,34 @@ namespace il2cpp
 		}
 
 		// 添加方法到类型
-		private static MethodX AddMethod(MethodX metX)
+		private MethodX AddMethod(MethodX metX)
 		{
 			Debug.Assert(metX != null);
 
-			//! 展开方法签名用于获取key
+			GenericReplacer replacer = new GenericReplacer();
+			replacer.OwnerType = metX.DeclType;
+			replacer.OwnerMethod = metX;
 
+			// 展开签名所需的类型
+			metX.ReturnType = ReplaceGenericSig(metX.DefSig.RetType, replacer);
+			metX.ParamTypes = ReplaceGenericSigList(metX.DefSig.Params, replacer);
+			if (metX.HasThis)
+				metX.ParamTypes.Insert(0, ReplaceGenericSig(metX.DefThisSig, replacer));
+			metX.ParamAfterSentinel = ReplaceGenericSigList(metX.DefSig.ParamsAfterSentinel, replacer);
+
+			// 尝试添加
 			string nameKey = metX.GetNameKey();
 			if (metX.DeclType.GetMethod(nameKey, out var ometX))
 				return ometX;
-
 			metX.DeclType.AddMethod(nameKey, metX);
 
-			//! append method
+			// 展开局部变量类型
+			metX.LocalTypes = ReplaceGenericSigList(metX.LocalTypes, replacer);
+
+			//! 展开异常处理信息
+
+			// 添加到待处理队列
+			PendingMethods.Enqueue(metX);
 
 			return metX;
 		}
