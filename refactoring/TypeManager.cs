@@ -299,6 +299,9 @@ namespace il2cpp
 		// 如果类型版本不匹配则加载匹配的类型
 		private TypeDef CorrectTypeDefVersion(TypeDef tyDef)
 		{
+			if (!tyDef.DefinitionAssembly.IsCorLib())
+				return tyDef;
+
 			if (tyDef.Module.RuntimeVersion == Context.RuntimeVersion)
 				return tyDef;
 
