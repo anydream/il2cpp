@@ -12,7 +12,7 @@ namespace il2cpp
 	internal class TypeX : GenericArgs
 	{
 		// 当前环境
-		private readonly Il2cppContext Context;
+		public readonly Il2cppContext Context;
 
 		// 类型定义的全名
 		public readonly string DefFullName;

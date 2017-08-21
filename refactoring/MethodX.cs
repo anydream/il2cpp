@@ -68,6 +68,8 @@ namespace il2cpp
 			{
 				Debug.Assert(ReturnType != null);
 				Debug.Assert(ParamTypes != null);
+
+				// Name|RetType(ArgList)|CC|Attr
 			}
 			return NameKey;
 		}
