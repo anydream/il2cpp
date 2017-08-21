@@ -53,16 +53,49 @@ namespace il2cpp
 
 		}
 
+		// 解析方法定义并添加
 		public MethodX ResolveMethodDef(MethodDef metDef)
 		{
-			MethodX metX = ResolveMethodDefImpl(metDef);
+			TypeX declType = ResolveITypeDefOrRef(metDef.DeclaringType, null);
+			MethodX metX = new MethodX(declType, metDef);
 			return AddMethod(metX);
 		}
 
-		private MethodX ResolveMethodDefImpl(MethodDef metDef)
+		// 解析方法引用并添加
+		public MethodX ResolveMethodRef(MemberRef memRef, GenericReplacer replacer)
 		{
-			TypeX declType = ResolveITypeDefOrRef(metDef.DeclaringType, null);
-			return new MethodX(declType, metDef);
+			Debug.Assert(memRef.IsMethodRef);
+
+			var elemType = memRef.DeclaringType.ToTypeSig().ElementType;
+			if (elemType == ElementType.SZArray)
+			{
+				throw new NotImplementedException();
+			}
+			else if (elemType == ElementType.Array)
+			{
+				throw new NotImplementedException();
+			}
+			else
+			{
+				TypeX declType = ResolveITypeDefOrRef(memRef.DeclaringType, replacer);
+				MethodX metX = new MethodX(declType, memRef.ResolveMethod());
+				return AddMethod(metX);
+			}
+		}
+
+		// 解析泛型方法并添加
+		public MethodX ResolveMethodSpec(MethodSpec metSpec, GenericReplacer replacer)
+		{
+			TypeX declType = ResolveITypeDefOrRef(metSpec.DeclaringType, replacer);
+
+			IList<TypeSig> genArgs = null;
+			var metGenArgs = metSpec.GenericInstMethodSig?.GenericArguments;
+			if (metGenArgs != null)
+				genArgs = ReplaceGenericSigList(metGenArgs, replacer);
+
+			MethodX metX = new MethodX(declType, metSpec.ResolveMethodDef());
+			metX.GenArgs = genArgs;
+			return AddMethod(metX);
 		}
 
 		// 添加方法到类型
@@ -70,13 +103,15 @@ namespace il2cpp
 		{
 			Debug.Assert(metX != null);
 
+			//! 展开方法签名用于获取key
+
 			string nameKey = metX.GetNameKey();
 			if (metX.DeclType.GetMethod(nameKey, out var ometX))
 				return ometX;
 
 			metX.DeclType.AddMethod(nameKey, metX);
 
-			//! expand method
+			//! append method
 
 			return metX;
 		}
