@@ -28,8 +28,6 @@ namespace il2cpp
 		public readonly string DefName;
 		// 方法签名
 		public readonly MethodSig DefSig;
-		// this 签名
-		public readonly TypeSig DefThisSig;
 		// 方法属性
 		public readonly MethodAttributes DefAttr;
 		// 方法异常处理器
@@ -61,12 +59,7 @@ namespace il2cpp
 			DefSig = metDef.MethodSig;
 			DefAttr = metDef.Attributes;
 
-			if (HasThis)
-			{
-				Debug.Assert(!metDef.IsStatic);
-				Debug.Assert(metDef.Parameters[0].IsHiddenThisParameter);
-				DefThisSig = metDef.Parameters[0].Type;
-			}
+			Debug.Assert((HasThis && !metDef.IsStatic) || (!HasThis && metDef.IsStatic));
 
 			if (metDef.HasBody)
 			{
@@ -86,6 +79,11 @@ namespace il2cpp
 				if (metDef.Body.HasInstructions)
 					DefInstList = metDef.Body.Instructions;
 			}
+		}
+
+		public override string ToString()
+		{
+			return NameKey;
 		}
 
 		public string GetNameKey()

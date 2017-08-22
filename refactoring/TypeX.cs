@@ -17,6 +17,8 @@ namespace il2cpp
 
 		// 类型全名
 		public readonly string DefFullName;
+		// 类型签名
+		public readonly ClassOrValueTypeSig DefSig;
 		// 类型属性
 		public readonly TypeAttributes DefAttr;
 		// 是否为值类型
@@ -43,6 +45,16 @@ namespace il2cpp
 			DefFullName = tyDef.FullName;
 			DefAttr = tyDef.Attributes;
 			IsValueType = tyDef.IsValueType;
+
+			if (IsValueType)
+				DefSig = new ValueTypeSig(tyDef);
+			else
+				DefSig = new ClassSig(tyDef);
+		}
+
+		public override string ToString()
+		{
+			return NameKey;
 		}
 
 		// 获得类型唯一名称
@@ -63,6 +75,16 @@ namespace il2cpp
 				NameKey = sb.ToString();
 			}
 			return NameKey;
+		}
+
+		public TypeSig GetThisTypeSig()
+		{
+			TypeSig thisSig = DefSig;
+			if (HasGenArgs)
+				thisSig = new GenericInstSig(DefSig, GenArgs);
+			if (IsValueType)
+				thisSig = new ByRefSig(thisSig);
+			return thisSig;
 		}
 
 		public HashSet<TypeX> GetDerivedTypes()

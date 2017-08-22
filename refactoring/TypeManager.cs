@@ -258,10 +258,9 @@ namespace il2cpp
 		{
 			TypeX declType = ResolveITypeDefOrRef(metSpec.DeclaringType, replacer);
 
-			IList<TypeSig> genArgs = null;
 			var metGenArgs = metSpec.GenericInstMethodSig?.GenericArguments;
-			if (metGenArgs != null)
-				genArgs = ReplaceGenericSigList(metGenArgs, replacer);
+			Debug.Assert(metGenArgs != null);
+			IList<TypeSig> genArgs = ReplaceGenericSigList(metGenArgs, replacer);
 
 			MethodX metX = new MethodX(declType, metSpec.ResolveMethodDef());
 			metX.GenArgs = genArgs;
@@ -281,7 +280,7 @@ namespace il2cpp
 			metX.ReturnType = ReplaceGenericSig(metX.DefSig.RetType, replacer);
 			metX.ParamTypes = ReplaceGenericSigList(metX.DefSig.Params, replacer);
 			if (metX.HasThis)
-				metX.ParamTypes.Insert(0, ReplaceGenericSig(metX.DefThisSig, replacer));
+				metX.ParamTypes.Insert(0, ReplaceGenericSig(metX.DeclType.GetThisTypeSig(), replacer));
 			metX.ParamAfterSentinel = ReplaceGenericSigList(metX.DefSig.ParamsAfterSentinel, replacer);
 
 			// 尝试添加到所属类型
@@ -385,13 +384,18 @@ namespace il2cpp
 		// 替换类型中的泛型签名
 		private static TypeSig ReplaceGenericSig(TypeSig tySig, GenericReplacer replacer)
 		{
-			if (tySig == null)
-				return null;
-
 			if (!IsReplaceNeeded(tySig))
 				return tySig;
 
 			Debug.Assert(replacer != null);
+
+			return ReplaceGenericSigImpl(tySig, replacer);
+		}
+
+		private static TypeSig ReplaceGenericSigImpl(TypeSig tySig, GenericReplacer replacer)
+		{
+			if (tySig == null)
+				return null;
 
 			switch (tySig.ElementType)
 			{
@@ -400,18 +404,18 @@ namespace il2cpp
 					return tySig;
 
 				case ElementType.Ptr:
-					return new PtrSig(ReplaceGenericSig(tySig.Next, replacer));
+					return new PtrSig(ReplaceGenericSigImpl(tySig.Next, replacer));
 				case ElementType.ByRef:
-					return new ByRefSig(ReplaceGenericSig(tySig.Next, replacer));
+					return new ByRefSig(ReplaceGenericSigImpl(tySig.Next, replacer));
 				case ElementType.Pinned:
-					return new PinnedSig(ReplaceGenericSig(tySig.Next, replacer));
+					return new PinnedSig(ReplaceGenericSigImpl(tySig.Next, replacer));
 				case ElementType.SZArray:
-					return new SZArraySig(ReplaceGenericSig(tySig.Next, replacer));
+					return new SZArraySig(ReplaceGenericSigImpl(tySig.Next, replacer));
 
 				case ElementType.Array:
 					{
 						ArraySig arySig = (ArraySig)tySig;
-						return new ArraySig(ReplaceGenericSig(arySig.Next, replacer),
+						return new ArraySig(ReplaceGenericSigImpl(arySig.Next, replacer),
 							arySig.Rank,
 							arySig.Sizes,
 							arySig.LowerBounds);
@@ -419,17 +423,17 @@ namespace il2cpp
 				case ElementType.CModReqd:
 					{
 						CModReqdSig modreqdSig = (CModReqdSig)tySig;
-						return new CModReqdSig(modreqdSig.Modifier, ReplaceGenericSig(modreqdSig.Next, replacer));
+						return new CModReqdSig(modreqdSig.Modifier, ReplaceGenericSigImpl(modreqdSig.Next, replacer));
 					}
 				case ElementType.CModOpt:
 					{
 						CModOptSig modoptSig = (CModOptSig)tySig;
-						return new CModOptSig(modoptSig.Modifier, ReplaceGenericSig(modoptSig.Next, replacer));
+						return new CModOptSig(modoptSig.Modifier, ReplaceGenericSigImpl(modoptSig.Next, replacer));
 					}
 				case ElementType.GenericInst:
 					{
 						GenericInstSig genInstSig = (GenericInstSig)tySig;
-						return new GenericInstSig(genInstSig.GenericType, ReplaceGenericSigList(genInstSig.GenericArguments, replacer));
+						return new GenericInstSig(genInstSig.GenericType, ReplaceGenericSigListImpl(genInstSig.GenericArguments, replacer));
 					}
 
 				case ElementType.Var:
@@ -461,6 +465,11 @@ namespace il2cpp
 		private static IList<TypeSig> ReplaceGenericSigList(IList<TypeSig> tySigList, GenericReplacer replacer)
 		{
 			return tySigList?.Select(tySig => ReplaceGenericSig(tySig, replacer)).ToList();
+		}
+
+		private static IList<TypeSig> ReplaceGenericSigListImpl(IList<TypeSig> tySigList, GenericReplacer replacer)
+		{
+			return tySigList?.Select(tySig => ReplaceGenericSigImpl(tySig, replacer)).ToList();
 		}
 
 		// 检查是否存在要替换的泛型签名

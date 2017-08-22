@@ -192,7 +192,7 @@ namespace il2cpp
 			if (ch >= 'a' && ch <= 'z' ||
 				ch >= 'A' && ch <= 'Z' ||
 				ch >= '0' && ch <= '9' ||
-				ch == '_' || ch == '.' ||
+				ch == '_' || ch == '`' || ch == '.' ||
 				ch == ':' || ch == '/')
 			{
 				return null;

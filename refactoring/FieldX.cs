@@ -29,6 +29,11 @@ namespace il2cpp
 			DefAttr = fldDef.Attributes;
 		}
 
+		public override string ToString()
+		{
+			return NameKey;
+		}
+
 		public string GetNameKey()
 		{
 			if (NameKey == null)
