@@ -45,6 +45,7 @@
     <Compile Include="FieldX.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Il2cppContext.cs" />
+    <Compile Include="MethodTable.cs" />
     <Compile Include="MethodX.cs" />
     <Compile Include="NameManager.cs" />
     <Compile Include="Program.cs" />

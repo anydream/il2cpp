@@ -108,7 +108,7 @@ namespace il2cpp
 				}
 			}
 
-			// 修复跳转位置
+			// 重定向跳转位置
 			foreach (var inst in branchInsts)
 			{
 				if (inst.Operand is Instruction defInst)
@@ -422,10 +422,8 @@ namespace il2cpp
 		// 替换类型中的泛型签名
 		private static TypeSig ReplaceGenericSig(TypeSig tySig, GenericReplacer replacer)
 		{
-			if (!IsReplaceNeeded(tySig))
+			if (replacer == null || !IsReplaceNeeded(tySig))
 				return tySig;
-
-			Debug.Assert(replacer != null);
 
 			return ReplaceGenericSigImpl(tySig, replacer);
 		}
