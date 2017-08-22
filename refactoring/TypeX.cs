@@ -31,6 +31,8 @@ namespace il2cpp
 
 		// 方法映射
 		private readonly Dictionary<string, MethodX> MethodMap = new Dictionary<string, MethodX>();
+		// 字段映射
+		private readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
 
 		// 是否实例化过
 		public OnceBool IsInstantiated;
@@ -82,6 +84,16 @@ namespace il2cpp
 		public void AddMethod(string key, MethodX metX)
 		{
 			MethodMap.Add(key, metX);
+		}
+
+		public bool GetField(string key, out FieldX fldX)
+		{
+			return FieldMap.TryGetValue(key, out fldX);
+		}
+
+		public void AddField(string key, FieldX fldX)
+		{
+			FieldMap.Add(key, fldX);
 		}
 	}
 }

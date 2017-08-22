@@ -60,8 +60,8 @@ namespace il2cpp
 				}
 				while (PendingMethods.Count > 0);
 
-				//! 解析虚调用
 				//! 解析协变
+				//! 解析虚调用
 			}
 		}
 
@@ -134,12 +134,45 @@ namespace il2cpp
 			{
 				case OperandType.InlineMethod:
 					{
+						MethodX resMetX = null;
+						switch (inst.Operand)
+						{
+							case MethodDef metDef:
+								resMetX = ResolveMethodDef(metDef);
+								break;
+
+							case MemberRef memRef:
+								resMetX = ResolveMethodRef(memRef, replacer);
+								break;
+
+							case MethodSpec metSpec:
+								resMetX = ResolveMethodSpec(metSpec, replacer);
+								break;
+
+							default:
+								throw new ArgumentOutOfRangeException();
+						}
 
 						return;
 					}
 
 				case OperandType.InlineField:
 					{
+						FieldX resFldX = null;
+						switch (inst.Operand)
+						{
+							case FieldDef fldDef:
+								resFldX = ResolveFieldDef(fldDef);
+								break;
+
+							case MemberRef memRef:
+								resFldX = ResolveFieldRef(memRef, replacer);
+								break;
+
+							default:
+								throw new ArgumentOutOfRangeException();
+						}
+
 						return;
 					}
 
@@ -153,6 +186,41 @@ namespace il2cpp
 						return;
 					}
 			}
+		}
+
+		public FieldX ResolveFieldDef(FieldDef fldDef)
+		{
+			TypeX declType = ResolveITypeDefOrRef(fldDef.DeclaringType, null);
+			FieldX fldX = new FieldX(declType, fldDef);
+			return AddField(fldX);
+		}
+
+		public FieldX ResolveFieldRef(MemberRef memRef, GenericReplacer replacer)
+		{
+			Debug.Assert(memRef.IsFieldRef);
+
+			TypeX declType = ResolveITypeDefOrRef(memRef.DeclaringType, replacer);
+			FieldX fldX = new FieldX(declType, memRef.ResolveField());
+			return AddField(fldX);
+		}
+
+		private FieldX AddField(FieldX fldX)
+		{
+			Debug.Assert(fldX != null);
+
+			GenericReplacer replacer = new GenericReplacer();
+			replacer.OwnerType = fldX.DeclType;
+
+			// 展开签名所需的类型
+			fldX.FieldType = ReplaceGenericSig(fldX.DefSig, replacer);
+
+			// 尝试添加到所属类型
+			string nameKey = fldX.GetNameKey();
+			if (fldX.DeclType.GetField(nameKey, out var ofldX))
+				return ofldX;
+			fldX.DeclType.AddField(nameKey, fldX);
+
+			return fldX;
 		}
 
 		// 解析方法定义并添加
@@ -216,7 +284,7 @@ namespace il2cpp
 				metX.ParamTypes.Insert(0, ReplaceGenericSig(metX.DefThisSig, replacer));
 			metX.ParamAfterSentinel = ReplaceGenericSigList(metX.DefSig.ParamsAfterSentinel, replacer);
 
-			// 尝试添加
+			// 尝试添加到所属类型
 			string nameKey = metX.GetNameKey();
 			if (metX.DeclType.GetMethod(nameKey, out var ometX))
 				return ometX;
