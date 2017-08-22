@@ -93,9 +93,9 @@ namespace il2cpp
 				Debug.Assert(ReturnType != null);
 				Debug.Assert(ParamTypes != null);
 
-				// Name|RetType<GenArgs>(ArgList)|CC|Attr
+				// Name|RetType<GenArgs>(DefArgList)|CC|Attr
 				StringBuilder sb = new StringBuilder();
-				NameManager.MethodSigName(sb, DefName, ReturnType, GenArgs, ParamTypes, DefSig.CallingConvention);
+				NameManager.MethodSigName(sb, DefName, GenArgs, DefSig.RetType, DefSig.Params, DefSig.CallingConvention);
 				sb.Append('|');
 				sb.Append(((uint)DefAttr).ToString("X"));
 

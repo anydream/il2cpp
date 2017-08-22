@@ -33,8 +33,8 @@ namespace il2cpp
 		public static void MethodSigName(
 			StringBuilder sb,
 			string name,
-			TypeSig retType,
 			IList<TypeSig> genArgs,
+			TypeSig retType,
 			IList<TypeSig> paramTypes,
 			CallingConvention callConv)
 		{

@@ -67,7 +67,9 @@ namespace il2cpp
 
 		private void BuildInstructions(MethodX metX)
 		{
-			if (metX.InstList != null)
+			Debug.Assert(metX.InstList == null);
+
+			if (metX.DefInstList == null)
 				return;
 
 			GenericReplacer replacer = new GenericReplacer();
@@ -140,19 +142,34 @@ namespace il2cpp
 							case MethodDef metDef:
 								resMetX = ResolveMethodDef(metDef);
 								break;
-
 							case MemberRef memRef:
 								resMetX = ResolveMethodRef(memRef, replacer);
 								break;
-
 							case MethodSpec metSpec:
 								resMetX = ResolveMethodSpec(metSpec, replacer);
 								break;
-
 							default:
 								throw new ArgumentOutOfRangeException();
 						}
 
+						if (!resMetX.HasThis)
+						{
+							//! 生成静态构造
+						}
+
+						if (inst.OpCode.Code == Code.Newobj)
+						{
+							// 设置实例化标记
+							resMetX.DeclType.IsInstantiated = true;
+							//! 生成静态构造和终结器
+						}
+						else if (inst.OpCode.Code == Code.Callvirt ||
+								 inst.OpCode.Code == Code.Ldvirtftn)
+						{
+							// 记录虚入口
+						}
+
+						inst.Operand = resMetX;
 						return;
 					}
 
@@ -164,15 +181,14 @@ namespace il2cpp
 							case FieldDef fldDef:
 								resFldX = ResolveFieldDef(fldDef);
 								break;
-
 							case MemberRef memRef:
 								resFldX = ResolveFieldRef(memRef, replacer);
 								break;
-
 							default:
 								throw new ArgumentOutOfRangeException();
 						}
 
+						inst.Operand = resFldX;
 						return;
 					}
 
