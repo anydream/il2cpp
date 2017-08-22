@@ -21,13 +21,22 @@ namespace il2cpp
 		public readonly ClassOrValueTypeSig DefSig;
 		// 类型属性
 		public readonly TypeAttributes DefAttr;
+		// 定义的基类型
+		public ITypeDefOrRef DefBaseType;
+		// 定义的接口列表
+		public IList<InterfaceImpl> DefInterfaces;
 		// 是否为值类型
 		public readonly bool IsValueType;
 
 		// 唯一名称
 		private string NameKey;
 
-		// 继承的类型
+		// 基类型
+		public TypeX BaseType;
+		// 接口列表
+		public readonly List<TypeX> Interfaces = new List<TypeX>();
+
+		// 子类型集合
 		private readonly HashSet<TypeX> DerivedTypes = new HashSet<TypeX>();
 		public bool IsDerivedTypesChanged { get; private set; }
 
@@ -44,6 +53,8 @@ namespace il2cpp
 			Context = context;
 			DefFullName = tyDef.FullName;
 			DefAttr = tyDef.Attributes;
+			DefBaseType = tyDef.BaseType;
+			DefInterfaces = tyDef.Interfaces;
 			IsValueType = tyDef.IsValueType;
 
 			if (IsValueType)
@@ -92,10 +103,22 @@ namespace il2cpp
 			return DerivedTypes;
 		}
 
-		public void AddDerivedType(TypeX tyX)
+		public void UpdateDerivedTypes()
 		{
-			DerivedTypes.Add(tyX);
+			BaseType?.AddDerivedTypeRecursive(this);
+			foreach (var inf in Interfaces)
+				inf.AddDerivedTypeRecursive(this);
+		}
+
+		private void AddDerivedTypeRecursive(TypeX tyX)
+		{
 			IsDerivedTypesChanged = true;
+			DerivedTypes.Add(tyX);
+
+			// 递归添加
+			BaseType?.AddDerivedTypeRecursive(tyX);
+			foreach (var inf in Interfaces)
+				inf.AddDerivedTypeRecursive(tyX);
 		}
 
 		public bool GetMethod(string key, out MethodX metX)

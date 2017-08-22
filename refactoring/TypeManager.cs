@@ -301,19 +301,41 @@ namespace il2cpp
 			return metX;
 		}
 
+		private void ExpandType(TypeX tyX)
+		{
+			GenericReplacer replacer = new GenericReplacer();
+			replacer.OwnerType = tyX;
+
+			// 解析基类
+			if (tyX.DefBaseType != null)
+				tyX.BaseType = ResolveITypeDefOrRef(tyX.DefBaseType, replacer);
+			// 解析接口
+			if (tyX.DefInterfaces != null)
+			{
+				foreach (var inf in tyX.DefInterfaces)
+					tyX.Interfaces.Add(ResolveITypeDefOrRef(inf.Interface, replacer));
+			}
+			// 更新子类集合
+			tyX.UpdateDerivedTypes();
+
+			tyX.DefBaseType = null;
+			tyX.DefInterfaces = null;
+		}
+
 		// 解析类型并添加到映射
 		public TypeX ResolveITypeDefOrRef(ITypeDefOrRef tyDefRef, GenericReplacer replacer)
 		{
 			TypeX tyX = ResolveITypeDefOrRefImpl(tyDefRef, replacer);
 			Debug.Assert(tyX != null);
 
+			// 尝试添加到类型映射
 			string nameKey = tyX.GetNameKey();
 			if (TypeMap.TryGetValue(nameKey, out var otyX))
 				return otyX;
-
 			TypeMap.Add(nameKey, tyX);
 
-			//! expandtype
+			// 展开方法
+			ExpandType(tyX);
 
 			return tyX;
 		}
