@@ -15,6 +15,8 @@ namespace il2cpp
 		// 当前环境
 		public readonly Il2cppContext Context;
 
+		// 类型定义
+		private TypeDef Def;
 		// 类型全名
 		public readonly string DefFullName;
 		// 类型签名
@@ -45,12 +47,25 @@ namespace il2cpp
 		// 字段映射
 		private readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
 
+		// 展开泛型类型的方法签名映射
+		private Dictionary<string, MethodDef> ExpandedMethodDefs;
+		// 不展开泛型类型的方法签名映射
+		private Dictionary<string, MethodDef> NotExpandedMethodDefs;
+
+		// 展开的方法表
+		private MethodTable ExpandedMethodTable;
+		// 不展开的方法表
+		private MethodTable NotExpandedMethodTable;
+
+		// 是否可实例化
+		public bool IsInstantiatable;
 		// 是否实例化过
 		public OnceBool IsInstantiated;
 
 		internal TypeX(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
+			Def = tyDef;
 			DefFullName = tyDef.FullName;
 			DefAttr = tyDef.Attributes;
 			DefBaseType = tyDef.BaseType;
@@ -139,6 +154,85 @@ namespace il2cpp
 		public void AddField(string key, FieldX fldX)
 		{
 			FieldMap.Add(key, fldX);
+		}
+
+		public MethodTable GetExpandedMethodTable()
+		{
+			if (ExpandedMethodTable == null)
+			{
+				InitMethodsExpand();
+				ExpandedMethodTable = new MethodTable();
+				ExpandedMethodTable.ResolveBindings(this, ExpandedMethodDefs);
+			}
+			return ExpandedMethodTable;
+		}
+
+		// 获得展开了类型泛型的方法签名集合
+		public HashSet<string> GetExpandedSigNames()
+		{
+			InitMethodsExpand();
+			return new HashSet<string>(ExpandedMethodDefs.Keys);
+		}
+
+		private void InitMethodsExpand()
+		{
+			if (ExpandedMethodDefs != null)
+				return;
+
+			ExpandedMethodDefs = new Dictionary<string, MethodDef>();
+
+			GenericReplacer replacer = new GenericReplacer();
+			replacer.OwnerType = this;
+
+			// 收集所有非静态方法的定义, 并加入映射
+			StringBuilder sb = new StringBuilder();
+			foreach (var metDef in Def.Methods)
+			{
+				if (metDef.IsStatic)
+					continue;
+
+				// 展开返回值与参数类型
+				TypeSig retType = TypeManager.ReplaceGenericSig(metDef.MethodSig.RetType, replacer);
+				IList<TypeSig> paramTypes = TypeManager.ReplaceGenericSigList(metDef.MethodSig.Params, replacer);
+
+				NameManager.MethodDefName(
+					sb,
+					metDef.Name,
+					metDef.GenericParameters,
+					retType,
+					paramTypes,
+					metDef.MethodSig.CallingConvention);
+
+				ExpandedMethodDefs.Add(sb.ToString(), metDef);
+				sb.Clear();
+			}
+		}
+
+		private void InitMethodsNotExpand()
+		{
+			if (NotExpandedMethodDefs != null)
+				return;
+
+			NotExpandedMethodDefs = new Dictionary<string, MethodDef>();
+
+			// 收集所有非静态方法的定义, 并加入映射
+			StringBuilder sb = new StringBuilder();
+			foreach (var metDef in Def.Methods)
+			{
+				if (metDef.IsStatic)
+					continue;
+
+				NameManager.MethodDefName(
+					sb,
+					metDef.Name,
+					metDef.GenericParameters,
+					metDef.MethodSig.RetType,
+					metDef.MethodSig.Params,
+					metDef.MethodSig.CallingConvention);
+
+				NotExpandedMethodDefs.Add(sb.ToString(), metDef);
+				sb.Clear();
+			}
 		}
 	}
 }

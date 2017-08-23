@@ -46,6 +46,13 @@ namespace il2cpp
 			Context = context;
 		}
 
+		public TypeX GetTypeByName(string name)
+		{
+			if (TypeMap.TryGetValue(name, out var tyX))
+				return tyX;
+			return null;
+		}
+
 		// 解析所有引用
 		public void ResolveAll()
 		{
@@ -331,10 +338,26 @@ namespace il2cpp
 				foreach (var inf in tyX.DefInterfaces)
 					tyX.Interfaces.Add(ResolveITypeDefOrRef(inf.Interface, replacer));
 			}
-			// 更新子类集合
-			tyX.UpdateDerivedTypes();
 
-			//! 展开虚方法表
+			// 检查是否为可实例化的类型
+			tyX.IsInstantiatable = true;
+			if (tyX.HasGenArgs)
+			{
+				foreach (var genArg in tyX.GenArgs)
+				{
+					if (!IsInstantiatableTypeSig(genArg))
+					{
+						tyX.IsInstantiatable = false;
+						break;
+					}
+				}
+			}
+
+			if (tyX.IsInstantiatable)
+			{
+				// 更新子类集合
+				tyX.UpdateDerivedTypes();
+			}
 
 			tyX.DefBaseType = null;
 			tyX.DefInterfaces = null;
@@ -422,7 +445,7 @@ namespace il2cpp
 		}
 
 		// 替换类型中的泛型签名
-		private static TypeSig ReplaceGenericSig(TypeSig tySig, GenericReplacer replacer)
+		public static TypeSig ReplaceGenericSig(TypeSig tySig, GenericReplacer replacer)
 		{
 			if (replacer == null || !IsReplaceNeeded(tySig))
 				return tySig;
@@ -500,7 +523,7 @@ namespace il2cpp
 		}
 
 		// 替换类型签名列表
-		private static IList<TypeSig> ReplaceGenericSigList(IList<TypeSig> tySigList, GenericReplacer replacer)
+		public static IList<TypeSig> ReplaceGenericSigList(IList<TypeSig> tySigList, GenericReplacer replacer)
 		{
 			return tySigList?.Select(tySig => ReplaceGenericSig(tySig, replacer)).ToList();
 		}
@@ -529,13 +552,42 @@ namespace il2cpp
 								if (IsReplaceNeeded(arg))
 									return true;
 							}
+							break;
 						}
-						break;
 				}
 
 				tySig = tySig.Next;
 			}
 			return false;
+		}
+
+		// 检查类型签名是否可实例化
+		private static bool IsInstantiatableTypeSig(TypeSig tySig)
+		{
+			while (tySig != null)
+			{
+				switch (tySig.ElementType)
+				{
+					case ElementType.Var:
+						return false;
+					case ElementType.MVar:
+						throw new ArgumentOutOfRangeException();
+
+					case ElementType.GenericInst:
+						{
+							GenericInstSig genInstSig = (GenericInstSig)tySig;
+							foreach (var arg in genInstSig.GenericArguments)
+							{
+								if (!IsInstantiatableTypeSig(arg))
+									return false;
+							}
+							break;
+						}
+				}
+
+				tySig = tySig.Next;
+			}
+			return true;
 		}
 	}
 }

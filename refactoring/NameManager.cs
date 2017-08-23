@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
 using dnlib.Threading;
@@ -28,6 +29,44 @@ namespace il2cpp
 		internal NameManager(Il2cppContext context)
 		{
 			Context = context;
+		}
+
+		public static void MethodDefName(
+			StringBuilder sb,
+			string name,
+			IList<GenericParam> genParams,
+			TypeSig retType,
+			IList<TypeSig> paramTypes,
+			CallingConvention callConv)
+		{
+			sb.Append(EscapeName(name));
+			sb.Append('|');
+
+			TypeSigName(sb, retType);
+
+			if (genParams != null && genParams.Count > 0)
+			{
+				sb.Append('<');
+				bool last = false;
+				foreach (var genParam in genParams)
+				{
+					if (last)
+						sb.Append(',');
+					last = true;
+
+					Debug.Assert(genParam.Owner.IsMethod);
+					sb.Append("!!");
+					sb.Append(genParam.Number);
+				}
+				sb.Append('>');
+			}
+
+			sb.Append('(');
+			TypeSigListName(sb, paramTypes);
+			sb.Append(')');
+			sb.Append('|');
+
+			sb.Append(((uint)callConv).ToString("X"));
 		}
 
 		public static void MethodSigName(
