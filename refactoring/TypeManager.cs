@@ -334,6 +334,8 @@ namespace il2cpp
 			// 更新子类集合
 			tyX.UpdateDerivedTypes();
 
+			//! 展开虚方法表
+
 			tyX.DefBaseType = null;
 			tyX.DefInterfaces = null;
 		}
