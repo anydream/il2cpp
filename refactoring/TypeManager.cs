@@ -169,6 +169,9 @@ namespace il2cpp
 							// 设置实例化标记
 							resMetX.DeclType.IsInstantiated = true;
 							//! 生成静态构造和终结器
+
+							// 展开虚方法表
+							resMetX.DeclType.GetNotExpandedMethodTable();
 						}
 						else if (inst.OpCode.Code == Code.Callvirt ||
 								 inst.OpCode.Code == Code.Ldvirtftn)
@@ -353,11 +356,8 @@ namespace il2cpp
 				}
 			}
 
-			if (tyX.IsInstantiatable)
-			{
-				// 更新子类集合
-				tyX.UpdateDerivedTypes();
-			}
+			// 更新子类集合
+			tyX.UpdateDerivedTypes();
 
 			tyX.DefBaseType = null;
 			tyX.DefInterfaces = null;

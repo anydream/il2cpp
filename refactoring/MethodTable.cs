@@ -11,6 +11,16 @@ namespace il2cpp
 		public readonly HashSet<string> EntryTypes = new HashSet<string>();
 		// 实现方法定义
 		public MethodDef ImplMethod;
+
+		public VirtualSlot()
+		{
+		}
+
+		public VirtualSlot(HashSet<string> entryTypes, MethodDef impl)
+		{
+			EntryTypes.UnionWith(entryTypes);
+			ImplMethod = impl;
+		}
 	}
 
 	// 方法表
@@ -24,10 +34,13 @@ namespace il2cpp
 		// 解析方法绑定
 		public void ResolveBindings(TypeX tyX, Dictionary<string, MethodDef> metDefMap)
 		{
-			if (tyX.BaseType != null)
+			if (tyX.Def.BaseType != null)
 			{
+				// 解析原始基类型
+				TypeX baseTyX = tyX.Context.TypeMgr.ResolveITypeDefOrRef(tyX.Def.BaseType, null);
+
 				// 继承基类的方法表
-				DerivedFrom(tyX.BaseType.GetExpandedMethodTable());
+				DerivedFrom(baseTyX.GetExpandedMethodTable());
 			}
 
 			// 当前类型入口名
@@ -63,13 +76,13 @@ namespace il2cpp
 				else
 				{
 					// 普通方法视作新建虚槽
-					NewSlot(metSigName, entryTypeName, metDef);
+					NewSlotChecked(metSigName, entryTypeName, metDef);
 				}
 			}
 
 			// 解析接口
 			Dictionary<string, HashSet<string>> infSigMap = new Dictionary<string, HashSet<string>>();
-			CollectInterfaceSigNames(tyX.Interfaces, infSigMap);
+			CollectInterfaceSigNames(tyX.Context.TypeMgr, tyX.Def.Interfaces, infSigMap);
 
 			// 没有对应实现的接口
 			Dictionary<string, HashSet<string>> noImplSigMap = new Dictionary<string, HashSet<string>>();
@@ -97,20 +110,54 @@ namespace il2cpp
 				}
 			}
 
+			// 展平虚表
+			foreach (var kv in VSlotMap)
+			{
+				string metSigName = kv.Key;
+				var vslot = kv.Value;
+			}
+
 			// 处理显式覆盖方法
 
 			// 检查是否存在没有对应实现的接口
 		}
 
+		private void SetVTable(string entryType, string metSigName, MethodDef metDef)
+		{
+			if (!VTable.TryGetValue(entryType, out var sigMap))
+			{
+				sigMap = new Dictionary<string, MethodDef>();
+				VTable.Add(entryType, sigMap);
+			}
+			sigMap[metSigName] = metDef;
+		}
+
 		private void DerivedFrom(MethodTable mtable)
 		{
-			// 拷贝虚槽
+			// 拷贝虚表槽映射
+			foreach (var kv in mtable.VSlotMap)
+			{
+				VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value.EntryTypes, kv.Value.ImplMethod));
+			}
+
 			// 拷贝展平的虚表
+			foreach (var kv in mtable.VTable)
+			{
+				VTable.Add(kv.Key, new Dictionary<string, MethodDef>(kv.Value));
+			}
 		}
 
 		private void NewSlot(string metSigName, string entryTypeName, MethodDef metDef)
 		{
 			var vslot = VSlotMap[metSigName] = new VirtualSlot();
+			vslot.EntryTypes.Add(entryTypeName);
+			vslot.ImplMethod = metDef;
+		}
+
+		private void NewSlotChecked(string metSigName, string entryTypeName, MethodDef metDef)
+		{
+			var vslot = new VirtualSlot();
+			VSlotMap.Add(metSigName, vslot);
 			vslot.EntryTypes.Add(entryTypeName);
 			vslot.ImplMethod = metDef;
 		}
@@ -123,19 +170,22 @@ namespace il2cpp
 			vslot.ImplMethod = metDef;
 		}
 
-		private void CollectInterfaceSigNames(IList<TypeX> infs, Dictionary<string, HashSet<string>> sigNameMap)
+		private void CollectInterfaceSigNames(TypeManager typeMgr, IList<InterfaceImpl> infs, Dictionary<string, HashSet<string>> sigNameMap)
 		{
 			foreach (var inf in infs)
 			{
-				CollectInterfaceSigNames(inf.Interfaces, sigNameMap);
+				// 解析原始接口类型
+				TypeX infTyX = typeMgr.ResolveITypeDefOrRef(inf.Interface, null);
 
-				string entryTypeName = inf.GetNameKey();
+				CollectInterfaceSigNames(typeMgr, infTyX.Def.Interfaces, sigNameMap);
+
+				string entryTypeName = infTyX.GetNameKey();
 				if (!sigNameMap.TryGetValue(entryTypeName, out var sigSet))
 				{
 					sigSet = new HashSet<string>();
 					sigNameMap.Add(entryTypeName, sigSet);
 				}
-				sigSet.UnionWith(inf.GetExpandedSigNames());
+				sigSet.UnionWith(infTyX.GetExpandedSigNames());
 			}
 		}
 	}

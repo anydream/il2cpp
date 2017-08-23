@@ -16,7 +16,7 @@ namespace il2cpp
 		public readonly Il2cppContext Context;
 
 		// 类型定义
-		private TypeDef Def;
+		public TypeDef Def;
 		// 类型全名
 		public readonly string DefFullName;
 		// 类型签名
@@ -188,7 +188,7 @@ namespace il2cpp
 			StringBuilder sb = new StringBuilder();
 			foreach (var metDef in Def.Methods)
 			{
-				if (metDef.IsStatic)
+				if (metDef.IsStatic || metDef.IsConstructor)
 					continue;
 
 				// 展开返回值与参数类型
@@ -208,6 +208,17 @@ namespace il2cpp
 			}
 		}
 
+		public MethodTable GetNotExpandedMethodTable()
+		{
+			if (NotExpandedMethodTable == null)
+			{
+				InitMethodsNotExpand();
+				NotExpandedMethodTable = new MethodTable();
+				NotExpandedMethodTable.ResolveBindings(this, NotExpandedMethodDefs);
+			}
+			return NotExpandedMethodTable;
+		}
+
 		private void InitMethodsNotExpand()
 		{
 			if (NotExpandedMethodDefs != null)
@@ -219,7 +230,7 @@ namespace il2cpp
 			StringBuilder sb = new StringBuilder();
 			foreach (var metDef in Def.Methods)
 			{
-				if (metDef.IsStatic)
+				if (metDef.IsStatic || metDef.IsConstructor)
 					continue;
 
 				NameManager.MethodDefName(
