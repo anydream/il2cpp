@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using dnlib.DotNet;
 
@@ -47,10 +48,12 @@ namespace il2cpp
 		// 字段映射
 		private readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
 
-		// 展开泛型类型的方法签名映射
-		private Dictionary<string, MethodDef> ExpandedMethodDefs;
-		// 不展开泛型类型的方法签名映射
-		private Dictionary<string, MethodDef> NotExpandedMethodDefs;
+		// 实例方法定义列表
+		private List<MethodDef> InstanceMetDefs;
+		// 展开泛型类型的方法签名
+		private List<string> ExpandedMetSigs;
+		// 不展开泛型类型的方法签名
+		private List<string> NotExpandedMetSigs;
 
 		// 展开的方法表
 		private MethodTable ExpandedMethodTable;
@@ -156,33 +159,58 @@ namespace il2cpp
 			FieldMap.Add(key, fldX);
 		}
 
+		public MethodTable GetNotExpandedMethodTable()
+		{
+			if (NotExpandedMethodTable == null)
+			{
+				InitMethods();
+				NotExpandedMethodTable = new MethodTable();
+				NotExpandedMethodTable.ResolveBindings(this, NotExpandedMetSigs);
+			}
+			return NotExpandedMethodTable;
+		}
+
 		public MethodTable GetExpandedMethodTable()
 		{
 			if (ExpandedMethodTable == null)
 			{
-				InitMethodsExpand();
+				InitMethods();
 				ExpandedMethodTable = new MethodTable();
-				ExpandedMethodTable.ResolveBindings(this, ExpandedMethodDefs);
+				ExpandedMethodTable.ResolveBindings(this, ExpandedMetSigs);
 			}
 			return ExpandedMethodTable;
 		}
 
-		// 获得展开了类型泛型的方法签名集合
-		public HashSet<string> GetExpandedSigNames()
+		public List<string> GetExpandedSigNames()
 		{
-			InitMethodsExpand();
-			return new HashSet<string>(ExpandedMethodDefs.Keys);
+			return ExpandedMetSigs;
 		}
 
-		private void InitMethodsExpand()
+		public string GetNotExpandedSigName(int idx)
 		{
-			if (ExpandedMethodDefs != null)
+			return NotExpandedMetSigs[idx];
+		}
+
+		public MethodDef GetInstanceMethodDef(int idx)
+		{
+			return InstanceMetDefs[idx];
+		}
+
+		private void InitMethods()
+		{
+			if (InstanceMetDefs != null)
 				return;
 
-			ExpandedMethodDefs = new Dictionary<string, MethodDef>();
+			InstanceMetDefs = new List<MethodDef>();
+			ExpandedMetSigs = new List<string>();
+			NotExpandedMetSigs = new List<string>();
 
-			GenericReplacer replacer = new GenericReplacer();
-			replacer.OwnerType = this;
+			GenericReplacer replacer = null;
+			if (HasGenArgs)
+			{
+				replacer = new GenericReplacer();
+				replacer.OwnerType = this;
+			}
 
 			// 收集所有非静态方法的定义, 并加入映射
 			StringBuilder sb = new StringBuilder();
@@ -190,6 +218,8 @@ namespace il2cpp
 			{
 				if (metDef.IsStatic || metDef.IsConstructor)
 					continue;
+
+				InstanceMetDefs.Add(metDef);
 
 				// 展开返回值与参数类型
 				TypeSig retType = TypeManager.ReplaceGenericSig(metDef.MethodSig.RetType, replacer);
@@ -202,36 +232,8 @@ namespace il2cpp
 					retType,
 					paramTypes,
 					metDef.MethodSig.CallingConvention);
-
-				ExpandedMethodDefs.Add(sb.ToString(), metDef);
+				string expMetSigName = sb.ToString();
 				sb.Clear();
-			}
-		}
-
-		public MethodTable GetNotExpandedMethodTable()
-		{
-			if (NotExpandedMethodTable == null)
-			{
-				InitMethodsNotExpand();
-				NotExpandedMethodTable = new MethodTable();
-				NotExpandedMethodTable.ResolveBindings(this, NotExpandedMethodDefs);
-			}
-			return NotExpandedMethodTable;
-		}
-
-		private void InitMethodsNotExpand()
-		{
-			if (NotExpandedMethodDefs != null)
-				return;
-
-			NotExpandedMethodDefs = new Dictionary<string, MethodDef>();
-
-			// 收集所有非静态方法的定义, 并加入映射
-			StringBuilder sb = new StringBuilder();
-			foreach (var metDef in Def.Methods)
-			{
-				if (metDef.IsStatic || metDef.IsConstructor)
-					continue;
 
 				NameManager.MethodDefName(
 					sb,
@@ -240,9 +242,11 @@ namespace il2cpp
 					metDef.MethodSig.RetType,
 					metDef.MethodSig.Params,
 					metDef.MethodSig.CallingConvention);
-
-				NotExpandedMethodDefs.Add(sb.ToString(), metDef);
+				string notExpMetSigName = sb.ToString();
 				sb.Clear();
+
+				ExpandedMetSigs.Add(expMetSigName);
+				NotExpandedMetSigs.Add(notExpMetSigName);
 			}
 		}
 	}

@@ -31,6 +31,14 @@ namespace il2cpp
 			Context = context;
 		}
 
+		public static string TypeXSigName(TypeX tyX)
+		{
+			string name = EscapeName(tyX.DefFullName);
+			if (tyX.HasGenArgs)
+				return string.Format("{0}<{1}>", name, tyX.GenArgs.Count);
+			return name;
+		}
+
 		public static void MethodDefName(
 			StringBuilder sb,
 			string name,
@@ -47,17 +55,7 @@ namespace il2cpp
 			if (genParams != null && genParams.Count > 0)
 			{
 				sb.Append('<');
-				bool last = false;
-				foreach (var genParam in genParams)
-				{
-					if (last)
-						sb.Append(',');
-					last = true;
-
-					Debug.Assert(genParam.Owner.IsMethod);
-					sb.Append("!!");
-					sb.Append(genParam.Number);
-				}
+				sb.Append(genParams.Count);
 				sb.Append('>');
 			}
 
@@ -85,7 +83,7 @@ namespace il2cpp
 			if (genArgs != null)
 			{
 				sb.Append('<');
-				TypeSigListName(sb, genArgs);
+				sb.Append(genArgs.Count);
 				sb.Append('>');
 			}
 
