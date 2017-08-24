@@ -232,10 +232,10 @@ namespace il2cpp
 			}
 		}
 
-		public static void MethodDefName(
+		public static void MethodNameKey(
 			StringBuilder sb,
 			string name,
-			IList<GenericParam> genParams,
+			int genCount,
 			TypeSig retType,
 			IList<TypeSig> paramTypes,
 			CallingConvention callConv)
@@ -245,10 +245,10 @@ namespace il2cpp
 
 			TypeSigName(sb, retType, false);
 
-			if (genParams != null && genParams.Count > 0)
+			if (genCount > 0)
 			{
 				sb.Append('<');
-				sb.Append(genParams.Count);
+				sb.Append(genCount);
 				sb.Append('>');
 			}
 
@@ -260,35 +260,7 @@ namespace il2cpp
 			sb.Append(((uint)callConv).ToString("X"));
 		}
 
-		public static void MethodSigName(
-			StringBuilder sb,
-			string name,
-			IList<TypeSig> genArgs,
-			TypeSig retType,
-			IList<TypeSig> paramTypes,
-			CallingConvention callConv)
-		{
-			sb.Append(EscapeName(name));
-			sb.Append('|');
-
-			TypeSigName(sb, retType, false);
-
-			if (genArgs != null)
-			{
-				sb.Append('<');
-				sb.Append(genArgs.Count);
-				sb.Append('>');
-			}
-
-			sb.Append('(');
-			TypeSigListName(sb, paramTypes, false);
-			sb.Append(')');
-			sb.Append('|');
-
-			sb.Append(((uint)callConv).ToString("X"));
-		}
-
-		public static void FieldSigName(
+		public static void FieldNameKey(
 			StringBuilder sb,
 			string name,
 			TypeSig fldType)

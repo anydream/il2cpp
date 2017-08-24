@@ -201,10 +201,10 @@ namespace il2cpp
 
 				if (replacer == null)
 				{
-					Helper.MethodDefName(
+					Helper.MethodNameKey(
 						sb,
 						metDef.Name,
-						metDef.GenericParameters,
+						metDef.GenericParameters.Count,
 						metDef.MethodSig.RetType,
 						metDef.MethodSig.Params,
 						metDef.MethodSig.CallingConvention);
@@ -216,10 +216,10 @@ namespace il2cpp
 					TypeSig retType = Helper.ReplaceGenericSig(metDef.MethodSig.RetType, replacer);
 					IList<TypeSig> paramTypes = Helper.ReplaceGenericSigList(metDef.MethodSig.Params, replacer);
 
-					Helper.MethodDefName(
+					Helper.MethodNameKey(
 						sb,
 						metDef.Name,
-						metDef.GenericParameters,
+						metDef.GenericParameters.Count,
 						retType,
 						paramTypes,
 						metDef.MethodSig.CallingConvention);
