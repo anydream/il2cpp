@@ -32,7 +32,7 @@ namespace il2cpp
 						continue;
 					}
 
-					sb.AppendFormat("- \"{0}\": {1}\n", expSigName, impl);
+					sb.AppendFormat("- {0}: {1}\n", expSigName, impl);
 					foreach (var kv3 in entries)
 						sb.AppendFormat("  - {0} -> {1}\n", kv3.Key, kv3.Value);
 					sb.Append('\n');
@@ -61,15 +61,30 @@ namespace il2cpp
 				sb.Append(" - Methods:\n");
 				foreach (MethodX metX in tyX.MethodMap.Values)
 				{
-					sb.AppendFormat("   - \"{0}\", \"{1}\", {2}\n",
+					sb.AppendFormat("   - {0}, {1}, {2}\n",
 						metX.GetNameKey(),
 						metX.GetReplacedNameKey(),
 						metX.DefAttr);
+
+					if (metX.HasOverrideImpls)
+					{
+						foreach (MethodX overMetX in metX.OverrideImpls)
+						{
+							sb.AppendFormat("     - Impl: {0}, {1}\n",
+								overMetX,
+								overMetX.GetReplacedNameKey());
+						}
+					}
 				}
 
 				sb.Append(" - Fields:\n");
 				foreach (FieldX fldX in tyX.FieldMap.Values)
-					sb.AppendFormat("   - \"{0}\", {1}\n", fldX.GetNameKey(), fldX.DefAttr);
+				{
+					sb.AppendFormat("   - {0}, {1}, {2}\n",
+						fldX.GetNameKey(),
+						fldX.GetReplacedNameKey(),
+						fldX.DefAttr);
+				}
 
 				sb.Append('\n');
 			}

@@ -49,7 +49,8 @@ namespace il2cpp
 		public InstInfo[] InstList;
 
 		// 虚方法绑定的实现方法
-		private HashSet<MethodX> OverrideImpls;
+		public HashSet<MethodX> OverrideImpls;
+		public bool HasOverrideImpls => OverrideImpls != null && OverrideImpls.Count > 0;
 
 		public bool HasThis => DefSig.HasThis;
 		public bool IsVirtual => (DefAttr & MethodAttributes.Virtual) != 0;
