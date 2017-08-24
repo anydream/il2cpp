@@ -79,7 +79,7 @@ namespace il2cpp
 			{
 				// Name<GenArgs>
 				StringBuilder sb = new StringBuilder();
-				NameManager.TypeNameKey(sb, DefFullName, GenArgs);
+				NameManager.TypeNameKey(sb, DefFullName, GenArgs, true);
 				NameKey = sb.ToString();
 			}
 			return NameKey;

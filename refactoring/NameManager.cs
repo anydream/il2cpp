@@ -34,13 +34,14 @@ namespace il2cpp
 		public static void TypeNameKey(
 			StringBuilder sb,
 			string name,
-			IList<TypeSig> genArgs)
+			IList<TypeSig> genArgs,
+			bool printGenOwner)
 		{
 			sb.Append(EscapeName(name));
 			if (genArgs != null && genArgs.Count > 0)
 			{
 				sb.Append('<');
-				TypeSigListName(sb, genArgs);
+				TypeSigListName(sb, genArgs, printGenOwner);
 				sb.Append('>');
 			}
 		}
@@ -51,12 +52,13 @@ namespace il2cpp
 			IList<GenericParam> genParams,
 			TypeSig retType,
 			IList<TypeSig> paramTypes,
-			CallingConvention callConv)
+			CallingConvention callConv,
+			bool printGenOwner = false)
 		{
 			sb.Append(EscapeName(name));
 			sb.Append('|');
 
-			TypeSigName(sb, retType);
+			TypeSigName(sb, retType, printGenOwner);
 
 			if (genParams != null && genParams.Count > 0)
 			{
@@ -66,7 +68,7 @@ namespace il2cpp
 			}
 
 			sb.Append('(');
-			TypeSigListName(sb, paramTypes);
+			TypeSigListName(sb, paramTypes, printGenOwner);
 			sb.Append(')');
 			sb.Append('|');
 
@@ -79,12 +81,13 @@ namespace il2cpp
 			IList<TypeSig> genArgs,
 			TypeSig retType,
 			IList<TypeSig> paramTypes,
-			CallingConvention callConv)
+			CallingConvention callConv,
+			bool printGenOwner = false)
 		{
 			sb.Append(EscapeName(name));
 			sb.Append('|');
 
-			TypeSigName(sb, retType);
+			TypeSigName(sb, retType, printGenOwner);
 
 			if (genArgs != null)
 			{
@@ -94,14 +97,14 @@ namespace il2cpp
 			}
 
 			sb.Append('(');
-			TypeSigListName(sb, paramTypes);
+			TypeSigListName(sb, paramTypes, printGenOwner);
 			sb.Append(')');
 			sb.Append('|');
 
 			sb.Append(((uint)callConv).ToString("X"));
 		}
 
-		public static void TypeSigListName(StringBuilder sb, IList<TypeSig> tySigList)
+		public static void TypeSigListName(StringBuilder sb, IList<TypeSig> tySigList, bool printGenOwner)
 		{
 			bool last = false;
 			foreach (var tySig in tySigList)
@@ -109,11 +112,11 @@ namespace il2cpp
 				if (last)
 					sb.Append(',');
 				last = true;
-				TypeSigName(sb, tySig);
+				TypeSigName(sb, tySig, printGenOwner);
 			}
 		}
 
-		public static void TypeSigName(StringBuilder sb, TypeSig tySig)
+		public static void TypeSigName(StringBuilder sb, TypeSig tySig, bool printGenOwner)
 		{
 			if (tySig == null)
 				return;
@@ -126,27 +129,27 @@ namespace il2cpp
 					return;
 
 				case ElementType.Ptr:
-					TypeSigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next, printGenOwner);
 					sb.Append('*');
 					return;
 
 				case ElementType.ByRef:
-					TypeSigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next, printGenOwner);
 					sb.Append('&');
 					return;
 
 				case ElementType.Pinned:
-					TypeSigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next, printGenOwner);
 					return;
 
 				case ElementType.SZArray:
-					TypeSigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next, printGenOwner);
 					sb.Append("[]");
 					return;
 
 				case ElementType.Array:
 					{
-						TypeSigName(sb, tySig.Next);
+						TypeSigName(sb, tySig.Next, printGenOwner);
 						ArraySig arySig = (ArraySig)tySig;
 						sb.Append('[');
 						uint rank = arySig.Rank;
@@ -181,21 +184,21 @@ namespace il2cpp
 					}
 
 				case ElementType.CModReqd:
-					TypeSigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next, printGenOwner);
 					sb.AppendFormat(" modreq({0})", ((CModReqdSig)tySig).Modifier.FullName);
 					return;
 
 				case ElementType.CModOpt:
-					TypeSigName(sb, tySig.Next);
+					TypeSigName(sb, tySig.Next, printGenOwner);
 					sb.AppendFormat(" modopt({0})", ((CModOptSig)tySig).Modifier.FullName);
 					return;
 
 				case ElementType.GenericInst:
 					{
 						GenericInstSig genInstSig = (GenericInstSig)tySig;
-						TypeSigName(sb, genInstSig.GenericType);
+						TypeSigName(sb, genInstSig.GenericType, printGenOwner);
 						sb.Append('<');
-						TypeSigListName(sb, genInstSig.GenericArguments);
+						TypeSigListName(sb, genInstSig.GenericArguments, printGenOwner);
 						sb.Append('>');
 						return;
 					}
@@ -205,9 +208,25 @@ namespace il2cpp
 					{
 						var genSig = (GenericSig)tySig;
 						if (genSig.IsMethodVar)
+						{
 							sb.Append("!!");
+							if (printGenOwner)
+							{
+								sb.Append('(');
+								sb.Append(genSig.OwnerMethod.FullName);
+								sb.Append(')');
+							}
+						}
 						else
+						{
 							sb.Append('!');
+							if (printGenOwner)
+							{
+								sb.Append('(');
+								sb.Append(genSig.OwnerType.FullName);
+								sb.Append(')');
+							}
+						}
 						sb.Append(genSig.Number);
 						return;
 					}

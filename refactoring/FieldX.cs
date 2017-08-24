@@ -44,7 +44,7 @@ namespace il2cpp
 				StringBuilder sb = new StringBuilder();
 				sb.Append(NameManager.EscapeName(DefName));
 				sb.Append('|');
-				NameManager.TypeSigName(sb, FieldType);
+				NameManager.TypeSigName(sb, FieldType, false);
 				sb.Append('|');
 				sb.Append(((uint)DefAttr).ToString("X"));
 

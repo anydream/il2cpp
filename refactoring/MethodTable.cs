@@ -115,7 +115,7 @@ namespace il2cpp
 			if (NameKey == null)
 			{
 				StringBuilder sb = new StringBuilder();
-				NameManager.TypeNameKey(sb, Def.FullName, GenArgs);
+				NameManager.TypeNameKey(sb, Def.FullName, GenArgs, true);
 				NameKey = sb.ToString();
 			}
 			return NameKey;
@@ -243,8 +243,8 @@ namespace il2cpp
 					MethodTable entryTable = kv.Key;
 					MethodDef entryDef = kv.Value;
 
-					if (!vslot.Impl.IsValid())
-						throw new TypeLoadException("Interface has no implementation: " + entryDef.FullName);
+					if (!Def.IsInterface && !vslot.Impl.IsValid())
+						throw new TypeLoadException("Slot has no implementation: " + entryTable + entryDef.FullName);
 
 					SetVTable(entryTable, entryDef, ref vslot.Impl);
 				}

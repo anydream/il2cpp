@@ -429,10 +429,7 @@ namespace il2cpp
 			string nameKey = mtable.GetNameKey();
 			if (MethodTableMap.TryGetValue(nameKey, out var omtable))
 				return omtable;
-
-			// 只有可实例化的方法表才可以添加到映射
-			if (IsInstantiatableTypeSigList(mtable.GenArgs))
-				MethodTableMap.Add(nameKey, mtable);
+			MethodTableMap.Add(nameKey, mtable);
 
 			mtable.ResolveTable();
 
