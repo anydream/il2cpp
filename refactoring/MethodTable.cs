@@ -47,7 +47,9 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return ImplTable + " -> " + ImplMethod;
+			if (IsValid())
+				return ImplTable + " -> " + ImplMethod;
+			return "null";
 		}
 
 		public bool IsValid()
@@ -101,9 +103,9 @@ namespace il2cpp
 		private readonly List<string> ExpandedSigList = new List<string>();
 
 		// 方法槽映射
-		private readonly Dictionary<string, VirtualSlot> VSlotMap = new Dictionary<string, VirtualSlot>();
+		public readonly Dictionary<string, VirtualSlot> VSlotMap = new Dictionary<string, VirtualSlot>();
 
-		internal MethodTable(Il2cppContext context, TypeDef tyDef)
+		public MethodTable(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
 			Def = tyDef;

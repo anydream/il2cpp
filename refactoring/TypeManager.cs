@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
@@ -16,13 +15,13 @@ namespace il2cpp
 		// 实例类型映射
 		private readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
 		// 方法表映射
-		private readonly Dictionary<string, MethodTable> MethodTableMap = new Dictionary<string, MethodTable>();
+		public readonly Dictionary<string, MethodTable> MethodTableMap = new Dictionary<string, MethodTable>();
 		// 方法待处理队列
 		private readonly Queue<MethodX> PendingMethods = new Queue<MethodX>();
 		// 虚调用方法集合
 		private readonly HashSet<MethodX> VCallEntries = new HashSet<MethodX>();
 
-		internal TypeManager(Il2cppContext context)
+		public TypeManager(Il2cppContext context)
 		{
 			Context = context;
 		}

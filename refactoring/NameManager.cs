@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
-using dnlib.DotNet;
-using dnlib.Threading;
-
-namespace il2cpp
+﻿namespace il2cpp
 {
 	internal class NameManager
 	{
@@ -26,7 +19,7 @@ namespace il2cpp
 		internal const string LocalPrefix = "loc_";
 		internal const string ArgPrefix = "arg_";
 
-		internal NameManager(Il2cppContext context)
+		public NameManager(Il2cppContext context)
 		{
 			Context = context;
 		}

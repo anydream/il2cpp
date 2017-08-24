@@ -59,7 +59,7 @@ namespace il2cpp
 		// 是否跳过处理
 		public bool IsSkipProcessing;
 
-		internal MethodX(TypeX declType, MethodDef metDef)
+		public MethodX(TypeX declType, MethodDef metDef)
 		{
 			Debug.Assert(declType != null);
 			Debug.Assert(metDef.DeclaringType == declType.Def);

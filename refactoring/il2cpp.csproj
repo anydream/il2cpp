@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="FieldX.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="HierarchyDump.cs" />
     <Compile Include="Il2cppContext.cs" />
     <Compile Include="MethodTable.cs" />
     <Compile Include="MethodX.cs" />

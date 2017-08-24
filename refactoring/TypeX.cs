@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using dnlib.DotNet;
 
@@ -48,13 +47,13 @@ namespace il2cpp
 		// 字段映射
 		private readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
 
-		// 虚方法表
+		// 虚表
 		private VirtualTable VTable;
 
 		// 是否实例化过
 		public bool IsInstantiated;
 
-		internal TypeX(Il2cppContext context, TypeDef tyDef)
+		public TypeX(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
 			Def = tyDef;

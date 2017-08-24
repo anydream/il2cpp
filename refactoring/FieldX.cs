@@ -21,7 +21,7 @@ namespace il2cpp
 
 		public TypeSig FieldType;
 
-		internal FieldX(TypeX declType, FieldDef fldDef)
+		public FieldX(TypeX declType, FieldDef fldDef)
 		{
 			Debug.Assert(declType != null);
 			Debug.Assert(fldDef.DeclaringType == declType.Def);
