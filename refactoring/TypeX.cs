@@ -39,16 +39,15 @@ namespace il2cpp
 		public readonly List<TypeX> Interfaces = new List<TypeX>();
 
 		// 继承类型集合
-		private readonly HashSet<TypeX> DerivedTypes = new HashSet<TypeX>();
-		public bool IsDerivedTypesChanged { get; private set; }
+		public readonly HashSet<TypeX> DerivedTypes = new HashSet<TypeX>();
 
 		// 方法映射
-		private readonly Dictionary<string, MethodX> MethodMap = new Dictionary<string, MethodX>();
+		public readonly Dictionary<string, MethodX> MethodMap = new Dictionary<string, MethodX>();
 		// 字段映射
-		private readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
+		public readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
 
 		// 虚表
-		private VirtualTable VTable;
+		public VirtualTable VTable;
 
 		// 是否实例化过
 		public bool IsInstantiated;
@@ -97,11 +96,6 @@ namespace il2cpp
 			return thisSig;
 		}
 
-		public HashSet<TypeX> GetDerivedTypes()
-		{
-			return DerivedTypes;
-		}
-
 		public void UpdateDerivedTypes()
 		{
 			BaseType?.AddDerivedTypeRecursive(this);
@@ -111,7 +105,6 @@ namespace il2cpp
 
 		private void AddDerivedTypeRecursive(TypeX tyX)
 		{
-			IsDerivedTypesChanged = true;
 			DerivedTypes.Add(tyX);
 
 			// 递归添加

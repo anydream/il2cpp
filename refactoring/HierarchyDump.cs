@@ -32,11 +32,45 @@ namespace il2cpp
 						continue;
 					}
 
-					sb.AppendFormat("- {0}: {1}\n", expSigName, impl);
+					sb.AppendFormat("- \"{0}\": {1}\n", expSigName, impl);
 					foreach (var kv3 in entries)
 						sb.AppendFormat("  - {0} -> {1}\n", kv3.Key, kv3.Value);
 					sb.Append('\n');
 				}
+				sb.Append('\n');
+			}
+		}
+
+		public void DumpTypes(StringBuilder sb)
+		{
+			foreach (var kv in Context.TypeMgr.TypeMap)
+			{
+				TypeX tyX = kv.Value;
+				sb.AppendFormat("[{0} {1}] {2}\n",
+					tyX.IsValueType ? "struct" : "class",
+					kv.Key,
+					tyX.DefAttr);
+
+				if (tyX.BaseType != null)
+					sb.AppendFormat(" - Base: {0}\n", tyX.BaseType);
+				foreach (TypeX infTyX in tyX.Interfaces)
+					sb.AppendFormat(" - Interface: {0}\n", infTyX);
+				foreach (TypeX derivedTyX in tyX.DerivedTypes)
+					sb.AppendFormat(" - DerivedType: {0}\n", derivedTyX);
+
+				sb.Append(" - Methods:\n");
+				foreach (MethodX metX in tyX.MethodMap.Values)
+				{
+					sb.AppendFormat("   - \"{0}\", \"{1}\", {2}\n",
+						metX.GetNameKey(),
+						metX.GetReplacedNameKey(),
+						metX.DefAttr);
+				}
+
+				sb.Append(" - Fields:\n");
+				foreach (FieldX fldX in tyX.FieldMap.Values)
+					sb.AppendFormat("   - \"{0}\", {1}\n", fldX.GetNameKey(), fldX.DefAttr);
+
 				sb.Append('\n');
 			}
 		}

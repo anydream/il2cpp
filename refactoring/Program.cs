@@ -13,7 +13,13 @@ namespace il2cpp
 
 			HierarchyDump dumper = new HierarchyDump(context);
 			StringBuilder sb = new StringBuilder();
+
+			sb.Append("* MethodTables:\n");
 			dumper.DumpMethodTables(sb);
+
+			sb.Append("* Types:\n");
+			dumper.DumpTypes(sb);
+
 			Console.Write(sb.ToString());
 		}
 	}

@@ -100,9 +100,6 @@ namespace il2cpp
 		{
 			if (NameKey == null)
 			{
-				Debug.Assert(ReturnType != null);
-				Debug.Assert(ParamTypes != null);
-
 				// Name|RetType<GenArgs>(DefArgList)|CC|Attr
 				StringBuilder sb = new StringBuilder();
 				Helper.MethodNameKey(sb, DefName, GenArgs?.Count ?? 0, DefSig.RetType, DefSig.Params, DefSig.CallingConvention);
@@ -112,6 +109,17 @@ namespace il2cpp
 				NameKey = sb.ToString();
 			}
 			return NameKey;
+		}
+
+		public string GetReplacedNameKey()
+		{
+			Debug.Assert(ReturnType != null);
+			Debug.Assert(ParamTypes != null);
+
+			StringBuilder sb = new StringBuilder();
+			Helper.MethodNameKey(sb, DefName, GenArgs?.Count ?? 0, ReturnType, ParamTypes, DefSig.CallingConvention);
+
+			return sb.ToString();
 		}
 
 		public void AddOverrideImpl(MethodX impl)

@@ -13,13 +13,13 @@ namespace il2cpp
 		private readonly Il2cppContext Context;
 
 		// 实例类型映射
-		private readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
+		public readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
 		// 方法表映射
 		public readonly Dictionary<string, MethodTable> MethodTableMap = new Dictionary<string, MethodTable>();
+		// 虚调用方法集合
+		public readonly HashSet<MethodX> VCallEntries = new HashSet<MethodX>();
 		// 方法待处理队列
 		private readonly Queue<MethodX> PendingMethods = new Queue<MethodX>();
-		// 虚调用方法集合
-		private readonly HashSet<MethodX> VCallEntries = new HashSet<MethodX>();
 
 		public TypeManager(Il2cppContext context)
 		{
@@ -216,8 +216,7 @@ namespace il2cpp
 				MethodDef entryDef = virtMetX.Def;
 
 				// 获得虚方法的所有继承类型
-				var derivedTypes = virtMetX.DeclType.GetDerivedTypes();
-				foreach (TypeX derivedTyX in derivedTypes)
+				foreach (TypeX derivedTyX in virtMetX.DeclType.DerivedTypes)
 				{
 					// 跳过没有实例化的类型
 					if (!derivedTyX.IsInstantiated)
@@ -267,16 +266,15 @@ namespace il2cpp
 		{
 			Debug.Assert(fldX != null);
 
-			IGenericReplacer replacer = new GenericReplacer(fldX.DeclType, null);
-
-			// 展开签名所需的类型
-			fldX.FieldType = Helper.ReplaceGenericSig(fldX.DefSig, replacer);
-
 			// 尝试添加到所属类型
 			string nameKey = fldX.GetNameKey();
 			if (fldX.DeclType.GetField(nameKey, out var ofldX))
 				return ofldX;
 			fldX.DeclType.AddField(nameKey, fldX);
+
+			IGenericReplacer replacer = new GenericReplacer(fldX.DeclType, null);
+			// 展开字段类型
+			fldX.FieldType = Helper.ReplaceGenericSig(fldX.DefFieldType, replacer);
 
 			return fldX;
 		}
@@ -330,20 +328,20 @@ namespace il2cpp
 		{
 			Debug.Assert(metX != null);
 
-			IGenericReplacer replacer = new GenericReplacer(metX.DeclType, metX);
-
-			// 展开签名所需的类型
-			metX.ReturnType = Helper.ReplaceGenericSig(metX.DefSig.RetType, replacer);
-			metX.ParamTypes = Helper.ReplaceGenericSigList(metX.DefSig.Params, replacer);
-			if (metX.HasThis)
-				metX.ParamTypes.Insert(0, Helper.ReplaceGenericSig(metX.DeclType.GetThisTypeSig(), replacer));
-			metX.ParamAfterSentinel = Helper.ReplaceGenericSigList(metX.DefSig.ParamsAfterSentinel, replacer);
-
 			// 尝试添加到所属类型
 			string nameKey = metX.GetNameKey();
 			if (metX.DeclType.GetMethod(nameKey, out var ometX))
 				return ometX;
 			metX.DeclType.AddMethod(nameKey, metX);
+
+			IGenericReplacer replacer = new GenericReplacer(metX.DeclType, metX);
+
+			// 展开返回值和参数类型
+			metX.ReturnType = Helper.ReplaceGenericSig(metX.DefSig.RetType, replacer);
+			metX.ParamTypes = Helper.ReplaceGenericSigList(metX.DefSig.Params, replacer);
+			if (metX.HasThis)
+				metX.ParamTypes.Insert(0, Helper.ReplaceGenericSig(metX.DeclType.GetThisTypeSig(), replacer));
+			metX.ParamAfterSentinel = Helper.ReplaceGenericSigList(metX.DefSig.ParamsAfterSentinel, replacer);
 
 			// 展开局部变量类型
 			metX.LocalTypes = Helper.ReplaceGenericSigList(metX.LocalTypes, replacer);
