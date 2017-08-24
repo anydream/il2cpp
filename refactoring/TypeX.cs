@@ -17,7 +17,7 @@ namespace il2cpp
 		public readonly Il2cppContext Context;
 
 		// 类型定义
-		public TypeDef Def;
+		public readonly TypeDef Def;
 		// 类型全名
 		public readonly string DefFullName;
 		// 类型签名

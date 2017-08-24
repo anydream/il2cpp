@@ -121,10 +121,8 @@ namespace il2cpp
 
 		// 实例方法列表
 		private readonly List<MethodDef> MethodDefList = new List<MethodDef>();
-		// 原始方法签名列表
-		private readonly List<string> OrigSigList = new List<string>();
 		// 展开类型泛型的方法签名列表
-		private List<string> ExpandedSigList = new List<string>();
+		private readonly List<string> ExpandedSigList = new List<string>();
 
 		// 方法槽映射
 		private readonly Dictionary<string, VirtualSlot> VSlotMap = new Dictionary<string, VirtualSlot>();
@@ -166,6 +164,13 @@ namespace il2cpp
 		public VirtualTable ExpandVTable(IList<TypeSig> tyGenArgs)
 		{
 			Debug.Assert(!HasGenArgs);
+			Debug.Assert(Def.GenericParameters.Count == tyGenArgs.Count);
+
+			// 展开当前类型名
+			StringBuilder sb = new StringBuilder();
+			NameManager.TypeNameKey(sb, Def.FullName, tyGenArgs, true);
+			string thisNameKey = sb.ToString();
+			sb = null;
 
 			VirtualTable vtable = new VirtualTable();
 
@@ -183,8 +188,17 @@ namespace il2cpp
 					MethodTable implTable = vslot.Impl.ImplTable;
 					MethodDef implDef = vslot.Impl.ImplMethod;
 
-					string entryType = entryTable.GetReplacedNameKey(replacer);
-					string implType = implTable.GetReplacedNameKey(replacer);
+					string entryType;
+					if (entryTable == this)
+						entryType = thisNameKey;
+					else
+						entryType = entryTable.GetReplacedNameKey(replacer);
+
+					string implType;
+					if (implTable == this)
+						implType = thisNameKey;
+					else
+						implType = implTable.GetReplacedNameKey(replacer);
 
 					vtable.Set(entryType, entryDef, implType, implDef);
 				}
@@ -209,18 +223,19 @@ namespace il2cpp
 
 				MethodDefList.Add(metDef);
 
-				NameManager.MethodDefName(
-					sb,
-					metDef.Name,
-					metDef.GenericParameters,
-					metDef.MethodSig.RetType,
-					metDef.MethodSig.Params,
-					metDef.MethodSig.CallingConvention);
-				OrigSigList.Add(sb.ToString());
-				sb.Clear();
-
-				// 如果存在替换器则生成替换的方法签名
-				if (replacer != null)
+				if (replacer == null)
+				{
+					NameManager.MethodDefName(
+						sb,
+						metDef.Name,
+						metDef.GenericParameters,
+						metDef.MethodSig.RetType,
+						metDef.MethodSig.Params,
+						metDef.MethodSig.CallingConvention);
+					ExpandedSigList.Add(sb.ToString());
+					sb.Clear();
+				}
+				else
 				{
 					TypeSig retType = TypeManager.ReplaceGenericSig(metDef.MethodSig.RetType, replacer);
 					IList<TypeSig> paramTypes = TypeManager.ReplaceGenericSigList(metDef.MethodSig.Params, replacer);
@@ -236,10 +251,6 @@ namespace il2cpp
 					sb.Clear();
 				}
 			}
-
-			// 如果没有可替换的泛型参数则引用原始的方法签名
-			if (replacer == null)
-				ExpandedSigList = OrigSigList;
 
 			// 解析并继承基类方法表
 			if (Def.BaseType != null)
@@ -315,11 +326,13 @@ namespace il2cpp
 				{
 					foreach (var kv in vslot.Entries)
 					{
-						MethodTable entryTable = kv.Key;
-						MethodDef entryDef = kv.Value;
-
 						if (!vslot.Impl.IsValid())
+						{
+							MethodTable entryTable = kv.Key;
+							MethodDef entryDef = kv.Value;
+
 							throw new TypeLoadException("Slot has no implementation: " + entryTable + entryDef.FullName);
+						}
 					}
 				}
 			}

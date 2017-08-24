@@ -23,6 +23,8 @@ namespace il2cpp
 
 		internal FieldX(TypeX declType, FieldDef fldDef)
 		{
+			Debug.Assert(declType != null);
+			Debug.Assert(fldDef.DeclaringType == declType.Def);
 			DeclType = declType;
 			DefName = fldDef.Name;
 			DefSig = fldDef.FieldType;

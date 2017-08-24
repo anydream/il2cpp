@@ -58,8 +58,10 @@ namespace il2cpp
 
 		internal MethodX(TypeX declType, MethodDef metDef)
 		{
-			Def = metDef;
+			Debug.Assert(declType != null);
+			Debug.Assert(metDef.DeclaringType == declType.Def);
 			DeclType = declType;
+			Def = metDef;
 			DefFullName = metDef.FullName;
 			DefName = metDef.Name;
 			DefSig = metDef.MethodSig;
