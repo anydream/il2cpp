@@ -23,8 +23,6 @@ namespace il2cpp
 		public readonly TypeX DeclType;
 
 		public readonly MethodDef Def;
-		// 方法全名
-		public readonly string DefFullName;
 		// 方法名
 		public readonly string DefName;
 		// 方法签名
@@ -67,7 +65,6 @@ namespace il2cpp
 			Debug.Assert(metDef.DeclaringType == declType.Def);
 			DeclType = declType;
 			Def = metDef;
-			DefFullName = metDef.FullName;
 			DefName = metDef.Name;
 			DefSig = metDef.MethodSig;
 			DefAttr = metDef.Attributes;
@@ -96,7 +93,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return NameKey;
+			return DeclType + " -> " + NameKey;
 		}
 
 		public string GetNameKey()

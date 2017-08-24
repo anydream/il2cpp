@@ -71,7 +71,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return ImplTable + " : " + ImplMethod;
+			return ImplTable + " -> " + ImplMethod;
 		}
 
 		public bool IsValid()

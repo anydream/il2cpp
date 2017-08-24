@@ -27,16 +27,14 @@ namespace il2cpp
 
 		public TypeSig Replace(GenericVar genVarSig)
 		{
-			if (genVarSig.OwnerType.Attributes == OwnerType.DefAttr &&
-				genVarSig.OwnerType.FullName == OwnerType.DefFullName)
+			if (genVarSig.OwnerType == OwnerType.Def)
 				return OwnerType.GenArgs[(int)genVarSig.Number];
 			return genVarSig;
 		}
 
 		public TypeSig Replace(GenericMVar genMVarSig)
 		{
-			if (genMVarSig.OwnerMethod.Attributes == OwnerMethod.DefAttr &&
-				genMVarSig.OwnerMethod.FullName == OwnerMethod.DefFullName)
+			if (genMVarSig.OwnerMethod == OwnerMethod.Def)
 				return OwnerMethod.GenArgs[(int)genMVarSig.Number];
 			return genMVarSig;
 		}

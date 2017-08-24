@@ -33,7 +33,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return NameKey;
+			return DeclType + " -> " + NameKey;
 		}
 
 		public string GetNameKey()
