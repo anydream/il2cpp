@@ -78,6 +78,17 @@ namespace il2cpp
 				{
 					MethodX metX = PendingMethods.Dequeue();
 
+					// 跳过不需要处理的方法
+					if (metX.IsSkipProcessing)
+						continue;
+
+					// 跳过已处理的方法
+					if (metX.IsProcessed)
+						continue;
+
+					// 设置已处理标记
+					metX.IsProcessed = true;
+
 					// 展开指令列表
 					BuildInstructions(metX);
 				}
@@ -194,6 +205,8 @@ namespace il2cpp
 						{
 							// 记录虚入口
 							VCallEntries.Add(resMetX);
+							// 跳过该方法的处理
+							resMetX.IsSkipProcessing = true;
 						}
 
 						inst.Operand = resMetX;
@@ -259,6 +272,10 @@ namespace il2cpp
 
 						// 关联实现方法到虚方法
 						virtMetX.AddOverrideImpl(implMetX);
+
+						// 处理该方法
+						implMetX.IsSkipProcessing = false;
+						AddPendingMethod(implMetX);
 					}
 					else
 						throw new ArgumentOutOfRangeException();
@@ -371,9 +388,15 @@ namespace il2cpp
 			metX.DefHandlers = null;
 
 			// 添加到待处理队列
-			PendingMethods.Enqueue(metX);
+			AddPendingMethod(metX);
 
 			return metX;
+		}
+
+		private void AddPendingMethod(MethodX metX)
+		{
+			if (!metX.IsProcessed)
+				PendingMethods.Enqueue(metX);
 		}
 
 		private void ExpandType(TypeX tyX)

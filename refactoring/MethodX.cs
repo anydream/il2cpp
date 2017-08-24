@@ -56,6 +56,11 @@ namespace il2cpp
 		public bool HasThis => DefSig.HasThis;
 		public bool IsVirtual => (DefAttr & MethodAttributes.Virtual) != 0;
 
+		// 是否已处理过
+		public bool IsProcessed;
+		// 是否跳过处理
+		public bool IsSkipProcessing;
+
 		internal MethodX(TypeX declType, MethodDef metDef)
 		{
 			Debug.Assert(declType != null);
