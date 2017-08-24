@@ -31,12 +31,18 @@ namespace il2cpp
 			Context = context;
 		}
 
-		public static string TypeXSigName(TypeX tyX)
+		public static void TypeNameKey(
+			StringBuilder sb,
+			string name,
+			IList<TypeSig> genArgs)
 		{
-			string name = EscapeName(tyX.DefFullName);
-			if (tyX.HasGenArgs)
-				return string.Format("{0}<{1}>", name, tyX.GenArgs.Count);
-			return name;
+			sb.Append(EscapeName(name));
+			if (genArgs != null && genArgs.Count > 0)
+			{
+				sb.Append('<');
+				TypeSigListName(sb, genArgs);
+				sb.Append('>');
+			}
 		}
 
 		public static void MethodDefName(

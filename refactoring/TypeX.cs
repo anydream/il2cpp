@@ -48,18 +48,6 @@ namespace il2cpp
 		// 字段映射
 		private readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
 
-		// 实例方法定义列表
-		private List<MethodDef> InstanceMetDefs;
-		// 展开泛型类型的方法签名
-		private List<string> ExpandedMetSigs;
-		// 不展开泛型类型的方法签名
-		private List<string> NotExpandedMetSigs;
-
-		// 展开的方法表
-		private MethodTable ExpandedMethodTable;
-		// 不展开的方法表
-		private MethodTable NotExpandedMethodTable;
-
 		// 是否可实例化
 		public bool IsInstantiatable;
 		// 是否实例化过
@@ -93,14 +81,7 @@ namespace il2cpp
 			{
 				// Name<GenArgs>
 				StringBuilder sb = new StringBuilder();
-				sb.Append(NameManager.EscapeName(DefFullName));
-				if (HasGenArgs)
-				{
-					sb.Append('<');
-					NameManager.TypeSigListName(sb, GenArgs);
-					sb.Append('>');
-				}
-
+				NameManager.TypeNameKey(sb, DefFullName, GenArgs);
 				NameKey = sb.ToString();
 			}
 			return NameKey;
@@ -159,95 +140,9 @@ namespace il2cpp
 			FieldMap.Add(key, fldX);
 		}
 
-		public MethodTable GetNotExpandedMethodTable()
+		public void ResolveMethodTable()
 		{
-			if (NotExpandedMethodTable == null)
-			{
-				InitMethods();
-				NotExpandedMethodTable = new MethodTable();
-				NotExpandedMethodTable.ResolveBindings(this, NotExpandedMetSigs);
-			}
-			return NotExpandedMethodTable;
-		}
-
-		public MethodTable GetExpandedMethodTable()
-		{
-			if (ExpandedMethodTable == null)
-			{
-				InitMethods();
-				ExpandedMethodTable = new MethodTable();
-				ExpandedMethodTable.ResolveBindings(this, ExpandedMetSigs);
-			}
-			return ExpandedMethodTable;
-		}
-
-		public List<string> GetExpandedSigNames()
-		{
-			return ExpandedMetSigs;
-		}
-
-		public string GetNotExpandedSigName(int idx)
-		{
-			return NotExpandedMetSigs[idx];
-		}
-
-		public MethodDef GetInstanceMethodDef(int idx)
-		{
-			return InstanceMetDefs[idx];
-		}
-
-		private void InitMethods()
-		{
-			if (InstanceMetDefs != null)
-				return;
-
-			InstanceMetDefs = new List<MethodDef>();
-			ExpandedMetSigs = new List<string>();
-			NotExpandedMetSigs = new List<string>();
-
-			GenericReplacer replacer = null;
-			if (HasGenArgs)
-			{
-				replacer = new GenericReplacer();
-				replacer.OwnerType = this;
-			}
-
-			// 收集所有非静态方法的定义, 并加入映射
-			StringBuilder sb = new StringBuilder();
-			foreach (var metDef in Def.Methods)
-			{
-				if (metDef.IsStatic || metDef.IsConstructor)
-					continue;
-
-				InstanceMetDefs.Add(metDef);
-
-				// 展开返回值与参数类型
-				TypeSig retType = TypeManager.ReplaceGenericSig(metDef.MethodSig.RetType, replacer);
-				IList<TypeSig> paramTypes = TypeManager.ReplaceGenericSigList(metDef.MethodSig.Params, replacer);
-
-				NameManager.MethodDefName(
-					sb,
-					metDef.Name,
-					metDef.GenericParameters,
-					retType,
-					paramTypes,
-					metDef.MethodSig.CallingConvention);
-				string expMetSigName = sb.ToString();
-				sb.Clear();
-
-				NameManager.MethodDefName(
-					sb,
-					metDef.Name,
-					metDef.GenericParameters,
-					metDef.MethodSig.RetType,
-					metDef.MethodSig.Params,
-					metDef.MethodSig.CallingConvention);
-				string notExpMetSigName = sb.ToString();
-				sb.Clear();
-
-				ExpandedMetSigs.Add(expMetSigName);
-				NotExpandedMetSigs.Add(notExpMetSigName);
-			}
+			MethodTable mtable = Context.TypeMgr.ResolveMethodTable(Def, null);
 		}
 	}
 }

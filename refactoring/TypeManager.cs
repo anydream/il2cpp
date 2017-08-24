@@ -8,10 +8,22 @@ using dnlib.DotNet.Emit;
 namespace il2cpp
 {
 	// 泛型签名替换器
-	internal class GenericReplacer
+	internal interface IGenericReplacer
 	{
-		public TypeX OwnerType;
-		public MethodX OwnerMethod;
+		TypeSig Replace(GenericVar genVarSig);
+		TypeSig Replace(GenericMVar genMVarSig);
+	}
+
+	internal class GenericReplacer : IGenericReplacer
+	{
+		public readonly TypeX OwnerType;
+		public readonly MethodX OwnerMethod;
+
+		public GenericReplacer(TypeX ownerTyX, MethodX ownerMetX)
+		{
+			OwnerType = ownerTyX;
+			OwnerMethod = ownerMetX;
+		}
 
 		public TypeSig Replace(GenericVar genVarSig)
 		{
@@ -38,6 +50,10 @@ namespace il2cpp
 
 		// 实例类型映射
 		private readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
+
+		// 方法表映射
+		private readonly Dictionary<string, MethodTable> MethodTableMap = new Dictionary<string, MethodTable>();
+
 		// 方法待处理队列
 		private readonly Queue<MethodX> PendingMethods = new Queue<MethodX>();
 
@@ -79,9 +95,7 @@ namespace il2cpp
 			if (metX.DefInstList == null)
 				return;
 
-			GenericReplacer replacer = new GenericReplacer();
-			replacer.OwnerType = metX.DeclType;
-			replacer.OwnerMethod = metX;
+			IGenericReplacer replacer = new GenericReplacer(metX.DeclType, metX);
 
 			var defInstList = metX.DefInstList;
 			int numInsts = defInstList.Count;
@@ -137,7 +151,7 @@ namespace il2cpp
 			metX.DefInstList = null;
 		}
 
-		private void ResolveOperand(InstInfo inst, GenericReplacer replacer)
+		private void ResolveOperand(InstInfo inst, IGenericReplacer replacer)
 		{
 			switch (inst.OpCode.OperandType)
 			{
@@ -171,7 +185,7 @@ namespace il2cpp
 							//! 生成静态构造和终结器
 
 							// 展开虚方法表
-							resMetX.DeclType.GetNotExpandedMethodTable();
+							resMetX.DeclType.ResolveMethodTable();
 						}
 						else if (inst.OpCode.Code == Code.Callvirt ||
 								 inst.OpCode.Code == Code.Ldvirtftn)
@@ -221,7 +235,7 @@ namespace il2cpp
 			return AddField(fldX);
 		}
 
-		public FieldX ResolveFieldRef(MemberRef memRef, GenericReplacer replacer)
+		public FieldX ResolveFieldRef(MemberRef memRef, IGenericReplacer replacer)
 		{
 			Debug.Assert(memRef.IsFieldRef);
 
@@ -234,8 +248,7 @@ namespace il2cpp
 		{
 			Debug.Assert(fldX != null);
 
-			GenericReplacer replacer = new GenericReplacer();
-			replacer.OwnerType = fldX.DeclType;
+			IGenericReplacer replacer = new GenericReplacer(fldX.DeclType, null);
 
 			// 展开签名所需的类型
 			fldX.FieldType = ReplaceGenericSig(fldX.DefSig, replacer);
@@ -258,7 +271,7 @@ namespace il2cpp
 		}
 
 		// 解析方法引用并添加
-		public MethodX ResolveMethodRef(MemberRef memRef, GenericReplacer replacer)
+		public MethodX ResolveMethodRef(MemberRef memRef, IGenericReplacer replacer)
 		{
 			Debug.Assert(memRef.IsMethodRef);
 
@@ -280,7 +293,7 @@ namespace il2cpp
 		}
 
 		// 解析泛型方法并添加
-		public MethodX ResolveMethodSpec(MethodSpec metSpec, GenericReplacer replacer)
+		public MethodX ResolveMethodSpec(MethodSpec metSpec, IGenericReplacer replacer)
 		{
 			TypeX declType = ResolveITypeDefOrRef(metSpec.DeclaringType, replacer);
 
@@ -298,9 +311,7 @@ namespace il2cpp
 		{
 			Debug.Assert(metX != null);
 
-			GenericReplacer replacer = new GenericReplacer();
-			replacer.OwnerType = metX.DeclType;
-			replacer.OwnerMethod = metX;
+			IGenericReplacer replacer = new GenericReplacer(metX.DeclType, metX);
 
 			// 展开签名所需的类型
 			metX.ReturnType = ReplaceGenericSig(metX.DefSig.RetType, replacer);
@@ -329,8 +340,7 @@ namespace il2cpp
 
 		private void ExpandType(TypeX tyX)
 		{
-			GenericReplacer replacer = new GenericReplacer();
-			replacer.OwnerType = tyX;
+			IGenericReplacer replacer = new GenericReplacer(tyX, null);
 
 			// 解析基类
 			if (tyX.DefBaseType != null)
@@ -364,7 +374,7 @@ namespace il2cpp
 		}
 
 		// 解析类型并添加到映射
-		public TypeX ResolveITypeDefOrRef(ITypeDefOrRef tyDefRef, GenericReplacer replacer)
+		public TypeX ResolveITypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
 		{
 			TypeX tyX = ResolveITypeDefOrRefImpl(tyDefRef, replacer);
 			Debug.Assert(tyX != null);
@@ -382,7 +392,7 @@ namespace il2cpp
 		}
 
 		// 解析类型引用
-		private TypeX ResolveITypeDefOrRefImpl(ITypeDefOrRef tyDefRef, GenericReplacer replacer)
+		private TypeX ResolveITypeDefOrRefImpl(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
 		{
 			switch (tyDefRef)
 			{
@@ -407,7 +417,7 @@ namespace il2cpp
 		}
 
 		// 解析类型签名
-		private TypeX ResolveTypeSigImpl(TypeSig tySig, GenericReplacer replacer)
+		private TypeX ResolveTypeSigImpl(TypeSig tySig, IGenericReplacer replacer)
 		{
 			switch (tySig)
 			{
@@ -419,6 +429,63 @@ namespace il2cpp
 						TypeX genType = ResolveITypeDefOrRefImpl(genInstSig.GenericType.TypeDefOrRef, null);
 						genType.GenArgs = ReplaceGenericSigList(genInstSig.GenericArguments, replacer);
 						return genType;
+					}
+
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		public MethodTable ResolveMethodTable(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
+		{
+			MethodTable mtable = ResolveMethodTableImpl(tyDefRef, replacer);
+
+			string nameKey = mtable.GetNameKey();
+			if (MethodTableMap.TryGetValue(nameKey, out var omtable))
+				return omtable;
+			MethodTableMap.Add(nameKey, mtable);
+
+			mtable.ResolveTable();
+
+			return mtable;
+		}
+
+		private MethodTable ResolveMethodTableImpl(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
+		{
+			switch (tyDefRef)
+			{
+				case TypeDef tyDef:
+					return new MethodTable(Context, CorrectTypeDefVersion(tyDef));
+
+				case TypeRef tyRef:
+					{
+						TypeDef tyDef = tyRef.Resolve();
+						if (tyDef != null)
+							return new MethodTable(Context, CorrectTypeDefVersion(tyDef));
+
+						throw new NotSupportedException();
+					}
+
+				case TypeSpec tySpec:
+					return ResolveMethodTableImpl(tySpec.TypeSig, replacer);
+
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		private MethodTable ResolveMethodTableImpl(TypeSig tySig, IGenericReplacer replacer)
+		{
+			switch (tySig)
+			{
+				case TypeDefOrRefSig tyDefRefSig:
+					return ResolveMethodTableImpl(tyDefRefSig.TypeDefOrRef, null);
+
+				case GenericInstSig genInstSig:
+					{
+						MethodTable mtable = ResolveMethodTableImpl(genInstSig.GenericType.TypeDefOrRef, null);
+						mtable.GenArgs = ReplaceGenericSigList(genInstSig.GenericArguments, replacer);
+						return mtable;
 					}
 
 				default:
@@ -445,7 +512,7 @@ namespace il2cpp
 		}
 
 		// 替换类型中的泛型签名
-		public static TypeSig ReplaceGenericSig(TypeSig tySig, GenericReplacer replacer)
+		public static TypeSig ReplaceGenericSig(TypeSig tySig, IGenericReplacer replacer)
 		{
 			if (replacer == null || !IsReplaceNeeded(tySig))
 				return tySig;
@@ -453,7 +520,7 @@ namespace il2cpp
 			return ReplaceGenericSigImpl(tySig, replacer);
 		}
 
-		private static TypeSig ReplaceGenericSigImpl(TypeSig tySig, GenericReplacer replacer)
+		private static TypeSig ReplaceGenericSigImpl(TypeSig tySig, IGenericReplacer replacer)
 		{
 			if (tySig == null)
 				return null;
@@ -523,12 +590,12 @@ namespace il2cpp
 		}
 
 		// 替换类型签名列表
-		public static IList<TypeSig> ReplaceGenericSigList(IList<TypeSig> tySigList, GenericReplacer replacer)
+		public static IList<TypeSig> ReplaceGenericSigList(IList<TypeSig> tySigList, IGenericReplacer replacer)
 		{
 			return tySigList?.Select(tySig => ReplaceGenericSig(tySig, replacer)).ToList();
 		}
 
-		private static IList<TypeSig> ReplaceGenericSigListImpl(IList<TypeSig> tySigList, GenericReplacer replacer)
+		private static IList<TypeSig> ReplaceGenericSigListImpl(IList<TypeSig> tySigList, IGenericReplacer replacer)
 		{
 			return tySigList?.Select(tySig => ReplaceGenericSigImpl(tySig, replacer)).ToList();
 		}
