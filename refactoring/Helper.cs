@@ -260,6 +260,34 @@ namespace il2cpp
 			sb.Append(((uint)callConv).ToString("X"));
 		}
 
+		public static void MethodNameKeyWithGen(
+			StringBuilder sb,
+			string name,
+			IList<TypeSig> genArgs,
+			TypeSig retType,
+			IList<TypeSig> paramTypes,
+			CallingConvention callConv)
+		{
+			sb.Append(EscapeName(name));
+			sb.Append('|');
+
+			TypeSigName(sb, retType, false);
+
+			if (genArgs != null && genArgs.Count > 0)
+			{
+				sb.Append('<');
+				TypeSigListName(sb, genArgs, false);
+				sb.Append('>');
+			}
+
+			sb.Append('(');
+			TypeSigListName(sb, paramTypes, false);
+			sb.Append(')');
+			sb.Append('|');
+
+			sb.Append(((uint)callConv).ToString("X"));
+		}
+
 		public static void FieldNameKey(
 			StringBuilder sb,
 			string name,

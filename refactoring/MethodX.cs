@@ -117,7 +117,7 @@ namespace il2cpp
 			Debug.Assert(ParamTypes != null);
 
 			StringBuilder sb = new StringBuilder();
-			Helper.MethodNameKey(sb, DefName, GenArgs?.Count ?? 0, ReturnType, ParamTypes, DefSig.CallingConvention);
+			Helper.MethodNameKeyWithGen(sb, DefName, GenArgs, ReturnType, ParamTypes, DefSig.CallingConvention);
 
 			return sb.ToString();
 		}
