@@ -50,12 +50,12 @@ namespace il2cpp
 
 		// 实例类型映射
 		private readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
-
 		// 方法表映射
 		private readonly Dictionary<string, MethodTable> MethodTableMap = new Dictionary<string, MethodTable>();
-
 		// 方法待处理队列
 		private readonly Queue<MethodX> PendingMethods = new Queue<MethodX>();
+		// 虚调用方法集合
+		private readonly HashSet<MethodX> VCallEntries = new HashSet<MethodX>();
 
 		internal TypeManager(Il2cppContext context)
 		{
@@ -83,8 +83,9 @@ namespace il2cpp
 				}
 				while (PendingMethods.Count > 0);
 
+				// 解析虚调用
+				ResolveVCalls();
 				//! 解析协变
-				//! 解析虚调用
 			}
 		}
 
@@ -184,13 +185,15 @@ namespace il2cpp
 							resMetX.DeclType.IsInstantiated = true;
 							//! 生成静态构造和终结器
 
-							// 展开虚方法表
-							resMetX.DeclType.ResolveMethodTable();
+							// 解析虚表
+							resMetX.DeclType.ResolveVTable();
 						}
-						else if (inst.OpCode.Code == Code.Callvirt ||
-								 inst.OpCode.Code == Code.Ldvirtftn)
+						else if (resMetX.IsVirtual &&
+								(inst.OpCode.Code == Code.Callvirt ||
+								inst.OpCode.Code == Code.Ldvirtftn))
 						{
 							// 记录虚入口
+							VCallEntries.Add(resMetX);
 						}
 
 						inst.Operand = resMetX;
@@ -225,6 +228,41 @@ namespace il2cpp
 					{
 						return;
 					}
+			}
+		}
+
+		private void ResolveVCalls()
+		{
+			foreach (MethodX virtMetX in VCallEntries)
+			{
+				string entryType = virtMetX.DeclType.GetNameKey();
+				MethodDef entryDef = virtMetX.Def;
+
+				// 获得虚方法的所有继承类型
+				var derivedTypes = virtMetX.DeclType.GetDerivedTypes();
+				foreach (TypeX derivedTyX in derivedTypes)
+				{
+					// 跳过没有实例化的类型
+					if (!derivedTyX.IsInstantiated)
+						continue;
+
+					// 在继承类型中查找虚方法
+					if (derivedTyX.QueryVTable(
+						entryType, entryDef,
+						out var implType, out var implDef))
+					{
+						// 构造实现方法
+						TypeX implTyX = GetTypeByName(implType);
+						MethodX implMetX = new MethodX(implTyX, implDef);
+						implMetX.GenArgs = virtMetX.GenArgs;
+						implMetX = AddMethod(implMetX);
+
+						// 关联实现方法到虚方法
+						virtMetX.AddOverrideImpl(implMetX);
+					}
+					else
+						throw new ArgumentOutOfRangeException();
+				}
 			}
 		}
 

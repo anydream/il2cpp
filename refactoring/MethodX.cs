@@ -22,6 +22,7 @@ namespace il2cpp
 		// 所属类型
 		public readonly TypeX DeclType;
 
+		public readonly MethodDef Def;
 		// 方法全名
 		public readonly string DefFullName;
 		// 方法名
@@ -49,10 +50,15 @@ namespace il2cpp
 		// 指令列表
 		public InstInfo[] InstList;
 
+		// 虚方法绑定的实现方法
+		private HashSet<MethodX> OverrideImpls;
+
 		public bool HasThis => DefSig.HasThis;
+		public bool IsVirtual => (DefAttr & MethodAttributes.Virtual) != 0;
 
 		internal MethodX(TypeX declType, MethodDef metDef)
 		{
+			Def = metDef;
 			DeclType = declType;
 			DefFullName = metDef.FullName;
 			DefName = metDef.Name;
@@ -102,6 +108,13 @@ namespace il2cpp
 				NameKey = sb.ToString();
 			}
 			return NameKey;
+		}
+
+		public void AddOverrideImpl(MethodX impl)
+		{
+			if (OverrideImpls == null)
+				OverrideImpls = new HashSet<MethodX>();
+			OverrideImpls.Add(impl);
 		}
 	}
 }

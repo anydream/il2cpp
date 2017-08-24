@@ -210,12 +210,6 @@ namespace il2cpp
 						if (genSig.IsMethodVar)
 						{
 							sb.Append("!!");
-							if (printGenOwner)
-							{
-								sb.Append('(');
-								sb.Append(genSig.OwnerMethod.FullName);
-								sb.Append(')');
-							}
 						}
 						else
 						{

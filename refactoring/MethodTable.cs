@@ -6,6 +6,40 @@ using dnlib.DotNet;
 
 namespace il2cpp
 {
+	internal class VirtualTable
+	{
+		private readonly Dictionary<string, Dictionary<MethodDef, Tuple<string, MethodDef>>> Table =
+			new Dictionary<string, Dictionary<MethodDef, Tuple<string, MethodDef>>>();
+
+		public void Set(string entryType, MethodDef entryDef, string implType, MethodDef implDef)
+		{
+			if (!Table.TryGetValue(entryType, out var defMap))
+			{
+				defMap = new Dictionary<MethodDef, Tuple<string, MethodDef>>();
+				Table.Add(entryType, defMap);
+			}
+			defMap.Add(entryDef, new Tuple<string, MethodDef>(implType, implDef));
+		}
+
+		public bool Query(
+			string entryType, MethodDef entryDef,
+			out string implType, out MethodDef implDef)
+		{
+			if (Table.TryGetValue(entryType, out var defMap))
+			{
+				if (defMap.TryGetValue(entryDef, out var impl))
+				{
+					implType = impl.Item1;
+					implDef = impl.Item2;
+					return true;
+				}
+			}
+			implType = null;
+			implDef = null;
+			return false;
+		}
+	}
+
 	internal class TypeDefGenReplacer : IGenericReplacer
 	{
 		public readonly TypeDef OwnerType;
@@ -48,7 +82,7 @@ namespace il2cpp
 
 	internal class VirtualSlot
 	{
-		// 虚槽入口集合, 为具体的类型和方法的映射
+		// 入口集合, 为具体的类型和方法的映射
 		public readonly Dictionary<MethodTable, MethodDef> Entries = new Dictionary<MethodTable, MethodDef>();
 		// 实现方法
 		public VirtualImpl Impl;
@@ -92,12 +126,8 @@ namespace il2cpp
 		// 展开类型泛型的方法签名列表
 		private List<string> ExpandedSigList = new List<string>();
 
-		// 虚表槽映射
+		// 方法槽映射
 		private readonly Dictionary<string, VirtualSlot> VSlotMap = new Dictionary<string, VirtualSlot>();
-
-		// 展平的虚表
-		private readonly Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>> VTable =
-			new Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>>();
 
 		internal MethodTable(Il2cppContext context, TypeDef tyDef)
 		{
@@ -119,6 +149,48 @@ namespace il2cpp
 				NameKey = sb.ToString();
 			}
 			return NameKey;
+		}
+
+		private string GetReplacedNameKey(IGenericReplacer replacer)
+		{
+			if (HasGenArgs)
+			{
+				var repGenArgs = TypeManager.ReplaceGenericSigList(GenArgs, replacer);
+				StringBuilder sb = new StringBuilder();
+				NameManager.TypeNameKey(sb, Def.FullName, repGenArgs, true);
+				return sb.ToString();
+			}
+			return GetNameKey();
+		}
+
+		public VirtualTable ExpandVTable(IList<TypeSig> tyGenArgs)
+		{
+			Debug.Assert(!HasGenArgs);
+
+			VirtualTable vtable = new VirtualTable();
+
+			IGenericReplacer replacer = null;
+			if (tyGenArgs != null && tyGenArgs.Count > 0)
+				replacer = new TypeDefGenReplacer(Def, tyGenArgs);
+
+			foreach (VirtualSlot vslot in VSlotMap.Values)
+			{
+				foreach (var kv in vslot.Entries)
+				{
+					MethodTable entryTable = kv.Key;
+					MethodDef entryDef = kv.Value;
+
+					MethodTable implTable = vslot.Impl.ImplTable;
+					MethodDef implDef = vslot.Impl.ImplMethod;
+
+					string entryType = entryTable.GetReplacedNameKey(replacer);
+					string implType = implTable.GetReplacedNameKey(replacer);
+
+					vtable.Set(entryType, entryDef, implType, implDef);
+				}
+			}
+
+			return vtable;
 		}
 
 		public void ResolveTable()
@@ -208,7 +280,7 @@ namespace il2cpp
 				}
 			}
 
-			// 合并接口的虚表槽到当前虚表槽
+			// 合并接口的方法槽到当前方法槽
 			if (Def.HasInterfaces)
 			{
 				foreach (var inf in Def.Interfaces)
@@ -236,18 +308,19 @@ namespace il2cpp
 				ExplicitOverride(overDef.Overrides, overDef, idx);
 			}
 
-			// 展平虚表
-			foreach (VirtualSlot vslot in VSlotMap.Values)
+			// 检查是否存在未实现的接口
+			if (!Def.IsInterface)
 			{
-				foreach (var kv in vslot.Entries)
+				foreach (VirtualSlot vslot in VSlotMap.Values)
 				{
-					MethodTable entryTable = kv.Key;
-					MethodDef entryDef = kv.Value;
+					foreach (var kv in vslot.Entries)
+					{
+						MethodTable entryTable = kv.Key;
+						MethodDef entryDef = kv.Value;
 
-					if (!Def.IsInterface && !vslot.Impl.IsValid())
-						throw new TypeLoadException("Slot has no implementation: " + entryTable + entryDef.FullName);
-
-					SetVTable(entryTable, entryDef, ref vslot.Impl);
+						if (!vslot.Impl.IsValid())
+							throw new TypeLoadException("Slot has no implementation: " + entryTable + entryDef.FullName);
+					}
 				}
 			}
 		}
@@ -258,21 +331,6 @@ namespace il2cpp
 			{
 				VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value));
 			}
-
-			foreach (var kv in other.VTable)
-			{
-				VTable.Add(kv.Key, new Dictionary<MethodDef, VirtualImpl>(kv.Value));
-			}
-		}
-
-		private void SetVTable(MethodTable entryTable, MethodDef entryDef, ref VirtualImpl impl)
-		{
-			if (!VTable.TryGetValue(entryTable, out var implMap))
-			{
-				implMap = new Dictionary<MethodDef, VirtualImpl>();
-				VTable.Add(entryTable, implMap);
-			}
-			implMap[entryDef] = impl;
 		}
 
 		private static string GetModifiedSigName(string expSigName, MethodDef metDef)
@@ -345,14 +403,14 @@ namespace il2cpp
 				// 删除现有的覆盖目标入口
 				RemoveEntry(targetTable, targetDef);
 
-				// 合并目标入口到实现方法的虚表槽内
+				// 合并目标入口到实现方法的方法槽内
 				MergeSlot(expSigName, targetTable, targetDef);
 			}
 		}
 
 		private void RemoveEntry(MethodTable entryTable, MethodDef entryDef)
 		{
-			// 在所有虚表槽内查找入口
+			// 在所有方法槽内查找入口
 			foreach (VirtualSlot vslot in VSlotMap.Values)
 			{
 				// 找到匹配的入口则删除

@@ -39,7 +39,7 @@ namespace il2cpp
 		// 接口列表
 		public readonly List<TypeX> Interfaces = new List<TypeX>();
 
-		// 子类型集合
+		// 继承类型集合
 		private readonly HashSet<TypeX> DerivedTypes = new HashSet<TypeX>();
 		public bool IsDerivedTypesChanged { get; private set; }
 
@@ -47,7 +47,10 @@ namespace il2cpp
 		private readonly Dictionary<string, MethodX> MethodMap = new Dictionary<string, MethodX>();
 		// 字段映射
 		private readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
-		
+
+		// 虚方法表
+		private VirtualTable VTable;
+
 		// 是否实例化过
 		public bool IsInstantiated;
 
@@ -138,9 +141,20 @@ namespace il2cpp
 			FieldMap.Add(key, fldX);
 		}
 
-		public void ResolveMethodTable()
+		public void ResolveVTable()
 		{
-			MethodTable mtable = Context.TypeMgr.ResolveMethodTable(Def, null);
+			if (VTable == null)
+			{
+				MethodTable mtable = Context.TypeMgr.ResolveMethodTable(Def, null);
+				VTable = mtable.ExpandVTable(GenArgs);
+			}
+		}
+
+		public bool QueryVTable(
+			string entryType, MethodDef entryDef,
+			out string implType, out MethodDef implDef)
+		{
+			return VTable.Query(entryType, entryDef, out implType, out implDef);
 		}
 	}
 }
