@@ -39,6 +39,11 @@ namespace il2cpp
 		{
 			return ImplTable + " : " + ImplMethod;
 		}
+
+		public bool IsValid()
+		{
+			return ImplTable != null && ImplMethod != null;
+		}
 	}
 
 	internal class VirtualSlot
@@ -62,9 +67,9 @@ namespace il2cpp
 			Impl = other.Impl;
 		}
 
-		public void AddEntry(MethodTable mtable, MethodDef metDef)
+		public void AddEntry(MethodTable entryTable, MethodDef entryDef)
 		{
-			Entries.Add(mtable, metDef);
+			Entries.Add(entryTable, entryDef);
 		}
 
 		public void SetImpl(MethodTable mtable, MethodDef metDef)
@@ -164,12 +169,16 @@ namespace il2cpp
 			if (replacer == null)
 				ExpandedSigList = OrigSigList;
 
+			// 解析并继承基类方法表
 			if (Def.BaseType != null)
 			{
 				MethodTable baseTable = Context.TypeMgr.ResolveMethodTable(Def.BaseType, replacer);
 				DerivedFrom(baseTable);
 			}
 
+			List<Tuple<MethodDef, int>> explicitOverrides = new List<Tuple<MethodDef, int>>();
+
+			// 处理当前类型的覆盖
 			for (int i = 0; i < MethodDefList.Count; ++i)
 			{
 				MethodDef metDef = MethodDefList[i];
@@ -177,9 +186,11 @@ namespace il2cpp
 
 				if (metDef.HasOverrides)
 				{
-					Debug.Assert(!metDef.IsVirtual);
+					// 记录存在显式覆盖的方法
+					explicitOverrides.Add(new Tuple<MethodDef, int>(metDef, i));
 				}
-				else if (metDef.IsVirtual)
+
+				if (metDef.IsVirtual)
 				{
 					if (metDef.IsNewSlot)
 					{
@@ -197,12 +208,31 @@ namespace il2cpp
 				}
 			}
 
+			// 合并接口的虚表槽到当前虚表槽
 			if (Def.HasInterfaces)
 			{
 				foreach (var inf in Def.Interfaces)
 				{
 					MethodTable infTable = Context.TypeMgr.ResolveMethodTable(inf.Interface, replacer);
+
+					foreach (var kv in infTable.VSlotMap)
+					{
+						string expSigName = kv.Key;
+						VirtualSlot vslot = kv.Value;
+						foreach (var kv2 in vslot.Entries)
+						{
+							MethodTable entryTable = kv2.Key;
+							MethodDef entryDef = kv2.Value;
+							MergeSlot(expSigName, entryTable, entryDef);
+						}
+					}
 				}
+			}
+
+			// 处理显式覆盖
+			foreach (var kv in explicitOverrides)
+			{
+				ExplicitOverride(kv.Item1.Overrides, kv.Item1, kv.Item2);
 			}
 
 			// 展平虚表
@@ -212,6 +242,9 @@ namespace il2cpp
 				{
 					MethodTable entryTable = kv.Key;
 					MethodDef entryDef = kv.Value;
+
+					if (!vslot.Impl.IsValid())
+						throw new TypeLoadException("Interface has no implementation: " + entryDef.FullName);
 
 					SetVTable(entryTable, entryDef, ref vslot.Impl);
 				}
@@ -241,8 +274,20 @@ namespace il2cpp
 			implMap[entryDef] = impl;
 		}
 
+		private static string GetModifiedSigName(string expSigName, MethodDef metDef)
+		{
+			// 对于终止覆盖方法或者私有方法, 在签名前面加上标记以防止后续覆盖
+			if (metDef.IsFinal || metDef.IsPrivate)
+			{
+				return "F|" + expSigName;
+			}
+			return expSigName;
+		}
+
 		private void NewSlot(string expSigName, MethodDef metDef, bool isChecked = false)
 		{
+			expSigName = GetModifiedSigName(expSigName, metDef);
+
 			VirtualSlot vslot = new VirtualSlot();
 			if (isChecked)
 				VSlotMap.Add(expSigName, vslot);
@@ -258,6 +303,64 @@ namespace il2cpp
 			Debug.Assert(status);
 			vslot.AddEntry(this, metDef);
 			vslot.SetImpl(this, metDef);
+		}
+
+		private void MergeSlot(string expSigName, MethodTable entryTable, MethodDef entryDef)
+		{
+			if (!VSlotMap.TryGetValue(expSigName, out var vslot))
+			{
+				vslot = new VirtualSlot();
+				VSlotMap.Add(expSigName, vslot);
+			}
+			vslot.AddEntry(entryTable, entryDef);
+		}
+
+		private void ExplicitOverride(IList<MethodOverride> overList, MethodDef ownerMetDef, int ownerMetIdx)
+		{
+			IGenericReplacer replacer = null;
+			if (HasGenArgs)
+				replacer = new TypeDefGenReplacer(Def, GenArgs);
+
+			foreach (var overItem in overList)
+			{
+				var target = overItem.MethodDeclaration;
+				var impl = overItem.MethodBody;
+
+				MethodTable targetTable = Context.TypeMgr.ResolveMethodTable(target.DeclaringType, replacer);
+				MethodDef targetDef = target.ResolveMethodDef();
+
+				MethodDef implDef = impl.ResolveMethodDef();
+				string expSigName = null;
+
+				if (implDef == ownerMetDef)
+				{
+					//Debug.Assert(implTable == this);
+					expSigName = ExpandedSigList[ownerMetIdx];
+					expSigName = GetModifiedSigName(expSigName, implDef);
+				}
+				else
+					throw new NotSupportedException();
+
+				// 删除现有的覆盖目标入口
+				RemoveEntry(targetTable, targetDef);
+
+				// 合并目标入口到实现方法的虚表槽内
+				MergeSlot(expSigName, targetTable, targetDef);
+			}
+		}
+
+		private void RemoveEntry(MethodTable entryTable, MethodDef entryDef)
+		{
+			// 在所有虚表槽内查找入口
+			foreach (VirtualSlot vslot in VSlotMap.Values)
+			{
+				// 找到匹配的入口则删除
+				if (vslot.Entries.TryGetValue(entryTable, out var oDef) &&
+					MethodEqualityComparer.DontCompareDeclaringTypes.Equals(oDef, entryDef))
+				{
+					vslot.Entries.Remove(entryTable);
+				}
+			}
 		}
 	}
 }
