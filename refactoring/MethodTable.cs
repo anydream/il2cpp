@@ -176,7 +176,7 @@ namespace il2cpp
 				DerivedFrom(baseTable);
 			}
 
-			List<Tuple<MethodDef, int>> explicitOverrides = new List<Tuple<MethodDef, int>>();
+			List<int> explicitOverrides = new List<int>();
 
 			// 处理当前类型的覆盖
 			for (int i = 0; i < MethodDefList.Count; ++i)
@@ -187,7 +187,7 @@ namespace il2cpp
 				if (metDef.HasOverrides)
 				{
 					// 记录存在显式覆盖的方法
-					explicitOverrides.Add(new Tuple<MethodDef, int>(metDef, i));
+					explicitOverrides.Add(i);
 				}
 
 				if (metDef.IsVirtual)
@@ -230,9 +230,10 @@ namespace il2cpp
 			}
 
 			// 处理显式覆盖
-			foreach (var kv in explicitOverrides)
+			foreach (int idx in explicitOverrides)
 			{
-				ExplicitOverride(kv.Item1.Overrides, kv.Item1, kv.Item2);
+				MethodDef overDef = MethodDefList[idx];
+				ExplicitOverride(overDef.Overrides, overDef, idx);
 			}
 
 			// 展平虚表
@@ -279,7 +280,7 @@ namespace il2cpp
 			// 对于终止覆盖方法或者私有方法, 在签名前面加上标记以防止后续覆盖
 			if (metDef.IsFinal || metDef.IsPrivate)
 			{
-				return "F|" + expSigName;
+				return "*|" + expSigName;
 			}
 			return expSigName;
 		}
@@ -356,7 +357,7 @@ namespace il2cpp
 			{
 				// 找到匹配的入口则删除
 				if (vslot.Entries.TryGetValue(entryTable, out var oDef) &&
-					MethodEqualityComparer.DontCompareDeclaringTypes.Equals(oDef, entryDef))
+					oDef == entryDef)
 				{
 					vslot.Entries.Remove(entryTable);
 				}
