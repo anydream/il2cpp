@@ -40,30 +40,6 @@ namespace il2cpp
 		}
 	}
 
-	internal class TypeDefGenReplacer : IGenericReplacer
-	{
-		public readonly TypeDef OwnerType;
-		public readonly IList<TypeSig> TypeGenArgs;
-
-		public TypeDefGenReplacer(TypeDef ownerTyDef, IList<TypeSig> tyGenArgs)
-		{
-			OwnerType = ownerTyDef;
-			TypeGenArgs = tyGenArgs;
-		}
-
-		public TypeSig Replace(GenericVar genVarSig)
-		{
-			if (TypeEqualityComparer.Instance.Equals(genVarSig.OwnerType, OwnerType))
-				return TypeGenArgs[(int)genVarSig.Number];
-			return null;
-		}
-
-		public TypeSig Replace(GenericMVar genMVarSig)
-		{
-			return null;
-		}
-	}
-
 	internal struct VirtualImpl
 	{
 		public MethodTable ImplTable;
@@ -143,7 +119,7 @@ namespace il2cpp
 			if (NameKey == null)
 			{
 				StringBuilder sb = new StringBuilder();
-				NameManager.TypeNameKey(sb, Def.FullName, GenArgs, true);
+				Helper.TypeNameKey(sb, Def.FullName, GenArgs, true);
 				NameKey = sb.ToString();
 			}
 			return NameKey;
@@ -153,9 +129,9 @@ namespace il2cpp
 		{
 			if (HasGenArgs)
 			{
-				var repGenArgs = TypeManager.ReplaceGenericSigList(GenArgs, replacer);
+				var repGenArgs = Helper.ReplaceGenericSigList(GenArgs, replacer);
 				StringBuilder sb = new StringBuilder();
-				NameManager.TypeNameKey(sb, Def.FullName, repGenArgs, true);
+				Helper.TypeNameKey(sb, Def.FullName, repGenArgs, true);
 				return sb.ToString();
 			}
 			return GetNameKey();
@@ -168,7 +144,7 @@ namespace il2cpp
 
 			// 展开当前类型名
 			StringBuilder sb = new StringBuilder();
-			NameManager.TypeNameKey(sb, Def.FullName, tyGenArgs, true);
+			Helper.TypeNameKey(sb, Def.FullName, tyGenArgs, true);
 			string thisNameKey = sb.ToString();
 			sb = null;
 
@@ -225,7 +201,7 @@ namespace il2cpp
 
 				if (replacer == null)
 				{
-					NameManager.MethodDefName(
+					Helper.MethodDefName(
 						sb,
 						metDef.Name,
 						metDef.GenericParameters,
@@ -237,10 +213,10 @@ namespace il2cpp
 				}
 				else
 				{
-					TypeSig retType = TypeManager.ReplaceGenericSig(metDef.MethodSig.RetType, replacer);
-					IList<TypeSig> paramTypes = TypeManager.ReplaceGenericSigList(metDef.MethodSig.Params, replacer);
+					TypeSig retType = Helper.ReplaceGenericSig(metDef.MethodSig.RetType, replacer);
+					IList<TypeSig> paramTypes = Helper.ReplaceGenericSigList(metDef.MethodSig.Params, replacer);
 
-					NameManager.MethodDefName(
+					Helper.MethodDefName(
 						sb,
 						metDef.Name,
 						metDef.GenericParameters,

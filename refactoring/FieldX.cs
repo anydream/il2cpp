@@ -44,9 +44,7 @@ namespace il2cpp
 
 				// Name|FieldType|Attr
 				StringBuilder sb = new StringBuilder();
-				sb.Append(NameManager.EscapeName(DefName));
-				sb.Append('|');
-				NameManager.TypeSigName(sb, FieldType, false);
+				Helper.FieldSigName(sb, DefName, FieldType);
 				sb.Append('|');
 				sb.Append(((uint)DefAttr).ToString("X"));
 

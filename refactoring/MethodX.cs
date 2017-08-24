@@ -105,7 +105,7 @@ namespace il2cpp
 
 				// Name|RetType<GenArgs>(DefArgList)|CC|Attr
 				StringBuilder sb = new StringBuilder();
-				NameManager.MethodSigName(sb, DefName, GenArgs, DefSig.RetType, DefSig.Params, DefSig.CallingConvention);
+				Helper.MethodSigName(sb, DefName, GenArgs, DefSig.RetType, DefSig.Params, DefSig.CallingConvention);
 				sb.Append('|');
 				sb.Append(((uint)DefAttr).ToString("X"));
 

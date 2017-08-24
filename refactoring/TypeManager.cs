@@ -7,39 +7,6 @@ using dnlib.DotNet.Emit;
 
 namespace il2cpp
 {
-	// 泛型签名替换器
-	internal interface IGenericReplacer
-	{
-		TypeSig Replace(GenericVar genVarSig);
-		TypeSig Replace(GenericMVar genMVarSig);
-	}
-
-	internal class GenericReplacer : IGenericReplacer
-	{
-		public readonly TypeX OwnerType;
-		public readonly MethodX OwnerMethod;
-
-		public GenericReplacer(TypeX ownerTyX, MethodX ownerMetX)
-		{
-			OwnerType = ownerTyX;
-			OwnerMethod = ownerMetX;
-		}
-
-		public TypeSig Replace(GenericVar genVarSig)
-		{
-			if (genVarSig.OwnerType == OwnerType.Def)
-				return OwnerType.GenArgs[(int)genVarSig.Number];
-			return genVarSig;
-		}
-
-		public TypeSig Replace(GenericMVar genMVarSig)
-		{
-			if (genMVarSig.OwnerMethod == OwnerMethod.Def)
-				return OwnerMethod.GenArgs[(int)genMVarSig.Number];
-			return genMVarSig;
-		}
-	}
-
 	// 类型管理器
 	internal class TypeManager
 	{
@@ -304,7 +271,7 @@ namespace il2cpp
 			IGenericReplacer replacer = new GenericReplacer(fldX.DeclType, null);
 
 			// 展开签名所需的类型
-			fldX.FieldType = ReplaceGenericSig(fldX.DefSig, replacer);
+			fldX.FieldType = Helper.ReplaceGenericSig(fldX.DefSig, replacer);
 
 			// 尝试添加到所属类型
 			string nameKey = fldX.GetNameKey();
@@ -352,7 +319,7 @@ namespace il2cpp
 
 			var metGenArgs = metSpec.GenericInstMethodSig?.GenericArguments;
 			Debug.Assert(metGenArgs != null);
-			IList<TypeSig> genArgs = ReplaceGenericSigList(metGenArgs, replacer);
+			IList<TypeSig> genArgs = Helper.ReplaceGenericSigList(metGenArgs, replacer);
 
 			MethodX metX = new MethodX(declType, metSpec.ResolveMethodDef());
 			metX.GenArgs = genArgs;
@@ -367,11 +334,11 @@ namespace il2cpp
 			IGenericReplacer replacer = new GenericReplacer(metX.DeclType, metX);
 
 			// 展开签名所需的类型
-			metX.ReturnType = ReplaceGenericSig(metX.DefSig.RetType, replacer);
-			metX.ParamTypes = ReplaceGenericSigList(metX.DefSig.Params, replacer);
+			metX.ReturnType = Helper.ReplaceGenericSig(metX.DefSig.RetType, replacer);
+			metX.ParamTypes = Helper.ReplaceGenericSigList(metX.DefSig.Params, replacer);
 			if (metX.HasThis)
-				metX.ParamTypes.Insert(0, ReplaceGenericSig(metX.DeclType.GetThisTypeSig(), replacer));
-			metX.ParamAfterSentinel = ReplaceGenericSigList(metX.DefSig.ParamsAfterSentinel, replacer);
+				metX.ParamTypes.Insert(0, Helper.ReplaceGenericSig(metX.DeclType.GetThisTypeSig(), replacer));
+			metX.ParamAfterSentinel = Helper.ReplaceGenericSigList(metX.DefSig.ParamsAfterSentinel, replacer);
 
 			// 尝试添加到所属类型
 			string nameKey = metX.GetNameKey();
@@ -380,7 +347,7 @@ namespace il2cpp
 			metX.DeclType.AddMethod(nameKey, metX);
 
 			// 展开局部变量类型
-			metX.LocalTypes = ReplaceGenericSigList(metX.LocalTypes, replacer);
+			metX.LocalTypes = Helper.ReplaceGenericSigList(metX.LocalTypes, replacer);
 
 			//! 展开异常处理信息
 			metX.DefHandlers = null;
@@ -472,7 +439,7 @@ namespace il2cpp
 				case GenericInstSig genInstSig:
 					{
 						TypeX genType = ResolveITypeDefOrRefImpl(genInstSig.GenericType.TypeDefOrRef, null);
-						genType.GenArgs = ReplaceGenericSigList(genInstSig.GenericArguments, replacer);
+						genType.GenArgs = Helper.ReplaceGenericSigList(genInstSig.GenericArguments, replacer);
 						return genType;
 					}
 
@@ -529,7 +496,7 @@ namespace il2cpp
 				case GenericInstSig genInstSig:
 					{
 						MethodTable mtable = ResolveMethodTableImpl(genInstSig.GenericType.TypeDefOrRef, null);
-						mtable.GenArgs = ReplaceGenericSigList(genInstSig.GenericArguments, replacer);
+						mtable.GenArgs = Helper.ReplaceGenericSigList(genInstSig.GenericArguments, replacer);
 						return mtable;
 					}
 
@@ -554,157 +521,6 @@ namespace il2cpp
 			Debug.Assert(tyDef != null);
 
 			return tyDef;
-		}
-
-		// 替换类型中的泛型签名
-		public static TypeSig ReplaceGenericSig(TypeSig tySig, IGenericReplacer replacer)
-		{
-			if (replacer == null || !IsReplaceNeeded(tySig))
-				return tySig;
-
-			return ReplaceGenericSigImpl(tySig, replacer);
-		}
-
-		private static TypeSig ReplaceGenericSigImpl(TypeSig tySig, IGenericReplacer replacer)
-		{
-			if (tySig == null)
-				return null;
-
-			switch (tySig.ElementType)
-			{
-				case ElementType.Class:
-				case ElementType.ValueType:
-					return tySig;
-
-				case ElementType.Ptr:
-					return new PtrSig(ReplaceGenericSigImpl(tySig.Next, replacer));
-				case ElementType.ByRef:
-					return new ByRefSig(ReplaceGenericSigImpl(tySig.Next, replacer));
-				case ElementType.Pinned:
-					return new PinnedSig(ReplaceGenericSigImpl(tySig.Next, replacer));
-				case ElementType.SZArray:
-					return new SZArraySig(ReplaceGenericSigImpl(tySig.Next, replacer));
-
-				case ElementType.Array:
-					{
-						ArraySig arySig = (ArraySig)tySig;
-						return new ArraySig(ReplaceGenericSigImpl(arySig.Next, replacer),
-							arySig.Rank,
-							arySig.Sizes,
-							arySig.LowerBounds);
-					}
-				case ElementType.CModReqd:
-					{
-						CModReqdSig modreqdSig = (CModReqdSig)tySig;
-						return new CModReqdSig(modreqdSig.Modifier, ReplaceGenericSigImpl(modreqdSig.Next, replacer));
-					}
-				case ElementType.CModOpt:
-					{
-						CModOptSig modoptSig = (CModOptSig)tySig;
-						return new CModOptSig(modoptSig.Modifier, ReplaceGenericSigImpl(modoptSig.Next, replacer));
-					}
-				case ElementType.GenericInst:
-					{
-						GenericInstSig genInstSig = (GenericInstSig)tySig;
-						return new GenericInstSig(genInstSig.GenericType, ReplaceGenericSigListImpl(genInstSig.GenericArguments, replacer));
-					}
-
-				case ElementType.Var:
-					{
-						GenericVar genVarSig = (GenericVar)tySig;
-						TypeSig result = replacer.Replace(genVarSig);
-						if (result != null)
-							return result;
-						return new GenericVar(genVarSig.Number, genVarSig.OwnerType);
-					}
-				case ElementType.MVar:
-					{
-						GenericMVar genMVarSig = (GenericMVar)tySig;
-						TypeSig result = replacer.Replace(genMVarSig);
-						if (result != null)
-							return result;
-						return new GenericMVar(genMVarSig.Number, genMVarSig.OwnerMethod);
-					}
-
-				default:
-					if (tySig is CorLibTypeSig)
-						return tySig;
-
-					throw new NotSupportedException();
-			}
-		}
-
-		// 替换类型签名列表
-		public static IList<TypeSig> ReplaceGenericSigList(IList<TypeSig> tySigList, IGenericReplacer replacer)
-		{
-			return tySigList?.Select(tySig => ReplaceGenericSig(tySig, replacer)).ToList();
-		}
-
-		private static IList<TypeSig> ReplaceGenericSigListImpl(IList<TypeSig> tySigList, IGenericReplacer replacer)
-		{
-			return tySigList?.Select(tySig => ReplaceGenericSigImpl(tySig, replacer)).ToList();
-		}
-
-		// 检查是否存在要替换的泛型签名
-		private static bool IsReplaceNeeded(TypeSig tySig)
-		{
-			while (tySig != null)
-			{
-				switch (tySig.ElementType)
-				{
-					case ElementType.Var:
-					case ElementType.MVar:
-						return true;
-
-					case ElementType.GenericInst:
-						{
-							GenericInstSig genInstSig = (GenericInstSig)tySig;
-							foreach (var arg in genInstSig.GenericArguments)
-							{
-								if (IsReplaceNeeded(arg))
-									return true;
-							}
-							break;
-						}
-				}
-
-				tySig = tySig.Next;
-			}
-			return false;
-		}
-
-		private static bool IsInstantiatableTypeSigList(IList<TypeSig> tySigList)
-		{
-			return tySigList == null || tySigList.All(IsInstantiatableTypeSig);
-		}
-
-		// 检查类型签名是否可实例化
-		private static bool IsInstantiatableTypeSig(TypeSig tySig)
-		{
-			while (tySig != null)
-			{
-				switch (tySig.ElementType)
-				{
-					case ElementType.Var:
-						return false;
-					case ElementType.MVar:
-						throw new ArgumentOutOfRangeException();
-
-					case ElementType.GenericInst:
-						{
-							GenericInstSig genInstSig = (GenericInstSig)tySig;
-							foreach (var arg in genInstSig.GenericArguments)
-							{
-								if (!IsInstantiatableTypeSig(arg))
-									return false;
-							}
-							break;
-						}
-				}
-
-				tySig = tySig.Next;
-			}
-			return true;
 		}
 	}
 }
