@@ -16,14 +16,28 @@ namespace il2cpp
 		{
 			foreach (var kv in Context.TypeMgr.MethodTableMap)
 			{
-				sb.Append(kv.Key);
-				sb.Append('\n');
+				sb.AppendFormat("[{0}]\n", kv.Key);
 				foreach (var kv2 in kv.Value.VSlotMap)
 				{
-					sb.AppendFormat("- {0}: {1}\n", kv2.Key, kv2.Value.Impl);
-					foreach (var kv3 in kv2.Value.Entries)
-						sb.AppendFormat("  | {0} -> {1}\n", kv3.Key, kv3.Value);
+					string expSigName = kv2.Key;
+					var entries = kv2.Value.Entries;
+					VirtualImpl impl = kv2.Value.Impl;
+
+					// 跳过无覆盖的方法
+					if (entries.Count == 1 &&
+						impl.IsValid() &&
+						entries.TryGetValue(impl.ImplTable, out var implDef) &&
+						implDef == impl.ImplMethod)
+					{
+						continue;
+					}
+
+					sb.AppendFormat("- {0}: {1}\n", expSigName, impl);
+					foreach (var kv3 in entries)
+						sb.AppendFormat("  - {0} -> {1}\n", kv3.Key, kv3.Value);
+					sb.Append('\n');
 				}
+				sb.Append('\n');
 			}
 		}
 	}

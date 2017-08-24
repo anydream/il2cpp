@@ -86,6 +86,10 @@ namespace il2cpp
 
 		public void SetImpl(MethodTable mtable, MethodDef metDef)
 		{
+			// 只有非抽象方法才能作为实现方法
+			if (metDef.IsAbstract)
+				return;
+
 			Impl.ImplTable = mtable;
 			Impl.ImplMethod = metDef;
 		}
