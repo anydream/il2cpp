@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using dnlib.DotNet;
@@ -222,14 +221,13 @@ namespace il2cpp
 		public static void TypeNameKey(
 			StringBuilder sb,
 			string name,
-			IList<TypeSig> genArgs,
-			bool printGenOwner)
+			IList<TypeSig> genArgs)
 		{
 			sb.Append(EscapeName(name));
 			if (genArgs != null && genArgs.Count > 0)
 			{
 				sb.Append('<');
-				TypeSigListName(sb, genArgs, printGenOwner);
+				TypeSigListName(sb, genArgs, true);
 				sb.Append('>');
 			}
 		}
@@ -240,13 +238,12 @@ namespace il2cpp
 			IList<GenericParam> genParams,
 			TypeSig retType,
 			IList<TypeSig> paramTypes,
-			CallingConvention callConv,
-			bool printGenOwner = false)
+			CallingConvention callConv)
 		{
 			sb.Append(EscapeName(name));
 			sb.Append('|');
 
-			TypeSigName(sb, retType, printGenOwner);
+			TypeSigName(sb, retType, false);
 
 			if (genParams != null && genParams.Count > 0)
 			{
@@ -256,7 +253,7 @@ namespace il2cpp
 			}
 
 			sb.Append('(');
-			TypeSigListName(sb, paramTypes, printGenOwner);
+			TypeSigListName(sb, paramTypes, false);
 			sb.Append(')');
 			sb.Append('|');
 
@@ -269,13 +266,12 @@ namespace il2cpp
 			IList<TypeSig> genArgs,
 			TypeSig retType,
 			IList<TypeSig> paramTypes,
-			CallingConvention callConv,
-			bool printGenOwner = false)
+			CallingConvention callConv)
 		{
 			sb.Append(EscapeName(name));
 			sb.Append('|');
 
-			TypeSigName(sb, retType, printGenOwner);
+			TypeSigName(sb, retType, false);
 
 			if (genArgs != null)
 			{
@@ -285,7 +281,7 @@ namespace il2cpp
 			}
 
 			sb.Append('(');
-			TypeSigListName(sb, paramTypes, printGenOwner);
+			TypeSigListName(sb, paramTypes, false);
 			sb.Append(')');
 			sb.Append('|');
 
