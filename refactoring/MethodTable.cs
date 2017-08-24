@@ -34,13 +34,17 @@ namespace il2cpp
 	{
 		public MethodTable ImplTable;
 		public MethodDef ImplMethod;
+
+		public override string ToString()
+		{
+			return ImplTable + " : " + ImplMethod;
+		}
 	}
 
 	internal class VirtualSlot
 	{
 		// 虚槽入口集合, 为具体的类型和方法的映射
-		public readonly Dictionary<MethodTable, HashSet<MethodDef>> Entries =
-			new Dictionary<MethodTable, HashSet<MethodDef>>();
+		public readonly Dictionary<MethodTable, MethodDef> Entries = new Dictionary<MethodTable, MethodDef>();
 		// 实现方法
 		public VirtualImpl Impl;
 
@@ -52,7 +56,7 @@ namespace il2cpp
 		{
 			foreach (var kv in other.Entries)
 			{
-				Entries.Add(kv.Key, new HashSet<MethodDef>(kv.Value));
+				Entries.Add(kv.Key, kv.Value);
 			}
 
 			Impl = other.Impl;
@@ -60,12 +64,7 @@ namespace il2cpp
 
 		public void AddEntry(MethodTable mtable, MethodDef metDef)
 		{
-			if (!Entries.TryGetValue(mtable, out var defSet))
-			{
-				defSet = new HashSet<MethodDef>();
-				Entries.Add(mtable, defSet);
-			}
-			defSet.Add(metDef);
+			Entries.Add(mtable, metDef);
 		}
 
 		public void SetImpl(MethodTable mtable, MethodDef metDef)
@@ -99,6 +98,11 @@ namespace il2cpp
 		{
 			Context = context;
 			Def = tyDef;
+		}
+
+		public override string ToString()
+		{
+			return NameKey;
 		}
 
 		public string GetNameKey()
@@ -207,10 +211,9 @@ namespace il2cpp
 				foreach (var kv in vslot.Entries)
 				{
 					MethodTable entryTable = kv.Key;
-					foreach (var entryDef in kv.Value)
-					{
-						SetVTable(entryTable, entryDef, ref vslot.Impl);
-					}
+					MethodDef entryDef = kv.Value;
+
+					SetVTable(entryTable, entryDef, ref vslot.Impl);
 				}
 			}
 		}

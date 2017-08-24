@@ -352,20 +352,6 @@ namespace il2cpp
 					tyX.Interfaces.Add(ResolveITypeDefOrRef(inf.Interface, replacer));
 			}
 
-			// 检查是否为可实例化的类型
-			tyX.IsInstantiatable = true;
-			if (tyX.HasGenArgs)
-			{
-				foreach (var genArg in tyX.GenArgs)
-				{
-					if (!IsInstantiatableTypeSig(genArg))
-					{
-						tyX.IsInstantiatable = false;
-						break;
-					}
-				}
-			}
-
 			// 更新子类集合
 			tyX.UpdateDerivedTypes();
 
@@ -443,7 +429,10 @@ namespace il2cpp
 			string nameKey = mtable.GetNameKey();
 			if (MethodTableMap.TryGetValue(nameKey, out var omtable))
 				return omtable;
-			MethodTableMap.Add(nameKey, mtable);
+
+			// 只有可实例化的方法表才可以添加到映射
+			if (IsInstantiatableTypeSigList(mtable.GenArgs))
+				MethodTableMap.Add(nameKey, mtable);
 
 			mtable.ResolveTable();
 
@@ -626,6 +615,11 @@ namespace il2cpp
 				tySig = tySig.Next;
 			}
 			return false;
+		}
+
+		private static bool IsInstantiatableTypeSigList(IList<TypeSig> tySigList)
+		{
+			return tySigList == null || tySigList.All(IsInstantiatableTypeSig);
 		}
 
 		// 检查类型签名是否可实例化

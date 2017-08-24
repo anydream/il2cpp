@@ -47,11 +47,9 @@ namespace il2cpp
 		private readonly Dictionary<string, MethodX> MethodMap = new Dictionary<string, MethodX>();
 		// 字段映射
 		private readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
-
-		// 是否可实例化
-		public bool IsInstantiatable;
+		
 		// 是否实例化过
-		public OnceBool IsInstantiated;
+		public bool IsInstantiated;
 
 		internal TypeX(Il2cppContext context, TypeDef tyDef)
 		{
