@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using dnlib.DotNet;
 
 namespace il2cpp
 {
@@ -49,7 +50,10 @@ namespace il2cpp
 				sb.AppendFormat("[{0} {1}] {2}\n",
 					tyX.IsValueType ? "struct" : "class",
 					kv.Key,
-					tyX.DefAttr);
+					TypeAttrToString(tyX.DefAttr));
+
+				if (tyX.IsInstantiated)
+					sb.Append("- Instantiated\n");
 
 				if (tyX.BaseType != null)
 					sb.AppendFormat("- Base: {0}\n", tyX.BaseType);
@@ -103,6 +107,94 @@ namespace il2cpp
 
 				sb.Append('\n');
 			}
+		}
+
+		private static string TypeAttrToString(TypeAttributes tyAttr)
+		{
+			StringBuilder sb = new StringBuilder();
+			switch (tyAttr & TypeAttributes.VisibilityMask)
+			{
+				case TypeAttributes.NotPublic:
+					sb.Append("NotPublic ");
+					break;
+
+				case TypeAttributes.Public:
+					sb.Append("Public ");
+					break;
+
+				case TypeAttributes.NestedPublic:
+					sb.Append("NestedPublic ");
+					break;
+
+				case TypeAttributes.NestedPrivate:
+					sb.Append("NestedPrivate ");
+					break;
+
+				case TypeAttributes.NestedFamily:
+					sb.Append("NestedFamily ");
+					break;
+
+				case TypeAttributes.NestedAssembly:
+					sb.Append("NestedAssembly ");
+					break;
+
+				case TypeAttributes.NestedFamANDAssem:
+					sb.Append("NestedFamANDAssem ");
+					break;
+
+				case TypeAttributes.NestedFamORAssem:
+					sb.Append("NestedFamORAssem ");
+					break;
+			}
+
+			switch (tyAttr & TypeAttributes.LayoutMask)
+			{
+				case TypeAttributes.AutoLayout:
+					sb.Append("AutoLayout ");
+					break;
+
+				case TypeAttributes.SequentialLayout:
+					sb.Append("SequentialLayout ");
+					break;
+
+				case TypeAttributes.ExplicitLayout:
+					sb.Append("ExplicitLayout ");
+					break;
+			}
+
+			sb.Append((tyAttr & TypeAttributes.Interface) != 0 ? "Interface " : "");
+			sb.Append((tyAttr & TypeAttributes.Abstract) != 0 ? "Abstract " : "");
+			sb.Append((tyAttr & TypeAttributes.Sealed) != 0 ? "Sealed " : "");
+			sb.Append((tyAttr & TypeAttributes.SpecialName) != 0 ? "SpecialName " : "");
+			sb.Append((tyAttr & TypeAttributes.Import) != 0 ? "Import " : "");
+			sb.Append((tyAttr & TypeAttributes.Serializable) != 0 ? "Serializable " : "");
+			sb.Append((tyAttr & TypeAttributes.WindowsRuntime) != 0 ? "WindowsRuntime " : "");
+
+			switch (tyAttr & TypeAttributes.StringFormatMask)
+			{
+				case TypeAttributes.AnsiClass:
+					sb.Append("AnsiClass ");
+					break;
+
+				case TypeAttributes.UnicodeClass:
+					sb.Append("UnicodeClass ");
+					break;
+
+				case TypeAttributes.AutoClass:
+					sb.Append("AutoClass ");
+					break;
+
+				case TypeAttributes.CustomFormatClass:
+					sb.Append("CustomFormatClass ");
+					break;
+			}
+
+			sb.Append((tyAttr & TypeAttributes.BeforeFieldInit) != 0 ? "BeforeFieldInit " : "");
+			sb.Append((tyAttr & TypeAttributes.Forwarder) != 0 ? "Forwarder " : "");
+			sb.Append((tyAttr & TypeAttributes.RTSpecialName) != 0 ? "RTSpecialName " : "");
+			sb.Append((tyAttr & TypeAttributes.HasSecurity) != 0 ? "HasSecurity " : "");
+
+			return sb.ToString();
 		}
 	}
 }
