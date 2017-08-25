@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,7 +31,13 @@ namespace test
 			Console.Write("{0}: ", testName);
 
 			context.AddEntry(typeDef.FindMethod("Entry"));
+
+			var sw = new Stopwatch();
+			sw.Start();
 			context.Process();
+			sw.Stop();
+			long elapsedMS = sw.ElapsedMilliseconds;
+			Console.Write("{0}ms, ", elapsedMS);
 
 			HierarchyDump dumper = new HierarchyDump(context);
 			StringBuilder sb = new StringBuilder();
@@ -41,7 +48,6 @@ namespace test
 			dumper.DumpTypes(sb);
 
 			var dumpData = Encoding.UTF8.GetBytes(sb.ToString());
-
 			File.WriteAllBytes(
 				Path.Combine(imageDir, testName + ".dump"),
 				dumpData);
@@ -59,7 +65,6 @@ namespace test
 				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine("FAILED");
 				Console.ForegroundColor = oldColor;
-
 			}
 
 			context.Reset();
