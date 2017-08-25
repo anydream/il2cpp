@@ -330,8 +330,8 @@ namespace il2cpp
 
 		private static string GetModifiedSigName(string expSigName, MethodDef metDef)
 		{
-			// 对于终止覆盖方法或者私有方法, 在签名前面加上标记以防止后续覆盖
-			if (metDef.IsFinal || metDef.IsPrivate)
+			// 对于终止覆盖方法, 在签名前面加上标记以防止后续覆盖
+			if (metDef.IsFinal)
 			{
 				return "*|" + expSigName;
 			}

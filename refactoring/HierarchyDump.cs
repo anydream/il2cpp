@@ -78,7 +78,7 @@ namespace il2cpp
 						sb.AppendFormat("  - {0}, {1}, {2}\n",
 							fldX.GetNameKey(),
 							fldX.GetReplacedNameKey(),
-							fldX.DefAttr);
+							FieldAttrToString(fldX.DefAttr));
 					}
 				}
 
@@ -90,7 +90,7 @@ namespace il2cpp
 						sb.AppendFormat("  - {0}, {1}, {2}\n",
 							metX.GetNameKey(),
 							metX.GetReplacedNameKey(),
-							metX.DefAttr);
+							MethodAttrToString(metX.DefAttr));
 
 						if (metX.HasOverrideImpls)
 						{
@@ -245,6 +245,55 @@ namespace il2cpp
 			sb.Append((metAttr & MethodAttributes.RTSpecialName) != 0 ? "RTSpecialName " : "");
 			sb.Append((metAttr & MethodAttributes.HasSecurity) != 0 ? "HasSecurity " : "");
 			sb.Append((metAttr & MethodAttributes.RequireSecObject) != 0 ? "RequireSecObject " : "");
+
+			return sb.ToString();
+		}
+
+		private static string FieldAttrToString(FieldAttributes fldAttr)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			switch (fldAttr & FieldAttributes.FieldAccessMask)
+			{
+				case FieldAttributes.PrivateScope:
+					sb.Append("PrivateScope ");
+					break;
+
+				case FieldAttributes.Private:
+					sb.Append("Private ");
+					break;
+
+				case FieldAttributes.FamANDAssem:
+					sb.Append("FamANDAssem ");
+					break;
+
+				case FieldAttributes.Assembly:
+					sb.Append("Assembly ");
+					break;
+
+				case FieldAttributes.Family:
+					sb.Append("Family ");
+					break;
+
+				case FieldAttributes.FamORAssem:
+					sb.Append("FamORAssem ");
+					break;
+
+				case FieldAttributes.Public:
+					sb.Append("Public ");
+					break;
+			}
+
+			sb.Append((fldAttr & FieldAttributes.Static) != 0 ? "Static " : "");
+			sb.Append((fldAttr & FieldAttributes.InitOnly) != 0 ? "InitOnly " : "");
+			sb.Append((fldAttr & FieldAttributes.Literal) != 0 ? "Literal " : "");
+			sb.Append((fldAttr & FieldAttributes.NotSerialized) != 0 ? "NotSerialized " : "");
+			sb.Append((fldAttr & FieldAttributes.SpecialName) != 0 ? "SpecialName " : "");
+			sb.Append((fldAttr & FieldAttributes.PinvokeImpl) != 0 ? "PinvokeImpl " : "");
+			sb.Append((fldAttr & FieldAttributes.RTSpecialName) != 0 ? "RTSpecialName " : "");
+			sb.Append((fldAttr & FieldAttributes.HasFieldMarshal) != 0 ? "HasFieldMarshal " : "");
+			sb.Append((fldAttr & FieldAttributes.HasDefault) != 0 ? "HasDefault " : "");
+			sb.Append((fldAttr & FieldAttributes.HasFieldRVA) != 0 ? "HasFieldRVA " : "");
 
 			return sb.ToString();
 		}
