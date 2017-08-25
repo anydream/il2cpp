@@ -90,9 +90,10 @@ namespace il2cpp
 					sb.Append(" - Methods:\n");
 					foreach (MethodX metX in tyX.MethodMap.Values)
 					{
-						sb.AppendFormat("   - {0}, {1}, {2}{3} {4}\n",
+						sb.AppendFormat("   - {0}, {1}{2}, {3}{4} {5}\n",
 							metX.GetNameKey(),
 							metX.GetReplacedNameKey(),
+							metX.IsProcessed ? "" : " = 0",
 							MethodAttrToString(metX.Def.Attributes),
 							metX.Def.ImplAttributes,
 							metX.Def.SemanticsAttributes);
