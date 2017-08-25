@@ -161,6 +161,60 @@ namespace group4
 	}
 }
 
+namespace group5
+{
+	interface InfA
+	{
+		int Foo(int n);
+	}
+
+	interface InfB
+	{
+		int Foo(int n);
+	}
+
+	interface InfC : InfA
+	{
+		int Foo(int n);
+	}
+
+	class Cls : InfA, InfB, InfC
+	{
+		private int fld;
+
+		public int Foo(int n)
+		{
+			fld = n;
+			return n;
+		}
+	}
+
+	class Base : InfA
+	{
+		private int fld;
+
+		public int Foo(int n)
+		{
+			fld = n;
+			return n;
+		}
+	}
+
+	class Derived : Base, InfB
+	{
+		private int fld;
+
+		public int Foo(int n)
+		{
+			fld = n;
+			return n;
+		}
+	}
+
+	class DerivedX2 : Derived, InfC
+	{ }
+}
+
 namespace testcase
 {
 	class TestAttribute : Attribute
@@ -349,6 +403,66 @@ namespace testcase
 			i.Foo(1.2f, (long)999999);
 			Inf<char> i2 = null;
 			i2.Foo(1234, 'a');
+		}
+	}
+
+	[Test]
+	static class Interface1
+	{
+		public static void Entry()
+		{
+			group5.InfA i = new group5.Cls();
+			i.Foo(123);
+		}
+	}
+
+	[Test]
+	static class Interface2
+	{
+		public static void Entry()
+		{
+			group5.InfC i = new group5.Cls();
+			i.Foo(123);
+		}
+	}
+
+	[Test]
+	static class Interface3
+	{
+		public static void Entry()
+		{
+			group5.InfA i = new group5.Derived();
+			i.Foo(123);
+		}
+	}
+
+	[Test]
+	static class Interface4
+	{
+		public static void Entry()
+		{
+			group5.InfB i = new group5.Derived();
+			i.Foo(123);
+		}
+	}
+
+	[Test]
+	static class Interface5
+	{
+		public static void Entry()
+		{
+			group5.InfA i = new group5.DerivedX2();
+			i.Foo(123);
+		}
+	}
+
+	[Test]
+	static class Interface6
+	{
+		public static void Entry()
+		{
+			group5.InfC i = new group5.DerivedX2();
+			i.Foo(123);
 		}
 	}
 

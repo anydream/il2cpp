@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 
@@ -108,6 +109,8 @@ namespace il2cpp
 
 		// 方法槽映射
 		public readonly Dictionary<string, VirtualSlot> VSlotMap = new Dictionary<string, VirtualSlot>();
+		// 展平的方法槽映射
+		private Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>> ExpandedVSlotMap;
 
 		public MethodTable(Il2cppContext context, TypeDef tyDef)
 		{
@@ -160,15 +163,15 @@ namespace il2cpp
 			if (tyGenArgs != null && tyGenArgs.Count > 0)
 				replacer = new TypeDefGenReplacer(Def, tyGenArgs);
 
-			foreach (VirtualSlot vslot in VSlotMap.Values)
+			foreach (var kv in ExpandedVSlotMap)
 			{
-				foreach (var kv in vslot.Entries)
+				MethodTable entryTable = kv.Key;
+				foreach (var item in kv.Value)
 				{
-					MethodTable entryTable = kv.Key;
-					MethodDef entryDef = kv.Value;
+					MethodDef entryDef = item.Key;
 
-					MethodTable implTable = vslot.Impl.ImplTable;
-					MethodDef implDef = vslot.Impl.ImplMethod;
+					MethodTable implTable = item.Value.ImplTable;
+					MethodDef implDef = item.Value.ImplMethod;
 
 					string entryType = entryTable == this ? thisNameKey : entryTable.GetReplacedNameKey(replacer);
 					string implType = implTable == this ? thisNameKey : implTable.GetReplacedNameKey(replacer);
@@ -295,23 +298,40 @@ namespace il2cpp
 				ExplicitOverride(overDef.Overrides, overDef, idx);
 			}
 
-			// 检查是否存在未实现的接口
 			if (!Def.IsInterface)
 			{
 				foreach (VirtualSlot vslot in VSlotMap.Values)
 				{
-					foreach (var kv in vslot.Entries)
+					if (vslot.Entries.Count > 0)
 					{
 						if (!vslot.Impl.IsValid())
 						{
-							MethodTable entryTable = kv.Key;
-							MethodDef entryDef = kv.Value;
-
-							throw new TypeLoadException("Slot has no implementation: " + entryTable + entryDef.FullName);
+							// 检查是否存在未实现的接口
+							throw new TypeLoadException("Slot has no implementation: " + vslot.Entries.First());
+						}
+						else
+						{
+							foreach (var item in vslot.Entries)
+							{
+								SetExpandedVSlotMap(item.Key, item.Value, ref vslot.Impl);
+							}
 						}
 					}
 				}
 			}
+		}
+
+		private void SetExpandedVSlotMap(MethodTable entryTable, MethodDef entryDef, ref VirtualImpl impl)
+		{
+			if (ExpandedVSlotMap == null)
+				ExpandedVSlotMap = new Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>>();
+
+			if (!ExpandedVSlotMap.TryGetValue(entryTable, out var defMap))
+			{
+				defMap = new Dictionary<MethodDef, VirtualImpl>();
+				ExpandedVSlotMap.Add(entryTable, defMap);
+			}
+			defMap[entryDef] = impl;
 		}
 
 		private void DerivedFrom(MethodTable other)
@@ -320,6 +340,13 @@ namespace il2cpp
 			{
 				if (kv.Value.Entries.Count > 0)
 					VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value));
+			}
+
+			if (other.ExpandedVSlotMap != null)
+			{
+				ExpandedVSlotMap = new Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>>();
+				foreach (var kv in other.ExpandedVSlotMap)
+					ExpandedVSlotMap.Add(kv.Key, new Dictionary<MethodDef, VirtualImpl>(kv.Value));
 			}
 		}
 
