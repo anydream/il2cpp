@@ -3,9 +3,9 @@ using System.Text;
 
 namespace il2cpp
 {
-	class Program
+	internal class Program
 	{
-		static void Main(string[] args)
+		private static void Main(string[] args)
 		{
 			Il2cppContext context = new Il2cppContext(@"testCS.exe");
 			context.AddEntry(context.Module.EntryPoint);

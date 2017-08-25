@@ -132,7 +132,7 @@ namespace il2cpp
 			{
 				case OperandType.InlineMethod:
 					{
-						MethodX resMetX = null;
+						MethodX resMetX;
 						switch (inst.Operand)
 						{
 							case MethodDef metDef:
@@ -178,7 +178,7 @@ namespace il2cpp
 
 				case OperandType.InlineField:
 					{
-						FieldX resFldX = null;
+						FieldX resFldX;
 						switch (inst.Operand)
 						{
 							case FieldDef fldDef:
@@ -261,7 +261,7 @@ namespace il2cpp
 			return AddField(fldX);
 		}
 
-		private FieldX AddField(FieldX fldX)
+		private static FieldX AddField(FieldX fldX)
 		{
 			Debug.Assert(fldX != null);
 

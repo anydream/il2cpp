@@ -29,14 +29,14 @@ namespace il2cpp
 		{
 			if (genVarSig.OwnerType == OwnerType.Def)
 				return OwnerType.GenArgs[(int)genVarSig.Number];
-			return genVarSig;
+			return null;
 		}
 
 		public TypeSig Replace(GenericMVar genMVarSig)
 		{
 			if (genMVarSig.OwnerMethod == OwnerMethod.Def)
 				return OwnerMethod.GenArgs[(int)genMVarSig.Number];
-			return genMVarSig;
+			return null;
 		}
 	}
 
@@ -53,7 +53,7 @@ namespace il2cpp
 
 		public TypeSig Replace(GenericVar genVarSig)
 		{
-			if (TypeEqualityComparer.Instance.Equals(genVarSig.OwnerType, OwnerType))
+			if (genVarSig.OwnerType == OwnerType)
 				return TypeGenArgs[(int)genVarSig.Number];
 			return null;
 		}
@@ -126,7 +126,7 @@ namespace il2cpp
 						TypeSig result = replacer.Replace(genVarSig);
 						if (result != null)
 							return result;
-						return new GenericVar(genVarSig.Number, genVarSig.OwnerType);
+						return genVarSig;
 					}
 				case ElementType.MVar:
 					{
@@ -134,7 +134,7 @@ namespace il2cpp
 						TypeSig result = replacer.Replace(genMVarSig);
 						if (result != null)
 							return result;
-						return new GenericMVar(genMVarSig.Number, genMVarSig.OwnerMethod);
+						return genMVarSig;
 					}
 
 				default:
@@ -182,40 +182,6 @@ namespace il2cpp
 				tySig = tySig.Next;
 			}
 			return false;
-		}
-
-		private static bool IsInstantiatableTypeSigList(IList<TypeSig> tySigList)
-		{
-			return tySigList == null || tySigList.All(IsInstantiatableTypeSig);
-		}
-
-		// 检查类型签名是否可实例化
-		private static bool IsInstantiatableTypeSig(TypeSig tySig)
-		{
-			while (tySig != null)
-			{
-				switch (tySig.ElementType)
-				{
-					case ElementType.Var:
-						return false;
-					case ElementType.MVar:
-						throw new ArgumentOutOfRangeException();
-
-					case ElementType.GenericInst:
-						{
-							GenericInstSig genInstSig = (GenericInstSig)tySig;
-							foreach (var arg in genInstSig.GenericArguments)
-							{
-								if (!IsInstantiatableTypeSig(arg))
-									return false;
-							}
-							break;
-						}
-				}
-
-				tySig = tySig.Next;
-			}
-			return true;
 		}
 
 		public static void TypeNameKey(

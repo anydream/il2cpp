@@ -60,7 +60,7 @@ namespace il2cpp
 			DeclType = declType;
 			Def = metDef;
 
-			Debug.Assert((HasThis && !metDef.IsStatic) || (!HasThis && metDef.IsStatic));
+			Debug.Assert(HasThis && !metDef.IsStatic || !HasThis && metDef.IsStatic);
 
 			if (metDef.HasBody)
 			{

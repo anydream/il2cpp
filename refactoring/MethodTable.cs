@@ -146,7 +146,7 @@ namespace il2cpp
 		public VirtualTable ExpandVTable(IList<TypeSig> tyGenArgs)
 		{
 			Debug.Assert(!HasGenArgs);
-			Debug.Assert(Def.GenericParameters.Count == tyGenArgs.Count);
+			Debug.Assert(tyGenArgs == null || Def.GenericParameters.Count == tyGenArgs.Count);
 
 			// 展开当前类型名
 			StringBuilder sb = new StringBuilder();
@@ -170,17 +170,8 @@ namespace il2cpp
 					MethodTable implTable = vslot.Impl.ImplTable;
 					MethodDef implDef = vslot.Impl.ImplMethod;
 
-					string entryType;
-					if (entryTable == this)
-						entryType = thisNameKey;
-					else
-						entryType = entryTable.GetReplacedNameKey(replacer);
-
-					string implType;
-					if (implTable == this)
-						implType = thisNameKey;
-					else
-						implType = implTable.GetReplacedNameKey(replacer);
+					string entryType = entryTable == this ? thisNameKey : entryTable.GetReplacedNameKey(replacer);
+					string implType = implTable == this ? thisNameKey : implTable.GetReplacedNameKey(replacer);
 
 					vtable.Set(entryType, entryDef, implType, implDef);
 				}
@@ -384,7 +375,7 @@ namespace il2cpp
 				MethodDef targetDef = target.ResolveMethodDef();
 
 				MethodDef implDef = impl.ResolveMethodDef();
-				string expSigName = null;
+				string expSigName;
 
 				if (implDef == ownerMetDef)
 				{

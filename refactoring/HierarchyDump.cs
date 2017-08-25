@@ -18,6 +18,7 @@ namespace il2cpp
 			foreach (var kv in Context.TypeMgr.MethodTableMap)
 			{
 				sb.AppendFormat("[{0}]\n", kv.Key);
+				bool flag = false;
 				foreach (var kv2 in kv.Value.VSlotMap)
 				{
 					string expSigName = kv2.Key;
@@ -37,8 +38,10 @@ namespace il2cpp
 					foreach (var kv3 in entries)
 						sb.AppendFormat("  - {0} -> {1}\n", kv3.Key, kv3.Value);
 					sb.Append('\n');
+					flag = true;
 				}
-				sb.Append('\n');
+				if (!flag)
+					sb.Append('\n');
 			}
 		}
 
