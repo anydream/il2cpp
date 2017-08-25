@@ -1,0 +1,114 @@
+* MethodTables:
+[group5.DerivedX2]
+ - Foo|Int32(Int32)|20: group5.Derived -> System.Int32 group5.Derived::Foo(System.Int32)
+   - group5.Derived -> System.Int32 group5.Derived::Foo(System.Int32)
+   - group5.InfB -> System.Int32 group5.InfB::Foo(System.Int32)
+   - group5.InfC -> System.Int32 group5.InfC::Foo(System.Int32)
+
+ - group5.InfA.Foo|Int32(Int32)|20: group5.DerivedX2 -> System.Int32 group5.DerivedX2::group5.InfA.Foo(System.Int32)
+   - group5.DerivedX2 -> System.Int32 group5.DerivedX2::group5.InfA.Foo(System.Int32)
+   - group5.InfA -> System.Int32 group5.InfA::Foo(System.Int32)
+
+[group5.Derived]
+ - Foo|Int32(Int32)|20: group5.Derived -> System.Int32 group5.Derived::Foo(System.Int32)
+   - group5.Derived -> System.Int32 group5.Derived::Foo(System.Int32)
+   - group5.InfB -> System.Int32 group5.InfB::Foo(System.Int32)
+
+[group5.Base]
+ - Foo|Int32(Int32)|20: group5.Base -> System.Int32 group5.Base::Foo(System.Int32)
+   - group5.Base -> System.Int32 group5.Base::Foo(System.Int32)
+   - group5.InfA -> System.Int32 group5.InfA::Foo(System.Int32)
+
+[System.Object]
+
+[group5.InfA]
+ - Foo|Int32(Int32)|20: null
+   - group5.InfA -> System.Int32 group5.InfA::Foo(System.Int32)
+
+[group5.InfB]
+ - Foo|Int32(Int32)|20: null
+   - group5.InfB -> System.Int32 group5.InfB::Foo(System.Int32)
+
+[group5.InfC]
+ - Foo|Int32(Int32)|20: null
+   - group5.InfC -> System.Int32 group5.InfC::Foo(System.Int32)
+   - group5.InfA -> System.Int32 group5.InfA::Foo(System.Int32)
+
+* Types:
+[class testcase.Interface6] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.Interface6
+   - group5.Base
+   - group5.Derived
+   - group5.DerivedX2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group5.DerivedX2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: group5.Derived
+ - Interfaces:
+   - group5.InfC
+   - group5.InfA
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group5.DerivedX2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+ - VTable:
+   - [System.Object]
+   - [group5.Base]
+   - [group5.InfA]
+     - System.Int32 group5.InfA::Foo(System.Int32): group5.DerivedX2 -> System.Int32 group5.DerivedX2::group5.InfA.Foo(System.Int32)
+   - [group5.Derived]
+   - [group5.InfB]
+     - System.Int32 group5.InfB::Foo(System.Int32): group5.Derived -> System.Int32 group5.Derived::Foo(System.Int32)
+   - [group5.InfC]
+     - System.Int32 group5.InfC::Foo(System.Int32): group5.Derived -> System.Int32 group5.Derived::Foo(System.Int32)
+   - [group5.DerivedX2]
+
+[class group5.Derived] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: group5.Base
+ - Interfaces:
+   - group5.InfB
+ - DerivedTypes:
+   - group5.DerivedX2
+ - Fields:
+   - fld|Int32|1, fld|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group5.Derived)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Int32(Int32)|20|1E6, Foo|Int32(group5.Derived,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
+
+[class group5.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Interfaces:
+   - group5.InfA
+ - DerivedTypes:
+   - group5.Derived
+   - group5.DerivedX2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group5.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group5.InfA] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group5.Base
+   - group5.Derived
+   - group5.InfC
+   - group5.DerivedX2
+
+[class group5.InfB] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group5.Derived
+   - group5.DerivedX2
+
+[class group5.InfC] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - group5.InfA
+ - DerivedTypes:
+   - group5.DerivedX2
+ - Methods:
+   - Foo|Int32(Int32)|20|5C6, Foo|Int32(group5.InfC,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group5.Derived -> Foo|Int32(Int32)|20|1E6, Foo|Int32(group5.Derived,Int32)|20
+
