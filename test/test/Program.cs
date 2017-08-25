@@ -10,6 +10,15 @@ namespace test
 {
 	internal class Program
 	{
+		private const string TestCaseDir = "../../../testcases/";
+
+		private static string GetRelativePath(string path, string relativeTo)
+		{
+			string fullPath = Path.GetFullPath(path);
+			string fullRelative = Path.GetFullPath(relativeTo);
+			return fullPath.Substring(fullRelative.Length);
+		}
+
 		private static bool IsTestClass(TypeDef typeDef)
 		{
 			if (typeDef.HasCustomAttributes)
@@ -21,14 +30,16 @@ namespace test
 			return false;
 		}
 
-		private static void TestType(Il2cppContext context, TypeDef typeDef, string imageDir, string imageName)
+		private static void TestType(
+			Il2cppContext context, TypeDef typeDef,
+			string imageDir, string imageName, string subDir)
 		{
 			if (!IsTestClass(typeDef))
 				return;
 
 			string testName = string.Format("[{0}]{1}", imageName, typeDef.FullName);
 			var oldColor = Console.ForegroundColor;
-			Console.Write("{0}: ", testName);
+			Console.Write("{0} {1}: ", subDir, testName);
 
 			context.AddEntry(typeDef.FindMethod("Entry"));
 
@@ -73,17 +84,18 @@ namespace test
 		private static void TestAssembly(string imageDir, string imagePath)
 		{
 			string imageName = Path.GetFileName(imagePath);
+			string subDir = GetRelativePath(imageDir, TestCaseDir);
 
 			Il2cppContext context = new Il2cppContext(imagePath);
 			foreach (TypeDef typeDef in context.Module.Types)
 			{
-				TestType(context, typeDef, imageDir, imageName);
+				TestType(context, typeDef, imageDir, imageName, subDir);
 			}
 		}
 
 		private static void Main(string[] args)
 		{
-			var files = Directory.GetFiles("../../../testcases/", "*.exe", SearchOption.AllDirectories);
+			var files = Directory.GetFiles(TestCaseDir, "*.exe", SearchOption.AllDirectories);
 			foreach (string file in files)
 			{
 				string dir = Path.GetDirectoryName(file);
