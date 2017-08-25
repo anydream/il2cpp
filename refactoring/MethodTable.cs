@@ -8,7 +8,7 @@ namespace il2cpp
 {
 	internal class VirtualTable
 	{
-		private readonly Dictionary<string, Dictionary<MethodDef, Tuple<string, MethodDef>>> Table =
+		public readonly Dictionary<string, Dictionary<MethodDef, Tuple<string, MethodDef>>> Table =
 			new Dictionary<string, Dictionary<MethodDef, Tuple<string, MethodDef>>>();
 
 		public void Set(string entryType, MethodDef entryDef, string implType, MethodDef implDef)
