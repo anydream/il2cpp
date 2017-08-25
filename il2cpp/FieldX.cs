@@ -18,6 +18,8 @@ namespace il2cpp
 		// 字段类型
 		public TypeSig FieldType;
 
+		public bool IsStatic => Def.IsStatic;
+
 		public FieldX(TypeX declType, FieldDef fldDef)
 		{
 			Debug.Assert(declType != null);

@@ -46,6 +46,7 @@ namespace il2cpp
 		public bool HasOverrideImpls => OverrideImpls != null && OverrideImpls.Count > 0;
 
 		public bool HasThis => DefSig.HasThis;
+		public bool IsStatic => !HasThis;
 		public bool IsVirtual => Def.IsVirtual;
 
 		// 是否已处理过

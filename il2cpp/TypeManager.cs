@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
@@ -20,6 +21,9 @@ namespace il2cpp
 		public readonly HashSet<MethodX> VCallEntries = new HashSet<MethodX>();
 		// 方法待处理队列
 		private readonly Queue<MethodX> PendingMethods = new Queue<MethodX>();
+
+		// 对象终结器虚调用是否已经生成
+		private bool IsVCallFinalizerGenerated = false;
 
 		public TypeManager(Il2cppContext context)
 		{
@@ -148,28 +152,37 @@ namespace il2cpp
 								throw new ArgumentOutOfRangeException();
 						}
 
-						if (!resMetX.HasThis)
+						if (resMetX.IsStatic)
 						{
-							//! 生成静态构造
+							// 生成静态构造
+							GenStaticCctor(resMetX.DeclType);
 						}
 
 						if (inst.OpCode.Code == Code.Newobj)
 						{
+							Debug.Assert(!resMetX.Def.IsStatic);
+							Debug.Assert(resMetX.Def.IsConstructor);
 							// 设置实例化标记
 							resMetX.DeclType.IsInstantiated = true;
-							//! 生成静态构造和终结器
+							// 生成静态构造和终结器
+							GenStaticCctor(resMetX.DeclType);
+							GenFinalizer(resMetX.DeclType);
 
 							// 解析虚表
 							resMetX.DeclType.ResolveVTable();
 						}
 						else if (resMetX.IsVirtual &&
-								(inst.OpCode.Code == Code.Callvirt ||
-								inst.OpCode.Code == Code.Ldvirtftn))
+								 (inst.OpCode.Code == Code.Callvirt ||
+								  inst.OpCode.Code == Code.Ldvirtftn))
 						{
 							// 记录虚入口
-							VCallEntries.Add(resMetX);
-							// 跳过该方法的处理
-							resMetX.IsSkipProcessing = true;
+							AddVCallEntry(resMetX);
+						}
+						else
+						{
+							// 非虚方法引用, 加入处理队列
+							resMetX.IsSkipProcessing = false;
+							AddPendingMethod(resMetX);
 						}
 
 						inst.Operand = resMetX;
@@ -191,6 +204,12 @@ namespace il2cpp
 								throw new ArgumentOutOfRangeException();
 						}
 
+						if (resFldX.IsStatic)
+						{
+							// 生成静态构造
+							GenStaticCctor(resFldX.DeclType);
+						}
+
 						inst.Operand = resFldX;
 						return;
 					}
@@ -205,6 +224,56 @@ namespace il2cpp
 						return;
 					}
 			}
+		}
+
+		private void GenStaticCctor(TypeX tyX)
+		{
+			if (tyX.IsCctorGenerated)
+				return;
+			tyX.IsCctorGenerated = true;
+
+			MethodDef cctor = tyX.Def.Methods.FirstOrDefault(met => met.IsStatic && met.IsConstructor);
+			if (cctor != null)
+			{
+				MethodX metX = new MethodX(tyX, cctor);
+				tyX.CctorMethod = AddMethod(metX);
+			}
+		}
+
+		private void GenFinalizer(TypeX tyX)
+		{
+			if (tyX.IsFinalizerGenerated)
+				return;
+			tyX.IsFinalizerGenerated = true;
+
+			MethodDef fin = tyX.Def.Methods.FirstOrDefault(met => !met.IsStatic && met.Name == "Finalize");
+			if (fin != null)
+			{
+				MethodX metX = new MethodX(tyX, fin);
+				tyX.FinalizerMethod = AddMethod(metX);
+
+				AddVCallObjectFinalizer();
+			}
+		}
+
+		private void AddVCallObjectFinalizer()
+		{
+			if (IsVCallFinalizerGenerated)
+				return;
+			IsVCallFinalizerGenerated = true;
+
+			MethodDef fin = Context.Module.CorLibTypes.Object.TypeDef.FindMethod("Finalize");
+			MethodX vmetFinalizer = ResolveMethodDef(fin);
+
+			AddVCallEntry(vmetFinalizer);
+		}
+
+		private void AddVCallEntry(MethodX virtMetX)
+		{
+			// 记录虚入口
+			VCallEntries.Add(virtMetX);
+			// 跳过该方法的处理
+			virtMetX.IsSkipProcessing = true;
 		}
 
 		private void ResolveVCalls()

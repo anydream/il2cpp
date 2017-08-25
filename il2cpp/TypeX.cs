@@ -41,8 +41,18 @@ namespace il2cpp
 		// 虚表
 		public VirtualTable VTable;
 
+		// 静态构造方法
+		public MethodX CctorMethod;
+		// 终结器方法
+		public MethodX FinalizerMethod;
+
 		// 是否实例化过
 		public bool IsInstantiated;
+
+		// 是否已生成静态构造
+		public bool IsCctorGenerated;
+		// 是否已生成终结器
+		public bool IsFinalizerGenerated;
 
 		public TypeX(Il2cppContext context, TypeDef tyDef)
 		{
