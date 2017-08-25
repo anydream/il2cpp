@@ -48,6 +48,17 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class GenOverride3
+	{
+		public static void Entry()
+		{
+			group1.Base<int, float> b = new group1.Base<int, float>();
+			b.Foo(1, 1.2f);
+			var d = new group1.Derived<float, int>();
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()

@@ -214,35 +214,46 @@ namespace il2cpp
 				string entryType = virtMetX.DeclType.GetNameKey();
 				MethodDef entryDef = virtMetX.Def;
 
-				// 获得虚方法的所有继承类型
+				// 在虚入口所在类型内解析虚方法
+				if (virtMetX.DeclType.IsInstantiated)
+					ResolveVMethod(virtMetX, virtMetX.DeclType, entryType, entryDef);
+
+				// 在继承类型内解析虚方法
 				foreach (TypeX derivedTyX in virtMetX.DeclType.DerivedTypes)
-				{
-					// 跳过没有实例化的类型
-					if (!derivedTyX.IsInstantiated)
-						continue;
-
-					// 在继承类型中查找虚方法
-					if (derivedTyX.QueryVTable(
-						entryType, entryDef,
-						out var implType, out var implDef))
-					{
-						// 构造实现方法
-						TypeX implTyX = GetTypeByName(implType);
-						MethodX implMetX = new MethodX(implTyX, implDef);
-						implMetX.GenArgs = virtMetX.GenArgs;
-						implMetX = AddMethod(implMetX);
-
-						// 关联实现方法到虚方法
-						virtMetX.AddOverrideImpl(implMetX);
-
-						// 处理该方法
-						implMetX.IsSkipProcessing = false;
-						AddPendingMethod(implMetX);
-					}
-					else
-						throw new ArgumentOutOfRangeException();
-				}
+					ResolveVMethod(virtMetX, derivedTyX, entryType, entryDef);
 			}
+		}
+
+		private void ResolveVMethod(
+			MethodX virtMetX,
+			TypeX derivedTyX,
+			string entryType,
+			MethodDef entryDef)
+		{
+			// 跳过没有实例化的类型
+			if (!derivedTyX.IsInstantiated)
+				return;
+
+			// 在继承类型中查找虚方法
+			if (derivedTyX.QueryVTable(
+				entryType, entryDef,
+				out var implType, out var implDef))
+			{
+				// 构造实现方法
+				TypeX implTyX = GetTypeByName(implType);
+				MethodX implMetX = new MethodX(implTyX, implDef);
+				implMetX.GenArgs = virtMetX.GenArgs;
+				implMetX = AddMethod(implMetX);
+
+				// 关联实现方法到虚方法
+				virtMetX.AddOverrideImpl(implMetX);
+
+				// 处理该方法
+				implMetX.IsSkipProcessing = false;
+				AddPendingMethod(implMetX);
+			}
+			else
+				throw new ArgumentOutOfRangeException();
 		}
 
 		public FieldX ResolveFieldDef(FieldDef fldDef)
