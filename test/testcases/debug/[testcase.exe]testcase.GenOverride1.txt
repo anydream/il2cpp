@@ -1,0 +1,47 @@
+* MethodTables:
+[testcase.GenOverride1/Derived`2]
+ - Foo|Void(!1,!0)|20: testcase.GenOverride1/Derived`2 -> System.Void testcase.GenOverride1/Derived`2::Foo(P,T)
+   - testcase.GenOverride1/Base`2<!(testcase.GenOverride1/Derived`2)1,!(testcase.GenOverride1/Derived`2)0> -> System.Void testcase.GenOverride1/Base`2::Foo(T,P)
+   - testcase.GenOverride1/Derived`2 -> System.Void testcase.GenOverride1/Derived`2::Foo(P,T)
+
+[testcase.GenOverride1/Base`2<!(testcase.GenOverride1/Derived`2)1,!(testcase.GenOverride1/Derived`2)0>]
+
+[System.Object]
+
+* Types:
+[class testcase.GenOverride1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.GenOverride1
+   - testcase.GenOverride1/Base`2<Int32,Single>
+   - testcase.GenOverride1/Derived`2<Single,Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class testcase.GenOverride1/Derived`2<Single,Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: testcase.GenOverride1/Base`2<Int32,Single>
+ - Fields:
+   - fld|!0|1, fld|Single, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.GenOverride1/Derived`2<Single,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(!1,!0)|20|C6, Foo|Void(testcase.GenOverride1/Derived`2<Single,Int32>,Int32,Single)|20, Public Virtual HideBySig Managed None
+ - VTable:
+   - [System.Object]
+   - [testcase.GenOverride1/Base`2<Int32,Single>]
+     - System.Void testcase.GenOverride1/Base`2::Foo(T,P): testcase.GenOverride1/Derived`2<Single,Int32> -> System.Void testcase.GenOverride1/Derived`2::Foo(P,T)
+   - [testcase.GenOverride1/Derived`2<Single,Int32>]
+
+[class testcase.GenOverride1/Base`2<Int32,Single>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - DerivedTypes:
+   - testcase.GenOverride1/Derived`2<Single,Int32>
+ - Methods:
+   - Foo|Void(!0,!1)|20|1C6, Foo|Void(testcase.GenOverride1/Base`2<Int32,Single>,Int32,Single)|20, Public Virtual HideBySig NewSlot Managed None
+     - testcase.GenOverride1/Derived`2<Single,Int32> -> Foo|Void(!1,!0)|20|C6, Foo|Void(testcase.GenOverride1/Derived`2<Single,Int32>,Int32,Single)|20
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.GenOverride1/Base`2<Int32,Single>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
