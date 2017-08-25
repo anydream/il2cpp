@@ -279,6 +279,9 @@ namespace il2cpp
 						{
 							MethodTable entryTable = kv2.Key;
 							MethodDef entryDef = kv2.Value;
+
+							// 先删除现有的再合并
+							RemoveEntry(entryTable, entryDef);
 							MergeSlot(expSigName, entryTable, entryDef);
 						}
 					}
@@ -315,24 +318,13 @@ namespace il2cpp
 		{
 			foreach (var kv in other.VSlotMap)
 			{
-				VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value));
+				if (kv.Value.Entries.Count > 0)
+					VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value));
 			}
-		}
-
-		private static string GetModifiedSigName(string expSigName, MethodDef metDef)
-		{
-			// 对于终止覆盖方法, 在签名前面加上标记以防止后续覆盖
-			if (metDef.IsFinal)
-			{
-				return "*|" + expSigName;
-			}
-			return expSigName;
 		}
 
 		private void NewSlot(string expSigName, MethodDef metDef, bool isChecked = false)
 		{
-			expSigName = GetModifiedSigName(expSigName, metDef);
-
 			VirtualSlot vslot = new VirtualSlot();
 			if (isChecked)
 				VSlotMap.Add(expSigName, vslot);
@@ -379,9 +371,7 @@ namespace il2cpp
 
 				if (implDef == ownerMetDef)
 				{
-					//Debug.Assert(implTable == this);
 					expSigName = ExpandedSigList[ownerMetIdx];
-					expSigName = GetModifiedSigName(expSigName, implDef);
 				}
 				else
 					throw new NotSupportedException();
