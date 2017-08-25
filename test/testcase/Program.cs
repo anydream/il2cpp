@@ -68,6 +68,43 @@ namespace group2
 	}
 }
 
+namespace group3
+{
+	class Base<T, P>
+	{
+		private T fld;
+		private P fld2;
+		public virtual MT Foo<MT, MP>(T t, P p, MT mt, MP mp)
+		{
+			fld = t;
+			return mt;
+		}
+
+		public virtual MT Foo<MT, MP>(T t, P p, MP mp, MT mt)
+		{
+			fld2 = p;
+			return mt;
+		}
+	}
+
+	class Derived<T, P> : Base<P, T>
+	{
+		private T fld;
+		private P fld2;
+		public override MT Foo<MT, MP>(P t, T p, MT mt, MP mp)
+		{
+			fld = p;
+			return mt;
+		}
+
+		public override MT Foo<MT, MP>(P t, T p, MP mp, MT mt)
+		{
+			fld2 = t;
+			return mt;
+		}
+	}
+}
+
 namespace testcase
 {
 	class TestAttribute : Attribute
@@ -114,6 +151,36 @@ namespace testcase
 			i.Foo(1, 1.2f);
 			group2.Inf<float, int> i2 = null;
 			i2.Foo(1.2f, 1);
+		}
+	}
+
+	[Test]
+	static class GenOverride5
+	{
+		public static void Entry()
+		{
+			group2.Base<int, float> b = new group2.DerivedX2<float>();
+			b.Foo(1, 1.2f);
+		}
+	}
+
+	[Test]
+	static class GenOverride6
+	{
+		public static void Entry()
+		{
+			group3.Base<int, float> b = new group3.Derived<float, int>();
+			b.Foo<short, long>(1, 1.2f, (short)12345, (long)999999);
+		}
+	}
+
+	[Test]
+	static class GenOverride7
+	{
+		public static void Entry()
+		{
+			group3.Base<int, float> b = new group3.Derived<float, int>();
+			b.Foo<short, long>(1, 1.2f, (long)999999, (short)12345);
 		}
 	}
 

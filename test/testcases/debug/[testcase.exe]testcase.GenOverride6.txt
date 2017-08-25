@@ -1,0 +1,52 @@
+* MethodTables:
+[group3.Derived`2]
+ - Foo|!!0<2>(!1,!0,!!0,!!1)|30: group3.Derived`2 -> MT group3.Derived`2::Foo<MT,MP>(P,T,MT,MP)
+   - group3.Base`2<!(group3.Derived`2)1,!(group3.Derived`2)0> -> MT group3.Base`2::Foo<MT,MP>(T,P,MT,MP)
+   - group3.Derived`2 -> MT group3.Derived`2::Foo<MT,MP>(P,T,MT,MP)
+
+ - Foo|!!0<2>(!1,!0,!!1,!!0)|30: group3.Derived`2 -> MT group3.Derived`2::Foo<MT,MP>(P,T,MP,MT)
+   - group3.Base`2<!(group3.Derived`2)1,!(group3.Derived`2)0> -> MT group3.Base`2::Foo<MT,MP>(T,P,MP,MT)
+   - group3.Derived`2 -> MT group3.Derived`2::Foo<MT,MP>(P,T,MP,MT)
+
+[group3.Base`2<!(group3.Derived`2)1,!(group3.Derived`2)0>]
+
+[System.Object]
+
+* Types:
+[class testcase.GenOverride6] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.GenOverride6
+   - group3.Base`2<Int32,Single>
+   - group3.Derived`2<Single,Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group3.Derived`2<Single,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: group3.Base`2<Int32,Single>
+ - Fields:
+   - fld|!0|1, fld|Single, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group3.Derived`2<Single,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|!!0<Int16,Int64>(!1,!0,!!0,!!1)|30|C6, Foo|Int16<Int16,Int64>(group3.Derived`2<Single,Int32>,Int32,Single,Int16,Int64)|30, Public Virtual HideBySig Managed None
+ - VTable:
+   - [System.Object]
+   - [group3.Base`2<Int32,Single>]
+     - MT group3.Base`2::Foo<MT,MP>(T,P,MT,MP): group3.Derived`2<Single,Int32> -> MT group3.Derived`2::Foo<MT,MP>(P,T,MT,MP)
+     - MT group3.Base`2::Foo<MT,MP>(T,P,MP,MT): group3.Derived`2<Single,Int32> -> MT group3.Derived`2::Foo<MT,MP>(P,T,MP,MT)
+   - [group3.Derived`2<Single,Int32>]
+
+[class group3.Base`2<Int32,Single>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - DerivedTypes:
+   - group3.Derived`2<Single,Int32>
+ - Methods:
+   - Foo|!!0<Int16,Int64>(!0,!1,!!0,!!1)|30|1C6, Foo|Int16<Int16,Int64>(group3.Base`2<Int32,Single>,Int32,Single,Int16,Int64)|30 = 0, Public Virtual HideBySig NewSlot Managed None
+     - group3.Derived`2<Single,Int32> -> Foo|!!0<Int16,Int64>(!1,!0,!!0,!!1)|30|C6, Foo|Int16<Int16,Int64>(group3.Derived`2<Single,Int32>,Int32,Single,Int16,Int64)|30
+   - .ctor|Void()|20|1886, .ctor|Void(group3.Base`2<Int32,Single>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
