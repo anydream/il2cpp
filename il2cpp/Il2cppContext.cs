@@ -8,15 +8,11 @@ namespace il2cpp
 		public readonly ModuleDefMD Module;
 		public readonly string RuntimeVersion;
 
-		internal readonly TypeManager TypeMgr;
-		internal readonly NameManager NameMgr;
+		internal TypeManager TypeMgr;
+		internal NameManager NameMgr;
 
 		public Il2cppContext(string imagePath)
 		{
-			// 初始化管理器
-			TypeMgr = new TypeManager(this);
-			NameMgr = new NameManager(this);
-
 			// 加载主模块
 			AssemblyResolver asmRes = new AssemblyResolver();
 			ModuleContext modCtx = new ModuleContext(asmRes);
@@ -32,6 +28,15 @@ namespace il2cpp
 			Module.Context.AssemblyResolver.AddToCache(Module);
 
 			RuntimeVersion = Module.RuntimeVersion;
+
+			Reset();
+		}
+
+		public void Reset()
+		{
+			// 初始化管理器
+			TypeMgr = new TypeManager(this);
+			NameMgr = new NameManager(this);
 		}
 
 		public void AddEntry(MethodDef metDef)
