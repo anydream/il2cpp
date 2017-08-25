@@ -52,39 +52,54 @@ namespace il2cpp
 					tyX.DefAttr);
 
 				if (tyX.BaseType != null)
-					sb.AppendFormat(" - Base: {0}\n", tyX.BaseType);
-				foreach (TypeX infTyX in tyX.Interfaces)
-					sb.AppendFormat(" - Interface: {0}\n", infTyX);
-				foreach (TypeX derivedTyX in tyX.DerivedTypes)
-					sb.AppendFormat(" - DerivedType: {0}\n", derivedTyX);
-
-				sb.Append(" - Methods:\n");
-				foreach (MethodX metX in tyX.MethodMap.Values)
+					sb.AppendFormat("- Base: {0}\n", tyX.BaseType);
+				if (tyX.Interfaces.Count > 0)
 				{
-					sb.AppendFormat("   - {0}, {1}, {2}\n",
-						metX.GetNameKey(),
-						metX.GetReplacedNameKey(),
-						metX.DefAttr);
+					sb.Append("- Interfaces:\n");
+					foreach (TypeX infTyX in tyX.Interfaces)
+						sb.AppendFormat("  - {0}\n", infTyX);
+				}
+				if (tyX.DerivedTypes.Count > 0)
+				{
+					sb.Append("- DerivedTypes:\n");
+					foreach (TypeX derivedTyX in tyX.DerivedTypes)
+						sb.AppendFormat("  - {0}\n", derivedTyX);
+				}
 
-					if (metX.HasOverrideImpls)
+				if (tyX.FieldMap.Count > 0)
+				{
+					sb.Append("- Fields:\n");
+					foreach (FieldX fldX in tyX.FieldMap.Values)
 					{
-						foreach (MethodX overMetX in metX.OverrideImpls)
+						sb.AppendFormat("  - {0}, {1}, {2}\n",
+							fldX.GetNameKey(),
+							fldX.GetReplacedNameKey(),
+							fldX.DefAttr);
+					}
+				}
+
+				if (tyX.MethodMap.Count > 0)
+				{
+					sb.Append("- Methods:\n");
+					foreach (MethodX metX in tyX.MethodMap.Values)
+					{
+						sb.AppendFormat("  - {0}, {1}, {2}\n",
+							metX.GetNameKey(),
+							metX.GetReplacedNameKey(),
+							metX.DefAttr);
+
+						if (metX.HasOverrideImpls)
 						{
-							sb.AppendFormat("     - Impl: {0}, {1}\n",
-								overMetX,
-								overMetX.GetReplacedNameKey());
+							foreach (MethodX overMetX in metX.OverrideImpls)
+							{
+								sb.AppendFormat("    - {0}, {1}\n",
+									overMetX,
+									overMetX.GetReplacedNameKey());
+							}
 						}
 					}
 				}
 
-				sb.Append(" - Fields:\n");
-				foreach (FieldX fldX in tyX.FieldMap.Values)
-				{
-					sb.AppendFormat("   - {0}, {1}, {2}\n",
-						fldX.GetNameKey(),
-						fldX.GetReplacedNameKey(),
-						fldX.DefAttr);
-				}
 
 				sb.Append('\n');
 			}
