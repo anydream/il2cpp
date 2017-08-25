@@ -1,0 +1,76 @@
+* MethodTables:
+[group5.Cls]
+ - Foo|Int32(Int32)|20: group5.Cls -> System.Int32 group5.Cls::Foo(System.Int32)
+   - group5.Cls -> System.Int32 group5.Cls::Foo(System.Int32)
+   - group5.InfA -> System.Int32 group5.InfA::Foo(System.Int32)
+   - group5.InfB -> System.Int32 group5.InfB::Foo(System.Int32)
+   - group5.InfC -> System.Int32 group5.InfC::Foo(System.Int32)
+
+[System.Object]
+
+[group5.InfA]
+ - Foo|Int32(Int32)|20: null
+   - group5.InfA -> System.Int32 group5.InfA::Foo(System.Int32)
+
+[group5.InfB]
+ - Foo|Int32(Int32)|20: null
+   - group5.InfB -> System.Int32 group5.InfB::Foo(System.Int32)
+
+[group5.InfC]
+ - Foo|Int32(Int32)|20: null
+   - group5.InfC -> System.Int32 group5.InfC::Foo(System.Int32)
+   - group5.InfA -> System.Int32 group5.InfA::Foo(System.Int32)
+
+* Types:
+[class testcase.Interface1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.Interface1
+   - group5.Cls
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group5.Cls] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: System.Object
+ - Interfaces:
+   - group5.InfA
+   - group5.InfB
+   - group5.InfC
+ - Fields:
+   - fld|Int32|1, fld|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group5.Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Int32(Int32)|20|1E6, Foo|Int32(group5.Cls,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [System.Object]
+   - [group5.Cls]
+   - [group5.InfA]
+     - System.Int32 group5.InfA::Foo(System.Int32): group5.Cls -> System.Int32 group5.Cls::Foo(System.Int32)
+   - [group5.InfB]
+     - System.Int32 group5.InfB::Foo(System.Int32): group5.Cls -> System.Int32 group5.Cls::Foo(System.Int32)
+   - [group5.InfC]
+     - System.Int32 group5.InfC::Foo(System.Int32): group5.Cls -> System.Int32 group5.Cls::Foo(System.Int32)
+
+[class group5.InfA] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group5.InfC
+   - group5.Cls
+ - Methods:
+   - Foo|Int32(Int32)|20|5C6, Foo|Int32(group5.InfA,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group5.Cls -> Foo|Int32(Int32)|20|1E6, Foo|Int32(group5.Cls,Int32)|20
+
+[class group5.InfB] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group5.Cls
+
+[class group5.InfC] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - group5.InfA
+ - DerivedTypes:
+   - group5.Cls
+
