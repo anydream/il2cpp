@@ -280,6 +280,78 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class GenExpOverride1
+	{
+		interface Inf<T>
+		{
+			void Foo(T t);
+		}
+
+		class Cls : Inf<float>
+		{
+			private float fld;
+			void Inf<float>.Foo(float t)
+			{
+				fld = t;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf<float> i = new Cls();
+			i.Foo(1.2f);
+		}
+	}
+
+	[Test]
+	static class GenExpOverride2
+	{
+		interface Inf
+		{
+			T Foo<T>(T t);
+		}
+
+		class Cls : Inf
+		{
+			T Inf.Foo<T>(T t)
+			{
+				return t;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf i = new Cls();
+			i.Foo(1.2f);
+		}
+	}
+
+	[Test]
+	static class GenExpOverride3
+	{
+		interface Inf<T>
+		{
+			MT Foo<MT>(MT mt, T t);
+		}
+
+		class Cls : Inf<long>
+		{
+			MT Inf<long>.Foo<MT>(MT mt, long t)
+			{
+				return mt;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf<long> i = new Cls();
+			i.Foo(1.2f, (long)999999);
+			Inf<char> i2 = null;
+			i2.Foo(1234, 'a');
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()

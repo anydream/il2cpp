@@ -1,0 +1,52 @@
+* MethodTables:
+[testcase.GenExpOverride3/Cls]
+ - testcase.GenExpOverride3.Inf\u003CSystem.Int64\u003E.Foo|!!0<1>(!!0,Int64)|30: testcase.GenExpOverride3/Cls -> MT testcase.GenExpOverride3/Cls::testcase.GenExpOverride3.Inf<System.Int64>.Foo<MT>(MT,System.Int64)
+   - testcase.GenExpOverride3/Cls -> MT testcase.GenExpOverride3/Cls::testcase.GenExpOverride3.Inf<System.Int64>.Foo<MT>(MT,System.Int64)
+   - testcase.GenExpOverride3/Inf`1<Int64> -> MT testcase.GenExpOverride3/Inf`1::Foo<MT>(MT,T)
+
+ - Foo|!!0<1>(!!0,Int64)|30: null
+
+[System.Object]
+
+[testcase.GenExpOverride3/Inf`1<Int64>]
+ - Foo|!!0<1>(!!0,Int64)|30: null
+   - testcase.GenExpOverride3/Inf`1<Int64> -> MT testcase.GenExpOverride3/Inf`1::Foo<MT>(MT,T)
+
+* Types:
+[class testcase.GenExpOverride3] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.GenExpOverride3
+   - testcase.GenExpOverride3/Cls
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class testcase.GenExpOverride3/Cls] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: System.Object
+ - Interfaces:
+   - testcase.GenExpOverride3/Inf`1<Int64>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.GenExpOverride3/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.GenExpOverride3.Inf\u003CSystem.Int64\u003E.Foo|!!0<Single>(!!0,Int64)|30|1E1, testcase.GenExpOverride3.Inf\u003CSystem.Int64\u003E.Foo|Single<Single>(testcase.GenExpOverride3/Cls,Single,Int64)|30, Private Final Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [System.Object]
+   - [testcase.GenExpOverride3/Cls]
+   - [testcase.GenExpOverride3/Inf`1<Int64>]
+     - MT testcase.GenExpOverride3/Inf`1::Foo<MT>(MT,T): testcase.GenExpOverride3/Cls -> MT testcase.GenExpOverride3/Cls::testcase.GenExpOverride3.Inf<System.Int64>.Foo<MT>(MT,System.Int64)
+
+[class testcase.GenExpOverride3/Inf`1<Int64>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - testcase.GenExpOverride3/Cls
+ - Methods:
+   - Foo|!!0<Single>(!!0,!0)|30|5C6, Foo|Single<Single>(testcase.GenExpOverride3/Inf`1<Int64>,Single,Int64)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - testcase.GenExpOverride3/Cls -> testcase.GenExpOverride3.Inf\u003CSystem.Int64\u003E.Foo|!!0<Single>(!!0,Int64)|30|1E1, testcase.GenExpOverride3.Inf\u003CSystem.Int64\u003E.Foo|Single<Single>(testcase.GenExpOverride3/Cls,Single,Int64)|30
+
+[class testcase.GenExpOverride3/Inf`1<Char>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Methods:
+   - Foo|!!0<Int32>(!!0,!0)|30|5C6, Foo|Int32<Int32>(testcase.GenExpOverride3/Inf`1<Char>,Int32,Char)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+
