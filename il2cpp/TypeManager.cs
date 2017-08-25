@@ -364,20 +364,17 @@ namespace il2cpp
 			IGenericReplacer replacer = new GenericReplacer(tyX, null);
 
 			// 解析基类
-			if (tyX.DefBaseType != null)
-				tyX.BaseType = ResolveITypeDefOrRef(tyX.DefBaseType, replacer);
+			if (tyX.Def.BaseType != null)
+				tyX.BaseType = ResolveITypeDefOrRef(tyX.Def.BaseType, replacer);
 			// 解析接口
-			if (tyX.DefInterfaces != null)
+			if (tyX.Def.HasInterfaces)
 			{
-				foreach (var inf in tyX.DefInterfaces)
+				foreach (var inf in tyX.Def.Interfaces)
 					tyX.Interfaces.Add(ResolveITypeDefOrRef(inf.Interface, replacer));
 			}
 
 			// 更新子类集合
 			tyX.UpdateDerivedTypes();
-
-			tyX.DefBaseType = null;
-			tyX.DefInterfaces = null;
 		}
 
 		// 解析类型并添加到映射

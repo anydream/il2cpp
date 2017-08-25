@@ -19,16 +19,8 @@ namespace il2cpp
 		public readonly TypeDef Def;
 		// 类型全名
 		public readonly string DefFullName;
-		// 类型签名
-		public readonly ClassOrValueTypeSig DefSig;
-		// 类型属性
-		public readonly TypeAttributes DefAttr;
-		// 定义的基类型
-		public ITypeDefOrRef DefBaseType;
-		// 定义的接口列表
-		public IList<InterfaceImpl> DefInterfaces;
 		// 是否为值类型
-		public readonly bool IsValueType;
+		public bool IsValueType => Def.IsValueType;
 
 		// 唯一名称
 		private string NameKey;
@@ -57,15 +49,6 @@ namespace il2cpp
 			Context = context;
 			Def = tyDef;
 			DefFullName = tyDef.FullName;
-			DefAttr = tyDef.Attributes;
-			DefBaseType = tyDef.BaseType;
-			DefInterfaces = tyDef.Interfaces;
-			IsValueType = tyDef.IsValueType;
-
-			if (IsValueType)
-				DefSig = new ValueTypeSig(tyDef);
-			else
-				DefSig = new ClassSig(tyDef);
 		}
 
 		public override string ToString()
@@ -88,9 +71,15 @@ namespace il2cpp
 
 		public TypeSig GetThisTypeSig()
 		{
-			TypeSig thisSig = DefSig;
+			ClassOrValueTypeSig tySig;
+			if (IsValueType)
+				tySig = new ValueTypeSig(Def);
+			else
+				tySig = new ClassSig(Def);
+
+			TypeSig thisSig = tySig;
 			if (HasGenArgs)
-				thisSig = new GenericInstSig(DefSig, GenArgs);
+				thisSig = new GenericInstSig(tySig, GenArgs);
 			if (IsValueType)
 				thisSig = new ByRefSig(thisSig);
 			return thisSig;

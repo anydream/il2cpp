@@ -53,7 +53,7 @@ namespace il2cpp
 				sb.AppendFormat("[{0} {1}] {2}\n",
 					tyX.IsValueType ? "struct" : "class",
 					kv.Key,
-					TypeAttrToString(tyX.DefAttr));
+					TypeAttrToString(tyX.Def.Attributes));
 
 				if (tyX.IsInstantiated)
 					sb.Append(" - Instantiated\n");
