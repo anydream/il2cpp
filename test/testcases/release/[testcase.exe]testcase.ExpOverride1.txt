@@ -1,0 +1,79 @@
+* MethodTables:
+[group4.ClsA]
+ - Foo|Void()|20: group4.ClsA -> System.Void group4.ClsA::Foo()
+   - group4.Base -> System.Void group4.Base::Foo()
+   - group4.Inf -> System.Void group4.Inf::Foo()
+   - group4.ClsA -> System.Void group4.ClsA::Foo()
+
+ - group4.Inf.Foo|Void(Int32)|20: group4.Base -> System.Void group4.Base::group4.Inf.Foo(System.Int32)
+   - group4.Base -> System.Void group4.Base::group4.Inf.Foo(System.Int32)
+   - group4.Inf -> System.Void group4.Inf::Foo(System.Int32)
+
+[group4.Base]
+ - Foo|Void()|20: group4.Base -> System.Void group4.Base::Foo()
+   - group4.Base -> System.Void group4.Base::Foo()
+   - group4.Inf -> System.Void group4.Inf::Foo()
+
+ - group4.Inf.Foo|Void(Int32)|20: group4.Base -> System.Void group4.Base::group4.Inf.Foo(System.Int32)
+   - group4.Base -> System.Void group4.Base::group4.Inf.Foo(System.Int32)
+   - group4.Inf -> System.Void group4.Inf::Foo(System.Int32)
+
+ - Foo|Void(Int32)|20: null
+
+[System.Object]
+
+[group4.Inf]
+ - Foo|Void()|20: null
+   - group4.Inf -> System.Void group4.Inf::Foo()
+
+ - Foo|Void(Int32)|20: null
+   - group4.Inf -> System.Void group4.Inf::Foo(System.Int32)
+
+* Types:
+[class testcase.ExpOverride1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.ExpOverride1
+   - group4.Base
+   - group4.ClsA
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group4.ClsA] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: group4.Base
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group4.ClsA)|20, Public HideBySig SpecialName RTSpecialName Managed None
+ - VTable:
+   - [System.Object]
+   - [group4.Base]
+     - System.Void group4.Base::Foo(): group4.ClsA -> System.Void group4.ClsA::Foo()
+   - [group4.Inf]
+     - System.Void group4.Inf::Foo(): group4.ClsA -> System.Void group4.ClsA::Foo()
+     - System.Void group4.Inf::Foo(System.Int32): group4.Base -> System.Void group4.Base::group4.Inf.Foo(System.Int32)
+   - [group4.ClsA]
+
+[class group4.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Interfaces:
+   - group4.Inf
+ - DerivedTypes:
+   - group4.ClsA
+ - Fields:
+   - fld|Int32|1, fld|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group4.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - group4.Inf.Foo|Void(Int32)|20|1E1, group4.Inf.Foo|Void(group4.Base,Int32)|20, Private Final Virtual HideBySig NewSlot Managed None
+
+[class group4.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group4.Base
+   - group4.ClsA
+ - Methods:
+   - Foo|Void(Int32)|20|5C6, Foo|Void(group4.Inf,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group4.Base -> group4.Inf.Foo|Void(Int32)|20|1E1, group4.Inf.Foo|Void(group4.Base,Int32)|20
+

@@ -105,6 +105,62 @@ namespace group3
 	}
 }
 
+namespace group4
+{
+	interface Inf
+	{
+		void Foo();
+		void Foo(int n);
+	}
+
+	class Base : Inf
+	{
+		private int fld;
+
+		public virtual void Foo()
+		{
+
+		}
+
+		void Inf.Foo(int n)
+		{
+			fld = n;
+		}
+	}
+
+	class ClsA : Base
+	{
+		private int fld;
+		private float fld2;
+
+		public override void Foo()
+		{
+			fld2 = 1.0f;
+		}
+
+		public void Foo(int n)
+		{
+			fld = n;
+		}
+	}
+
+	class ClsB : Base, Inf
+	{
+		private int fld;
+		private float fld2;
+
+		public override void Foo()
+		{
+			fld2 = 1.0f;
+		}
+
+		public void Foo(int n)
+		{
+			fld = n;
+		}
+	}
+}
+
 namespace testcase
 {
 	class TestAttribute : Attribute
@@ -181,6 +237,46 @@ namespace testcase
 		{
 			group3.Base<int, float> b = new group3.Derived<float, int>();
 			b.Foo<short, long>(1, 1.2f, (long)999999, (short)12345);
+		}
+	}
+
+	[Test]
+	static class ExpOverride1
+	{
+		public static void Entry()
+		{
+			group4.Inf i = new group4.ClsA();
+			i.Foo(123);
+		}
+	}
+
+	[Test]
+	static class ExpOverride2
+	{
+		public static void Entry()
+		{
+			group4.Inf i = new group4.ClsA();
+			i.Foo();
+		}
+	}
+
+	[Test]
+	static class ExpOverride3
+	{
+		public static void Entry()
+		{
+			group4.Inf i = new group4.ClsB();
+			i.Foo(123);
+		}
+	}
+
+	[Test]
+	static class ExpOverride4
+	{
+		public static void Entry()
+		{
+			group4.Inf i = new group4.ClsB();
+			i.Foo();
 		}
 	}
 
