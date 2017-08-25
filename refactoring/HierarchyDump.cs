@@ -196,5 +196,57 @@ namespace il2cpp
 
 			return sb.ToString();
 		}
+
+		private static string MethodAttrToString(MethodAttributes metAttr)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			switch (metAttr & MethodAttributes.MemberAccessMask)
+			{
+				case MethodAttributes.PrivateScope:
+					sb.Append("PrivateScope ");
+					break;
+
+				case MethodAttributes.Private:
+					sb.Append("Private ");
+					break;
+
+				case MethodAttributes.FamANDAssem:
+					sb.Append("FamANDAssem ");
+					break;
+
+				case MethodAttributes.Assembly:
+					sb.Append("Assembly ");
+					break;
+
+				case MethodAttributes.Family:
+					sb.Append("Family ");
+					break;
+
+				case MethodAttributes.FamORAssem:
+					sb.Append("FamORAssem ");
+					break;
+
+				case MethodAttributes.Public:
+					sb.Append("Public ");
+					break;
+			}
+
+			sb.Append((metAttr & MethodAttributes.Static) != 0 ? "Static " : "");
+			sb.Append((metAttr & MethodAttributes.Final) != 0 ? "Final " : "");
+			sb.Append((metAttr & MethodAttributes.Virtual) != 0 ? "Virtual " : "");
+			sb.Append((metAttr & MethodAttributes.HideBySig) != 0 ? "HideBySig " : "");
+			sb.Append((metAttr & MethodAttributes.NewSlot) != 0 ? "NewSlot " : "");
+			sb.Append((metAttr & MethodAttributes.CheckAccessOnOverride) != 0 ? "CheckAccessOnOverride " : "");
+			sb.Append((metAttr & MethodAttributes.Abstract) != 0 ? "Abstract " : "");
+			sb.Append((metAttr & MethodAttributes.SpecialName) != 0 ? "SpecialName " : "");
+			sb.Append((metAttr & MethodAttributes.PinvokeImpl) != 0 ? "PinvokeImpl " : "");
+			sb.Append((metAttr & MethodAttributes.UnmanagedExport) != 0 ? "UnmanagedExport " : "");
+			sb.Append((metAttr & MethodAttributes.RTSpecialName) != 0 ? "RTSpecialName " : "");
+			sb.Append((metAttr & MethodAttributes.HasSecurity) != 0 ? "HasSecurity " : "");
+			sb.Append((metAttr & MethodAttributes.RequireSecObject) != 0 ? "RequireSecObject " : "");
+
+			return sb.ToString();
+		}
 	}
 }
