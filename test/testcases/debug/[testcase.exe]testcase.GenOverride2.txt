@@ -1,0 +1,17 @@
+* MethodTables:
+* Types:
+[class testcase.GenOverride2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.GenOverride2
+   - group1.Base`2<Int32,Single>
+
+[class group1.Base`2<Int32,Single>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Foo|Void(!0,!1)|20|1C6, Foo|Void(group1.Base`2<Int32,Single>,Int32,Single)|20, Public Virtual HideBySig NewSlot Managed None
+

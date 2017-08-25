@@ -63,9 +63,16 @@ namespace test
 				Path.Combine(imageDir, testName + ".dump"),
 				dumpData);
 
-			var cmpData = File.ReadAllBytes(Path.Combine(imageDir, testName + ".txt"));
+			byte[] cmpData = null;
+			try
+			{
+				cmpData = File.ReadAllBytes(Path.Combine(imageDir, testName + ".txt"));
+			}
+			catch
+			{
+			}
 
-			if (dumpData.SequenceEqual(cmpData))
+			if (cmpData != null && dumpData.SequenceEqual(cmpData))
 			{
 				Console.ForegroundColor = ConsoleColor.Green;
 				Console.WriteLine("PASSED");

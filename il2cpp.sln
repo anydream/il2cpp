@@ -8,6 +8,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dnlib", "dnlib\src\dnlib.csproj", "{FDFC1237-143F-4919-8318-4926901F4639}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test\test.csproj", "{BE8CC1B3-A719-44B9-8638-2FADEC4FDE0E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{585BC09B-E762-419E-909D-09D075D4CE12} = {585BC09B-E762-419E-909D-09D075D4CE12}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testcase", "test\testcase\testcase.csproj", "{585BC09B-E762-419E-909D-09D075D4CE12}"
 EndProject
