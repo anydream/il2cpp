@@ -78,7 +78,7 @@ namespace il2cpp
 						sb.AppendFormat("  - {0}, {1}, {2}\n",
 							fldX.GetNameKey(),
 							fldX.GetReplacedNameKey(),
-							FieldAttrToString(fldX.DefAttr));
+							FieldAttrToString(fldX.Def.Attributes));
 					}
 				}
 
@@ -87,10 +87,12 @@ namespace il2cpp
 					sb.Append("- Methods:\n");
 					foreach (MethodX metX in tyX.MethodMap.Values)
 					{
-						sb.AppendFormat("  - {0}, {1}, {2}\n",
+						sb.AppendFormat("  - {0}, {1}, {2}{3} {4}\n",
 							metX.GetNameKey(),
 							metX.GetReplacedNameKey(),
-							MethodAttrToString(metX.DefAttr));
+							MethodAttrToString(metX.Def.Attributes),
+							metX.Def.ImplAttributes,
+							metX.Def.SemanticsAttributes);
 
 						if (metX.HasOverrideImpls)
 						{

@@ -22,17 +22,10 @@ namespace il2cpp
 		// 所属类型
 		public readonly TypeX DeclType;
 
+		// 方法定义
 		public readonly MethodDef Def;
-		// 方法名
-		public readonly string DefName;
 		// 方法签名
-		public readonly MethodSig DefSig;
-		// 方法属性
-		public readonly MethodAttributes DefAttr;
-		// 方法异常处理器
-		public IList<ExceptionHandler> DefHandlers;
-		// 方法指令列表
-		public IList<Instruction> DefInstList;
+		public MethodSig DefSig => Def.MethodSig;
 
 		// 唯一名称
 		private string NameKey;
@@ -53,7 +46,7 @@ namespace il2cpp
 		public bool HasOverrideImpls => OverrideImpls != null && OverrideImpls.Count > 0;
 
 		public bool HasThis => DefSig.HasThis;
-		public bool IsVirtual => (DefAttr & MethodAttributes.Virtual) != 0;
+		public bool IsVirtual => Def.IsVirtual;
 
 		// 是否已处理过
 		public bool IsProcessed;
@@ -66,17 +59,11 @@ namespace il2cpp
 			Debug.Assert(metDef.DeclaringType == declType.Def);
 			DeclType = declType;
 			Def = metDef;
-			DefName = metDef.Name;
-			DefSig = metDef.MethodSig;
-			DefAttr = metDef.Attributes;
 
 			Debug.Assert((HasThis && !metDef.IsStatic) || (!HasThis && metDef.IsStatic));
 
 			if (metDef.HasBody)
 			{
-				if (metDef.Body.HasExceptionHandlers)
-					DefHandlers = metDef.Body.ExceptionHandlers;
-
 				if (metDef.Body.HasVariables)
 				{
 					LocalTypes = new List<TypeSig>();
@@ -86,9 +73,6 @@ namespace il2cpp
 						LocalTypes.Add(loc.Type);
 					}
 				}
-
-				if (metDef.Body.HasInstructions)
-					DefInstList = metDef.Body.Instructions;
 			}
 		}
 
@@ -103,9 +87,9 @@ namespace il2cpp
 			{
 				// Name|RetType<GenArgs>(DefArgList)|CC|Attr
 				StringBuilder sb = new StringBuilder();
-				Helper.MethodNameKeyWithGen(sb, DefName, GenArgs, DefSig.RetType, DefSig.Params, DefSig.CallingConvention);
+				Helper.MethodNameKeyWithGen(sb, Def.Name, GenArgs, DefSig.RetType, DefSig.Params, DefSig.CallingConvention);
 				sb.Append('|');
-				sb.Append(((uint)DefAttr).ToString("X"));
+				sb.Append(((uint)Def.Attributes).ToString("X"));
 
 				NameKey = sb.ToString();
 			}
@@ -118,7 +102,7 @@ namespace il2cpp
 			Debug.Assert(ParamTypes != null);
 
 			StringBuilder sb = new StringBuilder();
-			Helper.MethodNameKeyWithGen(sb, DefName, GenArgs, ReturnType, ParamTypes, DefSig.CallingConvention);
+			Helper.MethodNameKeyWithGen(sb, Def.Name, GenArgs, ReturnType, ParamTypes, DefSig.CallingConvention);
 
 			return sb.ToString();
 		}

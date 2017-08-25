@@ -9,16 +9,13 @@ namespace il2cpp
 		// 所属类型
 		public readonly TypeX DeclType;
 
-		// 字段名
-		public readonly string DefName;
-		// 字段签名
-		public readonly TypeSig DefFieldType;
-		// 字段属性
-		public readonly FieldAttributes DefAttr;
+		// 字段定义
+		public readonly FieldDef Def;
 
 		// 唯一名称
 		private string NameKey;
 
+		// 字段类型
 		public TypeSig FieldType;
 
 		public FieldX(TypeX declType, FieldDef fldDef)
@@ -26,9 +23,7 @@ namespace il2cpp
 			Debug.Assert(declType != null);
 			Debug.Assert(fldDef.DeclaringType == declType.Def);
 			DeclType = declType;
-			DefName = fldDef.Name;
-			DefFieldType = fldDef.FieldType;
-			DefAttr = fldDef.Attributes;
+			Def = fldDef;
 		}
 
 		public override string ToString()
@@ -42,9 +37,9 @@ namespace il2cpp
 			{
 				// Name|FieldType|Attr
 				StringBuilder sb = new StringBuilder();
-				Helper.FieldNameKey(sb, DefName, DefFieldType);
+				Helper.FieldNameKey(sb, Def.Name, Def.FieldType);
 				sb.Append('|');
-				sb.Append(((uint)DefAttr).ToString("X"));
+				sb.Append(((uint)Def.Attributes).ToString("X"));
 
 				NameKey = sb.ToString();
 			}
@@ -56,7 +51,7 @@ namespace il2cpp
 			Debug.Assert(FieldType != null);
 
 			StringBuilder sb = new StringBuilder();
-			Helper.FieldNameKey(sb, DefName, FieldType);
+			Helper.FieldNameKey(sb, Def.Name, FieldType);
 
 			return sb.ToString();
 		}

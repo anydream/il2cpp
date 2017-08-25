@@ -68,12 +68,12 @@ namespace il2cpp
 		{
 			Debug.Assert(metX.InstList == null);
 
-			if (metX.DefInstList == null)
+			if (!metX.Def.HasBody || !metX.Def.Body.HasInstructions)
 				return;
 
 			IGenericReplacer replacer = new GenericReplacer(metX.DeclType, metX);
 
-			var defInstList = metX.DefInstList;
+			var defInstList = metX.Def.Body.Instructions;
 			int numInsts = defInstList.Count;
 
 			InstInfo[] instList = new InstInfo[numInsts];
@@ -124,7 +124,6 @@ namespace il2cpp
 			}
 
 			metX.InstList = instList;
-			metX.DefInstList = null;
 		}
 
 		private void ResolveOperand(InstInfo inst, IGenericReplacer replacer)
@@ -274,7 +273,7 @@ namespace il2cpp
 
 			IGenericReplacer replacer = new GenericReplacer(fldX.DeclType, null);
 			// 展开字段类型
-			fldX.FieldType = Helper.ReplaceGenericSig(fldX.DefFieldType, replacer);
+			fldX.FieldType = Helper.ReplaceGenericSig(fldX.Def.FieldType, replacer);
 
 			return fldX;
 		}
@@ -347,7 +346,6 @@ namespace il2cpp
 			metX.LocalTypes = Helper.ReplaceGenericSigList(metX.LocalTypes, replacer);
 
 			//! 展开异常处理信息
-			metX.DefHandlers = null;
 
 			// 添加到待处理队列
 			AddPendingMethod(metX);
