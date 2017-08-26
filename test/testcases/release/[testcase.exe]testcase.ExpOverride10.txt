@@ -1,0 +1,65 @@
+* MethodTables:
+[group8.Sub2]
+ - Foo|Int32(Int32)|20: group8.Sub2 -> System.Int32 group8.Sub2::Foo(System.Int32)
+   - group8.Sub2 -> System.Int32 group8.Sub2::Foo(System.Int32)
+   - group8.Inf -> System.Int32 group8.Inf::Foo(System.Int32)
+
+[group8.Base]
+ - group8.Inf.Foo|Int32(Int32)|20: group8.Base -> System.Int32 group8.Base::group8.Inf.Foo(System.Int32)
+   - group8.Base -> System.Int32 group8.Base::group8.Inf.Foo(System.Int32)
+   - group8.Inf -> System.Int32 group8.Inf::Foo(System.Int32)
+
+ - Foo|Int32(Int32)|20: null
+
+[System.Object]
+
+[group8.Inf]
+ - Foo|Int32(Int32)|20: null
+   - group8.Inf -> System.Int32 group8.Inf::Foo(System.Int32)
+
+* Types:
+[class testcase.ExpOverride10] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.ExpOverride10
+   - group8.Base
+   - group8.Sub2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group8.Sub2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: group8.Base
+ - Interfaces:
+   - group8.Inf
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group8.Sub2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Int32(Int32)|20|1E6, Foo|Int32(group8.Sub2,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [System.Object]
+   - [group8.Base]
+   - [group8.Inf]
+     - System.Int32 group8.Inf::Foo(System.Int32): group8.Sub2 -> System.Int32 group8.Sub2::Foo(System.Int32)
+   - [group8.Sub2]
+
+[class group8.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Interfaces:
+   - group8.Inf
+ - DerivedTypes:
+   - group8.Sub2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group8.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group8.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group8.Base
+   - group8.Sub2
+ - Methods:
+   - Foo|Int32(Int32)|20|5C6, Foo|Int32(group8.Inf,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group8.Sub2 -> Foo|Int32(Int32)|20|1E6, Foo|Int32(group8.Sub2,Int32)|20
+

@@ -286,6 +286,38 @@ namespace group7
 	}
 }
 
+namespace group8
+{
+	interface Inf
+	{
+		int Foo(int n);
+	}
+
+	class Base : Inf
+	{
+		int Inf.Foo(int n)
+		{
+			return n;
+		}
+	}
+
+	class Sub1 : Base
+	{
+		public int foo(int n)
+		{
+			return n;
+		}
+	}
+
+	class Sub2 : Base, Inf
+	{
+		public int Foo(int n)
+		{
+			return n;
+		}
+	}
+}
+
 namespace testcase
 {
 	class TestAttribute : Attribute
@@ -446,6 +478,26 @@ namespace testcase
 	}
 
 	[Test]
+	static class ExpOverride9
+	{
+		public static void Entry()
+		{
+			group8.Inf inf = new group8.Sub1();
+			inf.Foo(123);
+		}
+	}
+
+	[Test]
+	static class ExpOverride10
+	{
+		public static void Entry()
+		{
+			group8.Inf inf = new group8.Sub2();
+			inf.Foo(123);
+		}
+	}
+
+	[Test]
 	static class GenExpOverride1
 	{
 		interface Inf<T>
@@ -514,6 +566,103 @@ namespace testcase
 			i.Foo(1.2f, (long)999999);
 			Inf<char> i2 = null;
 			i2.Foo(1234, 'a');
+		}
+	}
+
+	[Test]
+	static class GenExpOverride4
+	{
+		interface Inf
+		{
+			int fun(int n);
+		}
+
+		interface Inf<TI, TI2>
+		{
+			TI fun(TI n);
+			TI fun<TF>(TI n, TI2 n2, TF n3);
+			TI fun<TF>(TF n3, TI2 n2, TI n);
+		}
+
+		class Base<TB0, TB> : Inf<int, TB>
+		{
+			public virtual int fun(int n, long n1)
+			{
+				return n;
+			}
+
+			int Inf<int, TB>.fun(int n)
+			{
+				return n;
+			}
+
+			int Inf<int, TB>.fun<TF>(TF n3, TB n2, int n)
+			{
+				return n;
+			}
+
+			int Inf<int, TB>.fun<TF>(int n, TB n2, TF n3)
+			{
+				return n;
+			}
+		}
+
+		class Derived<TD, TD1> : Base<TD1, TD>, Inf<int, TD>
+		{
+			public override int fun(int n, long n1)
+			{
+				return n;
+			}
+		}
+
+		private static T EntryT<T>(T bla)
+		{
+			var cls = new Derived<T, ushort>();
+			Inf<int, T> inf = cls;
+			T t = bla;
+			inf.fun(123);
+			inf.fun(123, t, "");
+			return bla;
+		}
+
+		public static void Entry()
+		{
+			EntryT('c');
+		}
+	}
+
+	[Test]
+	static class GenExpOverride5
+	{
+		interface Inf<TI, TI2>
+		{
+			TI Foo(TI n);
+			TI Foo(TI n, TI2 n2);
+		}
+
+		class Base<TB> : Inf<int, TB>
+		{
+			int Inf<int, TB>.Foo(int n)
+			{
+				return n;
+			}
+
+			int Inf<int, TB>.Foo(int n, TB n2)
+			{
+				return n;
+			}
+		}
+
+		class Derived<TD> : Base<TD>, Inf<int, TD>
+		{
+		}
+
+		public static void Entry()
+		{
+			var cls = new Derived<long>();
+			Inf<int, long> inf = cls;
+			inf.Foo(123);
+			inf.Foo(123, 456L);
 		}
 	}
 
