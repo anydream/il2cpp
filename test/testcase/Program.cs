@@ -619,6 +619,31 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class StaticCctor1
+	{
+		class Cls
+		{
+			public static int field;
+			private static int field2;
+			private static int field3;
+
+			static Cls()
+			{
+				field2 = 456;
+			}
+
+			~Cls()
+			{
+			}
+		}
+
+		public static void Entry()
+		{
+			Cls.field = 123;
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()
