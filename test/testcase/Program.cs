@@ -594,6 +594,31 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class Finalizer1
+	{
+		class Cls
+		{
+			static int fld;
+			static int fld2;
+
+			static Cls()
+			{
+				fld = 456;
+			}
+
+			~Cls()
+			{
+				fld2 = 789;
+			}
+		}
+
+		public static void Entry()
+		{
+			new Cls();
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()
