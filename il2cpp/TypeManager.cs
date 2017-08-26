@@ -270,10 +270,10 @@ namespace il2cpp
 
 		private void AddVCallEntry(MethodX virtMetX)
 		{
-			// 记录虚入口
-			VCallEntries.Add(virtMetX);
 			// 跳过该方法的处理
 			virtMetX.IsSkipProcessing = true;
+			// 登记到虚入口
+			VCallEntries.Add(virtMetX);
 		}
 
 		private void ResolveVCalls()

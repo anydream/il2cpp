@@ -335,6 +335,49 @@ namespace testcase
 	}
 
 	[Test]
+	static class ExpOverride5
+	{
+		interface Inf
+		{
+			void Foo();
+		}
+
+		class Base : Inf
+		{
+			public virtual void Foo()
+			{
+
+			}
+		}
+
+		class Sub : Base, Inf
+		{
+			void Inf.Foo()
+			{
+
+			}
+		}
+
+		class Sub2 : Sub, Inf
+		{
+		}
+
+		class Sub3 : Sub2
+		{
+			public override void Foo()
+			{
+
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf inf = new Sub3();
+			inf.Foo();
+		}
+	}
+
+	[Test]
 	static class GenExpOverride1
 	{
 		interface Inf<T>
