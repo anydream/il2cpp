@@ -494,6 +494,21 @@ namespace testcase
 	}
 
 	[Test]
+	static class Interface8
+	{
+		interface Inf
+		{
+			void Foo();
+		}
+
+		public static void Entry()
+		{
+			Inf inf = null;
+			inf.Foo();
+		}
+	}
+
+	[Test]
 	static class CycleType1
 	{
 		class A<T> : C<B<T>>
@@ -565,6 +580,17 @@ namespace testcase
 			C<A<int>> i2 = new B<int>();
 			i1.Foo(i1.Foo(null));
 			i2.Foo(i2.Foo(null));
+		}
+	}
+
+	[Test]
+	static class CrossRuntimeVersion1
+	{
+		public static void Entry()
+		{
+			int hash = 0;
+			object obj = net20x1.Class.NewObj(ref hash);
+			hash ^= obj.GetHashCode();
 		}
 	}
 

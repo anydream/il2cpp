@@ -262,7 +262,7 @@ namespace il2cpp
 				return;
 			IsVCallFinalizerGenerated = true;
 
-			MethodDef fin = Context.Module.CorLibTypes.Object.TypeDef.FindMethod("Finalize");
+			MethodDef fin = Context.Module.CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("Finalize");
 			MethodX vmetFinalizer = ResolveMethodDef(fin);
 
 			AddVCallEntry(vmetFinalizer);
