@@ -398,6 +398,33 @@ namespace testcase
 	}
 
 	[Test]
+	static class GenOverride8
+	{
+		interface Inf<T1, T2>
+		{
+			T1 Foo(T2 n);
+		}
+
+		class Base
+		{
+			public int Foo(short n)
+			{
+				return n;
+			}
+		}
+
+		class Cls : Base, Inf<int, short>
+		{
+		}
+
+		public static void Entry()
+		{
+			Inf<int, short> inf = new Cls();
+			int n = inf.Foo(123);
+		}
+	}
+
+	[Test]
 	static class ExpOverride1
 	{
 		public static void Entry()
@@ -765,6 +792,54 @@ namespace testcase
 		{
 			Inf inf = null;
 			inf.Foo();
+		}
+	}
+
+	[Test]
+	static class Interface9
+	{
+		interface Inf
+		{
+			int getWidth();
+			int getHeight();
+		}
+
+		class Sub1
+		{
+			public virtual int getWidth()
+			{
+				return 0;
+			}
+
+			public int getHeight()
+			{
+				return 0;
+			}
+		}
+
+		class Sub2 : Sub1
+		{
+			private int field2;
+			public override int getWidth()
+			{
+				return field2;
+			}
+		}
+
+		class Sub3 : Sub2, Inf
+		{
+		}
+
+		public static void Entry()
+		{
+			var cls = new Sub3();
+			Inf inf = cls;
+			int a = inf.getWidth();
+			a = inf.getHeight();
+
+			Sub1 t2d = cls;
+			a = t2d.getWidth();
+			a = t2d.getHeight();
 		}
 	}
 

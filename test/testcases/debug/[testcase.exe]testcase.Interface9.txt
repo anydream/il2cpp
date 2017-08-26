@@ -1,0 +1,89 @@
+* MethodTables:
+[testcase.Interface9/Sub3]
+ - getWidth|Int32()|20: testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
+   - testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getWidth()
+   - testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
+   - testcase.Interface9/Inf -> System.Int32 testcase.Interface9/Inf::getWidth()
+
+ - getHeight|Int32()|20: testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getHeight()
+   - testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getHeight()
+   - testcase.Interface9/Inf -> System.Int32 testcase.Interface9/Inf::getHeight()
+
+[testcase.Interface9/Sub2]
+ - getWidth|Int32()|20: testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
+   - testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getWidth()
+   - testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
+
+[testcase.Interface9/Sub1]
+
+[System.Object]
+
+[testcase.Interface9/Inf]
+ - getWidth|Int32()|20: null
+   - testcase.Interface9/Inf -> System.Int32 testcase.Interface9/Inf::getWidth()
+
+ - getHeight|Int32()|20: null
+   - testcase.Interface9/Inf -> System.Int32 testcase.Interface9/Inf::getHeight()
+
+* Types:
+[class testcase.Interface9] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.Interface9
+   - testcase.Interface9/Sub1
+   - testcase.Interface9/Sub2
+   - testcase.Interface9/Sub3
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class testcase.Interface9/Sub3] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: testcase.Interface9/Sub2
+ - Interfaces:
+   - testcase.Interface9/Inf
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.Interface9/Sub3)|20, Public HideBySig SpecialName RTSpecialName Managed None
+ - VTable:
+   - [System.Object]
+   - [testcase.Interface9/Sub1]
+     - System.Int32 testcase.Interface9/Sub1::getWidth(): testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
+   - [testcase.Interface9/Sub2]
+   - [testcase.Interface9/Inf]
+     - System.Int32 testcase.Interface9/Inf::getWidth(): testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
+     - System.Int32 testcase.Interface9/Inf::getHeight(): testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getHeight()
+
+[class testcase.Interface9/Sub2] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: testcase.Interface9/Sub1
+ - DerivedTypes:
+   - testcase.Interface9/Sub3
+ - Fields:
+   - field2|Int32|1, field2|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.Interface9/Sub2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - getWidth|Int32()|20|C6, getWidth|Int32(testcase.Interface9/Sub2)|20, Public Virtual HideBySig Managed None
+
+[class testcase.Interface9/Sub1] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - DerivedTypes:
+   - testcase.Interface9/Sub2
+   - testcase.Interface9/Sub3
+ - Methods:
+   - getWidth|Int32()|20|1C6, getWidth|Int32(testcase.Interface9/Sub1)|20 = 0, Public Virtual HideBySig NewSlot Managed None
+     - testcase.Interface9/Sub2 -> getWidth|Int32()|20|C6, getWidth|Int32(testcase.Interface9/Sub2)|20
+   - getHeight|Int32()|20|1E6, getHeight|Int32(testcase.Interface9/Sub1)|20, Public Final Virtual HideBySig NewSlot Managed None
+     - testcase.Interface9/Sub1 -> getHeight|Int32()|20|1E6, getHeight|Int32(testcase.Interface9/Sub1)|20
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.Interface9/Sub1)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class testcase.Interface9/Inf] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - testcase.Interface9/Sub3
+ - Methods:
+   - getWidth|Int32()|20|5C6, getWidth|Int32(testcase.Interface9/Inf)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - testcase.Interface9/Sub2 -> getWidth|Int32()|20|C6, getWidth|Int32(testcase.Interface9/Sub2)|20
+   - getHeight|Int32()|20|5C6, getHeight|Int32(testcase.Interface9/Inf)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - testcase.Interface9/Sub1 -> getHeight|Int32()|20|1E6, getHeight|Int32(testcase.Interface9/Sub1)|20
+
