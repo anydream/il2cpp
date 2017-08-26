@@ -493,6 +493,81 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class CycleType1
+	{
+		class A<T> : C<B<T>>
+		{ }
+
+		class B<T> : C<A<T>>
+		{ }
+
+		class C<T>
+		{ }
+
+		public static void Entry()
+		{
+			var aa = new A<int>();
+			var bb = new B<int>();
+		}
+	}
+
+	[Test]
+	static class CycleType2
+	{
+		class A<T> : C<B<T>>
+		{
+			private int fld;
+			private int fld2;
+			public virtual T Foo(T t)
+			{
+				fld = 1;
+				return t;
+			}
+
+			public override B<T> Foo(B<T> t)
+			{
+				fld2 = 2;
+				return t;
+			}
+		}
+
+		class B<T> : C<A<T>>
+		{
+			private int fld;
+			private int fld2;
+			public virtual T Foo(T t)
+			{
+				fld = 1;
+				return t;
+			}
+
+			public override A<T> Foo(A<T> t)
+			{
+				fld2 = 2;
+				return t;
+			}
+		}
+
+		class C<T>
+		{
+			private int fld;
+			public virtual T Foo(T t)
+			{
+				fld = 1;
+				return t;
+			}
+		}
+
+		public static void Entry()
+		{
+			C<B<int>> i1 = new A<int>();
+			C<A<int>> i2 = new B<int>();
+			i1.Foo(i1.Foo(null));
+			i2.Foo(i2.Foo(null));
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()
