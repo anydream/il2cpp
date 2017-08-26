@@ -215,6 +215,77 @@ namespace group5
 	{ }
 }
 
+namespace group6
+{
+	interface Inf
+	{
+		void Foo();
+	}
+
+	class Base : Inf
+	{
+		public virtual void Foo()
+		{
+
+		}
+	}
+
+	class Sub : Base, Inf
+	{
+		void Inf.Foo()
+		{
+
+		}
+	}
+
+	class Sub2 : Sub, Inf
+	{
+	}
+
+	class Sub3 : Sub2
+	{
+		public override void Foo()
+		{
+
+		}
+	}
+}
+
+namespace group7
+{
+	interface Inf
+	{
+		int Foo();
+	}
+
+	class Base : Inf
+	{
+		private int field1;
+		public virtual int Foo()
+		{
+			return field1;
+		}
+	}
+
+	class Middle : Base, Inf
+	{
+		private int field2;
+		int Inf.Foo()
+		{
+			return field2;
+		}
+	}
+
+	class Sub : Middle
+	{
+		private int field3;
+		public override int Foo()
+		{
+			return field3;
+		}
+	}
+}
+
 namespace testcase
 {
 	class TestAttribute : Attribute
@@ -337,43 +408,40 @@ namespace testcase
 	[Test]
 	static class ExpOverride5
 	{
-		interface Inf
-		{
-			void Foo();
-		}
-
-		class Base : Inf
-		{
-			public virtual void Foo()
-			{
-
-			}
-		}
-
-		class Sub : Base, Inf
-		{
-			void Inf.Foo()
-			{
-
-			}
-		}
-
-		class Sub2 : Sub, Inf
-		{
-		}
-
-		class Sub3 : Sub2
-		{
-			public override void Foo()
-			{
-
-			}
-		}
-
 		public static void Entry()
 		{
-			Inf inf = new Sub3();
+			group6.Inf inf = new group6.Sub3();
 			inf.Foo();
+		}
+	}
+
+	[Test]
+	static class ExpOverride6
+	{
+		public static void Entry()
+		{
+			group6.Inf inf = new group6.Sub2();
+			inf.Foo();
+		}
+	}
+
+	[Test]
+	static class ExpOverride7
+	{
+		public static void Entry()
+		{
+			group7.Inf inf = new group7.Sub();
+			inf.Foo();
+		}
+	}
+
+	[Test]
+	static class ExpOverride8
+	{
+		public static void Entry()
+		{
+			group7.Base b = new group7.Sub();
+			b.Foo();
 		}
 	}
 

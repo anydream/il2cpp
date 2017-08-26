@@ -11,6 +11,8 @@ namespace test
 	internal class Program
 	{
 		private const string TestCaseDir = "../../../testcases/";
+		private static int TotalTests;
+		private static int PassedTests;
 
 		private static string GetRelativePath(string path, string relativeTo)
 		{
@@ -77,6 +79,8 @@ namespace test
 				Console.ForegroundColor = ConsoleColor.Green;
 				Console.WriteLine("PASSED");
 				Console.ForegroundColor = oldColor;
+
+				++PassedTests;
 			}
 			else
 			{
@@ -84,6 +88,8 @@ namespace test
 				Console.WriteLine("FAILED");
 				Console.ForegroundColor = oldColor;
 			}
+
+			++TotalTests;
 
 			context.Reset();
 		}
@@ -108,6 +114,8 @@ namespace test
 				string dir = Path.GetDirectoryName(file);
 				TestAssembly(dir, file);
 			}
+
+			Console.WriteLine("\nPassed: {0}/{1}", PassedTests, TotalTests);
 		}
 	}
 }

@@ -1,33 +1,33 @@
 * MethodTables:
-[testcase.ExpOverride5/Sub3]
- - Foo|Void()|20: testcase.ExpOverride5/Sub3 -> System.Void testcase.ExpOverride5/Sub3::Foo()
-   - testcase.ExpOverride5/Base -> System.Void testcase.ExpOverride5/Base::Foo()
-   - testcase.ExpOverride5/Sub3 -> System.Void testcase.ExpOverride5/Sub3::Foo()
+[group6.Sub3]
+ - Foo|Void()|20: group6.Sub3 -> System.Void group6.Sub3::Foo()
+   - group6.Base -> System.Void group6.Base::Foo()
+   - group6.Sub3 -> System.Void group6.Sub3::Foo()
 
- - testcase.ExpOverride5.Inf.Foo|Void()|20: testcase.ExpOverride5/Sub -> System.Void testcase.ExpOverride5/Sub::testcase.ExpOverride5.Inf.Foo()
-   - testcase.ExpOverride5/Sub -> System.Void testcase.ExpOverride5/Sub::testcase.ExpOverride5.Inf.Foo()
-   - testcase.ExpOverride5/Inf -> System.Void testcase.ExpOverride5/Inf::Foo()
+ - group6.Inf.Foo|Void()|20: group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - group6.Inf -> System.Void group6.Inf::Foo()
 
-[testcase.ExpOverride5/Sub2]
- - testcase.ExpOverride5.Inf.Foo|Void()|20: testcase.ExpOverride5/Sub -> System.Void testcase.ExpOverride5/Sub::testcase.ExpOverride5.Inf.Foo()
-   - testcase.ExpOverride5/Sub -> System.Void testcase.ExpOverride5/Sub::testcase.ExpOverride5.Inf.Foo()
-   - testcase.ExpOverride5/Inf -> System.Void testcase.ExpOverride5/Inf::Foo()
+[group6.Sub2]
+ - group6.Inf.Foo|Void()|20: group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - group6.Inf -> System.Void group6.Inf::Foo()
 
-[testcase.ExpOverride5/Sub]
- - testcase.ExpOverride5.Inf.Foo|Void()|20: testcase.ExpOverride5/Sub -> System.Void testcase.ExpOverride5/Sub::testcase.ExpOverride5.Inf.Foo()
-   - testcase.ExpOverride5/Sub -> System.Void testcase.ExpOverride5/Sub::testcase.ExpOverride5.Inf.Foo()
-   - testcase.ExpOverride5/Inf -> System.Void testcase.ExpOverride5/Inf::Foo()
+[group6.Sub]
+ - group6.Inf.Foo|Void()|20: group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - group6.Inf -> System.Void group6.Inf::Foo()
 
-[testcase.ExpOverride5/Base]
- - Foo|Void()|20: testcase.ExpOverride5/Base -> System.Void testcase.ExpOverride5/Base::Foo()
-   - testcase.ExpOverride5/Base -> System.Void testcase.ExpOverride5/Base::Foo()
-   - testcase.ExpOverride5/Inf -> System.Void testcase.ExpOverride5/Inf::Foo()
+[group6.Base]
+ - Foo|Void()|20: group6.Base -> System.Void group6.Base::Foo()
+   - group6.Base -> System.Void group6.Base::Foo()
+   - group6.Inf -> System.Void group6.Inf::Foo()
 
 [System.Object]
 
-[testcase.ExpOverride5/Inf]
+[group6.Inf]
  - Foo|Void()|20: null
-   - testcase.ExpOverride5/Inf -> System.Void testcase.ExpOverride5/Inf::Foo()
+   - group6.Inf -> System.Void group6.Inf::Foo()
 
 * Types:
 [class testcase.ExpOverride5] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
@@ -38,65 +38,65 @@
 [class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
    - testcase.ExpOverride5
-   - testcase.ExpOverride5/Base
-   - testcase.ExpOverride5/Sub
-   - testcase.ExpOverride5/Sub2
-   - testcase.ExpOverride5/Sub3
+   - group6.Base
+   - group6.Sub
+   - group6.Sub2
+   - group6.Sub3
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.ExpOverride5/Sub3] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class group6.Sub3] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: testcase.ExpOverride5/Sub2
+ - Base: group6.Sub2
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.ExpOverride5/Sub3)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void(group6.Sub3)|20, Public HideBySig SpecialName RTSpecialName Managed None
  - VTable:
    - [System.Object]
-   - [testcase.ExpOverride5/Base]
-     - System.Void testcase.ExpOverride5/Base::Foo(): testcase.ExpOverride5/Sub3 -> System.Void testcase.ExpOverride5/Sub3::Foo()
-   - [testcase.ExpOverride5/Inf]
-     - System.Void testcase.ExpOverride5/Inf::Foo(): testcase.ExpOverride5/Sub -> System.Void testcase.ExpOverride5/Sub::testcase.ExpOverride5.Inf.Foo()
-   - [testcase.ExpOverride5/Sub]
-   - [testcase.ExpOverride5/Sub3]
+   - [group6.Base]
+     - System.Void group6.Base::Foo(): group6.Sub3 -> System.Void group6.Sub3::Foo()
+   - [group6.Inf]
+     - System.Void group6.Inf::Foo(): group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - [group6.Sub]
+   - [group6.Sub3]
 
-[class testcase.ExpOverride5/Sub2] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
- - Base: testcase.ExpOverride5/Sub
+[class group6.Sub2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: group6.Sub
  - Interfaces:
-   - testcase.ExpOverride5/Inf
+   - group6.Inf
  - DerivedTypes:
-   - testcase.ExpOverride5/Sub3
+   - group6.Sub3
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.ExpOverride5/Sub2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void(group6.Sub2)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.ExpOverride5/Sub] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
- - Base: testcase.ExpOverride5/Base
+[class group6.Sub] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: group6.Base
  - Interfaces:
-   - testcase.ExpOverride5/Inf
+   - group6.Inf
  - DerivedTypes:
-   - testcase.ExpOverride5/Sub2
-   - testcase.ExpOverride5/Sub3
+   - group6.Sub2
+   - group6.Sub3
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.ExpOverride5/Sub)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - testcase.ExpOverride5.Inf.Foo|Void()|20|1E1, testcase.ExpOverride5.Inf.Foo|Void(testcase.ExpOverride5/Sub)|20, Private Final Virtual HideBySig NewSlot Managed None
+   - .ctor|Void()|20|1886, .ctor|Void(group6.Sub)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - group6.Inf.Foo|Void()|20|1E1, group6.Inf.Foo|Void(group6.Sub)|20, Private Final Virtual HideBySig NewSlot Managed None
 
-[class testcase.ExpOverride5/Base] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class group6.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: System.Object
  - Interfaces:
-   - testcase.ExpOverride5/Inf
+   - group6.Inf
  - DerivedTypes:
-   - testcase.ExpOverride5/Sub
-   - testcase.ExpOverride5/Sub2
-   - testcase.ExpOverride5/Sub3
+   - group6.Sub
+   - group6.Sub2
+   - group6.Sub3
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.ExpOverride5/Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void(group6.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.ExpOverride5/Inf] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+[class group6.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - testcase.ExpOverride5/Base
-   - testcase.ExpOverride5/Sub
-   - testcase.ExpOverride5/Sub2
-   - testcase.ExpOverride5/Sub3
+   - group6.Base
+   - group6.Sub
+   - group6.Sub2
+   - group6.Sub3
  - Methods:
-   - Foo|Void()|20|5C6, Foo|Void(testcase.ExpOverride5/Inf)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - testcase.ExpOverride5/Sub -> testcase.ExpOverride5.Inf.Foo|Void()|20|1E1, testcase.ExpOverride5.Inf.Foo|Void(testcase.ExpOverride5/Sub)|20
+   - Foo|Void()|20|5C6, Foo|Void(group6.Inf)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group6.Sub -> group6.Inf.Foo|Void()|20|1E1, group6.Inf.Foo|Void(group6.Sub)|20
 

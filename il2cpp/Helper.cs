@@ -377,7 +377,7 @@ namespace il2cpp
 							if (printGenOwner)
 							{
 								sb.Append('(');
-								sb.Append(genSig.OwnerType.FullName);
+								sb.Append(EscapeName(genSig.OwnerType.FullName));
 								sb.Append(')');
 							}
 						}
