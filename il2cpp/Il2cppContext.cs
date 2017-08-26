@@ -13,6 +13,9 @@ namespace il2cpp
 
 		public Il2cppContext(string imagePath)
 		{
+			Module = ModuleDefMD.Load(imagePath);
+			Debug.Assert(Module != null);
+
 			// 加载主模块
 			AssemblyResolver asmRes = new AssemblyResolver();
 			ModuleContext modCtx = new ModuleContext(asmRes);
@@ -20,9 +23,7 @@ namespace il2cpp
 			asmRes.EnableTypeDefCache = true;
 			asmRes.FindExactMatch = false;
 			asmRes.EnableFrameworkRedirect = true;
-
-			Module = ModuleDefMD.Load(imagePath);
-			Debug.Assert(Module != null);
+			asmRes.FrameworkRedirectVersion = Module.RuntimeVersion;
 
 			Module.Context = modCtx;
 			Module.Context.AssemblyResolver.AddToCache(Module);

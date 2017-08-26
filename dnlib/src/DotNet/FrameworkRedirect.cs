@@ -300,11 +300,15 @@ namespace dnlib.DotNet {
 		/// </summary>
 		/// <param name="assembly">Current assembly reference that might get updated</param>
 		/// <param name="sourceModule">Module using the assembly reference</param>
-		public static void ApplyFrameworkRedirect(ref IAssembly assembly, ModuleDef sourceModule) {
+		public static void ApplyFrameworkRedirect(ref IAssembly assembly, ModuleDef sourceModule, string redirVersion) {
 			if (sourceModule == null)
 				return;
 			if (!Utils.LocaleEquals(assembly.Culture, ""))
 				return;
+
+			if (redirVersion != null)
+				sourceModule.RuntimeVersion = redirVersion;
+
 			if (!sourceModule.IsClr20 && !sourceModule.IsClr40)
 				return;
 

@@ -169,6 +169,8 @@ namespace dnlib.DotNet {
 			set { enableFrameworkRedirect = value; }
 		}
 
+		public string FrameworkRedirectVersion { get; set; }
+
 		/// <summary>
 		/// If <c>true</c>, all modules in newly resolved assemblies will have their
 		/// <see cref="ModuleDef.EnableTypeDefFindCache"/> property set to <c>true</c>. This is
@@ -235,7 +237,7 @@ namespace dnlib.DotNet {
 				return null;
 
 			if (EnableFrameworkRedirect && !FindExactMatch)
-				FrameworkRedirect.ApplyFrameworkRedirect(ref assembly, sourceModule);
+				FrameworkRedirect.ApplyFrameworkRedirect(ref assembly, sourceModule, FrameworkRedirectVersion);
 
 #if THREAD_SAFE
 			theLock.EnterWriteLock(); try {
