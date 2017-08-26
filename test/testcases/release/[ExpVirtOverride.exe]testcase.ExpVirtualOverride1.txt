@@ -1,0 +1,67 @@
+* MethodTables:
+[group.Derived]
+ - Bla|Void(Int32)|20: group.Derived -> System.Void group.Derived::Bla(System.Int32)
+   - group.Base -> System.Void group.Base::Bla(System.Int32)
+   - group.Inf -> System.Void group.Inf::Foo(System.Int32)
+   - group.Derived -> System.Void group.Derived::Bla(System.Int32)
+
+[group.Base]
+ - Bla|Void(Int32)|20: group.Base -> System.Void group.Base::Bla(System.Int32)
+   - group.Base -> System.Void group.Base::Bla(System.Int32)
+   - group.Inf -> System.Void group.Inf::Foo(System.Int32)
+
+ - Foo|Void(Int32)|20: null
+
+[System.Object]
+
+[group.Inf]
+ - Foo|Void(Int32)|20: null
+   - group.Inf -> System.Void group.Inf::Foo(System.Int32)
+
+* Types:
+[class testcase.ExpVirtualOverride1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.ExpVirtualOverride1
+   - group.Base
+   - group.Derived
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group.Derived] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: group.Base
+ - Fields:
+   - fld|Int32|1, fld|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group.Derived)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Bla|Void(Int32)|20|C6, Bla|Void(group.Derived,Int32)|20, Public Virtual HideBySig Managed None
+ - VTable:
+   - [System.Object]
+   - [group.Base]
+     - System.Void group.Base::Bla(System.Int32): group.Derived -> System.Void group.Derived::Bla(System.Int32)
+   - [group.Inf]
+     - System.Void group.Inf::Foo(System.Int32): group.Derived -> System.Void group.Derived::Bla(System.Int32)
+   - [group.Derived]
+
+[class group.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Interfaces:
+   - group.Inf
+ - DerivedTypes:
+   - group.Derived
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group.Base
+   - group.Derived
+ - Methods:
+   - Foo|Void(Int32)|20|5C6, Foo|Void(group.Inf,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group.Derived -> Bla|Void(Int32)|20|C6, Bla|Void(group.Derived,Int32)|20
+

@@ -466,6 +466,33 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class Interface7
+	{
+		interface Inf
+		{
+			void Foo();
+		}
+
+		class Base
+		{
+			private int fld;
+			public void Foo()
+			{
+				fld = 1;
+			}
+		}
+
+		class Derived : Base, Inf
+		{ }
+
+		public static void Entry()
+		{
+			Inf i = new Derived();
+			i.Foo();
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()

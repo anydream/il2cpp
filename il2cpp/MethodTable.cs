@@ -208,8 +208,6 @@ namespace il2cpp
 						metDef.MethodSig.RetType,
 						metDef.MethodSig.Params,
 						metDef.MethodSig.CallingConvention);
-					ExpandedSigList.Add(sb.ToString());
-					sb.Clear();
 				}
 				else
 				{
@@ -223,9 +221,10 @@ namespace il2cpp
 						retType,
 						paramTypes,
 						metDef.MethodSig.CallingConvention);
-					ExpandedSigList.Add(sb.ToString());
-					sb.Clear();
 				}
+
+				ExpandedSigList.Add(sb.ToString());
+				sb.Clear();
 			}
 
 			// 解析并继承基类方法表
@@ -283,9 +282,12 @@ namespace il2cpp
 							MethodTable entryTable = kv2.Key;
 							MethodDef entryDef = kv2.Value;
 
-							// 先删除现有的再合并
-							RemoveEntry(entryTable, entryDef);
-							MergeSlot(expSigName, entryTable, entryDef);
+							if (NeedMergeInterface(expSigName, entryTable, entryDef))
+							{
+								// 先删除现有的再合并
+								RemoveEntry(entryTable, entryDef);
+								MergeSlot(expSigName, entryTable, entryDef);
+							}
 						}
 					}
 				}
@@ -311,6 +313,7 @@ namespace il2cpp
 						}
 						else
 						{
+							// 展平方法槽
 							foreach (var item in vslot.Entries)
 							{
 								SetExpandedVSlotMap(item.Key, item.Value, ref vslot.Impl);
@@ -319,6 +322,26 @@ namespace il2cpp
 					}
 				}
 			}
+		}
+
+		private bool NeedMergeInterface(string expSigName, MethodTable entryTable, MethodDef entryDef)
+		{
+			// 当前方法表内存在该接口签名, 则需要合并接口
+			foreach (string sigName in ExpandedSigList)
+			{
+				if (sigName == expSigName)
+					return true;
+			}
+
+			// 当前方法不存在该接口签名, 但是展平的方法槽内已经有该签名了, 则无需合并接口
+			if (ExpandedVSlotMap.TryGetValue(entryTable, out var defMap))
+			{
+				if (defMap.ContainsKey(entryDef))
+					return false;
+			}
+
+			// 其他情况需要合并接口
+			return true;
 		}
 
 		private void SetExpandedVSlotMap(MethodTable entryTable, MethodDef entryDef, ref VirtualImpl impl)
