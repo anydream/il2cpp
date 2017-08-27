@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 using dnlib.DotNet;
 
 namespace il2cpp
@@ -28,15 +29,19 @@ namespace il2cpp
 					// 跳过无覆盖的方法
 					if (entries.Count == 1 &&
 						impl.IsValid() &&
-						entries.TryGetValue(impl.ImplTable, out var implDef) &&
-						implDef == impl.ImplMethod)
+						entries.TryGetValue(impl.ImplTable, out var defSet) &&
+						defSet.Count == 1 &&
+						defSet.First() == impl.ImplMethod)
 					{
 						continue;
 					}
 
 					sb.AppendFormat(" - {0}: {1}\n", expSigName, impl);
 					foreach (var kv3 in entries)
-						sb.AppendFormat("   - {0} -> {1}\n", kv3.Key, kv3.Value);
+					{
+						foreach (var mdef in kv3.Value)
+							sb.AppendFormat("   - {0} -> {1}\n", kv3.Key, mdef);
+					}
 					sb.Append('\n');
 					flag = true;
 				}

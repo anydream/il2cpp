@@ -588,6 +588,206 @@ namespace testcase
 	}
 
 	[Test]
+	static class GenOverride10
+	{
+		interface Inf<T>
+		{
+			void Foo(T t);
+		}
+
+		class Cls<T> : Inf<int>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf<int> inf = new Cls<int>();
+			inf.Foo(123);
+		}
+	}
+
+	[Test]
+	static class GenOverride11
+	{
+		interface Inf<T>
+		{
+			void Foo(int t);
+			void Foo(T t);
+		}
+
+		class Cls<T> : Inf<int>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf<int> inf = new Cls<int>();
+			inf.Foo(123);
+		}
+	}
+
+	[Test]
+	static class GenOverride12
+	{
+		interface Inf0<T>
+		{
+			void Foo(T t);
+		}
+
+		interface Inf<T> : Inf0<T>
+		{
+			void Foo(int t);
+			void Foo(T t);
+		}
+
+		class Cls<T> : Inf<int>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf0<int> inf = new Cls<int>();
+			inf.Foo(123);
+		}
+	}
+
+	[Test]
+	static class GenOverride13
+	{
+		interface Inf<T>
+		{
+			void Foo(int t);
+			void Foo(T t);
+		}
+
+		class Cls<T> : Inf<T>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf<int> inf = new Cls<int>();
+			inf.Foo(123);
+		}
+	}
+
+	[Test]
+	static class GenOverride14
+	{
+		interface Inf0<T>
+		{
+			void Foo(T t);
+		}
+
+		interface Inf<T> : Inf0<T>
+		{
+			void Foo(int t);
+			void Foo(T t);
+		}
+
+		class Cls<T> : Inf<T>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf0<int> inf = new Cls<int>();
+			inf.Foo(123);
+		}
+	}
+
+	[Test]
+	static class GenOverride15
+	{
+		interface Inf<T>
+		{
+			void Foo(T t);
+		}
+
+		class Cls<T> : Inf<T>
+		{
+			public int field1;
+			public int field2;
+
+			public void Foo(T t)
+			{
+				field1 = 1;
+			}
+
+			public void Foo(int t)
+			{
+				field2 = 2;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			Inf<int> inf = new Cls<int>();
+			inf.Foo(123);
+		}
+	}
+
+	[Test]
 	static class ExpOverride1
 	{
 		public static void Entry()
@@ -1252,7 +1452,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			GenOverride9.Entry();
+			GenOverride12.Entry();
 		}
 	}
 }
