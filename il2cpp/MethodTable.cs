@@ -87,7 +87,7 @@ namespace il2cpp
 
 		public void SetImpl(MethodTable mtable, MethodDef metDef)
 		{
-			// 只有非抽象方法才能作为实现方法
+			// 抽象方法不作为实现
 			if (metDef.IsAbstract)
 				return;
 
@@ -262,7 +262,7 @@ namespace il2cpp
 				}
 				else
 				{
-					NewSlot(expSigName, metDef, true);
+					NewSlot(expSigName, metDef);
 				}
 			}
 
@@ -300,16 +300,20 @@ namespace il2cpp
 				ExplicitOverride(overDef.Overrides, overDef, idx);
 			}
 
-			if (!Def.IsInterface)
+			if (!Def.IsInterface && !Def.IsAbstract)
 			{
-				foreach (VirtualSlot vslot in VSlotMap.Values)
+				foreach (var kv in VSlotMap)
 				{
+					VirtualSlot vslot = kv.Value;
 					if (vslot.Entries.Count > 0)
 					{
 						if (!vslot.Impl.IsValid())
 						{
 							// 检查是否存在未实现的接口
-							throw new TypeLoadException("Slot has no implementation: " + vslot.Entries.First());
+							throw new TypeLoadException(string.Format(
+								"Slot has no implementation. Class: {0}, Slot: {1}, {2}",
+								this, kv.Key,
+								vslot.Entries.First()));
 						}
 						else
 						{
@@ -373,13 +377,10 @@ namespace il2cpp
 			}
 		}
 
-		private void NewSlot(string expSigName, MethodDef metDef, bool isChecked = false)
+		private void NewSlot(string expSigName, MethodDef metDef)
 		{
 			VirtualSlot vslot = new VirtualSlot();
-			if (isChecked)
-				VSlotMap.Add(expSigName, vslot);
-			else
-				VSlotMap[expSigName] = vslot;
+			VSlotMap[expSigName] = vslot;
 			vslot.AddEntry(this, metDef);
 			vslot.SetImpl(this, metDef);
 		}

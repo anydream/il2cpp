@@ -318,6 +318,85 @@ namespace group8
 	}
 }
 
+namespace group9
+{
+	abstract class BaseCls
+	{
+		private int field0;
+		public abstract int Foo(int n);
+		public virtual int Bla(int n)
+		{
+			return n + field0;
+		}
+	}
+
+	class Sub1 : BaseCls
+	{
+		private int field1;
+		public override int Foo(int n)
+		{
+			return field1 + n;
+		}
+		public override int Bla(int n)
+		{
+			return n;
+		}
+	}
+
+	class Sub2 : Sub1
+	{
+		private int field2;
+		public new virtual int Foo(int n)
+		{
+			return field2 + n;
+		}
+		public override int Bla(int n)
+		{
+			return n;
+		}
+	}
+
+	class Sub3 : Sub2
+	{
+		private int field3;
+		public override int Foo(int n)
+		{
+			return n + field3;
+		}
+		public override int Bla(int n)
+		{
+			return n;
+		}
+	}
+
+	class Sub4 : Sub3
+	{
+		private int field4;
+		public new int Foo(int n)
+		{
+			return field4 + n;
+		}
+		public override int Bla(int n)
+		{
+			return n;
+		}
+	}
+
+	class Sub5 : Sub4
+	{
+		private int field5;
+		private int field5_2;
+		public virtual int Foo(int n)
+		{
+			return n + field5;
+		}
+		public override int Bla(int n)
+		{
+			return n + field5_2;
+		}
+	}
+}
+
 namespace testcase
 {
 	class TestAttribute : Attribute
@@ -840,6 +919,112 @@ namespace testcase
 			Sub1 t2d = cls;
 			a = t2d.getWidth();
 			a = t2d.getHeight();
+		}
+	}
+
+	[Test]
+	static class Override1
+	{
+		interface Inf
+		{
+			void Foo();
+		}
+
+		class Cls : Inf
+		{
+			private int field1;
+			private int field2;
+
+			public void Foo()
+			{
+				field1 = 0;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf inf = new Cls();
+			inf.Foo();
+		}
+	}
+
+	[Test]
+	static class Override2
+	{
+		class BaseCls
+		{
+			public int field;
+			public virtual int Foo(int n)
+			{
+				return n + field;
+			}
+		}
+
+		class SubCls : BaseCls
+		{
+			public override int Foo(int n)
+			{
+				return n;
+			}
+		}
+
+		class SubCls2 : BaseCls
+		{
+			public override int Foo(int n)
+			{
+				return base.Foo(n) + n;
+			}
+		}
+
+		public static void Entry()
+		{
+			BaseCls b = new SubCls();
+			b.Foo(123);
+
+			b = new SubCls2();
+			b.Foo(456);
+		}
+	}
+
+	[Test]
+	static class Override3
+	{
+		public static void Entry()
+		{
+			group9.BaseCls b = new group9.Sub1();
+
+			var cls = new group9.Sub5();
+			b = cls;
+			b.Foo(123);
+			b.Bla(456);
+		}
+	}
+
+	[Test]
+	static class Override4
+	{
+		public static void Entry()
+		{
+			new group9.Sub1();
+
+			var cls = new group9.Sub5();
+
+			group9.Sub2 s2 = cls;
+			s2.Foo(123);
+		}
+	}
+
+	[Test]
+	static class Override5
+	{
+		public static void Entry()
+		{
+			new group9.Sub1();
+
+			var cls = new group9.Sub5();
+
+			group9.Sub4 s4 = cls;
+			s4.Foo(123);
 		}
 	}
 

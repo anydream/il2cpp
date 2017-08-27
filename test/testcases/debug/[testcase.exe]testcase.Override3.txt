@@ -1,0 +1,153 @@
+* MethodTables:
+[group9.Sub1]
+ - Foo|Int32(Int32)|20: group9.Sub1 -> System.Int32 group9.Sub1::Foo(System.Int32)
+   - group9.BaseCls -> System.Int32 group9.BaseCls::Foo(System.Int32)
+   - group9.Sub1 -> System.Int32 group9.Sub1::Foo(System.Int32)
+
+ - Bla|Int32(Int32)|20: group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
+   - group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
+   - group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
+
+[group9.BaseCls]
+ - Foo|Int32(Int32)|20: null
+   - group9.BaseCls -> System.Int32 group9.BaseCls::Foo(System.Int32)
+
+[System.Object]
+
+[group9.Sub5]
+ - Bla|Int32(Int32)|20: group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
+   - group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
+   - group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
+   - group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
+   - group9.Sub3 -> System.Int32 group9.Sub3::Bla(System.Int32)
+   - group9.Sub4 -> System.Int32 group9.Sub4::Bla(System.Int32)
+   - group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
+
+[group9.Sub4]
+ - Bla|Int32(Int32)|20: group9.Sub4 -> System.Int32 group9.Sub4::Bla(System.Int32)
+   - group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
+   - group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
+   - group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
+   - group9.Sub3 -> System.Int32 group9.Sub3::Bla(System.Int32)
+   - group9.Sub4 -> System.Int32 group9.Sub4::Bla(System.Int32)
+
+[group9.Sub3]
+ - Foo|Int32(Int32)|20: group9.Sub3 -> System.Int32 group9.Sub3::Foo(System.Int32)
+   - group9.Sub2 -> System.Int32 group9.Sub2::Foo(System.Int32)
+   - group9.Sub3 -> System.Int32 group9.Sub3::Foo(System.Int32)
+
+ - Bla|Int32(Int32)|20: group9.Sub3 -> System.Int32 group9.Sub3::Bla(System.Int32)
+   - group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
+   - group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
+   - group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
+   - group9.Sub3 -> System.Int32 group9.Sub3::Bla(System.Int32)
+
+[group9.Sub2]
+ - Bla|Int32(Int32)|20: group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
+   - group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
+   - group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
+   - group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
+
+* Types:
+[class testcase.Override3] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.Override3
+   - group9.BaseCls
+   - group9.Sub1
+   - group9.Sub2
+   - group9.Sub3
+   - group9.Sub4
+   - group9.Sub5
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group9.Sub1] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: group9.BaseCls
+ - DerivedTypes:
+   - group9.Sub2
+   - group9.Sub3
+   - group9.Sub4
+   - group9.Sub5
+ - Fields:
+   - field1|Int32|1, field1|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group9.Sub1)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Int32(Int32)|20|C6, Foo|Int32(group9.Sub1,Int32)|20, Public Virtual HideBySig Managed None
+   - Bla|Int32(Int32)|20|C6, Bla|Int32(group9.Sub1,Int32)|20, Public Virtual HideBySig Managed None
+ - VTable:
+   - [System.Object]
+   - [group9.BaseCls]
+     - System.Int32 group9.BaseCls::Foo(System.Int32): group9.Sub1 -> System.Int32 group9.Sub1::Foo(System.Int32)
+     - System.Int32 group9.BaseCls::Bla(System.Int32): group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
+   - [group9.Sub1]
+
+[class group9.BaseCls] NotPublic AutoLayout Abstract AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - DerivedTypes:
+   - group9.Sub1
+   - group9.Sub2
+   - group9.Sub3
+   - group9.Sub4
+   - group9.Sub5
+ - Methods:
+   - Foo|Int32(Int32)|20|5C6, Foo|Int32(group9.BaseCls,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group9.Sub1 -> Foo|Int32(Int32)|20|C6, Foo|Int32(group9.Sub1,Int32)|20
+   - Bla|Int32(Int32)|20|1C6, Bla|Int32(group9.BaseCls,Int32)|20 = 0, Public Virtual HideBySig NewSlot Managed None
+     - group9.Sub1 -> Bla|Int32(Int32)|20|C6, Bla|Int32(group9.Sub1,Int32)|20
+     - group9.Sub5 -> Bla|Int32(Int32)|20|C6, Bla|Int32(group9.Sub5,Int32)|20
+   - .ctor|Void()|20|1884, .ctor|Void(group9.BaseCls)|20, Family HideBySig SpecialName RTSpecialName Managed None
+
+[class group9.Sub5] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: group9.Sub4
+ - Fields:
+   - field5_2|Int32|1, field5_2|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group9.Sub5)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Bla|Int32(Int32)|20|C6, Bla|Int32(group9.Sub5,Int32)|20, Public Virtual HideBySig Managed None
+ - VTable:
+   - [System.Object]
+   - [group9.BaseCls]
+     - System.Int32 group9.BaseCls::Foo(System.Int32): group9.Sub1 -> System.Int32 group9.Sub1::Foo(System.Int32)
+     - System.Int32 group9.BaseCls::Bla(System.Int32): group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
+   - [group9.Sub1]
+     - System.Int32 group9.Sub1::Bla(System.Int32): group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
+   - [group9.Sub2]
+     - System.Int32 group9.Sub2::Foo(System.Int32): group9.Sub3 -> System.Int32 group9.Sub3::Foo(System.Int32)
+     - System.Int32 group9.Sub2::Bla(System.Int32): group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
+   - [group9.Sub3]
+     - System.Int32 group9.Sub3::Bla(System.Int32): group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
+   - [group9.Sub4]
+     - System.Int32 group9.Sub4::Bla(System.Int32): group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
+   - [group9.Sub5]
+
+[class group9.Sub4] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: group9.Sub3
+ - DerivedTypes:
+   - group9.Sub5
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group9.Sub4)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group9.Sub3] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: group9.Sub2
+ - DerivedTypes:
+   - group9.Sub4
+   - group9.Sub5
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group9.Sub3)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group9.Sub2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: group9.Sub1
+ - DerivedTypes:
+   - group9.Sub3
+   - group9.Sub4
+   - group9.Sub5
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group9.Sub2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+

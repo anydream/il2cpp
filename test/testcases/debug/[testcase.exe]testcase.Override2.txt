@@ -1,0 +1,67 @@
+* MethodTables:
+[testcase.Override2/SubCls]
+ - Foo|Int32(Int32)|20: testcase.Override2/SubCls -> System.Int32 testcase.Override2/SubCls::Foo(System.Int32)
+   - testcase.Override2/BaseCls -> System.Int32 testcase.Override2/BaseCls::Foo(System.Int32)
+   - testcase.Override2/SubCls -> System.Int32 testcase.Override2/SubCls::Foo(System.Int32)
+
+[testcase.Override2/BaseCls]
+
+[System.Object]
+
+[testcase.Override2/SubCls2]
+ - Foo|Int32(Int32)|20: testcase.Override2/SubCls2 -> System.Int32 testcase.Override2/SubCls2::Foo(System.Int32)
+   - testcase.Override2/BaseCls -> System.Int32 testcase.Override2/BaseCls::Foo(System.Int32)
+   - testcase.Override2/SubCls2 -> System.Int32 testcase.Override2/SubCls2::Foo(System.Int32)
+
+* Types:
+[class testcase.Override2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.Override2
+   - testcase.Override2/BaseCls
+   - testcase.Override2/SubCls
+   - testcase.Override2/SubCls2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class testcase.Override2/SubCls] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: testcase.Override2/BaseCls
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.Override2/SubCls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Int32(Int32)|20|C6, Foo|Int32(testcase.Override2/SubCls,Int32)|20, Public Virtual HideBySig Managed None
+ - VTable:
+   - [System.Object]
+   - [testcase.Override2/BaseCls]
+     - System.Int32 testcase.Override2/BaseCls::Foo(System.Int32): testcase.Override2/SubCls -> System.Int32 testcase.Override2/SubCls::Foo(System.Int32)
+   - [testcase.Override2/SubCls]
+
+[class testcase.Override2/BaseCls] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - DerivedTypes:
+   - testcase.Override2/SubCls
+   - testcase.Override2/SubCls2
+ - Fields:
+   - field|Int32|6, field|Int32, Public 
+ - Methods:
+   - Foo|Int32(Int32)|20|1C6, Foo|Int32(testcase.Override2/BaseCls,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+     - testcase.Override2/SubCls -> Foo|Int32(Int32)|20|C6, Foo|Int32(testcase.Override2/SubCls,Int32)|20
+     - testcase.Override2/SubCls2 -> Foo|Int32(Int32)|20|C6, Foo|Int32(testcase.Override2/SubCls2,Int32)|20
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.Override2/BaseCls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class testcase.Override2/SubCls2] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: testcase.Override2/BaseCls
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.Override2/SubCls2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Int32(Int32)|20|C6, Foo|Int32(testcase.Override2/SubCls2,Int32)|20, Public Virtual HideBySig Managed None
+ - VTable:
+   - [System.Object]
+   - [testcase.Override2/BaseCls]
+     - System.Int32 testcase.Override2/BaseCls::Foo(System.Int32): testcase.Override2/SubCls2 -> System.Int32 testcase.Override2/SubCls2::Foo(System.Int32)
+   - [testcase.Override2/SubCls2]
+
