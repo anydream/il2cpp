@@ -504,6 +504,90 @@ namespace testcase
 	}
 
 	[Test]
+	static class GenOverride9
+	{
+		interface Inf<TI>
+		{
+			TF Foo<TF>(TF n, TI i);
+		}
+
+		interface Inf2<TI>
+		{
+			TF Foo<TF>(TF n, TI i);
+		}
+
+		unsafe class Cls<TC> : Inf<TC>, Inf2<short*[]>
+		{
+			public virtual TCF Foo<TCF>(TCF n, TC i)
+			{
+				return n;
+			}
+
+			public virtual TF Foo<TF>(TF n, short*[] i)
+			{
+				return n;
+			}
+		}
+
+		unsafe class Sub1<TC1> : Cls<TC1>
+		{
+			private TC1 field1;
+			private short*[] field2;
+
+			public override TCF1 Foo<TCF1>(TCF1 n, TC1 i)
+			{
+				field1 = i;
+				return n;
+			}
+
+			public override TCF1 Foo<TCF1>(TCF1 n, short*[] i)
+			{
+				field2 = i;
+				return n;
+			}
+		}
+
+		unsafe class Sub2 : Sub1<int*[]>
+		{
+			public override TCF2 Foo<TCF2>(TCF2 n, int*[] i)
+			{
+				return n;
+			}
+
+			public override unsafe TCF2 Foo<TCF2>(TCF2 n, short*[] i)
+			{
+				return n;
+			}
+		}
+
+		public static unsafe void Entry()
+		{
+			char*[] cc = null;
+			int*[] ii = null;
+			short*[] ss = null;
+
+			var cls = new Sub2();
+
+			cls.Foo(cc, ii);
+			cls.Foo(cc, ss);
+
+			Inf<int*[]> inf = cls;
+			inf.Foo(cc, ii);
+
+			Inf2<short*[]> inf2 = cls;
+			inf2.Foo(cc, ss);
+
+			var cls2 = new Cls<long*[]>();
+
+			Sub1<int*[]> s1 = cls;
+			s1.Foo(cc, ii);
+			s1.Foo(cc, ss);
+
+			new Cls<int*[]>();
+		}
+	}
+
+	[Test]
 	static class ExpOverride1
 	{
 		public static void Entry()
@@ -1168,6 +1252,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
+			GenOverride9.Entry();
 		}
 	}
 }
