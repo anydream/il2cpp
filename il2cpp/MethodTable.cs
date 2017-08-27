@@ -312,20 +312,32 @@ namespace il2cpp
 				ExplicitOverride(overDef.Overrides, overDef, idx);
 			}
 
-			if (!Def.IsInterface && !Def.IsAbstract)
+			if (!Def.IsInterface)
 			{
 				foreach (var kv in VSlotMap)
 				{
 					VirtualSlot vslot = kv.Value;
 					if (vslot.Entries.Count > 0)
 					{
-						if (!vslot.Impl.IsValid())
+						if (!Def.IsAbstract && !vslot.Impl.IsValid())
 						{
+							// 遇到非抽象类且存在空的绑定实现则报错
+							StringBuilder sb2 = new StringBuilder();
+
+							sb2.AppendFormat("Slot has no implementation. Class: {0}, Slot: {1}, ",
+								this, kv.Key);
+							foreach (var item in vslot.Entries)
+							{
+								sb2.AppendFormat("{0} -> [", item.Key);
+								foreach (var entryDef in item.Value)
+								{
+									sb2.AppendFormat("{0} ", entryDef);
+								}
+								sb2.Append(']');
+							}
+
 							// 检查是否存在未实现的接口
-							throw new TypeLoadException(string.Format(
-								"Slot has no implementation. Class: {0}, Slot: {1}, {2}",
-								this, kv.Key,
-								vslot.Entries.First()));
+							throw new TypeLoadException(sb2.ToString());
 						}
 						else
 						{
@@ -352,7 +364,8 @@ namespace il2cpp
 			}
 
 			// 当前方法不存在该接口签名, 但是展平的方法槽内已经有该签名了, 则无需合并接口
-			if (ExpandedVSlotMap.TryGetValue(entryTable, out var defMap))
+			if (ExpandedVSlotMap != null &&
+				ExpandedVSlotMap.TryGetValue(entryTable, out var defMap))
 			{
 				if (defMap.ContainsKey(entryDef))
 					return false;

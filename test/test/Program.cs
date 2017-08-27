@@ -21,29 +21,39 @@ namespace test
 			return fullPath.Substring(fullRelative.Length);
 		}
 
-		private static bool IsTestClass(TypeDef typeDef)
+		private static MethodDef IsTestClass(TypeDef typeDef)
 		{
 			if (typeDef.HasCustomAttributes)
 			{
 				var attr = typeDef.CustomAttributes[0];
 				if (attr.AttributeType.Name == "TestAttribute")
-					return true;
+				{
+					return typeDef.FindMethod("Entry");
+				}
 			}
-			return false;
+			else
+			{
+				if (typeDef.FullName == "WzComparerR2.Program")
+				{
+					return typeDef.FindMethod("Main");
+				}
+			}
+			return null;
 		}
 
 		private static void TestType(
 			Il2cppContext context, TypeDef typeDef,
 			string imageDir, string imageName, string subDir)
 		{
-			if (!IsTestClass(typeDef))
+			MethodDef metDef = IsTestClass(typeDef);
+			if (metDef == null)
 				return;
 
 			string testName = string.Format("[{0}]{1}", imageName, typeDef.FullName);
 			var oldColor = Console.ForegroundColor;
 			Console.Write("{0} {1}: ", subDir, testName);
 
-			context.AddEntry(typeDef.FindMethod("Entry"));
+			context.AddEntry(metDef);
 
 			var sw = new Stopwatch();
 			sw.Start();
