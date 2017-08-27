@@ -397,6 +397,57 @@ namespace group9
 	}
 }
 
+namespace group10
+{
+	interface Inf<T>
+	{
+		void Foo();
+	}
+
+	interface Inf
+	{
+		void Foo();
+	}
+
+	class Cls : Inf, Inf<short>, Inf<uint>
+	{
+		private int field1;
+		private int field2;
+		private int field3;
+
+		public void Foo()
+		{
+			field1 = 0;
+		}
+
+		void Inf.Foo()
+		{
+			field2 = 0;
+		}
+
+		void Inf<short>.Foo()
+		{
+			field3 = 0;
+		}
+	}
+
+	class Sub1 : Cls, Inf<short>
+	{
+		void Inf<short>.Foo()
+		{
+
+		}
+	}
+
+	class Sub2 : Cls, Inf<uint>
+	{
+		void Inf<uint>.Foo()
+		{
+
+		}
+	}
+}
+
 namespace testcase
 {
 	class TestAttribute : Attribute
@@ -1057,6 +1108,154 @@ namespace testcase
 	}
 
 	[Test]
+	static class GenExpOverride6
+	{
+		public static void Entry()
+		{
+			var cls = new group10.Cls();
+			cls.Foo();
+		}
+	}
+
+	[Test]
+	static class GenExpOverride7
+	{
+		public static void Entry()
+		{
+			var cls = new group10.Cls();
+			group10.Inf inf = cls;
+			inf.Foo();
+		}
+	}
+
+	[Test]
+	static class GenExpOverride8
+	{
+		public static void Entry()
+		{
+			var cls = new group10.Cls();
+			group10.Inf<short> inf = cls;
+			inf.Foo();
+		}
+	}
+
+	[Test]
+	static class GenExpOverride9
+	{
+		public static void Entry()
+		{
+			var cls = new group10.Sub1();
+			group10.Inf<short> inf = cls;
+			inf.Foo();
+			group10.Inf inf2 = cls;
+			inf2.Foo();
+		}
+	}
+
+	[Test]
+	static class GenExpOverride10
+	{
+		public static void Entry()
+		{
+			var cls = new group10.Sub1();
+			group10.Inf<uint> inf = cls;
+			inf.Foo();
+		}
+	}
+
+	[Test]
+	static class GenExpOverride11
+	{
+		public static void Entry()
+		{
+			var cls = new group10.Sub2();
+			group10.Inf<uint> inf = cls;
+			inf.Foo();
+
+			group10.Inf<short> inf2 = cls;
+			inf2.Foo();
+		}
+	}
+
+	[Test]
+	static class GenExpOverride12
+	{
+		interface IBla<TB>
+		{ }
+
+		interface Inf<TI>
+		{
+			IBla<TI> Foo(IBla<TI> n);
+		}
+
+		class Cls<TC> : Inf<TC>
+		{
+			IBla<TC> Inf<TC>.Foo(IBla<TC> n)
+			{
+				return n;
+			}
+
+			public IBla<TC> Foo(IBla<TC> n)
+			{
+				return n;
+			}
+		}
+
+		class Elem
+		{ }
+
+		public static void Entry()
+		{
+			Inf<Elem> inf = new Cls<Elem>();
+			inf.Foo(null);
+		}
+	}
+
+	[Test]
+	static class GenExpOverride13
+	{
+		interface Inf
+		{
+			T Foo<T>();
+			void Foo<T>(T t);
+			void Foo<T, T2>(T t, T2 t2);
+		}
+
+		interface Res
+		{
+		}
+
+		interface Res2
+		{
+		}
+
+		class Cls : Inf
+		{
+			T Inf.Foo<T>()
+			{
+				return default(T);
+			}
+
+			void Inf.Foo<T>(T t)
+			{
+			}
+
+			void Inf.Foo<T, T2>(T t, T2 t2)
+			{
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf i = new Cls();
+			i.Foo("nice");
+			Res res = i.Foo<Res>();
+			Res2 res2 = i.Foo<Res2>();
+			i.Foo(res, res2);
+		}
+	}
+
+	[Test]
 	static class Interface1
 	{
 		public static void Entry()
@@ -1448,11 +1647,39 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class StaticCctor2
+	{
+		class Base
+		{
+			public static int fld;
+			static Base()
+			{
+				fld = 123;
+			}
+		}
+
+		class Cls : Base
+		{
+			public new static int fld;
+			public static int fld2;
+			static Cls()
+			{
+				fld = 456;
+			}
+		}
+
+		public static void Entry()
+		{
+			Cls.fld2 = 0;
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()
 		{
-			GenOverride12.Entry();
+			GenExpOverride13.Entry();
 		}
 	}
 }

@@ -1,0 +1,26 @@
+* MethodTables:
+* Types:
+[class testcase.StaticCctor2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.StaticCctor2
+   - testcase.StaticCctor2/Base
+   - testcase.StaticCctor2/Cls
+
+[class testcase.StaticCctor2/Cls] NestedPrivate AutoLayout AnsiClass 
+ - Base: testcase.StaticCctor2/Base
+ - Fields:
+   - fld2|Int32|16, fld2|Int32, Public Static 
+   - fld|Int32|16, fld|Int32, Public Static 
+ - Methods:
+   - .cctor|Void()|0|1891, .cctor|Void()|0, Private Static HideBySig SpecialName RTSpecialName Managed None
+
+[class testcase.StaticCctor2/Base] NestedPrivate AutoLayout AnsiClass 
+ - Base: System.Object
+ - DerivedTypes:
+   - testcase.StaticCctor2/Cls
+

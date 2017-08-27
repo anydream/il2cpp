@@ -322,7 +322,7 @@ namespace il2cpp
 				AddPendingMethod(implMetX);
 			}
 			else
-				throw new ArgumentOutOfRangeException();
+				throw new TypeLoadException("Resolve virtual method failed");
 		}
 
 		public FieldX ResolveFieldDef(FieldDef fldDef)

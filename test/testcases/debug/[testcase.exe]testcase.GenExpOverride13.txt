@@ -1,0 +1,77 @@
+* MethodTables:
+[testcase.GenExpOverride13/Cls]
+ - testcase.GenExpOverride13.Inf.Foo|!!0<1>()|30: testcase.GenExpOverride13/Cls -> T testcase.GenExpOverride13/Cls::testcase.GenExpOverride13.Inf.Foo<T>()
+   - testcase.GenExpOverride13/Cls -> T testcase.GenExpOverride13/Cls::testcase.GenExpOverride13.Inf.Foo<T>()
+   - testcase.GenExpOverride13/Inf -> T testcase.GenExpOverride13/Inf::Foo<T>()
+
+ - testcase.GenExpOverride13.Inf.Foo|Void<1>(!!0)|30: testcase.GenExpOverride13/Cls -> System.Void testcase.GenExpOverride13/Cls::testcase.GenExpOverride13.Inf.Foo<T>(T)
+   - testcase.GenExpOverride13/Cls -> System.Void testcase.GenExpOverride13/Cls::testcase.GenExpOverride13.Inf.Foo<T>(T)
+   - testcase.GenExpOverride13/Inf -> System.Void testcase.GenExpOverride13/Inf::Foo<T>(T)
+
+ - testcase.GenExpOverride13.Inf.Foo|Void<2>(!!0,!!1)|30: testcase.GenExpOverride13/Cls -> System.Void testcase.GenExpOverride13/Cls::testcase.GenExpOverride13.Inf.Foo<T,T2>(T,T2)
+   - testcase.GenExpOverride13/Cls -> System.Void testcase.GenExpOverride13/Cls::testcase.GenExpOverride13.Inf.Foo<T,T2>(T,T2)
+   - testcase.GenExpOverride13/Inf -> System.Void testcase.GenExpOverride13/Inf::Foo<T,T2>(T,T2)
+
+ - Foo|!!0<1>()|30: null
+
+ - Foo|Void<1>(!!0)|30: null
+
+ - Foo|Void<2>(!!0,!!1)|30: null
+
+[System.Object]
+
+[testcase.GenExpOverride13/Inf]
+ - Foo|!!0<1>()|30: null
+   - testcase.GenExpOverride13/Inf -> T testcase.GenExpOverride13/Inf::Foo<T>()
+
+ - Foo|Void<1>(!!0)|30: null
+   - testcase.GenExpOverride13/Inf -> System.Void testcase.GenExpOverride13/Inf::Foo<T>(T)
+
+ - Foo|Void<2>(!!0,!!1)|30: null
+   - testcase.GenExpOverride13/Inf -> System.Void testcase.GenExpOverride13/Inf::Foo<T,T2>(T,T2)
+
+* Types:
+[class testcase.GenExpOverride13] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.GenExpOverride13
+   - testcase.GenExpOverride13/Cls
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class testcase.GenExpOverride13/Cls] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: System.Object
+ - Interfaces:
+   - testcase.GenExpOverride13/Inf
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(testcase.GenExpOverride13/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.GenExpOverride13.Inf.Foo|Void<String>(!!0)|30|1E1, testcase.GenExpOverride13.Inf.Foo|Void<String>(testcase.GenExpOverride13/Cls,String)|30, Private Final Virtual HideBySig NewSlot Managed None
+   - testcase.GenExpOverride13.Inf.Foo|!!0<testcase.GenExpOverride13/Res>()|30|1E1, testcase.GenExpOverride13.Inf.Foo|testcase.GenExpOverride13/Res<testcase.GenExpOverride13/Res>(testcase.GenExpOverride13/Cls)|30, Private Final Virtual HideBySig NewSlot Managed None
+   - testcase.GenExpOverride13.Inf.Foo|!!0<testcase.GenExpOverride13/Res2>()|30|1E1, testcase.GenExpOverride13.Inf.Foo|testcase.GenExpOverride13/Res2<testcase.GenExpOverride13/Res2>(testcase.GenExpOverride13/Cls)|30, Private Final Virtual HideBySig NewSlot Managed None
+   - testcase.GenExpOverride13.Inf.Foo|Void<testcase.GenExpOverride13/Res,testcase.GenExpOverride13/Res2>(!!0,!!1)|30|1E1, testcase.GenExpOverride13.Inf.Foo|Void<testcase.GenExpOverride13/Res,testcase.GenExpOverride13/Res2>(testcase.GenExpOverride13/Cls,testcase.GenExpOverride13/Res,testcase.GenExpOverride13/Res2)|30, Private Final Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [System.Object]
+   - [testcase.GenExpOverride13/Cls]
+   - [testcase.GenExpOverride13/Inf]
+     - T testcase.GenExpOverride13/Inf::Foo<T>(): testcase.GenExpOverride13/Cls -> T testcase.GenExpOverride13/Cls::testcase.GenExpOverride13.Inf.Foo<T>()
+     - System.Void testcase.GenExpOverride13/Inf::Foo<T>(T): testcase.GenExpOverride13/Cls -> System.Void testcase.GenExpOverride13/Cls::testcase.GenExpOverride13.Inf.Foo<T>(T)
+     - System.Void testcase.GenExpOverride13/Inf::Foo<T,T2>(T,T2): testcase.GenExpOverride13/Cls -> System.Void testcase.GenExpOverride13/Cls::testcase.GenExpOverride13.Inf.Foo<T,T2>(T,T2)
+
+[class testcase.GenExpOverride13/Inf] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - testcase.GenExpOverride13/Cls
+ - Methods:
+   - Foo|Void<String>(!!0)|30|5C6, Foo|Void<String>(testcase.GenExpOverride13/Inf,String)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - testcase.GenExpOverride13/Cls -> testcase.GenExpOverride13.Inf.Foo|Void<String>(!!0)|30|1E1, testcase.GenExpOverride13.Inf.Foo|Void<String>(testcase.GenExpOverride13/Cls,String)|30
+   - Foo|!!0<testcase.GenExpOverride13/Res>()|30|5C6, Foo|testcase.GenExpOverride13/Res<testcase.GenExpOverride13/Res>(testcase.GenExpOverride13/Inf)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - testcase.GenExpOverride13/Cls -> testcase.GenExpOverride13.Inf.Foo|!!0<testcase.GenExpOverride13/Res>()|30|1E1, testcase.GenExpOverride13.Inf.Foo|testcase.GenExpOverride13/Res<testcase.GenExpOverride13/Res>(testcase.GenExpOverride13/Cls)|30
+   - Foo|!!0<testcase.GenExpOverride13/Res2>()|30|5C6, Foo|testcase.GenExpOverride13/Res2<testcase.GenExpOverride13/Res2>(testcase.GenExpOverride13/Inf)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - testcase.GenExpOverride13/Cls -> testcase.GenExpOverride13.Inf.Foo|!!0<testcase.GenExpOverride13/Res2>()|30|1E1, testcase.GenExpOverride13.Inf.Foo|testcase.GenExpOverride13/Res2<testcase.GenExpOverride13/Res2>(testcase.GenExpOverride13/Cls)|30
+   - Foo|Void<testcase.GenExpOverride13/Res,testcase.GenExpOverride13/Res2>(!!0,!!1)|30|5C6, Foo|Void<testcase.GenExpOverride13/Res,testcase.GenExpOverride13/Res2>(testcase.GenExpOverride13/Inf,testcase.GenExpOverride13/Res,testcase.GenExpOverride13/Res2)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - testcase.GenExpOverride13/Cls -> testcase.GenExpOverride13.Inf.Foo|Void<testcase.GenExpOverride13/Res,testcase.GenExpOverride13/Res2>(!!0,!!1)|30|1E1, testcase.GenExpOverride13.Inf.Foo|Void<testcase.GenExpOverride13/Res,testcase.GenExpOverride13/Res2>(testcase.GenExpOverride13/Cls,testcase.GenExpOverride13/Res,testcase.GenExpOverride13/Res2)|30
+

@@ -1,0 +1,76 @@
+* MethodTables:
+[group10.Cls]
+ - Foo|Void()|20: group10.Cls -> System.Void group10.Cls::Foo()
+   - group10.Cls -> System.Void group10.Cls::Foo()
+   - group10.Inf`1<UInt32> -> System.Void group10.Inf`1::Foo()
+
+ - group10.Inf.Foo|Void()|20: group10.Cls -> System.Void group10.Cls::group10.Inf.Foo()
+   - group10.Cls -> System.Void group10.Cls::group10.Inf.Foo()
+   - group10.Inf -> System.Void group10.Inf::Foo()
+
+ - group10.Inf\u003CSystem.Int16\u003E.Foo|Void()|20: group10.Cls -> System.Void group10.Cls::group10.Inf<System.Int16>.Foo()
+   - group10.Cls -> System.Void group10.Cls::group10.Inf<System.Int16>.Foo()
+   - group10.Inf`1<Int16> -> System.Void group10.Inf`1::Foo()
+
+[System.Object]
+
+[group10.Inf]
+ - Foo|Void()|20: null
+   - group10.Inf -> System.Void group10.Inf::Foo()
+
+[group10.Inf`1<Int16>]
+ - Foo|Void()|20: null
+   - group10.Inf`1<Int16> -> System.Void group10.Inf`1::Foo()
+
+[group10.Inf`1<UInt32>]
+ - Foo|Void()|20: null
+   - group10.Inf`1<UInt32> -> System.Void group10.Inf`1::Foo()
+
+* Types:
+[class testcase.GenExpOverride6] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: System.Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - testcase.GenExpOverride6
+   - group10.Cls
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class group10.Cls] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: System.Object
+ - Interfaces:
+   - group10.Inf
+   - group10.Inf`1<Int16>
+   - group10.Inf`1<UInt32>
+ - Fields:
+   - field1|Int32|1, field1|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(group10.Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void()|20|1E6, Foo|Void(group10.Cls)|20, Public Final Virtual HideBySig NewSlot Managed None
+     - group10.Cls -> Foo|Void()|20|1E6, Foo|Void(group10.Cls)|20
+ - VTable:
+   - [System.Object]
+   - [group10.Cls]
+   - [group10.Inf`1<UInt32>]
+     - System.Void group10.Inf`1::Foo(): group10.Cls -> System.Void group10.Cls::Foo()
+   - [group10.Inf]
+     - System.Void group10.Inf::Foo(): group10.Cls -> System.Void group10.Cls::group10.Inf.Foo()
+   - [group10.Inf`1<Int16>]
+     - System.Void group10.Inf`1::Foo(): group10.Cls -> System.Void group10.Cls::group10.Inf<System.Int16>.Foo()
+
+[class group10.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group10.Cls
+
+[class group10.Inf`1<Int16>] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group10.Cls
+
+[class group10.Inf`1<UInt32>] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - group10.Cls
+
