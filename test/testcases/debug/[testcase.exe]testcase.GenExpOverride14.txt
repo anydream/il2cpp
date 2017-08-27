@@ -31,14 +31,14 @@
    - group11.Inf -> System.Void group11.Inf::Foo<T,T2>(T,T2)
 
 * Types:
-[class testcase.GenExpOverride13] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+[class testcase.GenExpOverride14] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: System.Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
 [class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.GenExpOverride13
+   - testcase.GenExpOverride14
    - group11.Cls
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
@@ -50,7 +50,9 @@
    - group11.Inf
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(group11.Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - group11.Inf.Foo|Void<String>(!!0)|30|1E1, group11.Inf.Foo|Void<String>(group11.Cls,String)|30, Private Final Virtual HideBySig NewSlot Managed None
+   - group11.Inf.Foo|!!0<group11.Res>()|30|1E1, group11.Inf.Foo|group11.Res<group11.Res>(group11.Cls)|30, Private Final Virtual HideBySig NewSlot Managed None
+   - group11.Inf.Foo|!!0<group11.Res2>()|30|1E1, group11.Inf.Foo|group11.Res2<group11.Res2>(group11.Cls)|30, Private Final Virtual HideBySig NewSlot Managed None
+   - group11.Inf.Foo|Void<group11.Res,group11.Res2>(!!0,!!1)|30|1E1, group11.Inf.Foo|Void<group11.Res,group11.Res2>(group11.Cls,group11.Res,group11.Res2)|30, Private Final Virtual HideBySig NewSlot Managed None
  - VTable:
    - [System.Object]
    - [group11.Cls]
@@ -63,6 +65,10 @@
  - DerivedTypes:
    - group11.Cls
  - Methods:
-   - Foo|Void<String>(!!0)|30|5C6, Foo|Void<String>(group11.Inf,String)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - group11.Cls -> group11.Inf.Foo|Void<String>(!!0)|30|1E1, group11.Inf.Foo|Void<String>(group11.Cls,String)|30
+   - Foo|!!0<group11.Res>()|30|5C6, Foo|group11.Res<group11.Res>(group11.Inf)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group11.Cls -> group11.Inf.Foo|!!0<group11.Res>()|30|1E1, group11.Inf.Foo|group11.Res<group11.Res>(group11.Cls)|30
+   - Foo|!!0<group11.Res2>()|30|5C6, Foo|group11.Res2<group11.Res2>(group11.Inf)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group11.Cls -> group11.Inf.Foo|!!0<group11.Res2>()|30|1E1, group11.Inf.Foo|group11.Res2<group11.Res2>(group11.Cls)|30
+   - Foo|Void<group11.Res,group11.Res2>(!!0,!!1)|30|5C6, Foo|Void<group11.Res,group11.Res2>(group11.Inf,group11.Res,group11.Res2)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - group11.Cls -> group11.Inf.Foo|Void<group11.Res,group11.Res2>(!!0,!!1)|30|1E1, group11.Inf.Foo|Void<group11.Res,group11.Res2>(group11.Cls,group11.Res,group11.Res2)|30
 

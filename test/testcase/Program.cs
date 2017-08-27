@@ -448,6 +448,40 @@ namespace group10
 	}
 }
 
+namespace group11
+{
+	interface Inf
+	{
+		T Foo<T>();
+		void Foo<T>(T t);
+		void Foo<T, T2>(T t, T2 t2);
+	}
+
+	interface Res
+	{
+	}
+
+	interface Res2
+	{
+	}
+
+	class Cls : Inf
+	{
+		T Inf.Foo<T>()
+		{
+			return default(T);
+		}
+
+		void Inf.Foo<T>(T t)
+		{
+		}
+
+		void Inf.Foo<T, T2>(T t, T2 t2)
+		{
+		}
+	}
+}
+
 namespace testcase
 {
 	class TestAttribute : Attribute
@@ -1214,43 +1248,21 @@ namespace testcase
 	[Test]
 	static class GenExpOverride13
 	{
-		interface Inf
-		{
-			T Foo<T>();
-			void Foo<T>(T t);
-			void Foo<T, T2>(T t, T2 t2);
-		}
-
-		interface Res
-		{
-		}
-
-		interface Res2
-		{
-		}
-
-		class Cls : Inf
-		{
-			T Inf.Foo<T>()
-			{
-				return default(T);
-			}
-
-			void Inf.Foo<T>(T t)
-			{
-			}
-
-			void Inf.Foo<T, T2>(T t, T2 t2)
-			{
-			}
-		}
-
 		public static void Entry()
 		{
-			Inf i = new Cls();
+			group11.Inf i = new group11.Cls();
 			i.Foo("nice");
-			Res res = i.Foo<Res>();
-			Res2 res2 = i.Foo<Res2>();
+		}
+	}
+
+	[Test]
+	static class GenExpOverride14
+	{
+		public static void Entry()
+		{
+			group11.Inf i = new group11.Cls();
+			group11.Res res = i.Foo<group11.Res>();
+			group11.Res2 res2 = i.Foo<group11.Res2>();
 			i.Foo(res, res2);
 		}
 	}
