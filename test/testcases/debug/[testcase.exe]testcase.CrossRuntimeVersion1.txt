@@ -1,40 +1,40 @@
 * MethodTables:
-[System.Object]
+[Object]
 
 * Types:
-[class testcase.CrossRuntimeVersion1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.CrossRuntimeVersion1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - Instantiated
  - DerivedTypes:
-   - testcase.CrossRuntimeVersion1
-   - net20x1.Class
-   - net20x2.Class
-   - System.Runtime.CompilerServices.RuntimeHelpers
+   - [testcase]testcase.CrossRuntimeVersion1
+   - [net20x1]net20x1.Class
+   - [net20x2]net20x2.Class
+   - RuntimeHelpers
  - Methods:
    - GetHashCode|Int32()|20|1C6, GetHashCode|Int32(Object)|20, Public Virtual HideBySig NewSlot Managed None
-     - System.Object -> GetHashCode|Int32()|20|1C6, GetHashCode|Int32(Object)|20
+     - Object -> GetHashCode|Int32()|20|1C6, GetHashCode|Int32(Object)|20
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Finalize|Void()|20|1C4, Finalize|Void(Object)|20, Family Virtual HideBySig NewSlot Managed None
-     - System.Object -> Finalize|Void()|20|1C4, Finalize|Void(Object)|20
+     - Object -> Finalize|Void()|20|1C4, Finalize|Void(Object)|20
  - VTable:
-   - [System.Object]
+   - [Object]
 
-[class net20x1.Class] Public AutoLayout AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [net20x1]net20x1.Class] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - NewObj|Object(Int32&)|0|96, NewObj|Object(Int32&)|0, Public Static HideBySig Managed None
 
-[class net20x2.Class] Public AutoLayout AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [net20x2]net20x2.Class] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - NewObj|Object(Int32&)|0|96, NewObj|Object(Int32&)|0, Public Static HideBySig Managed None
 
-[class System.Runtime.CompilerServices.RuntimeHelpers] Public AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class RuntimeHelpers] Public AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - GetHashCode|Int32(Object)|0|96, GetHashCode|Int32(Object)|0, Public Static HideBySig IL, InternalCall None
 

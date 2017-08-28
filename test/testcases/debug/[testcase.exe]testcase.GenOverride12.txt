@@ -1,67 +1,67 @@
 * MethodTables:
-[testcase.GenOverride12/Cls`1]
- - Foo|Void(Int32)|20: testcase.GenOverride12/Cls`1 -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
-   - testcase.GenOverride12/Cls`1 -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
-   - testcase.GenOverride12/Inf`1<Int32> -> System.Void testcase.GenOverride12/Inf`1::Foo(System.Int32)
-   - testcase.GenOverride12/Inf`1<Int32> -> System.Void testcase.GenOverride12/Inf`1::Foo(T)
-   - testcase.GenOverride12/Inf0`1<Int32> -> System.Void testcase.GenOverride12/Inf0`1::Foo(T)
+[[testcase]testcase.GenOverride12/Cls`1]
+ - Foo|Void(Int32)|20: [testcase]testcase.GenOverride12/Cls`1 -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
+   - [testcase]testcase.GenOverride12/Cls`1 -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
+   - [testcase]testcase.GenOverride12/Inf`1<Int32> -> System.Void testcase.GenOverride12/Inf`1::Foo(System.Int32)
+   - [testcase]testcase.GenOverride12/Inf`1<Int32> -> System.Void testcase.GenOverride12/Inf`1::Foo(T)
+   - [testcase]testcase.GenOverride12/Inf0`1<Int32> -> System.Void testcase.GenOverride12/Inf0`1::Foo(T)
 
-[System.Object]
+[Object]
 
-[testcase.GenOverride12/Inf`1<Int32>]
+[[testcase]testcase.GenOverride12/Inf`1<Int32>]
  - Foo|Void(Int32)|20: null
-   - testcase.GenOverride12/Inf`1<Int32> -> System.Void testcase.GenOverride12/Inf`1::Foo(System.Int32)
-   - testcase.GenOverride12/Inf`1<Int32> -> System.Void testcase.GenOverride12/Inf`1::Foo(T)
-   - testcase.GenOverride12/Inf0`1<Int32> -> System.Void testcase.GenOverride12/Inf0`1::Foo(T)
+   - [testcase]testcase.GenOverride12/Inf`1<Int32> -> System.Void testcase.GenOverride12/Inf`1::Foo(System.Int32)
+   - [testcase]testcase.GenOverride12/Inf`1<Int32> -> System.Void testcase.GenOverride12/Inf`1::Foo(T)
+   - [testcase]testcase.GenOverride12/Inf0`1<Int32> -> System.Void testcase.GenOverride12/Inf0`1::Foo(T)
 
-[testcase.GenOverride12/Inf0`1<Int32>]
+[[testcase]testcase.GenOverride12/Inf0`1<Int32>]
  - Foo|Void(Int32)|20: null
-   - testcase.GenOverride12/Inf0`1<Int32> -> System.Void testcase.GenOverride12/Inf0`1::Foo(T)
+   - [testcase]testcase.GenOverride12/Inf0`1<Int32> -> System.Void testcase.GenOverride12/Inf0`1::Foo(T)
 
 * Types:
-[class testcase.GenOverride12] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.GenOverride12] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.GenOverride12
-   - testcase.GenOverride12/Cls`1<Int32>
+   - [testcase]testcase.GenOverride12
+   - [testcase]testcase.GenOverride12/Cls`1<Int32>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.GenOverride12/Cls`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]testcase.GenOverride12/Cls`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: System.Object
+ - Base: Object
  - Interfaces:
-   - testcase.GenOverride12/Inf`1<Int32>
-   - testcase.GenOverride12/Inf0`1<Int32>
+   - [testcase]testcase.GenOverride12/Inf`1<Int32>
+   - [testcase]testcase.GenOverride12/Inf0`1<Int32>
  - Fields:
    - field2|Int32|6, field2|Int32, Public 
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.GenOverride12/Cls`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Foo|Void(Int32)|20|1E6, Foo|Void(testcase.GenOverride12/Cls`1<Int32>,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenOverride12/Cls`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(Int32)|20|1E6, Foo|Void([testcase]testcase.GenOverride12/Cls`1<Int32>,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
  - VTable:
-   - [System.Object]
-   - [testcase.GenOverride12/Cls`1<Int32>]
-   - [testcase.GenOverride12/Inf`1<Int32>]
-     - System.Void testcase.GenOverride12/Inf`1::Foo(System.Int32): testcase.GenOverride12/Cls`1<Int32> -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
-     - System.Void testcase.GenOverride12/Inf`1::Foo(T): testcase.GenOverride12/Cls`1<Int32> -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
-   - [testcase.GenOverride12/Inf0`1<Int32>]
-     - System.Void testcase.GenOverride12/Inf0`1::Foo(T): testcase.GenOverride12/Cls`1<Int32> -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
+   - [Object]
+   - [[testcase]testcase.GenOverride12/Cls`1<Int32>]
+   - [[testcase]testcase.GenOverride12/Inf`1<Int32>]
+     - System.Void testcase.GenOverride12/Inf`1::Foo(System.Int32): [testcase]testcase.GenOverride12/Cls`1<Int32> -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
+     - System.Void testcase.GenOverride12/Inf`1::Foo(T): [testcase]testcase.GenOverride12/Cls`1<Int32> -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
+   - [[testcase]testcase.GenOverride12/Inf0`1<Int32>]
+     - System.Void testcase.GenOverride12/Inf0`1::Foo(T): [testcase]testcase.GenOverride12/Cls`1<Int32> -> System.Void testcase.GenOverride12/Cls`1::Foo(System.Int32)
 
-[class testcase.GenOverride12/Inf`1<Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+[class [testcase]testcase.GenOverride12/Inf`1<Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - Interfaces:
-   - testcase.GenOverride12/Inf0`1<Int32>
+   - [testcase]testcase.GenOverride12/Inf0`1<Int32>
  - DerivedTypes:
-   - testcase.GenOverride12/Cls`1<Int32>
+   - [testcase]testcase.GenOverride12/Cls`1<Int32>
 
-[class testcase.GenOverride12/Inf0`1<Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+[class [testcase]testcase.GenOverride12/Inf0`1<Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - testcase.GenOverride12/Inf`1<Int32>
-   - testcase.GenOverride12/Cls`1<Int32>
+   - [testcase]testcase.GenOverride12/Inf`1<Int32>
+   - [testcase]testcase.GenOverride12/Cls`1<Int32>
  - Methods:
-   - Foo|Void(!0)|20|5C6, Foo|Void(testcase.GenOverride12/Inf0`1<Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - testcase.GenOverride12/Cls`1<Int32> -> Foo|Void(Int32)|20|1E6, Foo|Void(testcase.GenOverride12/Cls`1<Int32>,Int32)|20
+   - Foo|Void(!0)|20|5C6, Foo|Void([testcase]testcase.GenOverride12/Inf0`1<Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.GenOverride12/Cls`1<Int32> -> Foo|Void(Int32)|20|1E6, Foo|Void([testcase]testcase.GenOverride12/Cls`1<Int32>,Int32)|20
 

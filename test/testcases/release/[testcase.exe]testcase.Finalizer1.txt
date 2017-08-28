@@ -1,38 +1,38 @@
 * MethodTables:
-[testcase.Finalizer1/Cls]
- - Finalize|Void()|20: testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
-   - System.Object -> System.Void System.Object::Finalize()
-   - testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
+[[testcase]testcase.Finalizer1/Cls]
+ - Finalize|Void()|20: [testcase]testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
+   - Object -> System.Void System.Object::Finalize()
+   - [testcase]testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
 
-[System.Object]
+[Object]
 
 * Types:
-[class testcase.Finalizer1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.Finalizer1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.Finalizer1
-   - testcase.Finalizer1/Cls
+   - [testcase]testcase.Finalizer1
+   - [testcase]testcase.Finalizer1/Cls
  - Methods:
    - Finalize|Void()|20|1C4, Finalize|Void(Object)|20, Family Virtual HideBySig NewSlot Managed None
-     - testcase.Finalizer1/Cls -> Finalize|Void()|20|C4, Finalize|Void(testcase.Finalizer1/Cls)|20
+     - [testcase]testcase.Finalizer1/Cls -> Finalize|Void()|20|C4, Finalize|Void([testcase]testcase.Finalizer1/Cls)|20
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.Finalizer1/Cls] NestedPrivate AutoLayout AnsiClass 
+[class [testcase]testcase.Finalizer1/Cls] NestedPrivate AutoLayout AnsiClass 
  - Instantiated
- - Base: System.Object
+ - Base: Object
  - Fields:
    - fld|Int32|11, fld|Int32, Private Static 
    - fld2|Int32|11, fld2|Int32, Private Static 
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.Finalizer1/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Finalizer1/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - .cctor|Void()|0|1891, .cctor|Void()|0, Private Static HideBySig SpecialName RTSpecialName Managed None
-   - Finalize|Void()|20|C4, Finalize|Void(testcase.Finalizer1/Cls)|20, Family Virtual HideBySig Managed None
+   - Finalize|Void()|20|C4, Finalize|Void([testcase]testcase.Finalizer1/Cls)|20, Family Virtual HideBySig Managed None
  - VTable:
-   - [System.Object]
-     - System.Void System.Object::Finalize(): testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
-   - [testcase.Finalizer1/Cls]
+   - [Object]
+     - System.Void System.Object::Finalize(): [testcase]testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
+   - [[testcase]testcase.Finalizer1/Cls]
 

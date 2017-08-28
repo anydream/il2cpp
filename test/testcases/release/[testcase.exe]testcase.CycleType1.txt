@@ -1,57 +1,57 @@
 * MethodTables:
-[testcase.CycleType1/A`1]
+[[testcase]testcase.CycleType1/A`1]
 
-[testcase.CycleType1/C`1<testcase.CycleType1/B`1<!(testcase.CycleType1/A`1)0>>]
+[[testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<!(testcase.CycleType1/A`1)0>>]
 
-[System.Object]
+[Object]
 
-[testcase.CycleType1/B`1]
+[[testcase]testcase.CycleType1/B`1]
 
-[testcase.CycleType1/C`1<testcase.CycleType1/A`1<!(testcase.CycleType1/B`1)0>>]
+[[testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<!(testcase.CycleType1/B`1)0>>]
 
 * Types:
-[class testcase.CycleType1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.CycleType1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.CycleType1
-   - testcase.CycleType1/C`1<testcase.CycleType1/B`1<Int32>>
-   - testcase.CycleType1/A`1<Int32>
-   - testcase.CycleType1/C`1<testcase.CycleType1/A`1<Int32>>
-   - testcase.CycleType1/B`1<Int32>
+   - [testcase]testcase.CycleType1
+   - [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<Int32>>
+   - [testcase]testcase.CycleType1/A`1<Int32>
+   - [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<Int32>>
+   - [testcase]testcase.CycleType1/B`1<Int32>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.CycleType1/A`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]testcase.CycleType1/A`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: testcase.CycleType1/C`1<testcase.CycleType1/B`1<Int32>>
+ - Base: [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<Int32>>
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.CycleType1/A`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType1/A`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
  - VTable:
-   - [System.Object]
+   - [Object]
 
-[class testcase.CycleType1/C`1<testcase.CycleType1/B`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
  - DerivedTypes:
-   - testcase.CycleType1/A`1<Int32>
+   - [testcase]testcase.CycleType1/A`1<Int32>
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.CycleType1/C`1<testcase.CycleType1/B`1<Int32>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<Int32>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.CycleType1/B`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]testcase.CycleType1/B`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: testcase.CycleType1/C`1<testcase.CycleType1/A`1<Int32>>
+ - Base: [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<Int32>>
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.CycleType1/B`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType1/B`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
  - VTable:
-   - [System.Object]
+   - [Object]
 
-[class testcase.CycleType1/C`1<testcase.CycleType1/A`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
  - DerivedTypes:
-   - testcase.CycleType1/B`1<Int32>
+   - [testcase]testcase.CycleType1/B`1<Int32>
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.CycleType1/C`1<testcase.CycleType1/A`1<Int32>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<Int32>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
 

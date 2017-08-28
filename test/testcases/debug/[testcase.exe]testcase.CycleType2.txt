@@ -1,79 +1,79 @@
 * MethodTables:
-[testcase.CycleType2/A`1]
- - Foo|testcase.CycleType2/B`1<!0>(testcase.CycleType2/B`1<!0>)|20: testcase.CycleType2/A`1 -> testcase.CycleType2/B`1<T> testcase.CycleType2/A`1::Foo(testcase.CycleType2/B`1<T>)
-   - testcase.CycleType2/C`1<testcase.CycleType2/B`1<!(testcase.CycleType2/A`1)0>> -> T testcase.CycleType2/C`1::Foo(T)
-   - testcase.CycleType2/A`1 -> testcase.CycleType2/B`1<T> testcase.CycleType2/A`1::Foo(testcase.CycleType2/B`1<T>)
+[[testcase]testcase.CycleType2/A`1]
+ - Foo|[testcase]testcase.CycleType2/B`1<!0>([testcase]testcase.CycleType2/B`1<!0>)|20: [testcase]testcase.CycleType2/A`1 -> testcase.CycleType2/B`1<T> testcase.CycleType2/A`1::Foo(testcase.CycleType2/B`1<T>)
+   - [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<!(testcase.CycleType2/A`1)0>> -> T testcase.CycleType2/C`1::Foo(T)
+   - [testcase]testcase.CycleType2/A`1 -> testcase.CycleType2/B`1<T> testcase.CycleType2/A`1::Foo(testcase.CycleType2/B`1<T>)
 
-[testcase.CycleType2/C`1<testcase.CycleType2/B`1<!(testcase.CycleType2/A`1)0>>]
+[[testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<!(testcase.CycleType2/A`1)0>>]
 
-[System.Object]
+[Object]
 
-[testcase.CycleType2/B`1]
- - Foo|testcase.CycleType2/A`1<!0>(testcase.CycleType2/A`1<!0>)|20: testcase.CycleType2/B`1 -> testcase.CycleType2/A`1<T> testcase.CycleType2/B`1::Foo(testcase.CycleType2/A`1<T>)
-   - testcase.CycleType2/C`1<testcase.CycleType2/A`1<!(testcase.CycleType2/B`1)0>> -> T testcase.CycleType2/C`1::Foo(T)
-   - testcase.CycleType2/B`1 -> testcase.CycleType2/A`1<T> testcase.CycleType2/B`1::Foo(testcase.CycleType2/A`1<T>)
+[[testcase]testcase.CycleType2/B`1]
+ - Foo|[testcase]testcase.CycleType2/A`1<!0>([testcase]testcase.CycleType2/A`1<!0>)|20: [testcase]testcase.CycleType2/B`1 -> testcase.CycleType2/A`1<T> testcase.CycleType2/B`1::Foo(testcase.CycleType2/A`1<T>)
+   - [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<!(testcase.CycleType2/B`1)0>> -> T testcase.CycleType2/C`1::Foo(T)
+   - [testcase]testcase.CycleType2/B`1 -> testcase.CycleType2/A`1<T> testcase.CycleType2/B`1::Foo(testcase.CycleType2/A`1<T>)
 
-[testcase.CycleType2/C`1<testcase.CycleType2/A`1<!(testcase.CycleType2/B`1)0>>]
+[[testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<!(testcase.CycleType2/B`1)0>>]
 
 * Types:
-[class testcase.CycleType2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.CycleType2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.CycleType2
-   - testcase.CycleType2/C`1<testcase.CycleType2/B`1<Int32>>
-   - testcase.CycleType2/A`1<Int32>
-   - testcase.CycleType2/C`1<testcase.CycleType2/A`1<Int32>>
-   - testcase.CycleType2/B`1<Int32>
+   - [testcase]testcase.CycleType2
+   - [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<Int32>>
+   - [testcase]testcase.CycleType2/A`1<Int32>
+   - [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<Int32>>
+   - [testcase]testcase.CycleType2/B`1<Int32>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.CycleType2/A`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]testcase.CycleType2/A`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: testcase.CycleType2/C`1<testcase.CycleType2/B`1<Int32>>
+ - Base: [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<Int32>>
  - Fields:
    - fld2|Int32|1, fld2|Int32, Private 
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.CycleType2/A`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Foo|testcase.CycleType2/B`1<!0>(testcase.CycleType2/B`1<!0>)|20|C6, Foo|testcase.CycleType2/B`1<Int32>(testcase.CycleType2/A`1<Int32>,testcase.CycleType2/B`1<Int32>)|20, Public Virtual HideBySig Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType2/A`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|[testcase]testcase.CycleType2/B`1<!0>([testcase]testcase.CycleType2/B`1<!0>)|20|C6, Foo|[testcase]testcase.CycleType2/B`1<Int32>([testcase]testcase.CycleType2/A`1<Int32>,[testcase]testcase.CycleType2/B`1<Int32>)|20, Public Virtual HideBySig Managed None
  - VTable:
-   - [System.Object]
-   - [testcase.CycleType2/C`1<testcase.CycleType2/B`1<Int32>>]
-     - T testcase.CycleType2/C`1::Foo(T): testcase.CycleType2/A`1<Int32> -> testcase.CycleType2/B`1<T> testcase.CycleType2/A`1::Foo(testcase.CycleType2/B`1<T>)
-   - [testcase.CycleType2/A`1<Int32>]
+   - [Object]
+   - [[testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<Int32>>]
+     - T testcase.CycleType2/C`1::Foo(T): [testcase]testcase.CycleType2/A`1<Int32> -> testcase.CycleType2/B`1<T> testcase.CycleType2/A`1::Foo(testcase.CycleType2/B`1<T>)
+   - [[testcase]testcase.CycleType2/A`1<Int32>]
 
-[class testcase.CycleType2/C`1<testcase.CycleType2/B`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
  - DerivedTypes:
-   - testcase.CycleType2/A`1<Int32>
+   - [testcase]testcase.CycleType2/A`1<Int32>
  - Methods:
-   - Foo|!0(!0)|20|1C6, Foo|testcase.CycleType2/B`1<Int32>(testcase.CycleType2/C`1<testcase.CycleType2/B`1<Int32>>,testcase.CycleType2/B`1<Int32>)|20 = 0, Public Virtual HideBySig NewSlot Managed None
-     - testcase.CycleType2/A`1<Int32> -> Foo|testcase.CycleType2/B`1<!0>(testcase.CycleType2/B`1<!0>)|20|C6, Foo|testcase.CycleType2/B`1<Int32>(testcase.CycleType2/A`1<Int32>,testcase.CycleType2/B`1<Int32>)|20
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.CycleType2/C`1<testcase.CycleType2/B`1<Int32>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|!0(!0)|20|1C6, Foo|[testcase]testcase.CycleType2/B`1<Int32>([testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<Int32>>,[testcase]testcase.CycleType2/B`1<Int32>)|20 = 0, Public Virtual HideBySig NewSlot Managed None
+     - [testcase]testcase.CycleType2/A`1<Int32> -> Foo|[testcase]testcase.CycleType2/B`1<!0>([testcase]testcase.CycleType2/B`1<!0>)|20|C6, Foo|[testcase]testcase.CycleType2/B`1<Int32>([testcase]testcase.CycleType2/A`1<Int32>,[testcase]testcase.CycleType2/B`1<Int32>)|20
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<Int32>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.CycleType2/B`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]testcase.CycleType2/B`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: testcase.CycleType2/C`1<testcase.CycleType2/A`1<Int32>>
+ - Base: [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<Int32>>
  - Fields:
    - fld2|Int32|1, fld2|Int32, Private 
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.CycleType2/B`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Foo|testcase.CycleType2/A`1<!0>(testcase.CycleType2/A`1<!0>)|20|C6, Foo|testcase.CycleType2/A`1<Int32>(testcase.CycleType2/B`1<Int32>,testcase.CycleType2/A`1<Int32>)|20, Public Virtual HideBySig Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType2/B`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|[testcase]testcase.CycleType2/A`1<!0>([testcase]testcase.CycleType2/A`1<!0>)|20|C6, Foo|[testcase]testcase.CycleType2/A`1<Int32>([testcase]testcase.CycleType2/B`1<Int32>,[testcase]testcase.CycleType2/A`1<Int32>)|20, Public Virtual HideBySig Managed None
  - VTable:
-   - [System.Object]
-   - [testcase.CycleType2/C`1<testcase.CycleType2/A`1<Int32>>]
-     - T testcase.CycleType2/C`1::Foo(T): testcase.CycleType2/B`1<Int32> -> testcase.CycleType2/A`1<T> testcase.CycleType2/B`1::Foo(testcase.CycleType2/A`1<T>)
-   - [testcase.CycleType2/B`1<Int32>]
+   - [Object]
+   - [[testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<Int32>>]
+     - T testcase.CycleType2/C`1::Foo(T): [testcase]testcase.CycleType2/B`1<Int32> -> testcase.CycleType2/A`1<T> testcase.CycleType2/B`1::Foo(testcase.CycleType2/A`1<T>)
+   - [[testcase]testcase.CycleType2/B`1<Int32>]
 
-[class testcase.CycleType2/C`1<testcase.CycleType2/A`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
  - DerivedTypes:
-   - testcase.CycleType2/B`1<Int32>
+   - [testcase]testcase.CycleType2/B`1<Int32>
  - Methods:
-   - Foo|!0(!0)|20|1C6, Foo|testcase.CycleType2/A`1<Int32>(testcase.CycleType2/C`1<testcase.CycleType2/A`1<Int32>>,testcase.CycleType2/A`1<Int32>)|20 = 0, Public Virtual HideBySig NewSlot Managed None
-     - testcase.CycleType2/B`1<Int32> -> Foo|testcase.CycleType2/A`1<!0>(testcase.CycleType2/A`1<!0>)|20|C6, Foo|testcase.CycleType2/A`1<Int32>(testcase.CycleType2/B`1<Int32>,testcase.CycleType2/A`1<Int32>)|20
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.CycleType2/C`1<testcase.CycleType2/A`1<Int32>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|!0(!0)|20|1C6, Foo|[testcase]testcase.CycleType2/A`1<Int32>([testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<Int32>>,[testcase]testcase.CycleType2/A`1<Int32>)|20 = 0, Public Virtual HideBySig NewSlot Managed None
+     - [testcase]testcase.CycleType2/B`1<Int32> -> Foo|[testcase]testcase.CycleType2/A`1<!0>([testcase]testcase.CycleType2/A`1<!0>)|20|C6, Foo|[testcase]testcase.CycleType2/A`1<Int32>([testcase]testcase.CycleType2/B`1<Int32>,[testcase]testcase.CycleType2/A`1<Int32>)|20
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<Int32>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
 

@@ -1,33 +1,33 @@
 * MethodTables:
-[testcase.GenExpOverride4/Derived`2]
- - fun|Int32(Int32,Int64)|20: testcase.GenExpOverride4/Derived`2 -> System.Int32 testcase.GenExpOverride4/Derived`2::fun(System.Int32,System.Int64)
-   - testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::fun(System.Int32,System.Int64)
-   - testcase.GenExpOverride4/Derived`2 -> System.Int32 testcase.GenExpOverride4/Derived`2::fun(System.Int32,System.Int64)
+[[testcase]testcase.GenExpOverride4/Derived`2]
+ - fun|Int32(Int32,Int64)|20: [testcase]testcase.GenExpOverride4/Derived`2 -> System.Int32 testcase.GenExpOverride4/Derived`2::fun(System.Int32,System.Int64)
+   - [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::fun(System.Int32,System.Int64)
+   - [testcase]testcase.GenExpOverride4/Derived`2 -> System.Int32 testcase.GenExpOverride4/Derived`2::fun(System.Int32,System.Int64)
 
- - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(Int32)|20: testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
-   - testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
-   - testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun(TI)
+ - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(Int32)|20: [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
+   - [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun(TI)
 
- - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<1>(!!0,!0,Int32)|30: testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
-   - testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
-   - testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TF,TI2,TI)
+ - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<1>(!!0,!0,Int32)|30: [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
+   - [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TF,TI2,TI)
 
- - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<1>(Int32,!0,!!0)|30: testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
-   - testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
-   - testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TI,TI2,TF)
+ - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<1>(Int32,!0,!!0)|30: [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
+   - [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TI,TI2,TF)
 
-[testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0>]
- - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(Int32)|20: testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
-   - testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
-   - testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun(TI)
+[[testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0>]
+ - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(Int32)|20: [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
+   - [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun(TI)
 
- - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<1>(!!0,!0,Int32)|30: testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
-   - testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
-   - testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TF,TI2,TI)
+ - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<1>(!!0,!0,Int32)|30: [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
+   - [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TF,TI2,TI)
 
- - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<1>(Int32,!0,!!0)|30: testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
-   - testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
-   - testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TI,TI2,TF)
+ - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<1>(Int32,!0,!!0)|30: [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
+   - [testcase]testcase.GenExpOverride4/Base`2<!(testcase.GenExpOverride4/Derived`2)1,!(testcase.GenExpOverride4/Derived`2)0> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TI,TI2,TF)
 
  - fun|Int32(Int32)|20: null
 
@@ -35,68 +35,68 @@
 
  - fun|Int32<1>(!!0,!0,Int32)|30: null
 
-[System.Object]
+[Object]
 
-[testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0>]
+[[testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0>]
  - fun|Int32(Int32)|20: null
-   - testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun(TI)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun(TI)
 
  - fun|Int32<1>(Int32,!0,!!0)|30: null
-   - testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TI,TI2,TF)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TI,TI2,TF)
 
  - fun|Int32<1>(!!0,!0,Int32)|30: null
-   - testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TF,TI2,TI)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::fun<TF>(TF,TI2,TI)
 
 * Types:
-[class testcase.GenExpOverride4] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.GenExpOverride4] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
    - EntryT|!!0<Char>(!!0)|10|91, EntryT|Char<Char>(Char)|10, Private Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.GenExpOverride4
-   - testcase.GenExpOverride4/Base`2<UInt16,Char>
-   - testcase.GenExpOverride4/Derived`2<Char,UInt16>
+   - [testcase]testcase.GenExpOverride4
+   - [testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>
+   - [testcase]testcase.GenExpOverride4/Derived`2<Char,UInt16>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.GenExpOverride4/Derived`2<Char,UInt16>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]testcase.GenExpOverride4/Derived`2<Char,UInt16>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: testcase.GenExpOverride4/Base`2<UInt16,Char>
+ - Base: [testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>
  - Interfaces:
-   - testcase.GenExpOverride4/Inf`2<Int32,Char>
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,Char>
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.GenExpOverride4/Derived`2<Char,UInt16>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenExpOverride4/Derived`2<Char,UInt16>)|20, Public HideBySig SpecialName RTSpecialName Managed None
  - VTable:
-   - [System.Object]
-   - [testcase.GenExpOverride4/Base`2<UInt16,Char>]
-     - System.Int32 testcase.GenExpOverride4/Base`2::fun(System.Int32,System.Int64): testcase.GenExpOverride4/Derived`2<Char,UInt16> -> System.Int32 testcase.GenExpOverride4/Derived`2::fun(System.Int32,System.Int64)
-   - [testcase.GenExpOverride4/Inf`2<Int32,Char>]
-     - TI testcase.GenExpOverride4/Inf`2::fun(TI): testcase.GenExpOverride4/Base`2<UInt16,Char> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
-     - TI testcase.GenExpOverride4/Inf`2::fun<TF>(TF,TI2,TI): testcase.GenExpOverride4/Base`2<UInt16,Char> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
-     - TI testcase.GenExpOverride4/Inf`2::fun<TF>(TI,TI2,TF): testcase.GenExpOverride4/Base`2<UInt16,Char> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
-   - [testcase.GenExpOverride4/Derived`2<Char,UInt16>]
+   - [Object]
+   - [[testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>]
+     - System.Int32 testcase.GenExpOverride4/Base`2::fun(System.Int32,System.Int64): [testcase]testcase.GenExpOverride4/Derived`2<Char,UInt16> -> System.Int32 testcase.GenExpOverride4/Derived`2::fun(System.Int32,System.Int64)
+   - [[testcase]testcase.GenExpOverride4/Inf`2<Int32,Char>]
+     - TI testcase.GenExpOverride4/Inf`2::fun(TI): [testcase]testcase.GenExpOverride4/Base`2<UInt16,Char> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun(System.Int32)
+     - TI testcase.GenExpOverride4/Inf`2::fun<TF>(TF,TI2,TI): [testcase]testcase.GenExpOverride4/Base`2<UInt16,Char> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(TF,TB,System.Int32)
+     - TI testcase.GenExpOverride4/Inf`2::fun<TF>(TI,TI2,TF): [testcase]testcase.GenExpOverride4/Base`2<UInt16,Char> -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.fun<TF>(System.Int32,TB,TF)
+   - [[testcase]testcase.GenExpOverride4/Derived`2<Char,UInt16>]
 
-[class testcase.GenExpOverride4/Base`2<UInt16,Char>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
  - Interfaces:
-   - testcase.GenExpOverride4/Inf`2<Int32,Char>
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,Char>
  - DerivedTypes:
-   - testcase.GenExpOverride4/Derived`2<Char,UInt16>
+   - [testcase]testcase.GenExpOverride4/Derived`2<Char,UInt16>
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.GenExpOverride4/Base`2<UInt16,Char>)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(Int32)|20|1E1, testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(testcase.GenExpOverride4/Base`2<UInt16,Char>,Int32)|20, Private Final Virtual HideBySig NewSlot Managed None
-   - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<String>(Int32,!1,!!0)|30|1E1, testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<String>(testcase.GenExpOverride4/Base`2<UInt16,Char>,Int32,Char,String)|30, Private Final Virtual HideBySig NewSlot Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(Int32)|20|1E1, testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32([testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>,Int32)|20, Private Final Virtual HideBySig NewSlot Managed None
+   - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<String>(Int32,!1,!!0)|30|1E1, testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<String>([testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>,Int32,Char,String)|30, Private Final Virtual HideBySig NewSlot Managed None
 
-[class testcase.GenExpOverride4/Inf`2<Int32,Char>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+[class [testcase]testcase.GenExpOverride4/Inf`2<Int32,Char>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - testcase.GenExpOverride4/Base`2<UInt16,Char>
-   - testcase.GenExpOverride4/Derived`2<Char,UInt16>
+   - [testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>
+   - [testcase]testcase.GenExpOverride4/Derived`2<Char,UInt16>
  - Methods:
-   - fun|!0(!0)|20|5C6, fun|Int32(testcase.GenExpOverride4/Inf`2<Int32,Char>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - testcase.GenExpOverride4/Base`2<UInt16,Char> -> testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(Int32)|20|1E1, testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(testcase.GenExpOverride4/Base`2<UInt16,Char>,Int32)|20
-   - fun|!0<String>(!0,!1,!!0)|30|5C6, fun|Int32<String>(testcase.GenExpOverride4/Inf`2<Int32,Char>,Int32,Char,String)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - testcase.GenExpOverride4/Base`2<UInt16,Char> -> testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<String>(Int32,!1,!!0)|30|1E1, testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<String>(testcase.GenExpOverride4/Base`2<UInt16,Char>,Int32,Char,String)|30
+   - fun|!0(!0)|20|5C6, fun|Int32([testcase]testcase.GenExpOverride4/Inf`2<Int32,Char>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.GenExpOverride4/Base`2<UInt16,Char> -> testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32(Int32)|20|1E1, testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32([testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>,Int32)|20
+   - fun|!0<String>(!0,!1,!!0)|30|5C6, fun|Int32<String>([testcase]testcase.GenExpOverride4/Inf`2<Int32,Char>,Int32,Char,String)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.GenExpOverride4/Base`2<UInt16,Char> -> testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<String>(Int32,!1,!!0)|30|1E1, testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.fun|Int32<String>([testcase]testcase.GenExpOverride4/Base`2<UInt16,Char>,Int32,Char,String)|30
 

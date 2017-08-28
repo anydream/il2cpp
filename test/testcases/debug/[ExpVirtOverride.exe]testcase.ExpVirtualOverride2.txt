@@ -1,50 +1,50 @@
 * MethodTables:
-[group.Base]
- - Bla|Void(Int32)|20: group.Base -> System.Void group.Base::Bla(System.Int32)
-   - group.Base -> System.Void group.Base::Bla(System.Int32)
-   - group.Inf -> System.Void group.Inf::Foo(System.Int32)
+[[testcase]group.Base]
+ - Bla|Void(Int32)|20: [testcase]group.Base -> System.Void group.Base::Bla(System.Int32)
+   - [testcase]group.Base -> System.Void group.Base::Bla(System.Int32)
+   - [testcase]group.Inf -> System.Void group.Inf::Foo(System.Int32)
 
  - Foo|Void(Int32)|20: null
 
-[System.Object]
+[Object]
 
-[group.Inf]
+[[testcase]group.Inf]
  - Foo|Void(Int32)|20: null
-   - group.Inf -> System.Void group.Inf::Foo(System.Int32)
+   - [testcase]group.Inf -> System.Void group.Inf::Foo(System.Int32)
 
 * Types:
-[class testcase.ExpVirtualOverride2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.ExpVirtualOverride2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.ExpVirtualOverride2
-   - group.Base
+   - [testcase]testcase.ExpVirtualOverride2
+   - [testcase]group.Base
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class group.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]group.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: System.Object
+ - Base: Object
  - Interfaces:
-   - group.Inf
+   - [testcase]group.Inf
  - Fields:
    - fld|Int32|1, fld|Int32, Private 
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(group.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Bla|Void(Int32)|20|1C6, Bla|Void(group.Base,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Bla|Void(Int32)|20|1C6, Bla|Void([testcase]group.Base,Int32)|20, Public Virtual HideBySig NewSlot Managed None
  - VTable:
-   - [System.Object]
-   - [group.Base]
-   - [group.Inf]
-     - System.Void group.Inf::Foo(System.Int32): group.Base -> System.Void group.Base::Bla(System.Int32)
+   - [Object]
+   - [[testcase]group.Base]
+   - [[testcase]group.Inf]
+     - System.Void group.Inf::Foo(System.Int32): [testcase]group.Base -> System.Void group.Base::Bla(System.Int32)
 
-[class group.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
+[class [testcase]group.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - group.Base
+   - [testcase]group.Base
  - Methods:
-   - Foo|Void(Int32)|20|5C6, Foo|Void(group.Inf,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - group.Base -> Bla|Void(Int32)|20|1C6, Bla|Void(group.Base,Int32)|20
+   - Foo|Void(Int32)|20|5C6, Foo|Void([testcase]group.Inf,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]group.Base -> Bla|Void(Int32)|20|1C6, Bla|Void([testcase]group.Base,Int32)|20
 
