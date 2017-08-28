@@ -481,13 +481,13 @@ namespace il2cpp
 			switch (tyDefRef)
 			{
 				case TypeDef tyDef:
-					return new TypeX(Context, CorrectTypeDefVersion(tyDef));
+					return new TypeX(Context, tyDef);
 
 				case TypeRef tyRef:
 					{
 						TypeDef tyDef = tyRef.Resolve();
 						if (tyDef != null)
-							return new TypeX(Context, CorrectTypeDefVersion(tyDef));
+							return new TypeX(Context, tyDef);
 
 						throw new NotSupportedException();
 					}
@@ -539,13 +539,13 @@ namespace il2cpp
 			switch (tyDefRef)
 			{
 				case TypeDef tyDef:
-					return new MethodTable(Context, CorrectTypeDefVersion(tyDef));
+					return new MethodTable(Context, tyDef);
 
 				case TypeRef tyRef:
 					{
 						TypeDef tyDef = tyRef.Resolve();
 						if (tyDef != null)
-							return new MethodTable(Context, CorrectTypeDefVersion(tyDef));
+							return new MethodTable(Context, tyDef);
 
 						throw new NotSupportedException();
 					}
@@ -575,24 +575,6 @@ namespace il2cpp
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
-		}
-
-		// 如果类型版本不匹配则加载匹配的类型
-		private TypeDef CorrectTypeDefVersion(TypeDef tyDef)
-		{
-			if (!tyDef.DefinitionAssembly.IsCorLib())
-				return tyDef;
-
-			if (tyDef.Module.RuntimeVersion == Context.RuntimeVersion)
-				return tyDef;
-
-			TypeRef tyRef = Context.Module.CorLibTypes.GetTypeRef(tyDef.Namespace, tyDef.Name);
-			Debug.Assert(tyRef != null);
-
-			tyDef = tyRef.Resolve();
-			Debug.Assert(tyDef != null);
-
-			return tyDef;
 		}
 	}
 }

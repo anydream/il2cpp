@@ -398,22 +398,76 @@ namespace il2cpp
 
 		private static void ClassSigName(StringBuilder sb, TypeSig tySig)
 		{
-			if (tySig.DefinitionAssembly.IsCorLib())
-				sb.Append(EscapeName(tySig.TypeName));
+			string fullName = tySig.FullName;
+			string basicName = IsBasicType(fullName);
+
+			if (basicName != null &&
+				tySig.DefinitionAssembly.IsCorLib())
+			{
+				sb.Append(basicName);
+			}
 			else
 				sb.AppendFormat("[{0}]{1}",
 					EscapeName(tySig.DefinitionAssembly.Name),
-					EscapeName(tySig.FullName));
+					EscapeName(fullName));
 		}
 
 		private static void ClassSigName(StringBuilder sb, TypeDef tyDef)
 		{
-			if (tyDef.DefinitionAssembly.IsCorLib())
-				sb.Append(EscapeName(tyDef.Name));
+			string fullName = tyDef.FullName;
+			string basicName = IsBasicType(fullName);
+
+			if (basicName != null &&
+				tyDef.DefinitionAssembly.IsCorLib())
+			{
+				sb.Append(basicName);
+			}
 			else
 				sb.AppendFormat("[{0}]{1}",
 					EscapeName(tyDef.DefinitionAssembly.Name),
-					EscapeName(tyDef.FullName));
+					EscapeName(fullName));
+		}
+
+		private static string IsBasicType(string fullName)
+		{
+			switch (fullName)
+			{
+				case "System.Void":
+					return "Void";
+				case "System.Boolean":
+					return "Boolean";
+				case "System.Char":
+					return "Char";
+				case "System.Object":
+					return "Object";
+				case "System.String":
+					return "String";
+				case "System.SByte":
+					return "SByte";
+				case "System.Byte":
+					return "Byte";
+				case "System.Int16":
+					return "Int16";
+				case "System.UInt16":
+					return "UInt16";
+				case "System.Int32":
+					return "Int32";
+				case "System.UInt32":
+					return "UInt32";
+				case "System.Int64":
+					return "Int64";
+				case "System.UInt64":
+					return "UInt64";
+				case "System.IntPtr":
+					return "IntPtr";
+				case "System.UIntPtr":
+					return "UIntPtr";
+				case "System.Single":
+					return "Single";
+				case "System.Double":
+					return "Double";
+			}
+			return null;
 		}
 
 		private static string EscapeChar(char ch)
