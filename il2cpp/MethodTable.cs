@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 
@@ -131,7 +130,8 @@ namespace il2cpp
 		// 方法槽映射
 		public readonly Dictionary<string, VirtualSlot> VSlotMap = new Dictionary<string, VirtualSlot>();
 		// 展平的方法槽映射
-		private Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>> ExpandedVSlotMap;
+		private readonly Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>> ExpandedVSlotMap =
+			new Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>>();
 
 		// 方法替换映射
 		public readonly Dictionary<MethodDef, MethodDef> MethodReplaceMap = new Dictionary<MethodDef, MethodDef>();
@@ -390,8 +390,7 @@ namespace il2cpp
 			}
 
 			// 当前方法不存在该接口签名, 但是展平的方法槽内已经有该签名了, 则无需合并接口
-			if (ExpandedVSlotMap != null &&
-				ExpandedVSlotMap.TryGetValue(entryTable, out var defMap))
+			if (ExpandedVSlotMap.TryGetValue(entryTable, out var defMap))
 			{
 				if (defMap.ContainsKey(entryDef))
 					return false;
@@ -403,9 +402,6 @@ namespace il2cpp
 
 		private void SetExpandedVSlotMap(MethodTable entryTable, MethodDef entryDef, ref VirtualImpl impl)
 		{
-			if (ExpandedVSlotMap == null)
-				ExpandedVSlotMap = new Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>>();
-
 			if (!ExpandedVSlotMap.TryGetValue(entryTable, out var defMap))
 			{
 				defMap = new Dictionary<MethodDef, VirtualImpl>();
@@ -422,12 +418,8 @@ namespace il2cpp
 					VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value));
 			}
 
-			if (other.ExpandedVSlotMap != null)
-			{
-				ExpandedVSlotMap = new Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>>();
-				foreach (var kv in other.ExpandedVSlotMap)
-					ExpandedVSlotMap.Add(kv.Key, new Dictionary<MethodDef, VirtualImpl>(kv.Value));
-			}
+			foreach (var kv in other.ExpandedVSlotMap)
+				ExpandedVSlotMap.Add(kv.Key, new Dictionary<MethodDef, VirtualImpl>(kv.Value));
 
 			foreach (var kv in other.MethodReplaceMap)
 				MethodReplaceMap.Add(kv.Key, kv.Value);
@@ -441,15 +433,14 @@ namespace il2cpp
 			vslot.SetImpl(this, metDef);
 		}
 
-		private void ReuseSlot(string expSigName, MethodDef metDef, bool isAddEntry = true)
+		private void ReuseSlot(string expSigName, MethodDef metDef)
 		{
 			if (!VSlotMap.TryGetValue(expSigName, out var vslot))
 			{
 				vslot = new VirtualSlot();
 				VSlotMap.Add(expSigName, vslot);
 			}
-			if (isAddEntry)
-				vslot.AddEntry(this, metDef);
+			vslot.AddEntry(this, metDef);
 			vslot.SetImpl(this, metDef);
 		}
 
@@ -464,16 +455,6 @@ namespace il2cpp
 				VSlotMap.Add(expSigName, vslot);
 			}
 			vslot.AddEntry(entryTable, entryDef);
-		}
-
-		private string FindMethodSigName(MethodDef metDef)
-		{
-			for (int i = 0; i < MethodDefList.Count; ++i)
-			{
-				if (MethodDefList[i] == metDef)
-					return ExpandedSigList[i];
-			}
-			throw new ArgumentOutOfRangeException();
 		}
 
 		private void ExplicitOverride(IList<MethodOverride> overList, MethodDef ownerMetDef, int ownerMetIdx)
