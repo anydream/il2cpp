@@ -33,7 +33,11 @@ namespace test
 			}
 			else
 			{
-				return typeDef.FindMethod("Main");
+				MethodDef mainDef = typeDef.FindMethod("Main");
+				if (mainDef != null &&
+					mainDef.HasBody &&
+					mainDef.Body.Instructions.Count > 2)
+					return mainDef;
 			}
 			return null;
 		}

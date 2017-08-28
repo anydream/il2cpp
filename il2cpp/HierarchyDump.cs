@@ -115,7 +115,9 @@ namespace il2cpp
 					}
 				}
 
-				if (tyX.VTable != null && tyX.VTable.Table.Count > 0)
+				if (tyX.IsInstantiated &&
+					tyX.VTable != null &&
+					tyX.VTable.Table.Count > 0)
 				{
 					sb.Append(" - VTable:\n");
 					foreach (var kv2 in tyX.VTable.Table)
