@@ -28,6 +28,8 @@
  - VTable:
    - [Object]
    - [[self_override2]MyBar]
+ - ReplaceMap:
+   - System.Int32 MyBar::DoBar() => System.Int32 MyBar::DoSelfBar()
 
 [class [self_override2]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

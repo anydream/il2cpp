@@ -33,6 +33,8 @@
    - [[self_override5]MyBar]
      - System.Int32 MyBar::DoBarOverride(): [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
    - [[self_override5]MyFoo]
+ - ReplaceMap:
+   - System.Int32 MyBar::DoBar() => System.Int32 MyBar::DoBarOverride()
 
 [class [self_override5]MyBar] Public AutoLayout AnsiClass 
  - Base: Object

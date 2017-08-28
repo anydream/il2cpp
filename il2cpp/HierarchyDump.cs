@@ -116,22 +116,33 @@ namespace il2cpp
 				}
 
 				if (tyX.IsInstantiated &&
-					tyX.VTable != null &&
-					tyX.VTable.Table.Count > 0)
+					tyX.VTable != null)
 				{
-					sb.Append(" - VTable:\n");
-					foreach (var kv2 in tyX.VTable.Table)
+					if (tyX.VTable.Table.Count > 0)
 					{
-						sb.AppendFormat("   - [{0}]\n", kv2.Key);
-						foreach (var kv3 in kv2.Value)
+						sb.Append(" - VTable:\n");
+						foreach (var kv2 in tyX.VTable.Table)
 						{
-							if (kv3.Key == kv3.Value.Item2)
-								continue;
+							sb.AppendFormat("   - [{0}]\n", kv2.Key);
+							foreach (var kv3 in kv2.Value)
+							{
+								if (kv3.Key == kv3.Value.Item2)
+									continue;
 
-							sb.AppendFormat("     - {0}: {1} -> {2}\n",
-								kv3.Key,
-								kv3.Value.Item1,
-								kv3.Value.Item2);
+								sb.AppendFormat("     - {0}: {1} -> {2}\n",
+									kv3.Key,
+									kv3.Value.Item1,
+									kv3.Value.Item2);
+							}
+						}
+					}
+
+					if (tyX.VTable.MethodReplaceMap.Count > 0)
+					{
+						sb.Append(" - ReplaceMap:\n");
+						foreach (var kv2 in tyX.VTable.MethodReplaceMap)
+						{
+							sb.AppendFormat("   - {0} => {1}\n", kv2.Key.FullName, kv2.Value.FullName);
 						}
 					}
 				}

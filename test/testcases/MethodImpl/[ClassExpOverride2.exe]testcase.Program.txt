@@ -47,6 +47,9 @@
    - [[testcase]testcase.Program/Sub1]
      - System.Void testcase.Program/Sub1::FooB(): [testcase]testcase.Program/Sub2 -> System.Void testcase.Program/Sub2::FooB()
    - [[testcase]testcase.Program/Sub2]
+ - ReplaceMap:
+   - System.Void testcase.Program/Base::FooA() => System.Void testcase.Program/Base::FooB()
+   - System.Void testcase.Program/Sub1::FooA() => System.Void testcase.Program/Sub1::FooB()
 
 [class [testcase]testcase.Program/Sub1] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: [testcase]testcase.Program/Base

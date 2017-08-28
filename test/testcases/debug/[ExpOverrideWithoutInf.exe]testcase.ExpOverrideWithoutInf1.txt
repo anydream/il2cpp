@@ -38,6 +38,8 @@
      - System.Void group12.Base::Foo1(): [testcase]group12.Derived -> System.Void group12.Derived::Foo1()
      - System.Void group12.Base::Foo2(): [testcase]group12.Derived -> System.Void group12.Derived::Foo2()
    - [[testcase]group12.Derived]
+ - ReplaceMap:
+   - System.Void group12.Base::Foo1() => System.Void group12.Base::Foo2()
 
 [class [testcase]group12.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
