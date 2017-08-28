@@ -186,10 +186,10 @@ namespace il2cpp
 
 		public static void TypeNameKey(
 			StringBuilder sb,
-			string name,
+			TypeDef tyDef,
 			IList<TypeSig> genArgs)
 		{
-			sb.Append(EscapeName(name));
+			ClassSigName(sb, tyDef);
 			if (genArgs != null && genArgs.Count > 0)
 			{
 				sb.Append('<');
@@ -285,7 +285,7 @@ namespace il2cpp
 			{
 				case ElementType.Class:
 				case ElementType.ValueType:
-					sb.Append(ClassSigName(tySig));
+					ClassSigName(sb, tySig);
 					return;
 
 				case ElementType.Ptr:
@@ -388,7 +388,7 @@ namespace il2cpp
 				default:
 					if (tySig is CorLibTypeSig)
 					{
-						sb.Append(ClassSigName(tySig));
+						ClassSigName(sb, tySig);
 						return;
 					}
 
@@ -396,11 +396,24 @@ namespace il2cpp
 			}
 		}
 
-		private static string ClassSigName(TypeSig tySig)
+		private static void ClassSigName(StringBuilder sb, TypeSig tySig)
 		{
 			if (tySig.DefinitionAssembly.IsCorLib())
-				return tySig.TypeName;
-			return tySig.FullName;
+				sb.Append(EscapeName(tySig.TypeName));
+			else
+				sb.AppendFormat("[{0}]{1}",
+					EscapeName(tySig.DefinitionAssembly.Name),
+					EscapeName(tySig.FullName));
+		}
+
+		private static void ClassSigName(StringBuilder sb, TypeDef tyDef)
+		{
+			if (tyDef.DefinitionAssembly.IsCorLib())
+				sb.Append(EscapeName(tyDef.Name));
+			else
+				sb.AppendFormat("[{0}]{1}",
+					EscapeName(tyDef.DefinitionAssembly.Name),
+					EscapeName(tyDef.FullName));
 		}
 
 		private static string EscapeChar(char ch)

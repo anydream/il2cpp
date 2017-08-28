@@ -17,8 +17,6 @@ namespace il2cpp
 
 		// 类型定义
 		public readonly TypeDef Def;
-		// 类型全名
-		public readonly string DefFullName;
 		// 是否为值类型
 		public bool IsValueType => Def.IsValueType;
 
@@ -58,7 +56,6 @@ namespace il2cpp
 		{
 			Context = context;
 			Def = tyDef;
-			DefFullName = tyDef.FullName;
 		}
 
 		public override string ToString()
@@ -73,7 +70,7 @@ namespace il2cpp
 			{
 				// Name<GenArgs>
 				StringBuilder sb = new StringBuilder();
-				Helper.TypeNameKey(sb, DefFullName, GenArgs);
+				Helper.TypeNameKey(sb, Def, GenArgs);
 				NameKey = sb.ToString();
 			}
 			return NameKey;
