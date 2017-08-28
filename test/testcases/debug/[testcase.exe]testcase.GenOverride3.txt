@@ -1,56 +1,56 @@
 * MethodTables:
-[group1.Base`2]
+[[testcase]group1.Base`2]
 
-[System.Object]
+[Object]
 
-[group1.Derived`2]
- - Foo|Void(!1,!0)|20: group1.Derived`2 -> System.Void group1.Derived`2::Foo(P,T)
-   - group1.Base`2<!(group1.Derived`2)1,!(group1.Derived`2)0> -> System.Void group1.Base`2::Foo(T,P)
-   - group1.Derived`2 -> System.Void group1.Derived`2::Foo(P,T)
+[[testcase]group1.Derived`2]
+ - Foo|Void(!1,!0)|20: [testcase]group1.Derived`2 -> System.Void group1.Derived`2::Foo(P,T)
+   - [testcase]group1.Base`2<!(group1.Derived`2)1,!(group1.Derived`2)0> -> System.Void group1.Base`2::Foo(T,P)
+   - [testcase]group1.Derived`2 -> System.Void group1.Derived`2::Foo(P,T)
 
-[group1.Base`2<!(group1.Derived`2)1,!(group1.Derived`2)0>]
+[[testcase]group1.Base`2<!(group1.Derived`2)1,!(group1.Derived`2)0>]
 
 * Types:
-[class testcase.GenOverride3] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.GenOverride3] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.GenOverride3
-   - group1.Base`2<Int32,Single>
-   - group1.Derived`2<Single,Int32>
+   - [testcase]testcase.GenOverride3
+   - [testcase]group1.Base`2<Int32,Single>
+   - [testcase]group1.Derived`2<Single,Int32>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class group1.Base`2<Int32,Single>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]group1.Base`2<Int32,Single>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: System.Object
+ - Base: Object
  - DerivedTypes:
-   - group1.Derived`2<Single,Int32>
+   - [testcase]group1.Derived`2<Single,Int32>
  - Fields:
    - fld|!0|1, fld|Int32, Private 
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(group1.Base`2<Int32,Single>)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Foo|Void(!0,!1)|20|1C6, Foo|Void(group1.Base`2<Int32,Single>,Int32,Single)|20, Public Virtual HideBySig NewSlot Managed None
-     - group1.Base`2<Int32,Single> -> Foo|Void(!0,!1)|20|1C6, Foo|Void(group1.Base`2<Int32,Single>,Int32,Single)|20
-     - group1.Derived`2<Single,Int32> -> Foo|Void(!1,!0)|20|C6, Foo|Void(group1.Derived`2<Single,Int32>,Int32,Single)|20
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group1.Base`2<Int32,Single>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(!0,!1)|20|1C6, Foo|Void([testcase]group1.Base`2<Int32,Single>,Int32,Single)|20, Public Virtual HideBySig NewSlot Managed None
+     - [testcase]group1.Base`2<Int32,Single> -> Foo|Void(!0,!1)|20|1C6, Foo|Void([testcase]group1.Base`2<Int32,Single>,Int32,Single)|20
+     - [testcase]group1.Derived`2<Single,Int32> -> Foo|Void(!1,!0)|20|C6, Foo|Void([testcase]group1.Derived`2<Single,Int32>,Int32,Single)|20
  - VTable:
-   - [System.Object]
-   - [group1.Base`2<Int32,Single>]
+   - [Object]
+   - [[testcase]group1.Base`2<Int32,Single>]
 
-[class group1.Derived`2<Single,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]group1.Derived`2<Single,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: group1.Base`2<Int32,Single>
+ - Base: [testcase]group1.Base`2<Int32,Single>
  - Fields:
    - fld|!0|1, fld|Single, Private 
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(group1.Derived`2<Single,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Foo|Void(!1,!0)|20|C6, Foo|Void(group1.Derived`2<Single,Int32>,Int32,Single)|20, Public Virtual HideBySig Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group1.Derived`2<Single,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(!1,!0)|20|C6, Foo|Void([testcase]group1.Derived`2<Single,Int32>,Int32,Single)|20, Public Virtual HideBySig Managed None
  - VTable:
-   - [System.Object]
-   - [group1.Base`2<Int32,Single>]
-     - System.Void group1.Base`2::Foo(T,P): group1.Derived`2<Single,Int32> -> System.Void group1.Derived`2::Foo(P,T)
-   - [group1.Derived`2<Single,Int32>]
+   - [Object]
+   - [[testcase]group1.Base`2<Int32,Single>]
+     - System.Void group1.Base`2::Foo(T,P): [testcase]group1.Derived`2<Single,Int32> -> System.Void group1.Derived`2::Foo(P,T)
+   - [[testcase]group1.Derived`2<Single,Int32>]
 

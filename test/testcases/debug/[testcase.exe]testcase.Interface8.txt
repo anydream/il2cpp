@@ -1,15 +1,15 @@
 * MethodTables:
 * Types:
-[class testcase.Interface8] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.Interface8] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.Interface8
+   - [testcase]testcase.Interface8
 
-[class testcase.Interface8/Inf] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+[class [testcase]testcase.Interface8/Inf] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - Methods:
-   - Foo|Void()|20|5C6, Foo|Void(testcase.Interface8/Inf)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+   - Foo|Void()|20|5C6, Foo|Void([testcase]testcase.Interface8/Inf)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
 

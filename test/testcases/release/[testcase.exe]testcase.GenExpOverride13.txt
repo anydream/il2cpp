@@ -1,16 +1,16 @@
 * MethodTables:
-[group11.Cls]
- - group11.Inf.Foo|!!0<1>()|30: group11.Cls -> T group11.Cls::group11.Inf.Foo<T>()
-   - group11.Cls -> T group11.Cls::group11.Inf.Foo<T>()
-   - group11.Inf -> T group11.Inf::Foo<T>()
+[[testcase]group11.Cls]
+ - group11.Inf.Foo|!!0<1>()|30: [testcase]group11.Cls -> T group11.Cls::group11.Inf.Foo<T>()
+   - [testcase]group11.Cls -> T group11.Cls::group11.Inf.Foo<T>()
+   - [testcase]group11.Inf -> T group11.Inf::Foo<T>()
 
- - group11.Inf.Foo|Void<1>(!!0)|30: group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T>(T)
-   - group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T>(T)
-   - group11.Inf -> System.Void group11.Inf::Foo<T>(T)
+ - group11.Inf.Foo|Void<1>(!!0)|30: [testcase]group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T>(T)
+   - [testcase]group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T>(T)
+   - [testcase]group11.Inf -> System.Void group11.Inf::Foo<T>(T)
 
- - group11.Inf.Foo|Void<2>(!!0,!!1)|30: group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T,T2>(T,T2)
-   - group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T,T2>(T,T2)
-   - group11.Inf -> System.Void group11.Inf::Foo<T,T2>(T,T2)
+ - group11.Inf.Foo|Void<2>(!!0,!!1)|30: [testcase]group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T,T2>(T,T2)
+   - [testcase]group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T,T2>(T,T2)
+   - [testcase]group11.Inf -> System.Void group11.Inf::Foo<T,T2>(T,T2)
 
  - Foo|!!0<1>()|30: null
 
@@ -18,51 +18,51 @@
 
  - Foo|Void<2>(!!0,!!1)|30: null
 
-[System.Object]
+[Object]
 
-[group11.Inf]
+[[testcase]group11.Inf]
  - Foo|!!0<1>()|30: null
-   - group11.Inf -> T group11.Inf::Foo<T>()
+   - [testcase]group11.Inf -> T group11.Inf::Foo<T>()
 
  - Foo|Void<1>(!!0)|30: null
-   - group11.Inf -> System.Void group11.Inf::Foo<T>(T)
+   - [testcase]group11.Inf -> System.Void group11.Inf::Foo<T>(T)
 
  - Foo|Void<2>(!!0,!!1)|30: null
-   - group11.Inf -> System.Void group11.Inf::Foo<T,T2>(T,T2)
+   - [testcase]group11.Inf -> System.Void group11.Inf::Foo<T,T2>(T,T2)
 
 * Types:
-[class testcase.GenExpOverride13] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.GenExpOverride13] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.GenExpOverride13
-   - group11.Cls
+   - [testcase]testcase.GenExpOverride13
+   - [testcase]group11.Cls
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class group11.Cls] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]group11.Cls] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: System.Object
+ - Base: Object
  - Interfaces:
-   - group11.Inf
+   - [testcase]group11.Inf
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(group11.Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - group11.Inf.Foo|Void<String>(!!0)|30|1E1, group11.Inf.Foo|Void<String>(group11.Cls,String)|30, Private Final Virtual HideBySig NewSlot Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group11.Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - group11.Inf.Foo|Void<String>(!!0)|30|1E1, group11.Inf.Foo|Void<String>([testcase]group11.Cls,String)|30, Private Final Virtual HideBySig NewSlot Managed None
  - VTable:
-   - [System.Object]
-   - [group11.Cls]
-   - [group11.Inf]
-     - T group11.Inf::Foo<T>(): group11.Cls -> T group11.Cls::group11.Inf.Foo<T>()
-     - System.Void group11.Inf::Foo<T>(T): group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T>(T)
-     - System.Void group11.Inf::Foo<T,T2>(T,T2): group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T,T2>(T,T2)
+   - [Object]
+   - [[testcase]group11.Cls]
+   - [[testcase]group11.Inf]
+     - T group11.Inf::Foo<T>(): [testcase]group11.Cls -> T group11.Cls::group11.Inf.Foo<T>()
+     - System.Void group11.Inf::Foo<T>(T): [testcase]group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T>(T)
+     - System.Void group11.Inf::Foo<T,T2>(T,T2): [testcase]group11.Cls -> System.Void group11.Cls::group11.Inf.Foo<T,T2>(T,T2)
 
-[class group11.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
+[class [testcase]group11.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - group11.Cls
+   - [testcase]group11.Cls
  - Methods:
-   - Foo|Void<String>(!!0)|30|5C6, Foo|Void<String>(group11.Inf,String)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - group11.Cls -> group11.Inf.Foo|Void<String>(!!0)|30|1E1, group11.Inf.Foo|Void<String>(group11.Cls,String)|30
+   - Foo|Void<String>(!!0)|30|5C6, Foo|Void<String>([testcase]group11.Inf,String)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]group11.Cls -> group11.Inf.Foo|Void<String>(!!0)|30|1E1, group11.Inf.Foo|Void<String>([testcase]group11.Cls,String)|30
 

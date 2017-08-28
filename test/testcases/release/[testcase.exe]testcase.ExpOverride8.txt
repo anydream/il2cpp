@@ -1,85 +1,85 @@
 * MethodTables:
-[group7.Sub]
- - Foo|Int32()|20: group7.Sub -> System.Int32 group7.Sub::Foo()
-   - group7.Base -> System.Int32 group7.Base::Foo()
-   - group7.Sub -> System.Int32 group7.Sub::Foo()
+[[testcase]group7.Sub]
+ - Foo|Int32()|20: [testcase]group7.Sub -> System.Int32 group7.Sub::Foo()
+   - [testcase]group7.Base -> System.Int32 group7.Base::Foo()
+   - [testcase]group7.Sub -> System.Int32 group7.Sub::Foo()
 
- - group7.Inf.Foo|Int32()|20: group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
-   - group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
-   - group7.Inf -> System.Int32 group7.Inf::Foo()
+ - group7.Inf.Foo|Int32()|20: [testcase]group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
+   - [testcase]group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
+   - [testcase]group7.Inf -> System.Int32 group7.Inf::Foo()
 
-[group7.Middle]
- - group7.Inf.Foo|Int32()|20: group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
-   - group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
-   - group7.Inf -> System.Int32 group7.Inf::Foo()
+[[testcase]group7.Middle]
+ - group7.Inf.Foo|Int32()|20: [testcase]group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
+   - [testcase]group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
+   - [testcase]group7.Inf -> System.Int32 group7.Inf::Foo()
 
-[group7.Base]
- - Foo|Int32()|20: group7.Base -> System.Int32 group7.Base::Foo()
-   - group7.Base -> System.Int32 group7.Base::Foo()
-   - group7.Inf -> System.Int32 group7.Inf::Foo()
+[[testcase]group7.Base]
+ - Foo|Int32()|20: [testcase]group7.Base -> System.Int32 group7.Base::Foo()
+   - [testcase]group7.Base -> System.Int32 group7.Base::Foo()
+   - [testcase]group7.Inf -> System.Int32 group7.Inf::Foo()
 
-[System.Object]
+[Object]
 
-[group7.Inf]
+[[testcase]group7.Inf]
  - Foo|Int32()|20: null
-   - group7.Inf -> System.Int32 group7.Inf::Foo()
+   - [testcase]group7.Inf -> System.Int32 group7.Inf::Foo()
 
 * Types:
-[class testcase.ExpOverride8] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.ExpOverride8] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.ExpOverride8
-   - group7.Base
-   - group7.Middle
-   - group7.Sub
+   - [testcase]testcase.ExpOverride8
+   - [testcase]group7.Base
+   - [testcase]group7.Middle
+   - [testcase]group7.Sub
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class group7.Sub] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]group7.Sub] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: group7.Middle
+ - Base: [testcase]group7.Middle
  - Fields:
    - field3|Int32|1, field3|Int32, Private 
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(group7.Sub)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Foo|Int32()|20|C6, Foo|Int32(group7.Sub)|20, Public Virtual HideBySig Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group7.Sub)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Int32()|20|C6, Foo|Int32([testcase]group7.Sub)|20, Public Virtual HideBySig Managed None
  - VTable:
-   - [System.Object]
-   - [group7.Base]
-     - System.Int32 group7.Base::Foo(): group7.Sub -> System.Int32 group7.Sub::Foo()
-   - [group7.Inf]
-     - System.Int32 group7.Inf::Foo(): group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
-   - [group7.Middle]
-   - [group7.Sub]
+   - [Object]
+   - [[testcase]group7.Base]
+     - System.Int32 group7.Base::Foo(): [testcase]group7.Sub -> System.Int32 group7.Sub::Foo()
+   - [[testcase]group7.Inf]
+     - System.Int32 group7.Inf::Foo(): [testcase]group7.Middle -> System.Int32 group7.Middle::group7.Inf.Foo()
+   - [[testcase]group7.Middle]
+   - [[testcase]group7.Sub]
 
-[class group7.Middle] NotPublic AutoLayout AnsiClass BeforeFieldInit 
- - Base: group7.Base
+[class [testcase]group7.Middle] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [testcase]group7.Base
  - Interfaces:
-   - group7.Inf
+   - [testcase]group7.Inf
  - DerivedTypes:
-   - group7.Sub
+   - [testcase]group7.Sub
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(group7.Middle)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group7.Middle)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class group7.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]group7.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
  - Interfaces:
-   - group7.Inf
+   - [testcase]group7.Inf
  - DerivedTypes:
-   - group7.Middle
-   - group7.Sub
+   - [testcase]group7.Middle
+   - [testcase]group7.Sub
  - Methods:
-   - Foo|Int32()|20|1C6, Foo|Int32(group7.Base)|20 = 0, Public Virtual HideBySig NewSlot Managed None
-     - group7.Sub -> Foo|Int32()|20|C6, Foo|Int32(group7.Sub)|20
-   - .ctor|Void()|20|1886, .ctor|Void(group7.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Int32()|20|1C6, Foo|Int32([testcase]group7.Base)|20 = 0, Public Virtual HideBySig NewSlot Managed None
+     - [testcase]group7.Sub -> Foo|Int32()|20|C6, Foo|Int32([testcase]group7.Sub)|20
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group7.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class group7.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
+[class [testcase]group7.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - group7.Base
-   - group7.Middle
-   - group7.Sub
+   - [testcase]group7.Base
+   - [testcase]group7.Middle
+   - [testcase]group7.Sub
 

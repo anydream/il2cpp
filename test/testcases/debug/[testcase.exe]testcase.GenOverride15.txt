@@ -1,48 +1,48 @@
 * MethodTables:
-[testcase.GenOverride15/Cls`1]
- - Foo|Void(!0)|20: testcase.GenOverride15/Cls`1 -> System.Void testcase.GenOverride15/Cls`1::Foo(T)
-   - testcase.GenOverride15/Cls`1 -> System.Void testcase.GenOverride15/Cls`1::Foo(T)
-   - testcase.GenOverride15/Inf`1<!(testcase.GenOverride15/Cls`1)0> -> System.Void testcase.GenOverride15/Inf`1::Foo(T)
+[[testcase]testcase.GenOverride15/Cls`1]
+ - Foo|Void(!0)|20: [testcase]testcase.GenOverride15/Cls`1 -> System.Void testcase.GenOverride15/Cls`1::Foo(T)
+   - [testcase]testcase.GenOverride15/Cls`1 -> System.Void testcase.GenOverride15/Cls`1::Foo(T)
+   - [testcase]testcase.GenOverride15/Inf`1<!(testcase.GenOverride15/Cls`1)0> -> System.Void testcase.GenOverride15/Inf`1::Foo(T)
 
-[System.Object]
+[Object]
 
-[testcase.GenOverride15/Inf`1<!(testcase.GenOverride15/Cls`1)0>]
+[[testcase]testcase.GenOverride15/Inf`1<!(testcase.GenOverride15/Cls`1)0>]
  - Foo|Void(!0)|20: null
-   - testcase.GenOverride15/Inf`1<!(testcase.GenOverride15/Cls`1)0> -> System.Void testcase.GenOverride15/Inf`1::Foo(T)
+   - [testcase]testcase.GenOverride15/Inf`1<!(testcase.GenOverride15/Cls`1)0> -> System.Void testcase.GenOverride15/Inf`1::Foo(T)
 
 * Types:
-[class testcase.GenOverride15] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.GenOverride15] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.GenOverride15
-   - testcase.GenOverride15/Cls`1<Int32>
+   - [testcase]testcase.GenOverride15
+   - [testcase]testcase.GenOverride15/Cls`1<Int32>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.GenOverride15/Cls`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]testcase.GenOverride15/Cls`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: System.Object
+ - Base: Object
  - Interfaces:
-   - testcase.GenOverride15/Inf`1<Int32>
+   - [testcase]testcase.GenOverride15/Inf`1<Int32>
  - Fields:
    - field1|Int32|6, field1|Int32, Public 
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.GenOverride15/Cls`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Foo|Void(!0)|20|1E6, Foo|Void(testcase.GenOverride15/Cls`1<Int32>,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenOverride15/Cls`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(!0)|20|1E6, Foo|Void([testcase]testcase.GenOverride15/Cls`1<Int32>,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
  - VTable:
-   - [System.Object]
-   - [testcase.GenOverride15/Cls`1<Int32>]
-   - [testcase.GenOverride15/Inf`1<Int32>]
-     - System.Void testcase.GenOverride15/Inf`1::Foo(T): testcase.GenOverride15/Cls`1<Int32> -> System.Void testcase.GenOverride15/Cls`1::Foo(T)
+   - [Object]
+   - [[testcase]testcase.GenOverride15/Cls`1<Int32>]
+   - [[testcase]testcase.GenOverride15/Inf`1<Int32>]
+     - System.Void testcase.GenOverride15/Inf`1::Foo(T): [testcase]testcase.GenOverride15/Cls`1<Int32> -> System.Void testcase.GenOverride15/Cls`1::Foo(T)
 
-[class testcase.GenOverride15/Inf`1<Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+[class [testcase]testcase.GenOverride15/Inf`1<Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - testcase.GenOverride15/Cls`1<Int32>
+   - [testcase]testcase.GenOverride15/Cls`1<Int32>
  - Methods:
-   - Foo|Void(!0)|20|5C6, Foo|Void(testcase.GenOverride15/Inf`1<Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - testcase.GenOverride15/Cls`1<Int32> -> Foo|Void(!0)|20|1E6, Foo|Void(testcase.GenOverride15/Cls`1<Int32>,Int32)|20
+   - Foo|Void(!0)|20|5C6, Foo|Void([testcase]testcase.GenOverride15/Inf`1<Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.GenOverride15/Cls`1<Int32> -> Foo|Void(!0)|20|1E6, Foo|Void([testcase]testcase.GenOverride15/Cls`1<Int32>,Int32)|20
 

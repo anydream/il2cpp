@@ -1,48 +1,48 @@
 * MethodTables:
-[testcase.GenExpOverride2/Cls]
- - testcase.GenExpOverride2.Inf.Foo|!!0<1>(!!0)|30: testcase.GenExpOverride2/Cls -> T testcase.GenExpOverride2/Cls::testcase.GenExpOverride2.Inf.Foo<T>(T)
-   - testcase.GenExpOverride2/Cls -> T testcase.GenExpOverride2/Cls::testcase.GenExpOverride2.Inf.Foo<T>(T)
-   - testcase.GenExpOverride2/Inf -> T testcase.GenExpOverride2/Inf::Foo<T>(T)
+[[testcase]testcase.GenExpOverride2/Cls]
+ - testcase.GenExpOverride2.Inf.Foo|!!0<1>(!!0)|30: [testcase]testcase.GenExpOverride2/Cls -> T testcase.GenExpOverride2/Cls::testcase.GenExpOverride2.Inf.Foo<T>(T)
+   - [testcase]testcase.GenExpOverride2/Cls -> T testcase.GenExpOverride2/Cls::testcase.GenExpOverride2.Inf.Foo<T>(T)
+   - [testcase]testcase.GenExpOverride2/Inf -> T testcase.GenExpOverride2/Inf::Foo<T>(T)
 
  - Foo|!!0<1>(!!0)|30: null
 
-[System.Object]
+[Object]
 
-[testcase.GenExpOverride2/Inf]
+[[testcase]testcase.GenExpOverride2/Inf]
  - Foo|!!0<1>(!!0)|30: null
-   - testcase.GenExpOverride2/Inf -> T testcase.GenExpOverride2/Inf::Foo<T>(T)
+   - [testcase]testcase.GenExpOverride2/Inf -> T testcase.GenExpOverride2/Inf::Foo<T>(T)
 
 * Types:
-[class testcase.GenExpOverride2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.GenExpOverride2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.GenExpOverride2
-   - testcase.GenExpOverride2/Cls
+   - [testcase]testcase.GenExpOverride2
+   - [testcase]testcase.GenExpOverride2/Cls
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class testcase.GenExpOverride2/Cls] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]testcase.GenExpOverride2/Cls] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: System.Object
+ - Base: Object
  - Interfaces:
-   - testcase.GenExpOverride2/Inf
+   - [testcase]testcase.GenExpOverride2/Inf
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(testcase.GenExpOverride2/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - testcase.GenExpOverride2.Inf.Foo|!!0<Single>(!!0)|30|1E1, testcase.GenExpOverride2.Inf.Foo|Single<Single>(testcase.GenExpOverride2/Cls,Single)|30, Private Final Virtual HideBySig NewSlot Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenExpOverride2/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.GenExpOverride2.Inf.Foo|!!0<Single>(!!0)|30|1E1, testcase.GenExpOverride2.Inf.Foo|Single<Single>([testcase]testcase.GenExpOverride2/Cls,Single)|30, Private Final Virtual HideBySig NewSlot Managed None
  - VTable:
-   - [System.Object]
-   - [testcase.GenExpOverride2/Cls]
-   - [testcase.GenExpOverride2/Inf]
-     - T testcase.GenExpOverride2/Inf::Foo<T>(T): testcase.GenExpOverride2/Cls -> T testcase.GenExpOverride2/Cls::testcase.GenExpOverride2.Inf.Foo<T>(T)
+   - [Object]
+   - [[testcase]testcase.GenExpOverride2/Cls]
+   - [[testcase]testcase.GenExpOverride2/Inf]
+     - T testcase.GenExpOverride2/Inf::Foo<T>(T): [testcase]testcase.GenExpOverride2/Cls -> T testcase.GenExpOverride2/Cls::testcase.GenExpOverride2.Inf.Foo<T>(T)
 
-[class testcase.GenExpOverride2/Inf] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+[class [testcase]testcase.GenExpOverride2/Inf] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - testcase.GenExpOverride2/Cls
+   - [testcase]testcase.GenExpOverride2/Cls
  - Methods:
-   - Foo|!!0<Single>(!!0)|30|5C6, Foo|Single<Single>(testcase.GenExpOverride2/Inf,Single)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - testcase.GenExpOverride2/Cls -> testcase.GenExpOverride2.Inf.Foo|!!0<Single>(!!0)|30|1E1, testcase.GenExpOverride2.Inf.Foo|Single<Single>(testcase.GenExpOverride2/Cls,Single)|30
+   - Foo|!!0<Single>(!!0)|30|5C6, Foo|Single<Single>([testcase]testcase.GenExpOverride2/Inf,Single)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.GenExpOverride2/Cls -> testcase.GenExpOverride2.Inf.Foo|!!0<Single>(!!0)|30|1E1, testcase.GenExpOverride2.Inf.Foo|Single<Single>([testcase]testcase.GenExpOverride2/Cls,Single)|30
 

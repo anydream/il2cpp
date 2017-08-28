@@ -134,7 +134,7 @@ namespace il2cpp
 			if (NameKey == null)
 			{
 				StringBuilder sb = new StringBuilder();
-				Helper.TypeNameKey(sb, Def.FullName, GenArgs);
+				Helper.TypeNameKey(sb, Def, GenArgs);
 				NameKey = sb.ToString();
 			}
 			return NameKey;
@@ -146,7 +146,7 @@ namespace il2cpp
 			{
 				var repGenArgs = Helper.ReplaceGenericSigList(GenArgs, replacer);
 				StringBuilder sb = new StringBuilder();
-				Helper.TypeNameKey(sb, Def.FullName, repGenArgs);
+				Helper.TypeNameKey(sb, Def, repGenArgs);
 				return sb.ToString();
 			}
 			return GetNameKey();
@@ -159,7 +159,7 @@ namespace il2cpp
 
 			// 展开当前类型名
 			StringBuilder sb = new StringBuilder();
-			Helper.TypeNameKey(sb, Def.FullName, tyGenArgs);
+			Helper.TypeNameKey(sb, Def, tyGenArgs);
 			string thisNameKey = sb.ToString();
 			sb = null;
 

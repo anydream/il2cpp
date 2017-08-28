@@ -1,80 +1,80 @@
 * MethodTables:
-[group6.Sub2]
- - group6.Inf.Foo|Void()|20: group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
-   - group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
-   - group6.Inf -> System.Void group6.Inf::Foo()
+[[testcase]group6.Sub2]
+ - group6.Inf.Foo|Void()|20: [testcase]group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - [testcase]group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - [testcase]group6.Inf -> System.Void group6.Inf::Foo()
 
-[group6.Sub]
- - group6.Inf.Foo|Void()|20: group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
-   - group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
-   - group6.Inf -> System.Void group6.Inf::Foo()
+[[testcase]group6.Sub]
+ - group6.Inf.Foo|Void()|20: [testcase]group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - [testcase]group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - [testcase]group6.Inf -> System.Void group6.Inf::Foo()
 
-[group6.Base]
- - Foo|Void()|20: group6.Base -> System.Void group6.Base::Foo()
-   - group6.Base -> System.Void group6.Base::Foo()
-   - group6.Inf -> System.Void group6.Inf::Foo()
+[[testcase]group6.Base]
+ - Foo|Void()|20: [testcase]group6.Base -> System.Void group6.Base::Foo()
+   - [testcase]group6.Base -> System.Void group6.Base::Foo()
+   - [testcase]group6.Inf -> System.Void group6.Inf::Foo()
 
-[System.Object]
+[Object]
 
-[group6.Inf]
+[[testcase]group6.Inf]
  - Foo|Void()|20: null
-   - group6.Inf -> System.Void group6.Inf::Foo()
+   - [testcase]group6.Inf -> System.Void group6.Inf::Foo()
 
 * Types:
-[class testcase.ExpOverride6] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]testcase.ExpOverride6] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
  - Methods:
    - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
 
-[class System.Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
  - DerivedTypes:
-   - testcase.ExpOverride6
-   - group6.Base
-   - group6.Sub
-   - group6.Sub2
+   - [testcase]testcase.ExpOverride6
+   - [testcase]group6.Base
+   - [testcase]group6.Sub
+   - [testcase]group6.Sub2
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class group6.Sub2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+[class [testcase]group6.Sub2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
- - Base: group6.Sub
+ - Base: [testcase]group6.Sub
  - Interfaces:
-   - group6.Inf
+   - [testcase]group6.Inf
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(group6.Sub2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group6.Sub2)|20, Public HideBySig SpecialName RTSpecialName Managed None
  - VTable:
-   - [System.Object]
-   - [group6.Base]
-   - [group6.Inf]
-     - System.Void group6.Inf::Foo(): group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
-   - [group6.Sub]
+   - [Object]
+   - [[testcase]group6.Base]
+   - [[testcase]group6.Inf]
+     - System.Void group6.Inf::Foo(): [testcase]group6.Sub -> System.Void group6.Sub::group6.Inf.Foo()
+   - [[testcase]group6.Sub]
 
-[class group6.Sub] NotPublic AutoLayout AnsiClass BeforeFieldInit 
- - Base: group6.Base
+[class [testcase]group6.Sub] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [testcase]group6.Base
  - Interfaces:
-   - group6.Inf
+   - [testcase]group6.Inf
  - DerivedTypes:
-   - group6.Sub2
+   - [testcase]group6.Sub2
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(group6.Sub)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - group6.Inf.Foo|Void()|20|1E1, group6.Inf.Foo|Void(group6.Sub)|20, Private Final Virtual HideBySig NewSlot Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group6.Sub)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - group6.Inf.Foo|Void()|20|1E1, group6.Inf.Foo|Void([testcase]group6.Sub)|20, Private Final Virtual HideBySig NewSlot Managed None
 
-[class group6.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
- - Base: System.Object
+[class [testcase]group6.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
  - Interfaces:
-   - group6.Inf
+   - [testcase]group6.Inf
  - DerivedTypes:
-   - group6.Sub
-   - group6.Sub2
+   - [testcase]group6.Sub
+   - [testcase]group6.Sub2
  - Methods:
-   - .ctor|Void()|20|1886, .ctor|Void(group6.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group6.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
-[class group6.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
+[class [testcase]group6.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - group6.Base
-   - group6.Sub
-   - group6.Sub2
+   - [testcase]group6.Base
+   - [testcase]group6.Sub
+   - [testcase]group6.Sub2
  - Methods:
-   - Foo|Void()|20|5C6, Foo|Void(group6.Inf)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - group6.Sub -> group6.Inf.Foo|Void()|20|1E1, group6.Inf.Foo|Void(group6.Sub)|20
+   - Foo|Void()|20|5C6, Foo|Void([testcase]group6.Inf)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]group6.Sub -> group6.Inf.Foo|Void()|20|1E1, group6.Inf.Foo|Void([testcase]group6.Sub)|20
 
