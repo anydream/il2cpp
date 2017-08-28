@@ -327,25 +327,42 @@ namespace il2cpp
 				return;
 
 			// 在继承类型中查找虚方法
-			if (derivedTyX.QueryVTable(
-				entryType, entryDef,
-				out var implType, out var implDef))
+			string implType;
+			MethodDef implDef;
+			TypeX implTyX;
+
+			for (;;)
 			{
+				if (!derivedTyX.QueryVTable(
+					entryType, entryDef,
+					out implType, out implDef))
+				{
+					throw new TypeLoadException("Resolve virtual method failed");
+				}
+
 				// 构造实现方法
-				TypeX implTyX = GetTypeByName(implType);
-				MethodX implMetX = new MethodX(implTyX, implDef);
-				implMetX.GenArgs = virtMetX.GenArgs;
-				implMetX = AddMethod(implMetX);
+				implTyX = GetTypeByName(implType);
 
-				// 关联实现方法到虚方法
-				virtMetX.AddOverrideImpl(implMetX);
-
-				// 处理该方法
-				implMetX.IsSkipProcessing = false;
-				AddPendingMethod(implMetX);
+				MethodDef replacedMetDef = implTyX.IsMethodReplaced(implDef);
+				if (replacedMetDef != null)
+				{
+					entryType = implType;
+					entryDef = replacedMetDef;
+				}
+				else
+					break;
 			}
-			else
-				throw new TypeLoadException("Resolve virtual method failed");
+
+			MethodX implMetX = new MethodX(implTyX, implDef);
+			implMetX.GenArgs = virtMetX.GenArgs;
+			implMetX = AddMethod(implMetX);
+
+			// 关联实现方法到虚方法
+			virtMetX.AddOverrideImpl(implMetX);
+
+			// 处理该方法
+			implMetX.IsSkipProcessing = false;
+			AddPendingMethod(implMetX);
 		}
 
 		public FieldX ResolveFieldDef(FieldDef fldDef)

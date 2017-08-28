@@ -1,15 +1,10 @@
 * MethodTables:
 [[self_override5]MyFoo]
- - DoBar|Int32()|20: [self_override5]MyBar -> System.Int32 MyBar::DoBarOverride()
-   - [self_override5]MyBar -> System.Int32 MyBar::DoBar()
-
  - DoBarOverride|Int32()|20: [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
    - [self_override5]MyBar -> System.Int32 MyBar::DoBarOverride()
    - [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
 
 [[self_override5]MyBar]
- - DoBar|Int32()|20: [self_override5]MyBar -> System.Int32 MyBar::DoBarOverride()
-   - [self_override5]MyBar -> System.Int32 MyBar::DoBar()
 
 [Object]
 
@@ -37,7 +32,6 @@
  - VTable:
    - [Object]
    - [[self_override5]MyBar]
-     - System.Int32 MyBar::DoBar(): [self_override5]MyBar -> System.Int32 MyBar::DoBarOverride()
      - System.Int32 MyBar::DoBarOverride(): [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
    - [[self_override5]MyFoo]
 

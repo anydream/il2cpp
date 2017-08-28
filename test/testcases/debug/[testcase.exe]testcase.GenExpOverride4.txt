@@ -47,6 +47,35 @@
  - Foo|Int32<1>(!!0,!0,Int32)|30: null
    - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Derived`2)0> -> TI testcase.GenExpOverride4/Inf`2::Foo<TF>(TF,TI2,TI)
 
+[[testcase]testcase.GenExpOverride4/Base`2]
+ - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.Foo|Int32(Int32)|20: [testcase]testcase.GenExpOverride4/Base`2 -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.Foo(System.Int32)
+   - [testcase]testcase.GenExpOverride4/Base`2 -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.Foo(System.Int32)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Base`2)1> -> TI testcase.GenExpOverride4/Inf`2::Foo(TI)
+
+ - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.Foo|Int32<1>(!!0,!1,Int32)|30: [testcase]testcase.GenExpOverride4/Base`2 -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.Foo<TF>(TF,TB,System.Int32)
+   - [testcase]testcase.GenExpOverride4/Base`2 -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.Foo<TF>(TF,TB,System.Int32)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Base`2)1> -> TI testcase.GenExpOverride4/Inf`2::Foo<TF>(TF,TI2,TI)
+
+ - testcase.GenExpOverride4.Inf\u003CSystem.Int32\u002CTB\u003E.Foo|Int32<1>(Int32,!1,!!0)|30: [testcase]testcase.GenExpOverride4/Base`2 -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.Foo<TF>(System.Int32,TB,TF)
+   - [testcase]testcase.GenExpOverride4/Base`2 -> System.Int32 testcase.GenExpOverride4/Base`2::testcase.GenExpOverride4.Inf<System.Int32,TB>.Foo<TF>(System.Int32,TB,TF)
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Base`2)1> -> TI testcase.GenExpOverride4/Inf`2::Foo<TF>(TI,TI2,TF)
+
+ - Foo|Int32(Int32)|20: null
+
+ - Foo|Int32<1>(Int32,!1,!!0)|30: null
+
+ - Foo|Int32<1>(!!0,!1,Int32)|30: null
+
+[[testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Base`2)1>]
+ - Foo|Int32(Int32)|20: null
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Base`2)1> -> TI testcase.GenExpOverride4/Inf`2::Foo(TI)
+
+ - Foo|Int32<1>(Int32,!1,!!0)|30: null
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Base`2)1> -> TI testcase.GenExpOverride4/Inf`2::Foo<TF>(TI,TI2,TF)
+
+ - Foo|Int32<1>(!!0,!1,Int32)|30: null
+   - [testcase]testcase.GenExpOverride4/Inf`2<Int32,!(testcase.GenExpOverride4/Base`2)1> -> TI testcase.GenExpOverride4/Inf`2::Foo<TF>(TF,TI2,TI)
+
 * Types:
 [class [testcase]testcase.GenExpOverride4] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object

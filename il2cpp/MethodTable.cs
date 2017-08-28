@@ -19,6 +19,13 @@ namespace il2cpp
 			MethodReplaceMap = metReplaceMap;
 		}
 
+		public MethodDef IsMethodReplaced(MethodDef metDef)
+		{
+			if (MethodReplaceMap.TryGetValue(metDef, out var ometDef))
+				return ometDef;
+			return null;
+		}
+
 		public void Set(string entryType, MethodDef entryDef, string implType, MethodDef implDef)
 		{
 			if (!Table.TryGetValue(entryType, out var defMap))
@@ -421,6 +428,9 @@ namespace il2cpp
 				foreach (var kv in other.ExpandedVSlotMap)
 					ExpandedVSlotMap.Add(kv.Key, new Dictionary<MethodDef, VirtualImpl>(kv.Value));
 			}
+
+			foreach (var kv in other.MethodReplaceMap)
+				MethodReplaceMap.Add(kv.Key, kv.Value);
 		}
 
 		private void NewSlot(string expSigName, MethodDef metDef)
@@ -491,10 +501,7 @@ namespace il2cpp
 				// 处理替换当前类型方法的情况
 				if (targetTable == this)
 				{
-					MethodReplaceMap[targetDef] = implDef;
-
-					string expSigName = FindMethodSigName(targetDef);
-					ReuseSlot(expSigName, implDef, false);
+					MethodReplaceMap.Add(targetDef, implDef);
 				}
 				else
 				{

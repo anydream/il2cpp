@@ -148,9 +148,7 @@ namespace il2cpp
 		public MethodDef IsMethodReplaced(MethodDef metDef)
 		{
 			ResolveVTable();
-			if (VTable.MethodReplaceMap.TryGetValue(metDef, out var ometDef))
-				return ometDef;
-			return null;
+			return VTable.IsMethodReplaced(metDef);
 		}
 	}
 }

@@ -9,8 +9,6 @@
    - [testcase]group12.Derived -> System.Void group12.Derived::Foo2()
 
 [[testcase]group12.Base]
- - Foo1|Void()|20: [testcase]group12.Base -> System.Void group12.Base::Foo2()
-   - [testcase]group12.Base -> System.Void group12.Base::Foo1()
 
 [Object]
 
