@@ -1,0 +1,58 @@
+* MethodTables:
+[[self_override5]MyFoo]
+ - DoBar|Int32()|20: [self_override5]MyBar -> System.Int32 MyBar::DoBarOverride()
+   - [self_override5]MyBar -> System.Int32 MyBar::DoBar()
+
+ - DoBarOverride|Int32()|20: [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
+   - [self_override5]MyBar -> System.Int32 MyBar::DoBarOverride()
+   - [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
+
+[[self_override5]MyBar]
+ - DoBar|Int32()|20: [self_override5]MyBar -> System.Int32 MyBar::DoBarOverride()
+   - [self_override5]MyBar -> System.Int32 MyBar::DoBar()
+
+[Object]
+
+* Types:
+[class [self_override5]CMain] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Int32(String[])|0|96, Main|Int32(String[])|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [self_override5]CMain
+   - [self_override5]MyBar
+   - [self_override5]MyFoo
+   - [self_override5]Logger
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [self_override5]MyFoo] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [self_override5]MyBar
+ - Methods:
+   - .ctor|Void()|20|1806, .ctor|Void([self_override5]MyFoo)|20, Public SpecialName RTSpecialName Managed None
+   - DoBarOverride|Int32()|20|46, DoBarOverride|Int32([self_override5]MyFoo)|20, Public Virtual Managed None
+ - VTable:
+   - [Object]
+   - [[self_override5]MyBar]
+     - System.Int32 MyBar::DoBar(): [self_override5]MyBar -> System.Int32 MyBar::DoBarOverride()
+     - System.Int32 MyBar::DoBarOverride(): [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
+   - [[self_override5]MyFoo]
+
+[class [self_override5]MyBar] Public AutoLayout AnsiClass 
+ - Base: Object
+ - DerivedTypes:
+   - [self_override5]MyFoo
+ - Methods:
+   - DoBar|Int32()|20|146, DoBar|Int32([self_override5]MyBar)|20 = 0, Public Virtual NewSlot Managed None
+     - [self_override5]MyFoo -> DoBarOverride|Int32()|20|46, DoBarOverride|Int32([self_override5]MyFoo)|20
+   - DoBarOverride|Int32()|20|146, DoBarOverride|Int32([self_override5]MyBar)|20, Public Virtual NewSlot Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([self_override5]MyBar)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [self_override5]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
+
