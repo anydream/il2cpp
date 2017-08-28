@@ -399,12 +399,14 @@ namespace il2cpp
 		private static void ClassSigName(StringBuilder sb, TypeSig tySig)
 		{
 			string fullName = tySig.FullName;
-			string basicName = IsBasicType(fullName);
 
-			if (basicName != null &&
-				tySig.DefinitionAssembly.IsCorLib())
+			if (tySig.DefinitionAssembly.IsCorLib())
 			{
-				sb.Append(basicName);
+				string basicName = IsBasicType(fullName);
+				if (basicName != null)
+					sb.Append(basicName);
+				else
+					sb.Append(fullName);
 			}
 			else
 				sb.AppendFormat("[{0}]{1}",
@@ -415,12 +417,14 @@ namespace il2cpp
 		private static void ClassSigName(StringBuilder sb, TypeDef tyDef)
 		{
 			string fullName = tyDef.FullName;
-			string basicName = IsBasicType(fullName);
 
-			if (basicName != null &&
-				tyDef.DefinitionAssembly.IsCorLib())
+			if (tyDef.DefinitionAssembly.IsCorLib())
 			{
-				sb.Append(basicName);
+				string basicName = IsBasicType(fullName);
+				if (basicName != null)
+					sb.Append(basicName);
+				else
+					sb.Append(fullName);
 			}
 			else
 				sb.AppendFormat("[{0}]{1}",

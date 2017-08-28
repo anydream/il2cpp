@@ -13,7 +13,7 @@
    - [testcase]testcase.CrossRuntimeVersion1
    - [net20x1]net20x1.Class
    - [net20x2]net20x2.Class
-   - [mscorlib]System.Runtime.CompilerServices.RuntimeHelpers
+   - System.Runtime.CompilerServices.RuntimeHelpers
  - Methods:
    - GetHashCode|Int32()|20|1C6, GetHashCode|Int32(Object)|20, Public Virtual HideBySig NewSlot Managed None
      - Object -> GetHashCode|Int32()|20|1C6, GetHashCode|Int32(Object)|20
@@ -33,7 +33,7 @@
  - Methods:
    - NewObj|Object(Int32&)|0|96, NewObj|Object(Int32&)|0, Public Static HideBySig Managed None
 
-[class [mscorlib]System.Runtime.CompilerServices.RuntimeHelpers] Public AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+[class System.Runtime.CompilerServices.RuntimeHelpers] Public AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
  - Methods:
    - GetHashCode|Int32(Object)|0|96, GetHashCode|Int32(Object)|0, Public Static HideBySig IL, InternalCall None
