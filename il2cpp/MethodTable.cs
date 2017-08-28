@@ -481,7 +481,7 @@ namespace il2cpp
 				MethodDef targetDef = target.ResolveMethodDef();
 
 				if (targetDef == null)
-					throw new TypeLoadException("Override signature was not compatible: " + target.FullName);
+					throw new TypeLoadException("Cannot find overriding signature: " + target.FullName);
 
 				if (targetDef.HasOverrides)
 					throw new TypeLoadException("Method already has overrides: " + targetDef.FullName);

@@ -1,0 +1,1 @@
+Cannot find overriding signature: System.Int32 MyBar::DoBar(System.Int32)
