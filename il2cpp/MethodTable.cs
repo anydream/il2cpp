@@ -175,6 +175,10 @@ namespace il2cpp
 
 			VirtualTable vtable = new VirtualTable(MethodReplaceMap);
 
+			// 不可实例化的类型不展开虚表
+			if (Def.IsAbstract || Def.IsInterface)
+				return vtable;
+
 			IGenericReplacer replacer = null;
 			if (tyGenArgs != null && tyGenArgs.Count > 0)
 				replacer = new TypeDefGenReplacer(Def, tyGenArgs);
@@ -182,12 +186,16 @@ namespace il2cpp
 			foreach (var kv in ExpandedVSlotMap)
 			{
 				MethodTable entryTable = kv.Key;
+				Debug.Assert(entryTable != null);
+
 				foreach (var item in kv.Value)
 				{
 					MethodDef entryDef = item.Key;
+					Debug.Assert(entryDef != null);
 
 					MethodTable implTable = item.Value.ImplTable;
 					MethodDef implDef = item.Value.ImplMethod;
+					Debug.Assert(implTable != null);
 
 					string entryType = entryTable == this ? thisNameKey : entryTable.GetReplacedNameKey(replacer);
 					string implType = implTable == this ? thisNameKey : implTable.GetReplacedNameKey(replacer);
