@@ -430,5 +430,20 @@ namespace il2cpp
 			}
 			return result;
 		}
+
+		private static string GetDefAssemblyName(ModuleDef module)
+		{
+			if (module != null)
+			{
+				var asm = module.Assembly;
+				if (asm != null)
+				{
+					if (asm.IsCorLib())
+						return null;
+					return asm.Name;
+				}
+			}
+			return null;
+		}
 	}
 }

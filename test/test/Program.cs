@@ -32,6 +32,42 @@ namespace test
 			return false;
 		}
 
+		private static byte[] ReplaceNewLines(byte[] data)
+		{
+			int len = data.Length;
+			int writePtr = 0;
+			int readPtr = 0;
+			for (; readPtr < len; ++writePtr, ++readPtr)
+			{
+				byte curr = data[writePtr] = data[readPtr];
+				if (curr == '\r')
+				{
+					int nextPtr = readPtr + 1;
+					if (nextPtr < len)
+					{
+						byte next = data[nextPtr];
+						if (next == '\n')
+						{
+							data[writePtr] = (byte)'\n';
+							++readPtr;
+						}
+					}
+					else
+						break;
+				}
+			}
+
+			int offset = readPtr - writePtr;
+			if (offset > 0)
+			{
+				byte[] result = new byte[writePtr];
+				Array.Copy(data, result, writePtr);
+				return result;
+			}
+			else
+				return data;
+		}
+
 		private static void TestType(
 			Il2cppContext context, TypeDef typeDef,
 			string imageDir, string imageName, string subDir)
@@ -69,6 +105,7 @@ namespace test
 			try
 			{
 				cmpData = File.ReadAllBytes(Path.Combine(imageDir, testName + ".txt"));
+				cmpData = ReplaceNewLines(cmpData);
 			}
 			catch
 			{
