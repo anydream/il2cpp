@@ -85,7 +85,8 @@ namespace il2cpp
 				Entries.Add(kv.Key, new HashSet<MethodDef>(kv.Value));
 			}
 
-			Impl = other.Impl;
+			if (other.Entries.Count > 0)
+				Impl = other.Impl;
 		}
 
 		public void AddEntry(MethodTable entryTable, MethodDef entryDef)
@@ -410,8 +411,7 @@ namespace il2cpp
 		{
 			foreach (var kv in other.VSlotMap)
 			{
-				if (kv.Value.Entries.Count > 0)
-					VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value));
+				VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value));
 			}
 
 			if (other.ExpandedVSlotMap != null)
@@ -476,16 +476,18 @@ namespace il2cpp
 
 					MethodReplaceMap[targetDef] = implDef;
 				}
-
-				if (implDef == ownerMetDef)
-				{
-					expSigName = ExpandedSigList[ownerMetIdx];
-				}
 				else
-					throw new NotSupportedException();
+				{
+					if (implDef == ownerMetDef)
+					{
+						expSigName = ExpandedSigList[ownerMetIdx];
+					}
+					else
+						throw new NotSupportedException();
 
-				// 合并目标入口到实现方法的方法槽内
-				MergeSlot(expSigName, targetTable, targetDef);
+					// 合并目标入口到实现方法的方法槽内
+					MergeSlot(expSigName, targetTable, targetDef);
+				}
 			}
 		}
 

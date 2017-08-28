@@ -303,7 +303,7 @@ namespace group8
 
 	class Sub1 : Base
 	{
-		public int foo(int n)
+		public int Foo(int n)
 		{
 			return n;
 		}
@@ -1049,34 +1049,34 @@ namespace testcase
 	{
 		interface Inf
 		{
-			int fun(int n);
+			int Foo(int n);
 		}
 
 		interface Inf<TI, TI2>
 		{
-			TI fun(TI n);
-			TI fun<TF>(TI n, TI2 n2, TF n3);
-			TI fun<TF>(TF n3, TI2 n2, TI n);
+			TI Foo(TI n);
+			TI Foo<TF>(TI n, TI2 n2, TF n3);
+			TI Foo<TF>(TF n3, TI2 n2, TI n);
 		}
 
 		class Base<TB0, TB> : Inf<int, TB>
 		{
-			public virtual int fun(int n, long n1)
+			public virtual int Foo(int n, long n1)
 			{
 				return n;
 			}
 
-			int Inf<int, TB>.fun(int n)
+			int Inf<int, TB>.Foo(int n)
 			{
 				return n;
 			}
 
-			int Inf<int, TB>.fun<TF>(TF n3, TB n2, int n)
+			int Inf<int, TB>.Foo<TF>(TF n3, TB n2, int n)
 			{
 				return n;
 			}
 
-			int Inf<int, TB>.fun<TF>(int n, TB n2, TF n3)
+			int Inf<int, TB>.Foo<TF>(int n, TB n2, TF n3)
 			{
 				return n;
 			}
@@ -1084,7 +1084,7 @@ namespace testcase
 
 		class Derived<TD, TD1> : Base<TD1, TD>, Inf<int, TD>
 		{
-			public override int fun(int n, long n1)
+			public override int Foo(int n, long n1)
 			{
 				return n;
 			}
@@ -1095,8 +1095,8 @@ namespace testcase
 			var cls = new Derived<T, ushort>();
 			Inf<int, T> inf = cls;
 			T t = bla;
-			inf.fun(123);
-			inf.fun(123, t, "");
+			inf.Foo(123);
+			inf.Foo(123, t, "");
 			return bla;
 		}
 
