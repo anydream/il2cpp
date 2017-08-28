@@ -8,10 +8,6 @@
    - [testcase]testcase.GenExpOverride5/Base`1<!(testcase.GenExpOverride5/Derived`1)0> -> System.Int32 testcase.GenExpOverride5/Base`1::testcase.GenExpOverride5.Inf<System.Int32,TB>.Foo(System.Int32,TB)
    - [testcase]testcase.GenExpOverride5/Inf`2<Int32,!(testcase.GenExpOverride5/Derived`1)0> -> TI testcase.GenExpOverride5/Inf`2::Foo(TI,TI2)
 
- - Foo|Int32(Int32)|20: null
-
- - Foo|Int32(Int32,!0)|20: null
-
 [[testcase]testcase.GenExpOverride5/Base`1<!(testcase.GenExpOverride5/Derived`1)0>]
  - testcase.GenExpOverride5.Inf\u003CSystem.Int32\u002CTB\u003E.Foo|Int32(Int32)|20: [testcase]testcase.GenExpOverride5/Base`1<!(testcase.GenExpOverride5/Derived`1)0> -> System.Int32 testcase.GenExpOverride5/Base`1::testcase.GenExpOverride5.Inf<System.Int32,TB>.Foo(System.Int32)
    - [testcase]testcase.GenExpOverride5/Base`1<!(testcase.GenExpOverride5/Derived`1)0> -> System.Int32 testcase.GenExpOverride5/Base`1::testcase.GenExpOverride5.Inf<System.Int32,TB>.Foo(System.Int32)

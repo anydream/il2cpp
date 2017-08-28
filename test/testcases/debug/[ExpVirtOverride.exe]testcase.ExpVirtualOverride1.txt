@@ -5,8 +5,6 @@
    - [testcase]group.Inf -> System.Void group.Inf::Foo(System.Int32)
    - [testcase]group.Derived -> System.Void group.Derived::Bla(System.Int32)
 
- - Foo|Void(Int32)|20: null
-
 [[testcase]group.Base]
  - Bla|Void(Int32)|20: [testcase]group.Base -> System.Void group.Base::Bla(System.Int32)
    - [testcase]group.Base -> System.Void group.Base::Bla(System.Int32)

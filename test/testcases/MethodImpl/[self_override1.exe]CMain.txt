@@ -1,0 +1,53 @@
+* MethodTables:
+[[self_override1]BarImpl]
+ - DoBar|Int32()|20: [self_override1]BarImpl -> System.Int32 BarImpl::DoBar()
+   - [self_override1]MyBar -> System.Int32 MyBar::DoBar()
+   - [self_override1]BarImpl -> System.Int32 BarImpl::DoBar()
+
+[[self_override1]MyBar]
+ - DoBar|Int32()|20: null
+   - [self_override1]MyBar -> System.Int32 MyBar::DoBar()
+
+[Object]
+
+* Types:
+[class [self_override1]CMain] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Int32(String[])|0|96, Main|Int32(String[])|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [self_override1]CMain
+   - [self_override1]MyBar
+   - [self_override1]BarImpl
+   - [self_override1]Logger
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [self_override1]BarImpl] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [self_override1]MyBar
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([self_override1]BarImpl)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - DoBar|Int32()|20|C6, DoBar|Int32([self_override1]BarImpl)|20, Public Virtual HideBySig Managed None
+ - VTable:
+   - [Object]
+   - [[self_override1]MyBar]
+     - System.Int32 MyBar::DoBar(): [self_override1]BarImpl -> System.Int32 BarImpl::DoBar()
+   - [[self_override1]BarImpl]
+
+[class [self_override1]MyBar] Public AutoLayout Abstract AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - [self_override1]BarImpl
+ - Methods:
+   - DoBar|Int32()|20|5C6, DoBar|Int32([self_override1]MyBar)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [self_override1]BarImpl -> DoBar|Int32()|20|C6, DoBar|Int32([self_override1]BarImpl)|20
+   - .ctor|Void()|20|1884, .ctor|Void([self_override1]MyBar)|20, Family HideBySig SpecialName RTSpecialName Managed None
+
+[class [self_override1]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
+

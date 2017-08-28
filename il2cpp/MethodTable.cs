@@ -411,7 +411,8 @@ namespace il2cpp
 		{
 			foreach (var kv in other.VSlotMap)
 			{
-				VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value));
+				if (kv.Value.Entries.Count > 0)
+					VSlotMap.Add(kv.Key, new VirtualSlot(kv.Value));
 			}
 
 			if (other.ExpandedVSlotMap != null)
@@ -432,8 +433,11 @@ namespace il2cpp
 
 		private void ReuseSlot(string expSigName, MethodDef metDef)
 		{
-			bool status = VSlotMap.TryGetValue(expSigName, out var vslot);
-			Debug.Assert(status);
+			if (!VSlotMap.TryGetValue(expSigName, out var vslot))
+			{
+				vslot = new VirtualSlot();
+				VSlotMap.Add(expSigName, vslot);
+			}
 			vslot.AddEntry(this, metDef);
 			vslot.SetImpl(this, metDef);
 		}
