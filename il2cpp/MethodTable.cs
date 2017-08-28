@@ -469,6 +469,9 @@ namespace il2cpp
 				MethodTable targetTable = Context.TypeMgr.ResolveMethodTable(target.DeclaringType, replacer);
 				MethodDef targetDef = target.ResolveMethodDef();
 
+				if (targetDef == null)
+					throw new TypeLoadException("Explicit override target not compatible");
+
 				MethodDef implDef = impl.ResolveMethodDef();
 				string expSigName;
 
