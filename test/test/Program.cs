@@ -94,18 +94,31 @@ namespace test
 
 			var sw = new Stopwatch();
 			sw.Start();
-			context.Process();
+			string exceptionMsg = null;
+			try
+			{
+				context.Process();
+			}
+			catch (TypeLoadException ex)
+			{
+				exceptionMsg = ex.Message;
+			}
 			sw.Stop();
 			long elapsedMS = sw.ElapsedMilliseconds;
 			Console.Write("{0}ms, ", elapsedMS);
 
-			HierarchyDump dumper = new HierarchyDump(context);
 			StringBuilder sb = new StringBuilder();
+			if (exceptionMsg != null)
+				sb.Append(exceptionMsg);
+			else
+			{
+				HierarchyDump dumper = new HierarchyDump(context);
 
-			sb.Append("* MethodTables:\n");
-			dumper.DumpMethodTables(sb);
-			sb.Append("* Types:\n");
-			dumper.DumpTypes(sb);
+				sb.Append("* MethodTables:\n");
+				dumper.DumpMethodTables(sb);
+				sb.Append("* Types:\n");
+				dumper.DumpTypes(sb);
+			}
 
 			var dumpData = Encoding.UTF8.GetBytes(sb.ToString());
 			File.WriteAllBytes(
