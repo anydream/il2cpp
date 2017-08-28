@@ -12,6 +12,13 @@ namespace il2cpp
 		public readonly Dictionary<string, Dictionary<MethodDef, Tuple<string, MethodDef>>> Table =
 			new Dictionary<string, Dictionary<MethodDef, Tuple<string, MethodDef>>>();
 
+		public readonly Dictionary<MethodDef, MethodDef> MethodReplaceMap;
+
+		public VirtualTable(Dictionary<MethodDef, MethodDef> metReplaceMap)
+		{
+			MethodReplaceMap = metReplaceMap;
+		}
+
 		public void Set(string entryType, MethodDef entryDef, string implType, MethodDef implDef)
 		{
 			if (!Table.TryGetValue(entryType, out var defMap))
@@ -118,6 +125,9 @@ namespace il2cpp
 		// 展平的方法槽映射
 		private Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>> ExpandedVSlotMap;
 
+		// 方法替换映射
+		public readonly Dictionary<MethodDef, MethodDef> MethodReplaceMap = new Dictionary<MethodDef, MethodDef>();
+
 		public MethodTable(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
@@ -163,7 +173,7 @@ namespace il2cpp
 			string thisNameKey = sb.ToString();
 			sb = null;
 
-			VirtualTable vtable = new VirtualTable();
+			VirtualTable vtable = new VirtualTable(MethodReplaceMap);
 
 			IGenericReplacer replacer = null;
 			if (tyGenArgs != null && tyGenArgs.Count > 0)
@@ -449,6 +459,15 @@ namespace il2cpp
 
 				MethodDef implDef = impl.ResolveMethodDef();
 				string expSigName;
+
+				// 处理替换当前类型方法的情况
+				if (targetTable == this)
+				{
+					if (targetDef.HasOverrides)
+						throw new TypeLoadException("Method has already been overridden");
+
+					MethodReplaceMap[targetDef] = implDef;
+				}
 
 				if (implDef == ownerMetDef)
 				{

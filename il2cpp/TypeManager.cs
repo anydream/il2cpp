@@ -158,6 +158,8 @@ namespace il2cpp
 							GenStaticCctor(resMetX.DeclType);
 						}
 
+						bool isReAddMethod = false;
+
 						if (inst.OpCode.Code == Code.Newobj)
 						{
 							Debug.Assert(!resMetX.Def.IsStatic);
@@ -178,9 +180,30 @@ namespace il2cpp
 							// 记录虚入口
 							AddVCallEntry(resMetX);
 						}
-						else
+						else if (resMetX.IsVirtual &&
+								 (inst.OpCode.Code == Code.Call ||
+								  inst.OpCode.Code == Code.Ldftn))
 						{
-							// 非虚方法引用, 加入处理队列
+							// 处理方法替换
+							MethodDef replacedMetDef = resMetX.DeclType.IsMethodReplaced(resMetX.Def);
+							if (replacedMetDef != null)
+							{
+								resMetX.IsSkipProcessing = true;
+								MethodX repMetX = new MethodX(resMetX.DeclType, replacedMetDef);
+								repMetX.GenArgs = resMetX.HasGenArgs ? new List<TypeSig>(resMetX.GenArgs) : null;
+								AddMethod(repMetX);
+
+								resMetX = repMetX;
+							}
+							else
+								isReAddMethod = true;
+						}
+						else
+							isReAddMethod = true;
+
+						if (isReAddMethod)
+						{
+							// 尝试重新加入处理队列
 							resMetX.IsSkipProcessing = false;
 							AddPendingMethod(resMetX);
 						}

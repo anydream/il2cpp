@@ -144,5 +144,13 @@ namespace il2cpp
 		{
 			return VTable.Query(entryType, entryDef, out implType, out implDef);
 		}
+
+		public MethodDef IsMethodReplaced(MethodDef metDef)
+		{
+			ResolveVTable();
+			if (VTable.MethodReplaceMap.TryGetValue(metDef, out var ometDef))
+				return ometDef;
+			return null;
+		}
 	}
 }
