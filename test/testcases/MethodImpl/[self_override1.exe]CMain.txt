@@ -5,7 +5,7 @@
    - [self_override1]BarImpl -> System.Int32 BarImpl::DoBar()
 
 [[self_override1]MyBar]
- - DoBar|Int32()|20: null
+ - DoBar|Int32()|20: [self_override1]MyBar -> System.Int32 MyBar::DoSelfBar()
    - [self_override1]MyBar -> System.Int32 MyBar::DoBar()
 
 [Object]

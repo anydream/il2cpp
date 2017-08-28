@@ -431,14 +431,15 @@ namespace il2cpp
 			vslot.SetImpl(this, metDef);
 		}
 
-		private void ReuseSlot(string expSigName, MethodDef metDef)
+		private void ReuseSlot(string expSigName, MethodDef metDef, bool isAddEntry = true)
 		{
 			if (!VSlotMap.TryGetValue(expSigName, out var vslot))
 			{
 				vslot = new VirtualSlot();
 				VSlotMap.Add(expSigName, vslot);
 			}
-			vslot.AddEntry(this, metDef);
+			if (isAddEntry)
+				vslot.AddEntry(this, metDef);
 			vslot.SetImpl(this, metDef);
 		}
 
@@ -453,6 +454,16 @@ namespace il2cpp
 				VSlotMap.Add(expSigName, vslot);
 			}
 			vslot.AddEntry(entryTable, entryDef);
+		}
+
+		private string FindMethodSigName(MethodDef metDef)
+		{
+			for (int i = 0; i < MethodDefList.Count; ++i)
+			{
+				if (MethodDefList[i] == metDef)
+					return ExpandedSigList[i];
+			}
+			throw new ArgumentOutOfRangeException();
 		}
 
 		private void ExplicitOverride(IList<MethodOverride> overList, MethodDef ownerMetDef, int ownerMetIdx)
@@ -472,23 +483,24 @@ namespace il2cpp
 				if (targetDef == null)
 					throw new TypeLoadException("Explicit override target not compatible");
 
+				if (targetDef.HasOverrides)
+					throw new TypeLoadException("Method has already been overridden");
+
 				MethodDef implDef = impl.ResolveMethodDef();
-				string expSigName;
 
 				// 处理替换当前类型方法的情况
 				if (targetTable == this)
 				{
-					if (targetDef.HasOverrides)
-						throw new TypeLoadException("Method has already been overridden");
-
 					MethodReplaceMap[targetDef] = implDef;
+
+					string expSigName = FindMethodSigName(targetDef);
+					ReuseSlot(expSigName, implDef, false);
 				}
 				else
 				{
+					string expSigName;
 					if (implDef == ownerMetDef)
-					{
 						expSigName = ExpandedSigList[ownerMetIdx];
-					}
 					else
 						throw new NotSupportedException();
 

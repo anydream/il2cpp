@@ -1,0 +1,39 @@
+* MethodTables:
+[[self_override2]MyBar]
+ - DoBar|Int32()|20: [self_override2]MyBar -> System.Int32 MyBar::DoSelfBar()
+   - [self_override2]MyBar -> System.Int32 MyBar::DoBar()
+
+[Object]
+
+* Types:
+[class [self_override2]CMain] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Int32(String[])|0|96, Main|Int32(String[])|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [self_override2]CMain
+   - [self_override2]MyBar
+   - [self_override2]Logger
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [self_override2]MyBar] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([self_override2]MyBar)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - DoBar|Int32()|20|1C6, DoBar|Int32([self_override2]MyBar)|20 = 0, Public Virtual HideBySig NewSlot Managed None
+     - [self_override2]MyBar -> DoSelfBar|Int32()|20|1C6, DoSelfBar|Int32([self_override2]MyBar)|20
+   - DoSelfBar|Int32()|20|1C6, DoSelfBar|Int32([self_override2]MyBar)|20, Public Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[self_override2]MyBar]
+     - System.Int32 MyBar::DoBar(): [self_override2]MyBar -> System.Int32 MyBar::DoSelfBar()
+
+[class [self_override2]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
+
