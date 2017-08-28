@@ -16,7 +16,7 @@ namespace test
 
 		private static string GetRelativePath(string path, string relativeTo)
 		{
-			string fullPath = Path.GetFullPath(path);
+			string fullPath = Path.GetFullPath(path + '/');
 			string fullRelative = Path.GetFullPath(relativeTo);
 			return fullPath.Substring(fullRelative.Length);
 		}
@@ -33,10 +33,7 @@ namespace test
 			}
 			else
 			{
-				if (typeDef.FullName == "WzComparerR2.Program")
-				{
-					return typeDef.FindMethod("Main");
-				}
+				return typeDef.FindMethod("Main");
 			}
 			return null;
 		}
@@ -124,7 +121,7 @@ namespace test
 			if (cmpData != null && dumpData.SequenceEqual(cmpData))
 			{
 				Console.ForegroundColor = ConsoleColor.Green;
-				Console.WriteLine("PASSED");
+				Console.WriteLine("PASS");
 				Console.ForegroundColor = oldColor;
 
 				++PassedTests;
@@ -132,7 +129,7 @@ namespace test
 			else
 			{
 				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine("FAILED");
+				Console.WriteLine("FAIL");
 				Console.ForegroundColor = oldColor;
 			}
 
