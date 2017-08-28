@@ -1,0 +1,62 @@
+* MethodTables:
+[[testcase]testcase.Program/Sub2]
+
+[[testcase]testcase.Program/Sub1]
+ - FooA|Void()|20: [testcase]testcase.Program/Sub1 -> System.Void testcase.Program/Sub1::FooA()
+   - [testcase]testcase.Program/Base -> System.Void testcase.Program/Base::FooA()
+   - [testcase]testcase.Program/Sub1 -> System.Void testcase.Program/Sub1::FooA()
+
+ - FooB|Void()|20: [testcase]testcase.Program/Sub1 -> System.Void testcase.Program/Sub1::FooB()
+   - [testcase]testcase.Program/Base -> System.Void testcase.Program/Base::FooB()
+   - [testcase]testcase.Program/Sub1 -> System.Void testcase.Program/Sub1::FooB()
+
+[[testcase]testcase.Program/Base]
+
+[Object]
+
+* Types:
+[class [testcase]testcase.Program] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Void()|0|91, Main|Void()|0, Private Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.Program
+   - [testcase]testcase.Program/Base
+   - [testcase]testcase.Program/Sub1
+   - [testcase]testcase.Program/Sub2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.Program/Sub2] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testcase]testcase.Program/Sub1
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Program/Sub2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+ - VTable:
+   - [Object]
+   - [[testcase]testcase.Program/Base]
+     - System.Void testcase.Program/Base::FooA(): [testcase]testcase.Program/Sub1 -> System.Void testcase.Program/Sub1::FooA()
+     - System.Void testcase.Program/Base::FooB(): [testcase]testcase.Program/Sub1 -> System.Void testcase.Program/Sub1::FooB()
+   - [[testcase]testcase.Program/Sub1]
+   - [[testcase]testcase.Program/Sub2]
+
+[class [testcase]testcase.Program/Sub1] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [testcase]testcase.Program/Base
+ - DerivedTypes:
+   - [testcase]testcase.Program/Sub2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Program/Sub1)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - FooB|Void()|20|C6, FooB|Void([testcase]testcase.Program/Sub1)|20, Public Virtual HideBySig Managed None
+
+[class [testcase]testcase.Program/Base] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - [testcase]testcase.Program/Sub1
+   - [testcase]testcase.Program/Sub2
+ - Methods:
+   - FooA|Void()|20|1C6, FooA|Void([testcase]testcase.Program/Base)|20 = 0, Public Virtual HideBySig NewSlot Managed None
+     - [testcase]testcase.Program/Sub1 -> FooB|Void()|20|C6, FooB|Void([testcase]testcase.Program/Sub1)|20
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Program/Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
