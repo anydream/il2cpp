@@ -161,6 +161,8 @@
      - System.String J`1::Bar1(): [TestCase0]B`2<[TestCase0]C,[TestCase0]C> -> System.String B`2::Bar1()
      - System.String J`1::Bar2(): [TestCase0]B`2<[TestCase0]C,[TestCase0]C> -> System.String B`2::Bar2()
    - [[TestCase0]B`2<[TestCase0]C,[TestCase0]C>]
+ - ReplaceMap:
+   - System.String A`1::Bar1() => System.String B`2::Bar1()
 
 [class [TestCase0]B`2<[TestCase0]C,[TestCase0]C>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: [TestCase0]A`1<[TestCase0]C>

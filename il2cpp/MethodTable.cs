@@ -589,13 +589,17 @@ namespace il2cpp
 
 				MethodDef implDef = impl.ResolveMethodDef();
 
-				if (!targetDef.IsAbstract)
+				if (targetTable == this)
 				{
 					// 处理显式重写当前类型方法的情况
 					MethodReplaceMap.Add(targetDef, new Tuple<MethodTable, MethodDef>(this, implDef));
 				}
 				else
 				{
+					// 对于非抽象方法的显式覆盖也需要添加到替换映射
+					if (!targetDef.IsAbstract)
+						MethodReplaceMap.Add(targetDef, new Tuple<MethodTable, MethodDef>(this, implDef));
+
 					string expSigName;
 					if (implDef == ownerMetDef)
 						expSigName = ExpandedSigList[ownerMetIdx];
