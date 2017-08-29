@@ -174,20 +174,14 @@ namespace il2cpp
 							// 处理非入口虚调用重定向
 							if (!resMetX.Def.IsNewSlot)
 							{
-								bool status = resMetX.DeclType.GetNewSlotMethod(resMetX.Def, out var slotTypeName, out var slotMetDef);
-								Debug.Assert(status);
-								Debug.Assert(slotMetDef != null);
-
-								if (slotMetDef != resMetX.Def)
+								if (GetNewSlotMethodChecked(resMetX.DeclType, resMetX.Def, out var slotTypeName, out var slotMetDef))
 								{
 									resMetX.IsSkipProcessing = true;
 
 									TypeX slotTyX = GetTypeByName(slotTypeName);
 									Debug.Assert(slotTyX != null);
 
-									MethodX slotMetX = new MethodX(slotTyX, slotMetDef);
-									slotMetX.GenArgs = resMetX.HasGenArgs ? new List<TypeSig>(resMetX.GenArgs) : null;
-									slotMetX = AddMethod(slotMetX);
+									MethodX slotMetX = MakeMethodX(slotTyX, slotMetDef, resMetX.GenArgs);
 
 									resMetX = slotMetX;
 								}
@@ -206,9 +200,7 @@ namespace il2cpp
 								TypeX repTyX = GetTypeByName(repTypeName);
 								Debug.Assert(repTyX != null);
 
-								MethodX repMetX = new MethodX(repTyX, repMetDef);
-								repMetX.GenArgs = resMetX.HasGenArgs ? new List<TypeSig>(resMetX.GenArgs) : null;
-								repMetX = AddMethod(repMetX);
+								MethodX repMetX = MakeMethodX(repTyX, repMetDef, resMetX.GenArgs);
 
 								resMetX = repMetX;
 							}
@@ -369,10 +361,8 @@ namespace il2cpp
 				if (!implDef.IsNewSlot)
 				{
 					// 解析对应的虚方法并尝试替换
-					bool status = implTyX.GetNewSlotMethod(implDef, out var slotTypeName, out var slotMetDef);
-					Debug.Assert(status);
-
-					if (implDef != slotMetDef && entryDef != slotMetDef)
+					if (GetNewSlotMethodChecked(implTyX, implDef, out var slotTypeName, out var slotMetDef) &&
+						entryDef != slotMetDef)
 					{
 						entryType = slotTypeName;
 						entryDef = slotMetDef;
@@ -389,9 +379,7 @@ namespace il2cpp
 					break;
 			}
 
-			MethodX implMetX = new MethodX(implTyX, implDef);
-			implMetX.GenArgs = virtMetX.HasGenArgs ? new List<TypeSig>(virtMetX.GenArgs) : null;
-			implMetX = AddMethod(implMetX);
+			MethodX implMetX = MakeMethodX(implTyX, implDef, virtMetX.GenArgs);
 
 			// 关联实现方法到虚方法
 			virtMetX.AddOverrideImpl(implMetX);
@@ -666,6 +654,28 @@ namespace il2cpp
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+		}
+
+		private MethodX MakeMethodX(TypeX declType, MethodDef metDef, IList<TypeSig> genArgs)
+		{
+			MethodX metX = new MethodX(declType, metDef);
+			if (genArgs != null && genArgs.Count > 0)
+				metX.GenArgs = new List<TypeSig>(genArgs);
+			return AddMethod(metX);
+		}
+
+		private static bool GetNewSlotMethodChecked(
+			TypeX declType,
+			MethodDef metDef,
+			out string slotTypeName,
+			out MethodDef slotMetDef)
+		{
+			Debug.Assert(!metDef.IsNewSlot);
+			bool status = declType.GetNewSlotMethod(metDef, out slotTypeName, out slotMetDef);
+			Debug.Assert(status);
+			Debug.Assert(slotTypeName != null);
+			Debug.Assert(slotMetDef != null);
+			return status && metDef != slotMetDef;
 		}
 	}
 }
