@@ -368,7 +368,16 @@ namespace il2cpp
 
 				if (!implDef.IsNewSlot)
 				{
-					//! 解析对应的虚方法并尝试替换
+					// 解析对应的虚方法并尝试替换
+					bool status = implTyX.GetNewSlotMethod(implDef, out var slotTypeName, out var slotMetDef);
+					Debug.Assert(status);
+
+					if (implDef != slotMetDef && entryDef != slotMetDef)
+					{
+						entryType = slotTypeName;
+						entryDef = slotMetDef;
+						continue;
+					}
 				}
 
 				if (implTyX.IsMethodReplaced(implDef, out var repTypeName, out var repMetDef))

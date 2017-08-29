@@ -149,12 +149,8 @@ namespace il2cpp
 		{
 			ResolveVTable();
 
-			IGenericReplacer replacer = null;
-			if (HasGenArgs)
-				replacer = new TypeDefGenReplacer(Def, GenArgs);
-
 			StringBuilder sb = new StringBuilder();
-			Helper.MethodNameKeyExpanded(sb, metDef, replacer);
+			Helper.MethodDefNameKey(sb, metDef, null);
 
 			if (VTable.NewSlotMap.TryGetValue(sb.ToString(), out var impl))
 			{

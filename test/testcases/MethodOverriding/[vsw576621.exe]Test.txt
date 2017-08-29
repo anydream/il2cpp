@@ -1,0 +1,58 @@
+* MethodTables:
+[[test]C2]
+ - M1|Int32()|20: [test]C2 -> System.Int32 C2::M1()
+   - [test]C1 -> System.Int32 C1::M3()
+   - [test]C2 -> System.Int32 C2::M1()
+
+ - M2|Int32()|20: [test]C1 -> System.Int32 C1::M2()
+
+ - M3|Int32()|20: [test]C2 -> System.Int32 C2::M3()
+   - [test]C1 -> System.Int32 C1::M2()
+   - [test]C2 -> System.Int32 C2::M3()
+
+ - M4|Int32()|20: [test]C2 -> System.Int32 C2::M4()
+   - [test]C2 -> System.Int32 C2::M4()
+   - [test]C1 -> System.Int32 C1::M1()
+
+[[test]C1]
+
+[Object]
+
+* Types:
+[class [test]Test] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Int32()|0|96, Main|Int32()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [test]Test
+   - [test]C1
+   - [test]C2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [test]C2] Public AutoLayout AnsiClass 
+ - Instantiated
+ - Base: [test]C1
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([test]C2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - M3|Int32()|20|46, M3|Int32([test]C2)|20 = 0, Public Virtual Managed None
+   - M4|Int32()|20|46, M4|Int32([test]C2)|20, Public Virtual Managed None
+ - VTable:
+   - [Object]
+   - [[test]C1]
+     - System.Int32 C1::M1(): [test]C2 -> System.Int32 C2::M4()
+     - System.Int32 C1::M2(): [test]C2 -> System.Int32 C2::M3()
+     - System.Int32 C1::M3(): [test]C2 -> System.Int32 C2::M1()
+   - [[test]C2]
+
+[class [test]C1] Public AutoLayout AnsiClass 
+ - Base: Object
+ - DerivedTypes:
+   - [test]C2
+ - Methods:
+   - M3|Int32()|20|46, M3|Int32([test]C1)|20 = 0, Public Virtual Managed None
+     - [test]C2 -> M4|Int32()|20|46, M4|Int32([test]C2)|20
+   - .ctor|Void()|20|1886, .ctor|Void([test]C1)|20, Public HideBySig SpecialName RTSpecialName Managed None
+

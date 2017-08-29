@@ -35,6 +35,4 @@
    - [Object]
      - System.Void System.Object::Finalize(): [testcase]testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
    - [[testcase]testcase.Finalizer1/Cls]
- - ReplaceMap:
-   - System.Void System.Object::Finalize() => System.Void testcase.Finalizer1/Cls::Finalize()
 

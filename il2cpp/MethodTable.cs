@@ -273,7 +273,7 @@ namespace il2cpp
 
 				MethodDefList.Add(metDef);
 
-				Helper.MethodNameKeyExpanded(sb, metDef, replacer);
+				Helper.MethodDefNameKey(sb, metDef, replacer);
 
 				ExpandedSigList.Add(sb.ToString());
 				sb.Clear();
@@ -596,10 +596,6 @@ namespace il2cpp
 				}
 				else
 				{
-					// 对于非抽象方法的显式覆盖也需要添加到替换映射
-					if (!targetDef.IsAbstract)
-						MethodReplaceMap.Add(targetDef, new Tuple<MethodTable, MethodDef>(this, implDef));
-
 					string expSigName;
 					if (implDef == ownerMetDef)
 						expSigName = ExpandedSigList[ownerMetIdx];

@@ -254,7 +254,7 @@ namespace il2cpp
 			sb.Append(((uint)callConv).ToString("X"));
 		}
 
-		public static void MethodNameKeyExpanded(
+		public static void MethodDefNameKey(
 			StringBuilder sb,
 			MethodDef metDef,
 			IGenericReplacer replacer)
