@@ -1,13 +1,13 @@
 * MethodTables:
 [[testcase]testcase.CycleType1/A`1]
 
-[[testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<!(testcase.CycleType1/A`1)0>>]
+[[testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<!([testcase]testcase.CycleType1/A`1)0>>]
 
 [Object]
 
 [[testcase]testcase.CycleType1/B`1]
 
-[[testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<!(testcase.CycleType1/B`1)0>>]
+[[testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<!([testcase]testcase.CycleType1/B`1)0>>]
 
 * Types:
 [class [testcase]testcase.CycleType1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 

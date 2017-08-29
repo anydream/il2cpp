@@ -45,15 +45,15 @@
 [[testcase]testcase.GenOverride9/Cls`1]
  - Foo|!!0<1>(!!0,!0)|30: [testcase]testcase.GenOverride9/Cls`1 -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
    - [testcase]testcase.GenOverride9/Cls`1 -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
-   - [testcase]testcase.GenOverride9/Inf`1<!(testcase.GenOverride9/Cls`1)0> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
+   - [testcase]testcase.GenOverride9/Inf`1<!([testcase]testcase.GenOverride9/Cls`1)0> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
 
  - Foo|!!0<1>(!!0,Int16*[])|30: [testcase]testcase.GenOverride9/Cls`1 -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
    - [testcase]testcase.GenOverride9/Cls`1 -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
    - [testcase]testcase.GenOverride9/Inf2`1<Int16*[]> -> TF testcase.GenOverride9/Inf2`1::Foo<TF>(TF,TI)
 
-[[testcase]testcase.GenOverride9/Inf`1<!(testcase.GenOverride9/Cls`1)0>]
+[[testcase]testcase.GenOverride9/Inf`1<!([testcase]testcase.GenOverride9/Cls`1)0>]
  - Foo|!!0<1>(!!0,!0)|30: null
-   - [testcase]testcase.GenOverride9/Inf`1<!(testcase.GenOverride9/Cls`1)0> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
+   - [testcase]testcase.GenOverride9/Inf`1<!([testcase]testcase.GenOverride9/Cls`1)0> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
 
 * Types:
 [class [testcase]testcase.GenOverride9] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 

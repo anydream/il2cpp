@@ -1,14 +1,14 @@
 * MethodTables:
 [[testcase]group3.Derived`2]
  - Foo|!!0<2>(!1,!0,!!0,!!1)|30: [testcase]group3.Derived`2 -> MT group3.Derived`2::Foo<MT,MP>(P,T,MT,MP)
-   - [testcase]group3.Base`2<!(group3.Derived`2)1,!(group3.Derived`2)0> -> MT group3.Base`2::Foo<MT,MP>(T,P,MT,MP)
+   - [testcase]group3.Base`2<!([testcase]group3.Derived`2)1,!([testcase]group3.Derived`2)0> -> MT group3.Base`2::Foo<MT,MP>(T,P,MT,MP)
    - [testcase]group3.Derived`2 -> MT group3.Derived`2::Foo<MT,MP>(P,T,MT,MP)
 
  - Foo|!!0<2>(!1,!0,!!1,!!0)|30: [testcase]group3.Derived`2 -> MT group3.Derived`2::Foo<MT,MP>(P,T,MP,MT)
-   - [testcase]group3.Base`2<!(group3.Derived`2)1,!(group3.Derived`2)0> -> MT group3.Base`2::Foo<MT,MP>(T,P,MP,MT)
+   - [testcase]group3.Base`2<!([testcase]group3.Derived`2)1,!([testcase]group3.Derived`2)0> -> MT group3.Base`2::Foo<MT,MP>(T,P,MP,MT)
    - [testcase]group3.Derived`2 -> MT group3.Derived`2::Foo<MT,MP>(P,T,MP,MT)
 
-[[testcase]group3.Base`2<!(group3.Derived`2)1,!(group3.Derived`2)0>]
+[[testcase]group3.Base`2<!([testcase]group3.Derived`2)1,!([testcase]group3.Derived`2)0>]
 
 [Object]
 

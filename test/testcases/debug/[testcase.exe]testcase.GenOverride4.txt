@@ -1,35 +1,35 @@
 * MethodTables:
 [[testcase]group2.DerivedX2`1]
  - Foo|Void(Int32,!0)|20: [testcase]group2.DerivedX2`1 -> System.Void group2.DerivedX2`1::Foo(System.Int32,T)
-   - [testcase]group2.Base`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(T,P)
-   - [testcase]group2.Inf`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Inf`2::Foo(T,P)
-   - [testcase]group2.Derived`2<!(group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(P,T)
+   - [testcase]group2.Base`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(T,P)
+   - [testcase]group2.Inf`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Inf`2::Foo(T,P)
+   - [testcase]group2.Derived`2<!([testcase]group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(P,T)
    - [testcase]group2.DerivedX2`1 -> System.Void group2.DerivedX2`1::Foo(System.Int32,T)
 
- - Foo|Void(Int32,Single)|20: [testcase]group2.Derived`2<!(group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(System.Int32,System.Single)
-   - [testcase]group2.Base`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(System.Int32,System.Single)
-   - [testcase]group2.Derived`2<!(group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(System.Int32,System.Single)
+ - Foo|Void(Int32,Single)|20: [testcase]group2.Derived`2<!([testcase]group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(System.Int32,System.Single)
+   - [testcase]group2.Base`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(System.Int32,System.Single)
+   - [testcase]group2.Derived`2<!([testcase]group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(System.Int32,System.Single)
 
-[[testcase]group2.Derived`2<!(group2.DerivedX2`1)0,Int32>]
- - Foo|Void(Int32,!0)|20: [testcase]group2.Derived`2<!(group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(P,T)
-   - [testcase]group2.Base`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(T,P)
-   - [testcase]group2.Inf`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Inf`2::Foo(T,P)
-   - [testcase]group2.Derived`2<!(group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(P,T)
+[[testcase]group2.Derived`2<!([testcase]group2.DerivedX2`1)0,Int32>]
+ - Foo|Void(Int32,!0)|20: [testcase]group2.Derived`2<!([testcase]group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(P,T)
+   - [testcase]group2.Base`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(T,P)
+   - [testcase]group2.Inf`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Inf`2::Foo(T,P)
+   - [testcase]group2.Derived`2<!([testcase]group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(P,T)
 
- - Foo|Void(Int32,Single)|20: [testcase]group2.Derived`2<!(group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(System.Int32,System.Single)
-   - [testcase]group2.Base`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(System.Int32,System.Single)
-   - [testcase]group2.Derived`2<!(group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(System.Int32,System.Single)
+ - Foo|Void(Int32,Single)|20: [testcase]group2.Derived`2<!([testcase]group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(System.Int32,System.Single)
+   - [testcase]group2.Base`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(System.Int32,System.Single)
+   - [testcase]group2.Derived`2<!([testcase]group2.DerivedX2`1)0,Int32> -> System.Void group2.Derived`2::Foo(System.Int32,System.Single)
 
-[[testcase]group2.Base`2<Int32,!(group2.DerivedX2`1)0>]
- - Foo|Void(Int32,!0)|20: [testcase]group2.Base`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(T,P)
-   - [testcase]group2.Base`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(T,P)
-   - [testcase]group2.Inf`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Inf`2::Foo(T,P)
+[[testcase]group2.Base`2<Int32,!([testcase]group2.DerivedX2`1)0>]
+ - Foo|Void(Int32,!0)|20: [testcase]group2.Base`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(T,P)
+   - [testcase]group2.Base`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Base`2::Foo(T,P)
+   - [testcase]group2.Inf`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Inf`2::Foo(T,P)
 
 [Object]
 
-[[testcase]group2.Inf`2<Int32,!(group2.DerivedX2`1)0>]
+[[testcase]group2.Inf`2<Int32,!([testcase]group2.DerivedX2`1)0>]
  - Foo|Void(Int32,!0)|20: null
-   - [testcase]group2.Inf`2<Int32,!(group2.DerivedX2`1)0> -> System.Void group2.Inf`2::Foo(T,P)
+   - [testcase]group2.Inf`2<Int32,!([testcase]group2.DerivedX2`1)0> -> System.Void group2.Inf`2::Foo(T,P)
 
 * Types:
 [class [testcase]testcase.GenOverride4] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 

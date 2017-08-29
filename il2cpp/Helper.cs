@@ -345,12 +345,16 @@ namespace il2cpp
 
 				case ElementType.CModReqd:
 					TypeSigName(sb, tySig.Next, printGenOwner);
-					sb.AppendFormat(" modreq({0})", ((CModReqdSig)tySig).Modifier.FullName);
+					sb.Append(" modreq(");
+					ClassSigName(sb, ((CModReqdSig)tySig).Modifier.ResolveTypeDef());
+					sb.Append(')');
 					return;
 
 				case ElementType.CModOpt:
 					TypeSigName(sb, tySig.Next, printGenOwner);
-					sb.AppendFormat(" modopt({0})", ((CModOptSig)tySig).Modifier.FullName);
+					sb.Append(" modopt(");
+					ClassSigName(sb, ((CModOptSig)tySig).Modifier.ResolveTypeDef());
+					sb.Append(')');
 					return;
 
 				case ElementType.GenericInst:
@@ -377,7 +381,7 @@ namespace il2cpp
 							if (printGenOwner)
 							{
 								sb.Append('(');
-								sb.Append(EscapeName(genSig.OwnerType.FullName));
+								ClassSigName(sb, genSig.OwnerType);
 								sb.Append(')');
 							}
 						}

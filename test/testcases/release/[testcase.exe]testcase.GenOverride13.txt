@@ -2,20 +2,20 @@
 [[testcase]testcase.GenOverride13/Cls`1]
  - Foo|Void(!0)|20: [testcase]testcase.GenOverride13/Cls`1 -> System.Void testcase.GenOverride13/Cls`1::Foo(T)
    - [testcase]testcase.GenOverride13/Cls`1 -> System.Void testcase.GenOverride13/Cls`1::Foo(T)
-   - [testcase]testcase.GenOverride13/Inf`1<!(testcase.GenOverride13/Cls`1)0> -> System.Void testcase.GenOverride13/Inf`1::Foo(T)
+   - [testcase]testcase.GenOverride13/Inf`1<!([testcase]testcase.GenOverride13/Cls`1)0> -> System.Void testcase.GenOverride13/Inf`1::Foo(T)
 
  - Foo|Void(Int32)|20: [testcase]testcase.GenOverride13/Cls`1 -> System.Void testcase.GenOverride13/Cls`1::Foo(System.Int32)
    - [testcase]testcase.GenOverride13/Cls`1 -> System.Void testcase.GenOverride13/Cls`1::Foo(System.Int32)
-   - [testcase]testcase.GenOverride13/Inf`1<!(testcase.GenOverride13/Cls`1)0> -> System.Void testcase.GenOverride13/Inf`1::Foo(System.Int32)
+   - [testcase]testcase.GenOverride13/Inf`1<!([testcase]testcase.GenOverride13/Cls`1)0> -> System.Void testcase.GenOverride13/Inf`1::Foo(System.Int32)
 
 [Object]
 
-[[testcase]testcase.GenOverride13/Inf`1<!(testcase.GenOverride13/Cls`1)0>]
+[[testcase]testcase.GenOverride13/Inf`1<!([testcase]testcase.GenOverride13/Cls`1)0>]
  - Foo|Void(Int32)|20: null
-   - [testcase]testcase.GenOverride13/Inf`1<!(testcase.GenOverride13/Cls`1)0> -> System.Void testcase.GenOverride13/Inf`1::Foo(System.Int32)
+   - [testcase]testcase.GenOverride13/Inf`1<!([testcase]testcase.GenOverride13/Cls`1)0> -> System.Void testcase.GenOverride13/Inf`1::Foo(System.Int32)
 
  - Foo|Void(!0)|20: null
-   - [testcase]testcase.GenOverride13/Inf`1<!(testcase.GenOverride13/Cls`1)0> -> System.Void testcase.GenOverride13/Inf`1::Foo(T)
+   - [testcase]testcase.GenOverride13/Inf`1<!([testcase]testcase.GenOverride13/Cls`1)0> -> System.Void testcase.GenOverride13/Inf`1::Foo(T)
 
 * Types:
 [class [testcase]testcase.GenOverride13] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 

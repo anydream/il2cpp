@@ -1,19 +1,19 @@
 * MethodTables:
 [[testcase]testcase.CycleType2/A`1]
  - Foo|[testcase]testcase.CycleType2/B`1<!0>([testcase]testcase.CycleType2/B`1<!0>)|20: [testcase]testcase.CycleType2/A`1 -> testcase.CycleType2/B`1<T> testcase.CycleType2/A`1::Foo(testcase.CycleType2/B`1<T>)
-   - [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<!(testcase.CycleType2/A`1)0>> -> T testcase.CycleType2/C`1::Foo(T)
+   - [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<!([testcase]testcase.CycleType2/A`1)0>> -> T testcase.CycleType2/C`1::Foo(T)
    - [testcase]testcase.CycleType2/A`1 -> testcase.CycleType2/B`1<T> testcase.CycleType2/A`1::Foo(testcase.CycleType2/B`1<T>)
 
-[[testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<!(testcase.CycleType2/A`1)0>>]
+[[testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/B`1<!([testcase]testcase.CycleType2/A`1)0>>]
 
 [Object]
 
 [[testcase]testcase.CycleType2/B`1]
  - Foo|[testcase]testcase.CycleType2/A`1<!0>([testcase]testcase.CycleType2/A`1<!0>)|20: [testcase]testcase.CycleType2/B`1 -> testcase.CycleType2/A`1<T> testcase.CycleType2/B`1::Foo(testcase.CycleType2/A`1<T>)
-   - [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<!(testcase.CycleType2/B`1)0>> -> T testcase.CycleType2/C`1::Foo(T)
+   - [testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<!([testcase]testcase.CycleType2/B`1)0>> -> T testcase.CycleType2/C`1::Foo(T)
    - [testcase]testcase.CycleType2/B`1 -> testcase.CycleType2/A`1<T> testcase.CycleType2/B`1::Foo(testcase.CycleType2/A`1<T>)
 
-[[testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<!(testcase.CycleType2/B`1)0>>]
+[[testcase]testcase.CycleType2/C`1<[testcase]testcase.CycleType2/A`1<!([testcase]testcase.CycleType2/B`1)0>>]
 
 * Types:
 [class [testcase]testcase.CycleType2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 

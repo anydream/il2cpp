@@ -1,10 +1,10 @@
 * MethodTables:
 [[testcase]group1.Derived`2]
  - Foo|Void(!1,!0)|20: [testcase]group1.Derived`2 -> System.Void group1.Derived`2::Foo(P,T)
-   - [testcase]group1.Base`2<!(group1.Derived`2)1,!(group1.Derived`2)0> -> System.Void group1.Base`2::Foo(T,P)
+   - [testcase]group1.Base`2<!([testcase]group1.Derived`2)1,!([testcase]group1.Derived`2)0> -> System.Void group1.Base`2::Foo(T,P)
    - [testcase]group1.Derived`2 -> System.Void group1.Derived`2::Foo(P,T)
 
-[[testcase]group1.Base`2<!(group1.Derived`2)1,!(group1.Derived`2)0>]
+[[testcase]group1.Base`2<!([testcase]group1.Derived`2)1,!([testcase]group1.Derived`2)0>]
 
 [Object]
 

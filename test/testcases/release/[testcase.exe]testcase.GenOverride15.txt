@@ -2,13 +2,13 @@
 [[testcase]testcase.GenOverride15/Cls`1]
  - Foo|Void(!0)|20: [testcase]testcase.GenOverride15/Cls`1 -> System.Void testcase.GenOverride15/Cls`1::Foo(T)
    - [testcase]testcase.GenOverride15/Cls`1 -> System.Void testcase.GenOverride15/Cls`1::Foo(T)
-   - [testcase]testcase.GenOverride15/Inf`1<!(testcase.GenOverride15/Cls`1)0> -> System.Void testcase.GenOverride15/Inf`1::Foo(T)
+   - [testcase]testcase.GenOverride15/Inf`1<!([testcase]testcase.GenOverride15/Cls`1)0> -> System.Void testcase.GenOverride15/Inf`1::Foo(T)
 
 [Object]
 
-[[testcase]testcase.GenOverride15/Inf`1<!(testcase.GenOverride15/Cls`1)0>]
+[[testcase]testcase.GenOverride15/Inf`1<!([testcase]testcase.GenOverride15/Cls`1)0>]
  - Foo|Void(!0)|20: null
-   - [testcase]testcase.GenOverride15/Inf`1<!(testcase.GenOverride15/Cls`1)0> -> System.Void testcase.GenOverride15/Inf`1::Foo(T)
+   - [testcase]testcase.GenOverride15/Inf`1<!([testcase]testcase.GenOverride15/Cls`1)0> -> System.Void testcase.GenOverride15/Inf`1::Foo(T)
 
 * Types:
 [class [testcase]testcase.GenOverride15] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
