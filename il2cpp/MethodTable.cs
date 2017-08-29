@@ -285,7 +285,7 @@ namespace il2cpp
 
 			List<int> explicitOverrides = new List<int>();
 
-			// 处理当前类型的覆盖
+			// 处理当前类型的重写
 			for (int i = 0; i < MethodDefList.Count; ++i)
 			{
 				MethodDef metDef = MethodDefList[i];
@@ -293,7 +293,7 @@ namespace il2cpp
 
 				if (metDef.HasOverrides)
 				{
-					// 记录存在显式覆盖的方法
+					// 记录存在显式重写的方法
 					explicitOverrides.Add(i);
 				}
 
@@ -377,11 +377,11 @@ namespace il2cpp
 				}
 			}
 
-			// 处理显式覆盖
+			// 处理显式重写
 			foreach (int idx in explicitOverrides)
 			{
 				MethodDef overDef = MethodDefList[idx];
-				ExplicitOverride(overDef.Overrides, overDef, idx);
+				ExplicitOverride(overDef, idx);
 			}
 
 			if (!Def.IsInterface)
@@ -559,13 +559,13 @@ namespace il2cpp
 			return vslot;
 		}
 
-		private void ExplicitOverride(IList<MethodOverride> overList, MethodDef ownerMetDef, int ownerMetIdx)
+		private void ExplicitOverride(MethodDef ownerMetDef, int ownerMetIdx)
 		{
 			IGenericReplacer replacer = null;
 			if (HasGenArgs)
 				replacer = new TypeDefGenReplacer(Def, GenArgs);
 
-			foreach (var overItem in overList)
+			foreach (var overItem in ownerMetDef.Overrides)
 			{
 				var target = overItem.MethodDeclaration;
 				var impl = overItem.MethodBody;
@@ -581,9 +581,9 @@ namespace il2cpp
 
 				MethodDef implDef = impl.ResolveMethodDef();
 
-				// 处理替换当前类型方法的情况
 				if (targetTable == this)
 				{
+					// 处理显式重写当前类型方法的情况
 					MethodReplaceMap.Add(targetDef, implDef);
 				}
 				else
