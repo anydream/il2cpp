@@ -334,7 +334,7 @@ namespace il2cpp
 		private void ResolveVMethod(
 			MethodX virtMetX,
 			TypeX derivedTyX,
-			string entryType,
+			string entryTypeName,
 			MethodDef entryDef)
 		{
 			// 跳过没有实例化的类型
@@ -342,21 +342,21 @@ namespace il2cpp
 				return;
 
 			// 在继承类型中查找虚方法
-			string implType;
+			string implTypeName;
 			MethodDef implDef;
 			TypeX implTyX;
 
 			for (;;)
 			{
 				if (!derivedTyX.QueryVTable(
-					entryType, entryDef,
-					out implType, out implDef))
+					entryTypeName, entryDef,
+					out implTypeName, out implDef))
 				{
 					throw new TypeLoadException("Resolve virtual method failed");
 				}
 
 				// 构造实现方法
-				implTyX = GetTypeByName(implType);
+				implTyX = GetTypeByName(implTypeName);
 
 				if (!implDef.IsNewSlot)
 				{
@@ -364,7 +364,7 @@ namespace il2cpp
 					if (GetNewSlotMethodChecked(implTyX, implDef, out var slotTypeName, out var slotMetDef) &&
 						entryDef != slotMetDef)
 					{
-						entryType = slotTypeName;
+						entryTypeName = slotTypeName;
 						entryDef = slotMetDef;
 						continue;
 					}
@@ -372,7 +372,7 @@ namespace il2cpp
 
 				if (implTyX.IsMethodReplaced(implDef, out var repTypeName, out var repMetDef))
 				{
-					entryType = repTypeName;
+					entryTypeName = repTypeName;
 					entryDef = repMetDef;
 				}
 				else

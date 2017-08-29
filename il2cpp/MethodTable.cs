@@ -23,19 +23,19 @@ namespace il2cpp
 			MethodReplaceMap = metReplaceMap;
 		}
 
-		public void Set(string entryType, MethodDef entryDef, string implType, MethodDef implDef)
+		public void Set(string entryTypeName, MethodDef entryDef, string implTypeName, MethodDef implDef)
 		{
-			if (!Table.TryGetValue(entryType, out var defMap))
+			if (!Table.TryGetValue(entryTypeName, out var defMap))
 			{
 				defMap = new Dictionary<MethodDef, Tuple<string, MethodDef>>();
-				Table.Add(entryType, defMap);
+				Table.Add(entryTypeName, defMap);
 			}
 
 			if (defMap.TryGetValue(entryDef, out var oitem))
 			{
 				if (oitem.Item2 == implDef)
 				{
-					Debug.Assert(oitem.Item1 == implType);
+					Debug.Assert(oitem.Item1 == implTypeName);
 					return;
 				}
 
@@ -44,23 +44,23 @@ namespace il2cpp
 				if (oitem.Item2.Rid > implDef.Rid)
 					return;
 			}
-			defMap[entryDef] = new Tuple<string, MethodDef>(implType, implDef);
+			defMap[entryDef] = new Tuple<string, MethodDef>(implTypeName, implDef);
 		}
 
 		public bool Query(
-			string entryType, MethodDef entryDef,
-			out string implType, out MethodDef implDef)
+			string entryTypeName, MethodDef entryDef,
+			out string implTypeName, out MethodDef implDef)
 		{
-			if (Table.TryGetValue(entryType, out var defMap))
+			if (Table.TryGetValue(entryTypeName, out var defMap))
 			{
 				if (defMap.TryGetValue(entryDef, out var impl))
 				{
-					implType = impl.Item1;
+					implTypeName = impl.Item1;
 					implDef = impl.Item2;
 					return true;
 				}
 			}
-			implType = null;
+			implTypeName = null;
 			implDef = null;
 			return false;
 		}
@@ -247,10 +247,10 @@ namespace il2cpp
 					MethodDef implDef = item.Value.ImplMethod;
 					Debug.Assert(implTable != null);
 
-					string entryType = entryTable == this ? thisNameKey : entryTable.GetReplacedNameKey(replacer);
-					string implType = implTable == this ? thisNameKey : implTable.GetReplacedNameKey(replacer);
+					string entryTypeName = entryTable == this ? thisNameKey : entryTable.GetReplacedNameKey(replacer);
+					string implTypeName = implTable == this ? thisNameKey : implTable.GetReplacedNameKey(replacer);
 
-					vtable.Set(entryType, entryDef, implType, implDef);
+					vtable.Set(entryTypeName, entryDef, implTypeName, implDef);
 				}
 			}
 

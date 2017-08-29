@@ -139,10 +139,10 @@ namespace il2cpp
 		}
 
 		public bool QueryVTable(
-			string entryType, MethodDef entryDef,
-			out string implType, out MethodDef implDef)
+			string entryTypeName, MethodDef entryDef,
+			out string implTypeName, out MethodDef implDef)
 		{
-			return VTable.Query(entryType, entryDef, out implType, out implDef);
+			return VTable.Query(entryTypeName, entryDef, out implTypeName, out implDef);
 		}
 
 		public bool GetNewSlotMethod(MethodDef metDef, out string slotTypeName, out MethodDef slotMetDef)
