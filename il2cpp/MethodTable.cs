@@ -11,18 +11,16 @@ namespace il2cpp
 		public readonly Dictionary<string, Dictionary<MethodDef, Tuple<string, MethodDef>>> Table =
 			new Dictionary<string, Dictionary<MethodDef, Tuple<string, MethodDef>>>();
 
-		public readonly Dictionary<MethodDef, MethodDef> MethodReplaceMap;
+		public readonly Dictionary<string, Tuple<string, MethodDef>> NewSlotMap;
 
-		public VirtualTable(Dictionary<MethodDef, MethodDef> metReplaceMap)
+		public readonly Dictionary<MethodDef, Tuple<string, MethodDef>> MethodReplaceMap;
+
+		public VirtualTable(
+			Dictionary<string, Tuple<string, MethodDef>> newSlotMap,
+			Dictionary<MethodDef, Tuple<string, MethodDef>> metReplaceMap)
 		{
+			NewSlotMap = newSlotMap;
 			MethodReplaceMap = metReplaceMap;
-		}
-
-		public MethodDef IsMethodReplaced(MethodDef metDef)
-		{
-			if (MethodReplaceMap.TryGetValue(metDef, out var ometDef))
-				return ometDef;
-			return null;
 		}
 
 		public void Set(string entryType, MethodDef entryDef, string implType, MethodDef implDef)
@@ -147,8 +145,13 @@ namespace il2cpp
 		private readonly Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>> ExpandedVSlotMap =
 			new Dictionary<MethodTable, Dictionary<MethodDef, VirtualImpl>>();
 
+		// 新建槽位方法签名映射
+		public readonly Dictionary<string, Tuple<MethodTable, MethodDef>> NewSlotMap =
+			new Dictionary<string, Tuple<MethodTable, MethodDef>>();
+
 		// 方法替换映射
-		public readonly Dictionary<MethodDef, MethodDef> MethodReplaceMap = new Dictionary<MethodDef, MethodDef>();
+		public readonly Dictionary<MethodDef, Tuple<MethodTable, MethodDef>> MethodReplaceMap =
+			new Dictionary<MethodDef, Tuple<MethodTable, MethodDef>>();
 
 		// 抽象类未实现的接口方法槽映射
 		public Dictionary<string, Dictionary<MethodTable, HashSet<MethodDef>>> AbsNoImplSlotMap;
@@ -198,15 +201,37 @@ namespace il2cpp
 			string thisNameKey = sb.ToString();
 			sb = null;
 
-			VirtualTable vtable = new VirtualTable(MethodReplaceMap);
+			// 构建泛型替换器
+			IGenericReplacer replacer = null;
+			if (tyGenArgs != null && tyGenArgs.Count > 0)
+				replacer = new TypeDefGenReplacer(Def, tyGenArgs);
+
+			// 替换类型名称
+			Dictionary<string, Tuple<string, MethodDef>> newSlotMap =
+				new Dictionary<string, Tuple<string, MethodDef>>();
+			foreach (var kv in NewSlotMap)
+			{
+				MethodTable slotTable = kv.Value.Item1;
+				string slotType = slotTable == this ? thisNameKey : slotTable.GetReplacedNameKey(replacer);
+
+				newSlotMap.Add(kv.Key, new Tuple<string, MethodDef>(slotType, kv.Value.Item2));
+			}
+
+			Dictionary<MethodDef, Tuple<string, MethodDef>> metReplaceMap =
+				new Dictionary<MethodDef, Tuple<string, MethodDef>>();
+			foreach (var kv in MethodReplaceMap)
+			{
+				MethodTable repTable = kv.Value.Item1;
+				string repType = repTable == this ? thisNameKey : repTable.GetReplacedNameKey(replacer);
+
+				metReplaceMap.Add(kv.Key, new Tuple<string, MethodDef>(repType, kv.Value.Item2));
+			}
+
+			VirtualTable vtable = new VirtualTable(newSlotMap, metReplaceMap);
 
 			// 不可实例化的类型不展开虚表
 			if (Def.IsAbstract || Def.IsInterface)
 				return vtable;
-
-			IGenericReplacer replacer = null;
-			if (tyGenArgs != null && tyGenArgs.Count > 0)
-				replacer = new TypeDefGenReplacer(Def, tyGenArgs);
 
 			foreach (var kv in ExpandedVSlotMap)
 			{
@@ -248,29 +273,7 @@ namespace il2cpp
 
 				MethodDefList.Add(metDef);
 
-				if (replacer == null)
-				{
-					Helper.MethodNameKey(
-						sb,
-						metDef.Name,
-						metDef.GenericParameters.Count,
-						metDef.MethodSig.RetType,
-						metDef.MethodSig.Params,
-						metDef.MethodSig.CallingConvention);
-				}
-				else
-				{
-					TypeSig retType = Helper.ReplaceGenericSig(metDef.MethodSig.RetType, replacer);
-					IList<TypeSig> paramTypes = Helper.ReplaceGenericSigList(metDef.MethodSig.Params, replacer);
-
-					Helper.MethodNameKey(
-						sb,
-						metDef.Name,
-						metDef.GenericParameters.Count,
-						retType,
-						paramTypes,
-						metDef.MethodSig.CallingConvention);
-				}
+				Helper.MethodNameKeyExpanded(sb, metDef, replacer);
 
 				ExpandedSigList.Add(sb.ToString());
 				sb.Clear();
@@ -507,6 +510,9 @@ namespace il2cpp
 			foreach (var kv in other.ExpandedVSlotMap)
 				ExpandedVSlotMap.Add(kv.Key, new Dictionary<MethodDef, VirtualImpl>(kv.Value));
 
+			foreach (var kv in other.NewSlotMap)
+				NewSlotMap.Add(kv.Key, kv.Value);
+
 			foreach (var kv in other.MethodReplaceMap)
 				MethodReplaceMap.Add(kv.Key, kv.Value);
 
@@ -532,14 +538,16 @@ namespace il2cpp
 			VSlotMap[expSigName] = vslot;
 			vslot.AddEntry(this, metDef);
 			vslot.SetImpl(this, metDef);
+
+			NewSlotMap[expSigName] = new Tuple<MethodTable, MethodDef>(this, metDef);
 		}
 
 		private void ReuseSlot(string expSigName, MethodDef metDef)
 		{
 			if (!VSlotMap.TryGetValue(expSigName, out var vslot))
 			{
-				vslot = new VirtualSlot();
-				VSlotMap.Add(expSigName, vslot);
+				NewSlot(expSigName, metDef);
+				return;
 			}
 			vslot.AddEntry(this, metDef);
 			vslot.SetImpl(this, metDef);
@@ -581,10 +589,10 @@ namespace il2cpp
 
 				MethodDef implDef = impl.ResolveMethodDef();
 
-				if (targetTable == this)
+				if (!targetDef.IsAbstract)
 				{
 					// 处理显式重写当前类型方法的情况
-					MethodReplaceMap.Add(targetDef, implDef);
+					MethodReplaceMap.Add(targetDef, new Tuple<MethodTable, MethodDef>(this, implDef));
 				}
 				else
 				{

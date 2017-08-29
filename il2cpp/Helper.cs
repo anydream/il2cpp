@@ -254,6 +254,36 @@ namespace il2cpp
 			sb.Append(((uint)callConv).ToString("X"));
 		}
 
+		public static void MethodNameKeyExpanded(
+			StringBuilder sb,
+			MethodDef metDef,
+			IGenericReplacer replacer)
+		{
+			if (replacer == null)
+			{
+				MethodNameKey(
+					sb,
+					metDef.Name,
+					metDef.GenericParameters.Count,
+					metDef.MethodSig.RetType,
+					metDef.MethodSig.Params,
+					metDef.MethodSig.CallingConvention);
+			}
+			else
+			{
+				TypeSig retType = Helper.ReplaceGenericSig(metDef.MethodSig.RetType, replacer);
+				IList<TypeSig> paramTypes = Helper.ReplaceGenericSigList(metDef.MethodSig.Params, replacer);
+
+				MethodNameKey(
+					sb,
+					metDef.Name,
+					metDef.GenericParameters.Count,
+					retType,
+					paramTypes,
+					metDef.MethodSig.CallingConvention);
+			}
+		}
+
 		public static void FieldNameKey(
 			StringBuilder sb,
 			string name,

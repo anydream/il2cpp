@@ -142,7 +142,7 @@ namespace il2cpp
 						sb.Append(" - ReplaceMap:\n");
 						foreach (var kv2 in tyX.VTable.MethodReplaceMap)
 						{
-							sb.AppendFormat("   - {0} => {1}\n", kv2.Key.FullName, kv2.Value.FullName);
+							sb.AppendFormat("   - {0} => {1}\n", kv2.Key.FullName, kv2.Value.Item2.FullName);
 						}
 					}
 				}

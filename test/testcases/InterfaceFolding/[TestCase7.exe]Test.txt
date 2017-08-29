@@ -55,6 +55,30 @@
  - Bar2|String()|20: null
    - [TestCase0]J`1<[TestCase0]C> -> System.String J`1::Bar2()
 
+[[TestCase0]A`1]
+ - Foo|String()|20: [TestCase0]A`1 -> System.String A`1::Foo()
+   - [TestCase0]A`1 -> System.String A`1::Foo()
+   - [TestCase0]I`1<!([TestCase0]A`1)0> -> System.String I`1::Foo()
+
+ - Bar1|String()|20: [TestCase0]A`1 -> System.String A`1::Bar1()
+   - [TestCase0]A`1 -> System.String A`1::Bar1()
+   - [TestCase0]J`1<!([TestCase0]A`1)0> -> System.String J`1::Bar1()
+
+ - Bar2|String()|20: [TestCase0]A`1 -> System.String A`1::Bar2()
+   - [TestCase0]A`1 -> System.String A`1::Bar2()
+   - [TestCase0]J`1<!([TestCase0]A`1)0> -> System.String J`1::Bar2()
+
+[[TestCase0]I`1<!([TestCase0]A`1)0>]
+ - Foo|String()|20: null
+   - [TestCase0]I`1<!([TestCase0]A`1)0> -> System.String I`1::Foo()
+
+[[TestCase0]J`1<!([TestCase0]A`1)0>]
+ - Bar1|String()|20: null
+   - [TestCase0]J`1<!([TestCase0]A`1)0> -> System.String J`1::Bar1()
+
+ - Bar2|String()|20: null
+   - [TestCase0]J`1<!([TestCase0]A`1)0> -> System.String J`1::Bar2()
+
 [[TestCase0]B`2]
  - Foo|String()|20: [TestCase0]B`2 -> System.String B`2::Foo()
    - [TestCase0]B`2 -> System.String B`2::Foo()

@@ -145,10 +145,41 @@ namespace il2cpp
 			return VTable.Query(entryType, entryDef, out implType, out implDef);
 		}
 
-		public MethodDef IsMethodReplaced(MethodDef metDef)
+		public bool GetNewSlotMethod(MethodDef metDef, out string slotTypeName, out MethodDef slotMetDef)
 		{
 			ResolveVTable();
-			return VTable.IsMethodReplaced(metDef);
+
+			IGenericReplacer replacer = null;
+			if (HasGenArgs)
+				replacer = new TypeDefGenReplacer(Def, GenArgs);
+
+			StringBuilder sb = new StringBuilder();
+			Helper.MethodNameKeyExpanded(sb, metDef, replacer);
+
+			if (VTable.NewSlotMap.TryGetValue(sb.ToString(), out var impl))
+			{
+				slotTypeName = impl.Item1;
+				slotMetDef = impl.Item2;
+				return true;
+			}
+			slotTypeName = null;
+			slotMetDef = null;
+			return false;
+		}
+
+		public bool IsMethodReplaced(MethodDef metDef, out string repTypeName, out MethodDef repMetDef)
+		{
+			ResolveVTable();
+
+			if (VTable.MethodReplaceMap.TryGetValue(metDef, out var impl))
+			{
+				repTypeName = impl.Item1;
+				repMetDef = impl.Item2;
+				return true;
+			}
+			repTypeName = null;
+			repMetDef = null;
+			return false;
 		}
 
 		public TypeX FindBaseType(TypeDef tyDef)

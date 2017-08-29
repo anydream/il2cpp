@@ -152,12 +152,6 @@ namespace il2cpp
 								throw new ArgumentOutOfRangeException();
 						}
 
-						if (resMetX.IsStatic)
-						{
-							// 生成静态构造
-							GenStaticCctor(resMetX.DeclType);
-						}
-
 						bool isReAddMethod = false;
 
 						if (inst.OpCode.Code == Code.Newobj)
@@ -174,24 +168,47 @@ namespace il2cpp
 							resMetX.DeclType.ResolveVTable();
 						}
 						else if (resMetX.IsVirtual &&
-								 (inst.OpCode.Code == Code.Callvirt ||
-								  inst.OpCode.Code == Code.Ldvirtftn))
+								(inst.OpCode.Code == Code.Callvirt ||
+								 inst.OpCode.Code == Code.Ldvirtftn))
 						{
-							// 记录虚入口
+							// 处理非入口虚调用重定向
+							if (!resMetX.Def.IsNewSlot)
+							{
+								bool status = resMetX.DeclType.GetNewSlotMethod(resMetX.Def, out var slotTypeName, out var slotMetDef);
+								Debug.Assert(status);
+								Debug.Assert(slotMetDef != null);
+
+								if (slotMetDef != resMetX.Def)
+								{
+									resMetX.IsSkipProcessing = true;
+
+									TypeX slotTyX = GetTypeByName(slotTypeName);
+									Debug.Assert(slotTyX != null);
+
+									MethodX slotMetX = new MethodX(slotTyX, slotMetDef);
+									slotMetX.GenArgs = resMetX.HasGenArgs ? new List<TypeSig>(resMetX.GenArgs) : null;
+									slotMetX = AddMethod(slotMetX);
+
+									resMetX = slotMetX;
+								}
+							}
 							AddVCallEntry(resMetX);
 						}
 						else if (resMetX.IsVirtual &&
-								 (inst.OpCode.Code == Code.Call ||
-								  inst.OpCode.Code == Code.Ldftn))
+								(inst.OpCode.Code == Code.Call ||
+								 inst.OpCode.Code == Code.Ldftn))
 						{
 							// 处理方法替换
-							MethodDef replacedMetDef = resMetX.DeclType.IsMethodReplaced(resMetX.Def);
-							if (replacedMetDef != null)
+							if (resMetX.DeclType.IsMethodReplaced(resMetX.Def, out var repTypeName, out var repMetDef))
 							{
 								resMetX.IsSkipProcessing = true;
-								MethodX repMetX = new MethodX(resMetX.DeclType, replacedMetDef);
+
+								TypeX repTyX = GetTypeByName(repTypeName);
+								Debug.Assert(repTyX != null);
+
+								MethodX repMetX = new MethodX(repTyX, repMetDef);
 								repMetX.GenArgs = resMetX.HasGenArgs ? new List<TypeSig>(resMetX.GenArgs) : null;
-								AddMethod(repMetX);
+								repMetX = AddMethod(repMetX);
 
 								resMetX = repMetX;
 							}
@@ -206,6 +223,12 @@ namespace il2cpp
 							// 尝试重新加入处理队列
 							resMetX.IsSkipProcessing = false;
 							AddPendingMethod(resMetX);
+						}
+
+						if (resMetX.IsStatic)
+						{
+							// 生成静态构造
+							GenStaticCctor(resMetX.DeclType);
 						}
 
 						inst.Operand = resMetX;
@@ -343,11 +366,15 @@ namespace il2cpp
 				// 构造实现方法
 				implTyX = GetTypeByName(implType);
 
-				MethodDef replacedMetDef = implTyX.IsMethodReplaced(implDef);
-				if (replacedMetDef != null)
+				if (!implDef.IsNewSlot)
 				{
-					entryType = implType;
-					entryDef = replacedMetDef;
+					//! 解析对应的虚方法并尝试替换
+				}
+
+				if (implTyX.IsMethodReplaced(implDef, out var repTypeName, out var repMetDef))
+				{
+					entryType = repTypeName;
+					entryDef = repMetDef;
 				}
 				else
 					break;
