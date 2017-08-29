@@ -1,0 +1,171 @@
+* MethodTables:
+[[TestCase5]C]
+ - Foo|String()|20: [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Foo()
+   - [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Foo()
+   - [TestCase5]A`1/I`1<[TestCase5]C> -> System.String A`1/I`1::Foo()
+
+ - Bar1|String()|20: [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar1()
+   - [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar1()
+   - [TestCase5]A`1/I`1/J -> System.String A`1/I`1/J::Bar1()
+
+ - Bar2|String()|20: [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar2()
+   - [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar2()
+   - [TestCase5]A`1/I`1/J -> System.String A`1/I`1/J::Bar2()
+
+[[TestCase5]B`2<[TestCase5]C,[TestCase5]C>]
+ - Foo|String()|20: [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Foo()
+   - [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Foo()
+   - [TestCase5]A`1/I`1<[TestCase5]C> -> System.String A`1/I`1::Foo()
+
+ - Bar1|String()|20: [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar1()
+   - [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar1()
+   - [TestCase5]A`1/I`1/J -> System.String A`1/I`1/J::Bar1()
+
+ - Bar2|String()|20: [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar2()
+   - [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar2()
+   - [TestCase5]A`1/I`1/J -> System.String A`1/I`1/J::Bar2()
+
+[[TestCase5]A`1<[TestCase5]C>]
+ - Foo|String()|20: [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Foo()
+   - [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Foo()
+   - [TestCase5]A`1/I`1<[TestCase5]C> -> System.String A`1/I`1::Foo()
+
+[Object]
+
+[[TestCase5]A`1/I`1<[TestCase5]C>]
+ - Foo|String()|20: null
+   - [TestCase5]A`1/I`1<[TestCase5]C> -> System.String A`1/I`1::Foo()
+
+[[TestCase5]A`1/I`1/J]
+ - Bar1|String()|20: null
+   - [TestCase5]A`1/I`1/J -> System.String A`1/I`1/J::Bar1()
+
+ - Bar2|String()|20: null
+   - [TestCase5]A`1/I`1/J -> System.String A`1/I`1/J::Bar2()
+
+[[TestCase5]A`1]
+ - Foo|String()|20: [TestCase5]A`1 -> System.String A`1::Foo()
+   - [TestCase5]A`1 -> System.String A`1::Foo()
+   - [TestCase5]A`1/I`1<!([TestCase5]A`1)0> -> System.String A`1/I`1::Foo()
+
+[[TestCase5]A`1/I`1<!([TestCase5]A`1)0>]
+ - Foo|String()|20: null
+   - [TestCase5]A`1/I`1<!([TestCase5]A`1)0> -> System.String A`1/I`1::Foo()
+
+* Types:
+[class [TestCase5]Test] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Int32()|0|96, Main|Int32()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [TestCase5]Test
+   - [TestCase5]A`1<[TestCase5]C>
+   - [TestCase5]B`2<[TestCase5]C,[TestCase5]C>
+   - [TestCase5]C
+   - String
+   - [TestCase5]Logger
+
+[class [TestCase5]C] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [TestCase5]B`2<[TestCase5]C,[TestCase5]C>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([TestCase5]C)|20, Public HideBySig SpecialName RTSpecialName Managed None
+ - VTable:
+   - [Object]
+   - [[TestCase5]A`1<[TestCase5]C>]
+   - [[TestCase5]A`1/I`1<[TestCase5]C>]
+     - System.String A`1/I`1::Foo(): [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Foo()
+   - [[TestCase5]A`1/I`1/J]
+     - System.String A`1/I`1/J::Bar1(): [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar1()
+     - System.String A`1/I`1/J::Bar2(): [TestCase5]A`1<[TestCase5]C> -> System.String A`1::Bar2()
+
+[class [TestCase5]B`2<[TestCase5]C,[TestCase5]C>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [TestCase5]A`1<[TestCase5]C>
+ - Interfaces:
+   - [TestCase5]A`1/I`1<[TestCase5]C>
+   - [TestCase5]A`1/I`1/J
+ - DerivedTypes:
+   - [TestCase5]C
+
+[class [TestCase5]A`1<[TestCase5]C>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - [TestCase5]A`1/I`1<[TestCase5]C>
+ - DerivedTypes:
+   - [TestCase5]B`2<[TestCase5]C,[TestCase5]C>
+   - [TestCase5]C
+ - Methods:
+   - Foo|String()|20|1C6, Foo|String([TestCase5]A`1<[TestCase5]C>)|20, Public Virtual HideBySig NewSlot Managed None
+     - [TestCase5]A`1<[TestCase5]C> -> Foo|String()|20|1C6, Foo|String([TestCase5]A`1<[TestCase5]C>)|20
+   - Bar1|String()|20|1C6, Bar1|String([TestCase5]A`1<[TestCase5]C>)|20, Public Virtual HideBySig NewSlot Managed None
+     - [TestCase5]A`1<[TestCase5]C> -> Bar1|String()|20|1C6, Bar1|String([TestCase5]A`1<[TestCase5]C>)|20
+   - Bar2|String()|20|1C6, Bar2|String([TestCase5]A`1<[TestCase5]C>)|20, Public Virtual HideBySig NewSlot Managed None
+     - [TestCase5]A`1<[TestCase5]C> -> Bar2|String()|20|1C6, Bar2|String([TestCase5]A`1<[TestCase5]C>)|20
+
+[class [TestCase5]A`1/I`1<[TestCase5]C>] NestedFamily AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [TestCase5]A`1<[TestCase5]C>
+   - [TestCase5]B`2<[TestCase5]C,[TestCase5]C>
+   - [TestCase5]C
+
+[class [TestCase5]A`1/I`1/J] NestedPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [TestCase5]B`2<[TestCase5]C,[TestCase5]C>
+   - [TestCase5]C
+
+[class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - System.IComparable
+   - System.ICloneable
+   - System.IConvertible
+   - System.Collections.IEnumerable
+   - System.IComparable`1<String>
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - System.IEquatable`1<String>
+ - Fields:
+   - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
+ - Methods:
+   - op_Inequality|Boolean(String,String)|0|896, op_Inequality|Boolean(String,String)|0, Public Static HideBySig SpecialName Managed None
+   - Equals|Boolean(String,String)|0|96, Equals|Boolean(String,String)|0, Public Static HideBySig Managed None
+   - get_Length|Int32()|20|886, get_Length|Int32(String)|20, Public HideBySig SpecialName IL, InternalCall Getter
+   - EqualsHelper|Boolean(String,String)|0|91, EqualsHelper|Boolean(String,String)|0, Private Static HideBySig Managed None
+
+[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - String
+
+[class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - System.Collections.IEnumerable
+ - DerivedTypes:
+   - String
+
+[class System.IEquatable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class [TestCase5]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
+
