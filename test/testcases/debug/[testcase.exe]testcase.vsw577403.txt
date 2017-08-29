@@ -1,0 +1,182 @@
+* MethodTables:
+[[testcase]testcase.vsw577403/Level3]
+ - testcase.vsw577403.ITest.get_Test|Int32()|20: [testcase]testcase.vsw577403/Level2 -> System.Int32 testcase.vsw577403/Level2::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/Level2 -> System.Int32 testcase.vsw577403/Level2::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test()
+
+ - testcase.vsw577403.ITest.get_Test2|Int32()|20: [testcase]testcase.vsw577403/Level3 -> System.Int32 testcase.vsw577403/Level3::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/Level3 -> System.Int32 testcase.vsw577403/Level3::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test2()
+
+[[testcase]testcase.vsw577403/Level2]
+ - testcase.vsw577403.ITest.get_Test|Int32()|20: [testcase]testcase.vsw577403/Level2 -> System.Int32 testcase.vsw577403/Level2::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/Level2 -> System.Int32 testcase.vsw577403/Level2::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test()
+
+ - testcase.vsw577403.ITest.get_Test2|Int32()|20: [testcase]testcase.vsw577403/Level2 -> System.Int32 testcase.vsw577403/Level2::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/Level2 -> System.Int32 testcase.vsw577403/Level2::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test2()
+
+[[testcase]testcase.vsw577403/Level1]
+ - get_Test|Int32()|20: [testcase]testcase.vsw577403/Level1 -> System.Int32 testcase.vsw577403/Level1::get_Test()
+   - [testcase]testcase.vsw577403/Level1 -> System.Int32 testcase.vsw577403/Level1::get_Test()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test()
+
+ - get_Test2|Int32()|20: [testcase]testcase.vsw577403/Level1 -> System.Int32 testcase.vsw577403/Level1::get_Test2()
+   - [testcase]testcase.vsw577403/Level1 -> System.Int32 testcase.vsw577403/Level1::get_Test2()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test2()
+
+[Object]
+
+[[testcase]testcase.vsw577403/ITest]
+ - get_Test|Int32()|20: null
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test()
+
+ - get_Test2|Int32()|20: null
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test2()
+
+[[testcase]testcase.vsw577403/GenericLevel4]
+ - testcase.vsw577403.ITest.get_Test|Int32()|20: [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test()
+
+ - testcase.vsw577403.ITest.get_Test2|Int32()|20: [testcase]testcase.vsw577403/GenericLevel4 -> System.Int32 testcase.vsw577403/GenericLevel4::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/GenericLevel4 -> System.Int32 testcase.vsw577403/GenericLevel4::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test2()
+
+[[testcase]testcase.vsw577403/GenericLevel3]
+ - testcase.vsw577403.ITest.get_Test|Int32()|20: [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test()
+
+ - testcase.vsw577403.ITest.get_Test2|Int32()|20: [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test2()
+
+[[testcase]testcase.vsw577403/GenericLevel2`1<Int32>]
+ - testcase.vsw577403.ITest.get_Test|Int32()|20: [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test()
+
+ - testcase.vsw577403.ITest.get_Test2|Int32()|20: [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test2()
+
+[[testcase]testcase.vsw577403/GenericLevel2`1]
+ - testcase.vsw577403.ITest.get_Test|Int32()|20: [testcase]testcase.vsw577403/GenericLevel2`1 -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/GenericLevel2`1 -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test()
+
+ - testcase.vsw577403.ITest.get_Test2|Int32()|20: [testcase]testcase.vsw577403/GenericLevel2`1 -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/GenericLevel2`1 -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test2()
+   - [testcase]testcase.vsw577403/ITest -> System.Int32 testcase.vsw577403/ITest::get_Test2()
+
+* Types:
+[class [testcase]testcase.vsw577403] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.vsw577403
+   - [testcase]testcase.vsw577403/Level1
+   - [testcase]testcase.vsw577403/Level2
+   - [testcase]testcase.vsw577403/Level3
+   - [testcase]testcase.vsw577403/GenericLevel2`1<Int32>
+   - [testcase]testcase.vsw577403/GenericLevel3
+   - [testcase]testcase.vsw577403/GenericLevel4
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.vsw577403/Level3] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testcase]testcase.vsw577403/Level2
+ - Interfaces:
+   - [testcase]testcase.vsw577403/ITest
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.vsw577403/Level3)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.vsw577403.ITest.get_Test2|Int32()|20|9E1, testcase.vsw577403.ITest.get_Test2|Int32([testcase]testcase.vsw577403/Level3)|20, Private Final Virtual HideBySig NewSlot SpecialName Managed Getter
+ - VTable:
+   - [Object]
+   - [[testcase]testcase.vsw577403/Level1]
+   - [[testcase]testcase.vsw577403/ITest]
+     - System.Int32 testcase.vsw577403/ITest::get_Test(): [testcase]testcase.vsw577403/Level2 -> System.Int32 testcase.vsw577403/Level2::testcase.vsw577403.ITest.get_Test()
+     - System.Int32 testcase.vsw577403/ITest::get_Test2(): [testcase]testcase.vsw577403/Level3 -> System.Int32 testcase.vsw577403/Level3::testcase.vsw577403.ITest.get_Test2()
+   - [[testcase]testcase.vsw577403/Level2]
+   - [[testcase]testcase.vsw577403/Level3]
+
+[class [testcase]testcase.vsw577403/Level2] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [testcase]testcase.vsw577403/Level1
+ - Interfaces:
+   - [testcase]testcase.vsw577403/ITest
+ - DerivedTypes:
+   - [testcase]testcase.vsw577403/Level3
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.vsw577403/Level2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.vsw577403.ITest.get_Test|Int32()|20|9E1, testcase.vsw577403.ITest.get_Test|Int32([testcase]testcase.vsw577403/Level2)|20, Private Final Virtual HideBySig NewSlot SpecialName Managed Getter
+
+[class [testcase]testcase.vsw577403/Level1] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - [testcase]testcase.vsw577403/ITest
+ - DerivedTypes:
+   - [testcase]testcase.vsw577403/Level2
+   - [testcase]testcase.vsw577403/Level3
+   - [testcase]testcase.vsw577403/GenericLevel2`1<Int32>
+   - [testcase]testcase.vsw577403/GenericLevel3
+   - [testcase]testcase.vsw577403/GenericLevel4
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.vsw577403/Level1)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.vsw577403/ITest] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testcase]testcase.vsw577403/Level1
+   - [testcase]testcase.vsw577403/Level2
+   - [testcase]testcase.vsw577403/Level3
+   - [testcase]testcase.vsw577403/GenericLevel2`1<Int32>
+   - [testcase]testcase.vsw577403/GenericLevel3
+   - [testcase]testcase.vsw577403/GenericLevel4
+ - Methods:
+   - get_Test|Int32()|20|DC6, get_Test|Int32([testcase]testcase.vsw577403/ITest)|20 = 0, Public Virtual HideBySig NewSlot Abstract SpecialName Managed Getter
+     - [testcase]testcase.vsw577403/Level2 -> testcase.vsw577403.ITest.get_Test|Int32()|20|9E1, testcase.vsw577403.ITest.get_Test|Int32([testcase]testcase.vsw577403/Level2)|20
+     - [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> testcase.vsw577403.ITest.get_Test|Int32()|20|9E1, testcase.vsw577403.ITest.get_Test|Int32([testcase]testcase.vsw577403/GenericLevel2`1<Int32>)|20
+   - get_Test2|Int32()|20|DC6, get_Test2|Int32([testcase]testcase.vsw577403/ITest)|20 = 0, Public Virtual HideBySig NewSlot Abstract SpecialName Managed Getter
+     - [testcase]testcase.vsw577403/Level3 -> testcase.vsw577403.ITest.get_Test2|Int32()|20|9E1, testcase.vsw577403.ITest.get_Test2|Int32([testcase]testcase.vsw577403/Level3)|20
+     - [testcase]testcase.vsw577403/GenericLevel4 -> testcase.vsw577403.ITest.get_Test2|Int32()|20|9E1, testcase.vsw577403.ITest.get_Test2|Int32([testcase]testcase.vsw577403/GenericLevel4)|20
+
+[class [testcase]testcase.vsw577403/GenericLevel4] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testcase]testcase.vsw577403/GenericLevel3
+ - Interfaces:
+   - [testcase]testcase.vsw577403/ITest
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.vsw577403/GenericLevel4)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.vsw577403.ITest.get_Test2|Int32()|20|9E1, testcase.vsw577403.ITest.get_Test2|Int32([testcase]testcase.vsw577403/GenericLevel4)|20, Private Final Virtual HideBySig NewSlot SpecialName Managed Getter
+ - VTable:
+   - [Object]
+   - [[testcase]testcase.vsw577403/Level1]
+   - [[testcase]testcase.vsw577403/ITest]
+     - System.Int32 testcase.vsw577403/ITest::get_Test(): [testcase]testcase.vsw577403/GenericLevel2`1<Int32> -> System.Int32 testcase.vsw577403/GenericLevel2`1::testcase.vsw577403.ITest.get_Test()
+     - System.Int32 testcase.vsw577403/ITest::get_Test2(): [testcase]testcase.vsw577403/GenericLevel4 -> System.Int32 testcase.vsw577403/GenericLevel4::testcase.vsw577403.ITest.get_Test2()
+   - [[testcase]testcase.vsw577403/GenericLevel2`1<Int32>]
+   - [[testcase]testcase.vsw577403/GenericLevel4]
+
+[class [testcase]testcase.vsw577403/GenericLevel3] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [testcase]testcase.vsw577403/GenericLevel2`1<Int32>
+ - DerivedTypes:
+   - [testcase]testcase.vsw577403/GenericLevel4
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.vsw577403/GenericLevel3)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.vsw577403/GenericLevel2`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [testcase]testcase.vsw577403/Level1
+ - Interfaces:
+   - [testcase]testcase.vsw577403/ITest
+ - DerivedTypes:
+   - [testcase]testcase.vsw577403/GenericLevel3
+   - [testcase]testcase.vsw577403/GenericLevel4
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.vsw577403/GenericLevel2`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.vsw577403.ITest.get_Test|Int32()|20|9E1, testcase.vsw577403.ITest.get_Test|Int32([testcase]testcase.vsw577403/GenericLevel2`1<Int32>)|20, Private Final Virtual HideBySig NewSlot SpecialName Managed Getter
+
