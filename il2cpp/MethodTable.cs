@@ -416,7 +416,11 @@ namespace il2cpp
 						{
 							// 删除存在实现的接口入口
 							if (absNoImplSlots != null && vslot.Impl.IsValid())
+							{
 								absNoImplSlots.Remove(expSigName);
+								if (AbsNoImplSlotMap != null)
+									AbsNoImplSlotMap.Remove(expSigName);
+							}
 
 							// 展平方法槽
 							foreach (var kv2 in vslot.Entries)
@@ -506,7 +510,7 @@ namespace il2cpp
 			foreach (var kv in other.MethodReplaceMap)
 				MethodReplaceMap.Add(kv.Key, kv.Value);
 
-			if (other.AbsNoImplSlotMap != null)
+			if (other.AbsNoImplSlotMap != null && other.AbsNoImplSlotMap.Count > 0)
 			{
 				AbsNoImplSlotMap = new Dictionary<string, Dictionary<MethodTable, HashSet<MethodDef>>>();
 				foreach (var kv in other.AbsNoImplSlotMap)
