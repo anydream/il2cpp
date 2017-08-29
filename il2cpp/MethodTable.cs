@@ -32,7 +32,15 @@ namespace il2cpp
 				defMap = new Dictionary<MethodDef, Tuple<string, MethodDef>>();
 				Table.Add(entryType, defMap);
 			}
-			defMap.Add(entryDef, new Tuple<string, MethodDef>(implType, implDef));
+
+			if (defMap.TryGetValue(entryDef, out var oitem))
+			{
+				Debug.Assert(oitem.Item2.Rid != implDef.Rid);
+				// 如果现有的方法定义靠后则保留, 否则替换
+				if (oitem.Item2.Rid > implDef.Rid)
+					return;
+			}
+			defMap[entryDef] = new Tuple<string, MethodDef>(implType, implDef);
 		}
 
 		public bool Query(
