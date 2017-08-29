@@ -35,6 +35,12 @@ namespace il2cpp
 
 			if (defMap.TryGetValue(entryDef, out var oitem))
 			{
+				if (oitem.Item2 == implDef)
+				{
+					Debug.Assert(oitem.Item1 == implType);
+					return;
+				}
+
 				Debug.Assert(oitem.Item2.Rid != implDef.Rid);
 				// 如果现有的方法定义靠后则保留, 否则替换
 				if (oitem.Item2.Rid > implDef.Rid)
