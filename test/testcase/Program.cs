@@ -1687,6 +1687,41 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class vsw593884
+	{
+		interface ITest
+		{
+			int Test { get; }
+			int Test2 { get; }
+		}
+
+		class Level1 : ITest
+		{
+			public int Test { get { return 11; } }
+			public int Test2 { get { return 12; } }
+		}
+
+		class Level2 : Level1, ITest
+		{
+			int ITest.Test { get { return 21; } }
+			int ITest.Test2 { get { return 22; } }
+		}
+
+		class Level3 : Level2, ITest
+		{
+			int ITest.Test2 { get { return 32; } }
+		}
+
+		public static void Entry()
+		{
+			ITest test = new Level3();
+
+			int ret1 = test.Test;
+			int ret2 = test.Test2;
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()
