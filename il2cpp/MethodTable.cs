@@ -150,6 +150,9 @@ namespace il2cpp
 		// 方法替换映射
 		public readonly Dictionary<MethodDef, MethodDef> MethodReplaceMap = new Dictionary<MethodDef, MethodDef>();
 
+		// 抽象类未实现的接口方法槽映射
+		public Dictionary<string, Dictionary<MethodTable, HashSet<MethodDef>>> AbsNoImplSlotMap;
+
 		public MethodTable(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
@@ -318,6 +321,10 @@ namespace il2cpp
 				}
 			}
 
+			HashSet<string> absNoImplSlots = null;
+			if (Def.IsAbstract)
+				absNoImplSlots = new HashSet<string>();
+
 			// 合并接口的方法槽到当前方法槽
 			if (Def.HasInterfaces)
 			{
@@ -337,8 +344,33 @@ namespace il2cpp
 								if (NeedMergeInterface(expSigName, entryTable, entryDef))
 								{
 									// 合并
-									MergeSlot(expSigName, entryTable, entryDef);
+									var mergedVSlot = MergeSlot(expSigName, entryTable, entryDef);
+
+									// 记录虚类型未实现的接口签名
+									if (absNoImplSlots != null && !mergedVSlot.Impl.IsValid())
+										absNoImplSlots.Add(expSigName);
 								}
+							}
+						}
+					}
+				}
+			}
+
+			// 合并抽象基类未实现的接口
+			if (AbsNoImplSlotMap != null && AbsNoImplSlotMap.Count > 0)
+			{
+				foreach (var kv in AbsNoImplSlotMap)
+				{
+					string expSigName = kv.Key;
+					foreach (var kv2 in kv.Value)
+					{
+						MethodTable entryTable = kv2.Key;
+						foreach (MethodDef entryDef in kv2.Value)
+						{
+							if (NeedMergeInterface(expSigName, entryTable, entryDef))
+							{
+								// 合并
+								var mergedVSlot = MergeSlot(expSigName, entryTable, entryDef);
 							}
 						}
 					}
@@ -356,6 +388,7 @@ namespace il2cpp
 			{
 				foreach (var kv in VSlotMap)
 				{
+					string expSigName = kv.Key;
 					VirtualSlot vslot = kv.Value;
 					if (vslot.Entries.Count > 0)
 					{
@@ -365,7 +398,7 @@ namespace il2cpp
 							StringBuilder sb2 = new StringBuilder();
 
 							sb2.AppendFormat("Slot has no implementation. Class: {0}, Slot: {1}, ",
-								this, kv.Key);
+								this, expSigName);
 							foreach (var item in vslot.Entries)
 							{
 								sb2.AppendFormat("{0} -> [", item.Key);
@@ -381,6 +414,10 @@ namespace il2cpp
 						}
 						else
 						{
+							// 删除存在实现的接口入口
+							if (absNoImplSlots != null && vslot.Impl.IsValid())
+								absNoImplSlots.Remove(expSigName);
+
 							// 展平方法槽
 							foreach (var kv2 in vslot.Entries)
 							{
@@ -389,6 +426,34 @@ namespace il2cpp
 									SetExpandedVSlotMap(entryTable, entryDef, ref vslot.Impl);
 							}
 						}
+					}
+				}
+			}
+
+			if (absNoImplSlots != null && absNoImplSlots.Count > 0)
+			{
+				if (AbsNoImplSlotMap == null)
+					AbsNoImplSlotMap = new Dictionary<string, Dictionary<MethodTable, HashSet<MethodDef>>>();
+
+				foreach (var expSigName in absNoImplSlots)
+				{
+					var vslot = VSlotMap[expSigName];
+					Debug.Assert(!vslot.Impl.IsValid());
+
+					if (!AbsNoImplSlotMap.TryGetValue(expSigName, out var defMap))
+					{
+						defMap = new Dictionary<MethodTable, HashSet<MethodDef>>();
+						AbsNoImplSlotMap.Add(expSigName, defMap);
+					}
+
+					foreach (var entry in vslot.Entries)
+					{
+						if (!defMap.TryGetValue(entry.Key, out var defSet))
+						{
+							defSet = new HashSet<MethodDef>();
+							defMap.Add(entry.Key, defSet);
+						}
+						defSet.UnionWith(entry.Value);
 					}
 				}
 			}
@@ -407,7 +472,10 @@ namespace il2cpp
 			if (ExpandedVSlotMap.TryGetValue(entryTable, out var defMap))
 			{
 				if (defMap.ContainsKey(entryDef))
+				{
+					Debug.Assert(defMap[entryDef].IsValid());
 					return false;
+				}
 			}
 
 			// 其他情况需要合并接口
@@ -437,6 +505,21 @@ namespace il2cpp
 
 			foreach (var kv in other.MethodReplaceMap)
 				MethodReplaceMap.Add(kv.Key, kv.Value);
+
+			if (other.AbsNoImplSlotMap != null)
+			{
+				AbsNoImplSlotMap = new Dictionary<string, Dictionary<MethodTable, HashSet<MethodDef>>>();
+				foreach (var kv in other.AbsNoImplSlotMap)
+				{
+					var defMap = new Dictionary<MethodTable, HashSet<MethodDef>>();
+					AbsNoImplSlotMap.Add(kv.Key, defMap);
+
+					foreach (var kv2 in kv.Value)
+					{
+						defMap.Add(kv2.Key, new HashSet<MethodDef>(kv2.Value));
+					}
+				}
+			}
 		}
 
 		private void NewSlot(string expSigName, MethodDef metDef)
@@ -458,7 +541,7 @@ namespace il2cpp
 			vslot.SetImpl(this, metDef);
 		}
 
-		private void MergeSlot(string expSigName, MethodTable entryTable, MethodDef entryDef)
+		private VirtualSlot MergeSlot(string expSigName, MethodTable entryTable, MethodDef entryDef)
 		{
 			// 合并之前需要删除现有的入口
 			RemoveEntry(entryTable, entryDef);
@@ -469,6 +552,7 @@ namespace il2cpp
 				VSlotMap.Add(expSigName, vslot);
 			}
 			vslot.AddEntry(entryTable, entryDef);
+			return vslot;
 		}
 
 		private void ExplicitOverride(IList<MethodOverride> overList, MethodDef ownerMetDef, int ownerMetIdx)
