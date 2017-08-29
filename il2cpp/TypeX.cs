@@ -150,5 +150,14 @@ namespace il2cpp
 			ResolveVTable();
 			return VTable.IsMethodReplaced(metDef);
 		}
+
+		public TypeX FindBaseType(TypeDef tyDef)
+		{
+			if (BaseType == null)
+				return null;
+			if (BaseType.Def == tyDef)
+				return BaseType;
+			return BaseType.FindBaseType(tyDef);
+		}
 	}
 }

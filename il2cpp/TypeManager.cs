@@ -423,7 +423,15 @@ namespace il2cpp
 			else
 			{
 				TypeX declType = ResolveITypeDefOrRef(memRef.DeclaringType, replacer);
-				MethodX metX = new MethodX(declType, memRef.ResolveMethod());
+				MethodDef metDef = memRef.ResolveMethod();
+				if (metDef.DeclaringType != declType.Def)
+				{
+					// 处理引用类型不包含该方法的情况
+					declType = declType.FindBaseType(metDef.DeclaringType);
+					Debug.Assert(declType != null);
+				}
+
+				MethodX metX = new MethodX(declType, metDef);
 				return AddMethod(metX);
 			}
 		}
@@ -432,12 +440,19 @@ namespace il2cpp
 		public MethodX ResolveMethodSpec(MethodSpec metSpec, IGenericReplacer replacer)
 		{
 			TypeX declType = ResolveITypeDefOrRef(metSpec.DeclaringType, replacer);
+			MethodDef metDef = metSpec.ResolveMethodDef();
+			if (metDef.DeclaringType != declType.Def)
+			{
+				// 处理引用类型不包含该方法的情况
+				declType = declType.FindBaseType(metDef.DeclaringType);
+				Debug.Assert(declType != null);
+			}
 
 			var metGenArgs = metSpec.GenericInstMethodSig?.GenericArguments;
 			Debug.Assert(metGenArgs != null);
 			IList<TypeSig> genArgs = Helper.ReplaceGenericSigList(metGenArgs, replacer);
 
-			MethodX metX = new MethodX(declType, metSpec.ResolveMethodDef());
+			MethodX metX = new MethodX(declType, metDef);
 			metX.GenArgs = genArgs;
 			return AddMethod(metX);
 		}
