@@ -391,7 +391,7 @@ namespace il2cpp
 
 		public FieldX ResolveFieldDef(FieldDef fldDef)
 		{
-			TypeX declType = ResolveITypeDefOrRef(fldDef.DeclaringType, null);
+			TypeX declType = ResolveTypeDefOrRef(fldDef.DeclaringType, null);
 			FieldX fldX = new FieldX(declType, fldDef);
 			return AddField(fldX);
 		}
@@ -400,7 +400,7 @@ namespace il2cpp
 		{
 			Debug.Assert(memRef.IsFieldRef);
 
-			TypeX declType = ResolveITypeDefOrRef(memRef.DeclaringType, replacer);
+			TypeX declType = ResolveTypeDefOrRef(memRef.DeclaringType, replacer);
 			FieldX fldX = new FieldX(declType, memRef.ResolveField());
 			return AddField(fldX);
 		}
@@ -425,7 +425,7 @@ namespace il2cpp
 		// 解析方法定义并添加
 		public MethodX ResolveMethodDef(MethodDef metDef)
 		{
-			TypeX declType = ResolveITypeDefOrRef(metDef.DeclaringType, null);
+			TypeX declType = ResolveTypeDefOrRef(metDef.DeclaringType, null);
 			MethodX metX = new MethodX(declType, metDef);
 			return AddMethod(metX);
 		}
@@ -446,7 +446,7 @@ namespace il2cpp
 			}
 			else
 			{
-				TypeX declType = ResolveITypeDefOrRef(memRef.DeclaringType, replacer);
+				TypeX declType = ResolveTypeDefOrRef(memRef.DeclaringType, replacer);
 				MethodDef metDef = memRef.ResolveMethod();
 				if (metDef.DeclaringType != declType.Def)
 				{
@@ -463,7 +463,7 @@ namespace il2cpp
 		// 解析泛型方法并添加
 		public MethodX ResolveMethodSpec(MethodSpec metSpec, IGenericReplacer replacer)
 		{
-			TypeX declType = ResolveITypeDefOrRef(metSpec.DeclaringType, replacer);
+			TypeX declType = ResolveTypeDefOrRef(metSpec.DeclaringType, replacer);
 			MethodDef metDef = metSpec.ResolveMethodDef();
 			if (metDef.DeclaringType != declType.Def)
 			{
@@ -524,12 +524,12 @@ namespace il2cpp
 
 			// 解析基类
 			if (tyX.Def.BaseType != null)
-				tyX.BaseType = ResolveITypeDefOrRef(tyX.Def.BaseType, replacer);
+				tyX.BaseType = ResolveTypeDefOrRef(tyX.Def.BaseType, replacer);
 			// 解析接口
 			if (tyX.Def.HasInterfaces)
 			{
 				foreach (var inf in tyX.Def.Interfaces)
-					tyX.Interfaces.Add(ResolveITypeDefOrRef(inf.Interface, replacer));
+					tyX.Interfaces.Add(ResolveTypeDefOrRef(inf.Interface, replacer));
 			}
 
 			// 更新子类集合
@@ -537,7 +537,7 @@ namespace il2cpp
 		}
 
 		// 解析类型并添加到映射
-		public TypeX ResolveITypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
+		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
 		{
 			TypeX tyX = ResolveITypeDefOrRefImpl(tyDefRef, replacer);
 			Debug.Assert(tyX != null);
