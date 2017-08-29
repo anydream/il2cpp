@@ -354,7 +354,7 @@ namespace il2cpp
 			}
 
 			MethodX implMetX = new MethodX(implTyX, implDef);
-			implMetX.GenArgs = virtMetX.GenArgs;
+			implMetX.GenArgs = virtMetX.HasGenArgs ? new List<TypeSig>(virtMetX.GenArgs) : null;
 			implMetX = AddMethod(implMetX);
 
 			// 关联实现方法到虚方法
