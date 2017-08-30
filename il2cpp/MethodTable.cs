@@ -15,16 +15,16 @@ namespace il2cpp
 
 		public readonly Dictionary<MethodDef, Tuple<string, MethodDef>> MethodReplaceMap;
 
-		public readonly Dictionary<string, MethodDef> SameSigResolvedMap;
+		public readonly Dictionary<string, MethodDef> FallbackTable;
 
 		public VirtualTable(
 			Dictionary<string, Tuple<string, MethodDef>> newSlotMap,
 			Dictionary<MethodDef, Tuple<string, MethodDef>> metReplaceMap,
-			Dictionary<string, MethodDef> sameResolvedMap)
+			Dictionary<string, MethodDef> fallbackTable)
 		{
 			NewSlotMap = newSlotMap;
 			MethodReplaceMap = metReplaceMap;
-			SameSigResolvedMap = sameResolvedMap;
+			FallbackTable = fallbackTable;
 		}
 
 		public void Set(string entryTypeName, MethodDef entryDef, string implTypeName, MethodDef implDef)
@@ -232,7 +232,7 @@ namespace il2cpp
 				metReplaceMap.Add(kv.Key, new Tuple<string, MethodDef>(repType, kv.Value.Item2));
 			}
 
-			var sameResolvedMap = new Dictionary<string, MethodDef>();
+			var fallbackTable = new Dictionary<string, MethodDef>();
 			if (SameSigResolvedMap != null && SameSigResolvedMap.Count > 0)
 			{
 				foreach (var kv in SameSigResolvedMap)
@@ -240,11 +240,11 @@ namespace il2cpp
 					MethodTable resTable = kv.Value.Item1;
 					string resType = resTable == this ? thisNameKey : resTable.GetReplacedNameKey(replacer);
 
-					sameResolvedMap.Add(resType, kv.Value.Item2);
+					fallbackTable.Add(resType, kv.Value.Item2);
 				}
 			}
 
-			VirtualTable vtable = new VirtualTable(newSlotMap, metReplaceMap, sameResolvedMap);
+			VirtualTable vtable = new VirtualTable(newSlotMap, metReplaceMap, fallbackTable);
 
 			// 不可实例化的类型不展开虚表
 			if (Def.IsAbstract || Def.IsInterface)

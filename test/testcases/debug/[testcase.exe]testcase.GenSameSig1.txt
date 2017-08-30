@@ -29,6 +29,8 @@
  - VTable:
    - [Object]
    - [[testcase]testcase.GenSameSig1/Base`2<Int32,Int32>]
+ - FallbackTable:
+   - [testcase]testcase.GenSameSig1/Base`2<Int32,Int32> => System.Void testcase.GenSameSig1/Base`2::Foo(T)
 
 [class [testcase]testcase.GenSameSig1/Base`2<Int32,Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

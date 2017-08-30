@@ -145,7 +145,7 @@ namespace il2cpp
 			if (VTable.Query(entryTypeName, entryDef, out implTypeName, out implDef))
 				return true;
 
-			if (VTable.SameSigResolvedMap.TryGetValue(entryTypeName, out var resMetDef) &&
+			if (VTable.FallbackTable.TryGetValue(entryTypeName, out var resMetDef) &&
 				resMetDef == entryDef)
 			{
 				implTypeName = entryTypeName;

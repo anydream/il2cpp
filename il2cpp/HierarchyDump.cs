@@ -145,6 +145,15 @@ namespace il2cpp
 							sb.AppendFormat("   - {0} => {1}\n", kv2.Key.FullName, kv2.Value.Item2.FullName);
 						}
 					}
+
+					if (tyX.VTable.FallbackTable.Count > 0)
+					{
+						sb.Append(" - FallbackTable:\n");
+						foreach (var kv2 in tyX.VTable.FallbackTable)
+						{
+							sb.AppendFormat("   - {0} => {1}\n", kv2.Key, kv2.Value.FullName);
+						}
+					}
 				}
 
 				sb.Append('\n');
