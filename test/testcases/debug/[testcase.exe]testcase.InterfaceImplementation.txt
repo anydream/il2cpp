@@ -1,0 +1,118 @@
+* MethodTables:
+[[testcase]testcase.InterfaceImplementation/A2_IntInt]
+ - Print|String(Int32)|20: [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32> -> System.String testcase.InterfaceImplementation/A`2::Print(U)
+   - [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32> -> System.String testcase.InterfaceImplementation/A`2::Print(U)
+   - [testcase]testcase.InterfaceImplementation/I -> System.String testcase.InterfaceImplementation/I::Print(System.Int32)
+   - [testcase]testcase.InterfaceImplementation/J`1<Int32> -> System.String testcase.InterfaceImplementation/J`1::Print(T)
+
+[[testcase]testcase.InterfaceImplementation/A`2<Int32,Int32>]
+
+[Object]
+
+[[testcase]testcase.InterfaceImplementation/I]
+ - Print|String(Int32)|20: null
+   - [testcase]testcase.InterfaceImplementation/I -> System.String testcase.InterfaceImplementation/I::Print(System.Int32)
+
+[[testcase]testcase.InterfaceImplementation/J`1<Int32>]
+ - Print|String(Int32)|20: null
+   - [testcase]testcase.InterfaceImplementation/J`1<Int32> -> System.String testcase.InterfaceImplementation/J`1::Print(T)
+
+[[testcase]testcase.InterfaceImplementation/A2_StringString]
+ - Print|String(String)|20: [testcase]testcase.InterfaceImplementation/A`2<String,String> -> System.String testcase.InterfaceImplementation/A`2::Print(U)
+   - [testcase]testcase.InterfaceImplementation/A`2<String,String> -> System.String testcase.InterfaceImplementation/A`2::Print(U)
+   - [testcase]testcase.InterfaceImplementation/J`1<String> -> System.String testcase.InterfaceImplementation/J`1::Print(T)
+
+[[testcase]testcase.InterfaceImplementation/A`2<String,String>]
+
+[[testcase]testcase.InterfaceImplementation/J`1<String>]
+ - Print|String(String)|20: null
+   - [testcase]testcase.InterfaceImplementation/J`1<String> -> System.String testcase.InterfaceImplementation/J`1::Print(T)
+
+[[testcase]testcase.InterfaceImplementation/A`2]
+
+* Types:
+[class [testcase]testcase.InterfaceImplementation] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImplementation
+   - [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32>
+   - [testcase]testcase.InterfaceImplementation/A2_IntInt
+   - [testcase]testcase.InterfaceImplementation/A`2<String,String>
+   - [testcase]testcase.InterfaceImplementation/A2_StringString
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.InterfaceImplementation/A2_IntInt] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32>
+ - Interfaces:
+   - [testcase]testcase.InterfaceImplementation/I
+   - [testcase]testcase.InterfaceImplementation/J`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.InterfaceImplementation/A2_IntInt)|20, Public HideBySig SpecialName RTSpecialName Managed None
+ - VTable:
+   - [Object]
+   - [[testcase]testcase.InterfaceImplementation/A`2<Int32,Int32>]
+   - [[testcase]testcase.InterfaceImplementation/I]
+     - System.String testcase.InterfaceImplementation/I::Print(System.Int32): [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32> -> System.String testcase.InterfaceImplementation/A`2::Print(U)
+   - [[testcase]testcase.InterfaceImplementation/J`1<Int32>]
+     - System.String testcase.InterfaceImplementation/J`1::Print(T): [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32> -> System.String testcase.InterfaceImplementation/A`2::Print(U)
+ - FallbackTable:
+   - [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32> => System.String testcase.InterfaceImplementation/A`2::Print(T)
+
+[class [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImplementation/A2_IntInt
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.InterfaceImplementation/A`2<Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|String(!1)|20|1C6, Print|String([testcase]testcase.InterfaceImplementation/A`2<Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+
+[class [testcase]testcase.InterfaceImplementation/I] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImplementation/A2_IntInt
+ - Methods:
+   - Print|String(Int32)|20|5C6, Print|String([testcase]testcase.InterfaceImplementation/I,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32> -> Print|String(!1)|20|1C6, Print|String([testcase]testcase.InterfaceImplementation/A`2<Int32,Int32>,Int32)|20
+
+[class [testcase]testcase.InterfaceImplementation/J`1<Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImplementation/A2_IntInt
+ - Methods:
+   - Print|String(!0)|20|5C6, Print|String([testcase]testcase.InterfaceImplementation/J`1<Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.InterfaceImplementation/A`2<Int32,Int32> -> Print|String(!1)|20|1C6, Print|String([testcase]testcase.InterfaceImplementation/A`2<Int32,Int32>,Int32)|20
+
+[class [testcase]testcase.InterfaceImplementation/A2_StringString] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testcase]testcase.InterfaceImplementation/A`2<String,String>
+ - Interfaces:
+   - [testcase]testcase.InterfaceImplementation/J`1<String>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.InterfaceImplementation/A2_StringString)|20, Public HideBySig SpecialName RTSpecialName Managed None
+ - VTable:
+   - [Object]
+   - [[testcase]testcase.InterfaceImplementation/A`2<String,String>]
+   - [[testcase]testcase.InterfaceImplementation/J`1<String>]
+     - System.String testcase.InterfaceImplementation/J`1::Print(T): [testcase]testcase.InterfaceImplementation/A`2<String,String> -> System.String testcase.InterfaceImplementation/A`2::Print(U)
+ - FallbackTable:
+   - [testcase]testcase.InterfaceImplementation/A`2<String,String> => System.String testcase.InterfaceImplementation/A`2::Print(T)
+
+[class [testcase]testcase.InterfaceImplementation/A`2<String,String>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImplementation/A2_StringString
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.InterfaceImplementation/A`2<String,String>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|String(!1)|20|1C6, Print|String([testcase]testcase.InterfaceImplementation/A`2<String,String>,String)|20, Public Virtual HideBySig NewSlot Managed None
+
+[class [testcase]testcase.InterfaceImplementation/J`1<String>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImplementation/A2_StringString
+ - Methods:
+   - Print|String(!0)|20|5C6, Print|String([testcase]testcase.InterfaceImplementation/J`1<String>,String)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.InterfaceImplementation/A`2<String,String> -> Print|String(!1)|20|1C6, Print|String([testcase]testcase.InterfaceImplementation/A`2<String,String>,String)|20
+

@@ -1812,6 +1812,44 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class InterfaceImplementation
+	{
+		class A<T, U>
+		{
+			public virtual string Print(T t) { return "A.Print(T)"; }
+			public virtual string Print(U u) { return "A.Print(U)"; }
+		}
+
+		interface I
+		{
+			string Print(int i);
+		}
+
+		interface J<T>
+		{
+			string Print(T t);
+		}
+
+		class A2_IntInt : A<int, int>, I, J<int>
+		{
+		}
+
+		class A2_StringString : A<string, string>, J<string>
+		{
+		}
+
+		public static void Entry()
+		{
+			I i = (I)new A2_IntInt();
+			string res1 = i.Print(1);
+			J<int> ji = (J<int>)new A2_IntInt();
+			string res2 = ji.Print(1);
+			J<string> js = (J<string>)new A2_StringString();
+			string res3 = js.Print("");
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()
