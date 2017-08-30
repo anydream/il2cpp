@@ -1776,6 +1776,42 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class GenSameSig1
+	{
+		class Base<T, P>
+		{
+			public virtual void Foo(T t)
+			{
+
+			}
+			public virtual void Foo(P p)
+			{
+
+			}
+
+			public void CallT(T t)
+			{
+				Foo(t);
+			}
+
+			public void CallP(P p)
+			{
+				Foo(p);
+			}
+		}
+
+		class Derived : Base<int, int>
+		{
+		}
+
+		public static void Entry()
+		{
+			Base<int, int> b = new Derived();
+			b.CallT(123);
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()

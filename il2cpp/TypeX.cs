@@ -142,7 +142,17 @@ namespace il2cpp
 			string entryTypeName, MethodDef entryDef,
 			out string implTypeName, out MethodDef implDef)
 		{
-			return VTable.Query(entryTypeName, entryDef, out implTypeName, out implDef);
+			if (VTable.Query(entryTypeName, entryDef, out implTypeName, out implDef))
+				return true;
+
+			if (VTable.SameSigResolvedMap.TryGetValue(entryTypeName, out var resMetDef) &&
+				resMetDef == entryDef)
+			{
+				implTypeName = entryTypeName;
+				implDef = entryDef;
+				return true;
+			}
+			return false;
 		}
 
 		public bool GetNewSlotMethod(MethodDef metDef, out string slotTypeName, out MethodDef slotMetDef)

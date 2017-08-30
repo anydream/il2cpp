@@ -1,0 +1,42 @@
+* MethodTables:
+[[testcase]testcase.GenSameSig1/Derived]
+
+[[testcase]testcase.GenSameSig1/Base`2<Int32,Int32>]
+
+[Object]
+
+[[testcase]testcase.GenSameSig1/Base`2]
+
+* Types:
+[class [testcase]testcase.GenSameSig1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.GenSameSig1
+   - [testcase]testcase.GenSameSig1/Base`2<Int32,Int32>
+   - [testcase]testcase.GenSameSig1/Derived
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.GenSameSig1/Derived] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testcase]testcase.GenSameSig1/Base`2<Int32,Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenSameSig1/Derived)|20, Public HideBySig SpecialName RTSpecialName Managed None
+ - VTable:
+   - [Object]
+   - [[testcase]testcase.GenSameSig1/Base`2<Int32,Int32>]
+
+[class [testcase]testcase.GenSameSig1/Base`2<Int32,Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - [testcase]testcase.GenSameSig1/Derived
+ - Methods:
+   - CallT|Void(!0)|20|86, CallT|Void([testcase]testcase.GenSameSig1/Base`2<Int32,Int32>,Int32)|20, Public HideBySig Managed None
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenSameSig1/Base`2<Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(!0)|20|1C6, Foo|Void([testcase]testcase.GenSameSig1/Base`2<Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+     - [testcase]testcase.GenSameSig1/Base`2<Int32,Int32> -> Foo|Void(!0)|20|1C6, Foo|Void([testcase]testcase.GenSameSig1/Base`2<Int32,Int32>,Int32)|20
+

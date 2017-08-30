@@ -15,12 +15,16 @@ namespace il2cpp
 
 		public readonly Dictionary<MethodDef, Tuple<string, MethodDef>> MethodReplaceMap;
 
+		public readonly Dictionary<string, MethodDef> SameSigResolvedMap;
+
 		public VirtualTable(
 			Dictionary<string, Tuple<string, MethodDef>> newSlotMap,
-			Dictionary<MethodDef, Tuple<string, MethodDef>> metReplaceMap)
+			Dictionary<MethodDef, Tuple<string, MethodDef>> metReplaceMap,
+			Dictionary<string, MethodDef> sameResolvedMap)
 		{
 			NewSlotMap = newSlotMap;
 			MethodReplaceMap = metReplaceMap;
+			SameSigResolvedMap = sameResolvedMap;
 		}
 
 		public void Set(string entryTypeName, MethodDef entryDef, string implTypeName, MethodDef implDef)
@@ -156,6 +160,9 @@ namespace il2cpp
 		// 抽象类未实现的接口方法槽映射
 		public Dictionary<string, Dictionary<MethodTable, HashSet<MethodDef>>> AbsNoImplSlotMap;
 
+		// 泛型可能产生的相同签名的解决冲突映射
+		public Dictionary<string, Tuple<MethodTable, MethodDef>> SameSigResolvedMap;
+
 		public MethodTable(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
@@ -207,8 +214,7 @@ namespace il2cpp
 				replacer = new TypeDefGenReplacer(Def, tyGenArgs);
 
 			// 替换类型名称
-			Dictionary<string, Tuple<string, MethodDef>> newSlotMap =
-				new Dictionary<string, Tuple<string, MethodDef>>();
+			var newSlotMap = new Dictionary<string, Tuple<string, MethodDef>>();
 			foreach (var kv in NewSlotMap)
 			{
 				MethodTable slotTable = kv.Value.Item1;
@@ -217,8 +223,7 @@ namespace il2cpp
 				newSlotMap.Add(kv.Key, new Tuple<string, MethodDef>(slotType, kv.Value.Item2));
 			}
 
-			Dictionary<MethodDef, Tuple<string, MethodDef>> metReplaceMap =
-				new Dictionary<MethodDef, Tuple<string, MethodDef>>();
+			var metReplaceMap = new Dictionary<MethodDef, Tuple<string, MethodDef>>();
 			foreach (var kv in MethodReplaceMap)
 			{
 				MethodTable repTable = kv.Value.Item1;
@@ -227,7 +232,19 @@ namespace il2cpp
 				metReplaceMap.Add(kv.Key, new Tuple<string, MethodDef>(repType, kv.Value.Item2));
 			}
 
-			VirtualTable vtable = new VirtualTable(newSlotMap, metReplaceMap);
+			var sameResolvedMap = new Dictionary<string, MethodDef>();
+			if (SameSigResolvedMap != null && SameSigResolvedMap.Count > 0)
+			{
+				foreach (var kv in SameSigResolvedMap)
+				{
+					MethodTable resTable = kv.Value.Item1;
+					string resType = resTable == this ? thisNameKey : resTable.GetReplacedNameKey(replacer);
+
+					sameResolvedMap.Add(resType, kv.Value.Item2);
+				}
+			}
+
+			VirtualTable vtable = new VirtualTable(newSlotMap, metReplaceMap, sameResolvedMap);
 
 			// 不可实例化的类型不展开虚表
 			if (Def.IsAbstract || Def.IsInterface)
@@ -265,18 +282,39 @@ namespace il2cpp
 			if (HasGenArgs)
 				replacer = new TypeDefGenReplacer(Def, GenArgs);
 
+			Dictionary<string, MethodDef> sameSigDefs = new Dictionary<string, MethodDef>();
+
 			// 解析不展开类型泛型的方法签名, 和展开的方法签名
+			uint lastRid = 0;
 			foreach (var metDef in Def.Methods)
 			{
 				if (metDef.IsStatic || metDef.IsConstructor)
 					continue;
 
+				Debug.Assert(lastRid < metDef.Rid);
+				lastRid = metDef.Rid;
+
 				MethodDefList.Add(metDef);
 
 				Helper.MethodDefNameKey(sb, metDef, replacer);
 
-				ExpandedSigList.Add(sb.ToString());
+				string expSigName = sb.ToString();
 				sb.Clear();
+
+				ExpandedSigList.Add(expSigName);
+
+				if (sameSigDefs.TryGetValue(expSigName, out var osameDef))
+				{
+					// 遇到相同签名的方法
+					if (!Def.HasGenericParameters)
+						throw new TypeLoadException("Conflicted method signature");
+
+					if (SameSigResolvedMap == null)
+						SameSigResolvedMap = new Dictionary<string, Tuple<MethodTable, MethodDef>>();
+					SameSigResolvedMap.Add(expSigName, new Tuple<MethodTable, MethodDef>(this, osameDef));
+				}
+				else
+					sameSigDefs.Add(expSigName, metDef);
 			}
 
 			// 解析并继承基类方法表
@@ -529,6 +567,13 @@ namespace il2cpp
 						defMap.Add(kv2.Key, new HashSet<MethodDef>(kv2.Value));
 					}
 				}
+			}
+
+			if (other.SameSigResolvedMap != null && other.SameSigResolvedMap.Count > 0)
+			{
+				SameSigResolvedMap = new Dictionary<string, Tuple<MethodTable, MethodDef>>();
+				foreach (var kv in other.SameSigResolvedMap)
+					SameSigResolvedMap.Add(kv.Key, kv.Value);
 			}
 		}
 
