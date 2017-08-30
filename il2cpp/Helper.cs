@@ -67,6 +67,11 @@ namespace il2cpp
 	// 辅助扩展方法
 	internal static class Helper
 	{
+		public static bool IsCollectionValid<T>(ICollection<T> co)
+		{
+			return co != null && co.Count > 0;
+		}
+
 		// 替换类型中的泛型签名
 		public static TypeSig ReplaceGenericSig(TypeSig tySig, IGenericReplacer replacer)
 		{
@@ -190,7 +195,7 @@ namespace il2cpp
 			IList<TypeSig> genArgs)
 		{
 			ClassSigName(sb, tyDef);
-			if (genArgs != null && genArgs.Count > 0)
+			if (IsCollectionValid(genArgs))
 			{
 				sb.Append('<');
 				TypeSigListName(sb, genArgs, true);
@@ -239,7 +244,7 @@ namespace il2cpp
 
 			TypeSigName(sb, retType, false);
 
-			if (genArgs != null && genArgs.Count > 0)
+			if (IsCollectionValid(genArgs))
 			{
 				sb.Append('<');
 				TypeSigListName(sb, genArgs, false);

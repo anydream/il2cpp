@@ -65,20 +65,20 @@ namespace il2cpp
 
 				if (tyX.BaseType != null)
 					sb.AppendFormat(" - Base: {0}\n", tyX.BaseType);
-				if (tyX.Interfaces.Count > 0)
+				if (Helper.IsCollectionValid(tyX.Interfaces))
 				{
 					sb.Append(" - Interfaces:\n");
 					foreach (TypeX infTyX in tyX.Interfaces)
 						sb.AppendFormat("   - {0}\n", infTyX);
 				}
-				if (tyX.DerivedTypes.Count > 0)
+				if (Helper.IsCollectionValid(tyX.DerivedTypes))
 				{
 					sb.Append(" - DerivedTypes:\n");
 					foreach (TypeX derivedTyX in tyX.DerivedTypes)
 						sb.AppendFormat("   - {0}\n", derivedTyX);
 				}
 
-				if (tyX.FieldMap.Count > 0)
+				if (Helper.IsCollectionValid(tyX.FieldMap))
 				{
 					sb.Append(" - Fields:\n");
 					foreach (FieldX fldX in tyX.FieldMap.Values)
@@ -90,7 +90,7 @@ namespace il2cpp
 					}
 				}
 
-				if (tyX.MethodMap.Count > 0)
+				if (Helper.IsCollectionValid(tyX.MethodMap))
 				{
 					sb.Append(" - Methods:\n");
 					foreach (MethodX metX in tyX.MethodMap.Values)
@@ -118,7 +118,7 @@ namespace il2cpp
 				if (tyX.IsInstantiated &&
 					tyX.VTable != null)
 				{
-					if (tyX.VTable.Table.Count > 0)
+					if (Helper.IsCollectionValid(tyX.VTable.Table))
 					{
 						sb.Append(" - VTable:\n");
 						foreach (var kv2 in tyX.VTable.Table)
@@ -137,7 +137,7 @@ namespace il2cpp
 						}
 					}
 
-					if (tyX.VTable.MethodReplaceMap.Count > 0)
+					if (Helper.IsCollectionValid(tyX.VTable.MethodReplaceMap))
 					{
 						sb.Append(" - ReplaceMap:\n");
 						foreach (var kv2 in tyX.VTable.MethodReplaceMap)
@@ -146,7 +146,7 @@ namespace il2cpp
 						}
 					}
 
-					if (tyX.VTable.FallbackTable.Count > 0)
+					if (Helper.IsCollectionValid(tyX.VTable.FallbackTable))
 					{
 						sb.Append(" - FallbackTable:\n");
 						foreach (var kv2 in tyX.VTable.FallbackTable)

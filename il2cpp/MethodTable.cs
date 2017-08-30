@@ -210,7 +210,7 @@ namespace il2cpp
 
 			// 构建泛型替换器
 			IGenericReplacer replacer = null;
-			if (tyGenArgs != null && tyGenArgs.Count > 0)
+			if (Helper.IsCollectionValid(tyGenArgs))
 				replacer = new TypeDefGenReplacer(Def, tyGenArgs);
 
 			// 替换类型名称
@@ -233,7 +233,7 @@ namespace il2cpp
 			}
 
 			var fallbackTable = new Dictionary<string, MethodDef>();
-			if (SameSigResolvedMap != null && SameSigResolvedMap.Count > 0)
+			if (Helper.IsCollectionValid(SameSigResolvedMap))
 			{
 				foreach (var kv in SameSigResolvedMap)
 				{
@@ -398,7 +398,7 @@ namespace il2cpp
 			}
 
 			// 合并抽象基类未实现的接口
-			if (AbsNoImplSlotMap != null && AbsNoImplSlotMap.Count > 0)
+			if (Helper.IsCollectionValid(AbsNoImplSlotMap))
 			{
 				foreach (var kv in AbsNoImplSlotMap)
 				{
@@ -475,7 +475,7 @@ namespace il2cpp
 				}
 			}
 
-			if (absNoImplSlots != null && absNoImplSlots.Count > 0)
+			if (Helper.IsCollectionValid(absNoImplSlots))
 			{
 				if (AbsNoImplSlotMap == null)
 					AbsNoImplSlotMap = new Dictionary<string, Dictionary<MethodTable, HashSet<MethodDef>>>();
@@ -554,7 +554,7 @@ namespace il2cpp
 			foreach (var kv in other.MethodReplaceMap)
 				MethodReplaceMap.Add(kv.Key, kv.Value);
 
-			if (other.AbsNoImplSlotMap != null && other.AbsNoImplSlotMap.Count > 0)
+			if (Helper.IsCollectionValid(other.AbsNoImplSlotMap))
 			{
 				AbsNoImplSlotMap = new Dictionary<string, Dictionary<MethodTable, HashSet<MethodDef>>>();
 				foreach (var kv in other.AbsNoImplSlotMap)
@@ -569,7 +569,7 @@ namespace il2cpp
 				}
 			}
 
-			if (other.SameSigResolvedMap != null && other.SameSigResolvedMap.Count > 0)
+			if (Helper.IsCollectionValid(other.SameSigResolvedMap))
 			{
 				SameSigResolvedMap = new Dictionary<string, Tuple<MethodTable, MethodDef>>();
 				foreach (var kv in other.SameSigResolvedMap)
