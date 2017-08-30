@@ -1,0 +1,591 @@
+* MethodTables:
+[[HelloWorld]B`2]
+ - I\u003CU\u003E.Print|String(!1)|20: [HelloWorld]B`2 -> System.String B`2::I<U>.Print(U)
+   - [HelloWorld]B`2 -> System.String B`2::I<U>.Print(U)
+   - [HelloWorld]I`1<!([HelloWorld]B`2)1> -> System.String I`1::Print(T)
+
+ - Print_T|String(!0)|20: [HelloWorld]B`2 -> System.String B`2::Print_T(T)
+   - [HelloWorld]B`2 -> System.String B`2::Print_T(T)
+   - [HelloWorld]I`1<!([HelloWorld]B`2)0> -> System.String I`1::Print(T)
+
+ - Print|String(!1)|20: null
+
+[[HelloWorld]A`1<!([HelloWorld]B`2)0>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]B`2)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]B`2)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]B`2)0> -> System.String I`1::Print(T)
+
+ - Print|String(!0)|20: null
+
+[Object]
+
+[[HelloWorld]I`1<!([HelloWorld]B`2)0>]
+ - Print|String(!0)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]B`2)0> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]B`2)1>]
+ - Print|String(!1)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]B`2)1> -> System.String I`1::Print(T)
+
+[[HelloWorld]C`2]
+ - Print_T|String(!0)|20: [HelloWorld]C`2 -> System.String C`2::Print_T(T)
+   - [HelloWorld]C`2 -> System.String C`2::Print_T(T)
+   - [HelloWorld]I`1<!([HelloWorld]C`2)0> -> System.String I`1::Print(T)
+
+ - I\u003CU\u003E.Print|String(!1)|20: [HelloWorld]C`2 -> System.String C`2::I<U>.Print(U)
+   - [HelloWorld]C`2 -> System.String C`2::I<U>.Print(U)
+   - [HelloWorld]I`1<!([HelloWorld]C`2)1> -> System.String I`1::Print(T)
+
+ - Print|String(!1)|20: null
+
+[[HelloWorld]A`1<!([HelloWorld]C`2)0>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]C`2)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]C`2)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]C`2)0> -> System.String I`1::Print(T)
+
+ - Print|String(!0)|20: null
+
+[[HelloWorld]I`1<!([HelloWorld]C`2)0>]
+ - Print|String(!0)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]C`2)0> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]C`2)1>]
+ - Print|String(!1)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]C`2)1> -> System.String I`1::Print(T)
+
+[[HelloWorld]D_TUV`3]
+ - Print_T|String(!0)|20: [HelloWorld]D_TUV`3 -> System.String D_TUV`3::Print_T(T)
+   - [HelloWorld]D_TUV`3 -> System.String D_TUV`3::Print_T(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_TUV`3)0> -> System.String I`1::Print(T)
+
+ - Print_U|String(!1)|20: [HelloWorld]D_TUV`3 -> System.String D_TUV`3::Print_U(U)
+   - [HelloWorld]D_TUV`3 -> System.String D_TUV`3::Print_U(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_TUV`3)1> -> System.String I`1::Print(T)
+
+ - I\u003CV\u003E.Print|String(!2)|20: [HelloWorld]D_TUV`3 -> System.String D_TUV`3::I<V>.Print(V)
+   - [HelloWorld]D_TUV`3 -> System.String D_TUV`3::I<V>.Print(V)
+   - [HelloWorld]I`1<!([HelloWorld]D_TUV`3)2> -> System.String I`1::Print(T)
+
+ - Print|String(!2)|20: null
+
+[[HelloWorld]DBase`2<!([HelloWorld]D_TUV`3)0,!([HelloWorld]D_TUV`3)1>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_TUV`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_TUV`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_TUV`3)0> -> System.String I`1::Print(T)
+
+ - I\u003CU\u003E.Print|String(!1)|20: [HelloWorld]DBase`2<!([HelloWorld]D_TUV`3)0,!([HelloWorld]D_TUV`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]DBase`2<!([HelloWorld]D_TUV`3)0,!([HelloWorld]D_TUV`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_TUV`3)1> -> System.String I`1::Print(T)
+
+ - Print|String(!1)|20: null
+
+[[HelloWorld]A`1<!([HelloWorld]D_TUV`3)0>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_TUV`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_TUV`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_TUV`3)0> -> System.String I`1::Print(T)
+
+ - Print|String(!0)|20: null
+
+[[HelloWorld]I`1<!([HelloWorld]D_TUV`3)0>]
+ - Print|String(!0)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_TUV`3)0> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_TUV`3)1>]
+ - Print|String(!1)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_TUV`3)1> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_TUV`3)2>]
+ - Print|String(!2)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_TUV`3)2> -> System.String I`1::Print(T)
+
+[[HelloWorld]D_TVU`3]
+ - Print_T|String(!0)|20: [HelloWorld]D_TVU`3 -> System.String D_TVU`3::Print_T(T)
+   - [HelloWorld]D_TVU`3 -> System.String D_TVU`3::Print_T(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_TVU`3)0> -> System.String I`1::Print(T)
+
+ - I\u003CV\u003E.Print|String(!2)|20: [HelloWorld]D_TVU`3 -> System.String D_TVU`3::I<V>.Print(V)
+   - [HelloWorld]D_TVU`3 -> System.String D_TVU`3::I<V>.Print(V)
+   - [HelloWorld]I`1<!([HelloWorld]D_TVU`3)2> -> System.String I`1::Print(T)
+
+ - Print_U|String(!1)|20: [HelloWorld]D_TVU`3 -> System.String D_TVU`3::Print_U(U)
+   - [HelloWorld]D_TVU`3 -> System.String D_TVU`3::Print_U(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_TVU`3)1> -> System.String I`1::Print(T)
+
+ - Print|String(!2)|20: null
+
+[[HelloWorld]DBase`2<!([HelloWorld]D_TVU`3)0,!([HelloWorld]D_TVU`3)1>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_TVU`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_TVU`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_TVU`3)0> -> System.String I`1::Print(T)
+
+ - I\u003CU\u003E.Print|String(!1)|20: [HelloWorld]DBase`2<!([HelloWorld]D_TVU`3)0,!([HelloWorld]D_TVU`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]DBase`2<!([HelloWorld]D_TVU`3)0,!([HelloWorld]D_TVU`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_TVU`3)1> -> System.String I`1::Print(T)
+
+ - Print|String(!1)|20: null
+
+[[HelloWorld]A`1<!([HelloWorld]D_TVU`3)0>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_TVU`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_TVU`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_TVU`3)0> -> System.String I`1::Print(T)
+
+ - Print|String(!0)|20: null
+
+[[HelloWorld]I`1<!([HelloWorld]D_TVU`3)0>]
+ - Print|String(!0)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_TVU`3)0> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_TVU`3)1>]
+ - Print|String(!1)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_TVU`3)1> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_TVU`3)2>]
+ - Print|String(!2)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_TVU`3)2> -> System.String I`1::Print(T)
+
+[[HelloWorld]D_UTV`3]
+ - Print_U|String(!1)|20: [HelloWorld]D_UTV`3 -> System.String D_UTV`3::Print_U(U)
+   - [HelloWorld]D_UTV`3 -> System.String D_UTV`3::Print_U(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_UTV`3)1> -> System.String I`1::Print(T)
+
+ - Print_T|String(!0)|20: [HelloWorld]D_UTV`3 -> System.String D_UTV`3::Print_T(T)
+   - [HelloWorld]D_UTV`3 -> System.String D_UTV`3::Print_T(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_UTV`3)0> -> System.String I`1::Print(T)
+
+ - I\u003CV\u003E.Print|String(!2)|20: [HelloWorld]D_UTV`3 -> System.String D_UTV`3::I<V>.Print(V)
+   - [HelloWorld]D_UTV`3 -> System.String D_UTV`3::I<V>.Print(V)
+   - [HelloWorld]I`1<!([HelloWorld]D_UTV`3)2> -> System.String I`1::Print(T)
+
+ - Print|String(!2)|20: null
+
+[[HelloWorld]DBase`2<!([HelloWorld]D_UTV`3)0,!([HelloWorld]D_UTV`3)1>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_UTV`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_UTV`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_UTV`3)0> -> System.String I`1::Print(T)
+
+ - I\u003CU\u003E.Print|String(!1)|20: [HelloWorld]DBase`2<!([HelloWorld]D_UTV`3)0,!([HelloWorld]D_UTV`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]DBase`2<!([HelloWorld]D_UTV`3)0,!([HelloWorld]D_UTV`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_UTV`3)1> -> System.String I`1::Print(T)
+
+ - Print|String(!1)|20: null
+
+[[HelloWorld]A`1<!([HelloWorld]D_UTV`3)0>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_UTV`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_UTV`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_UTV`3)0> -> System.String I`1::Print(T)
+
+ - Print|String(!0)|20: null
+
+[[HelloWorld]I`1<!([HelloWorld]D_UTV`3)0>]
+ - Print|String(!0)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_UTV`3)0> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_UTV`3)1>]
+ - Print|String(!1)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_UTV`3)1> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_UTV`3)2>]
+ - Print|String(!2)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_UTV`3)2> -> System.String I`1::Print(T)
+
+[[HelloWorld]D_UVT`3]
+ - Print_U|String(!1)|20: [HelloWorld]D_UVT`3 -> System.String D_UVT`3::Print_U(U)
+   - [HelloWorld]D_UVT`3 -> System.String D_UVT`3::Print_U(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_UVT`3)1> -> System.String I`1::Print(T)
+
+ - I\u003CV\u003E.Print|String(!2)|20: [HelloWorld]D_UVT`3 -> System.String D_UVT`3::I<V>.Print(V)
+   - [HelloWorld]D_UVT`3 -> System.String D_UVT`3::I<V>.Print(V)
+   - [HelloWorld]I`1<!([HelloWorld]D_UVT`3)2> -> System.String I`1::Print(T)
+
+ - Print_T|String(!0)|20: [HelloWorld]D_UVT`3 -> System.String D_UVT`3::Print_T(T)
+   - [HelloWorld]D_UVT`3 -> System.String D_UVT`3::Print_T(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_UVT`3)0> -> System.String I`1::Print(T)
+
+ - Print|String(!2)|20: null
+
+[[HelloWorld]DBase`2<!([HelloWorld]D_UVT`3)0,!([HelloWorld]D_UVT`3)1>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_UVT`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_UVT`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_UVT`3)0> -> System.String I`1::Print(T)
+
+ - I\u003CU\u003E.Print|String(!1)|20: [HelloWorld]DBase`2<!([HelloWorld]D_UVT`3)0,!([HelloWorld]D_UVT`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]DBase`2<!([HelloWorld]D_UVT`3)0,!([HelloWorld]D_UVT`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_UVT`3)1> -> System.String I`1::Print(T)
+
+ - Print|String(!1)|20: null
+
+[[HelloWorld]A`1<!([HelloWorld]D_UVT`3)0>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_UVT`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_UVT`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_UVT`3)0> -> System.String I`1::Print(T)
+
+ - Print|String(!0)|20: null
+
+[[HelloWorld]I`1<!([HelloWorld]D_UVT`3)0>]
+ - Print|String(!0)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_UVT`3)0> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_UVT`3)1>]
+ - Print|String(!1)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_UVT`3)1> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_UVT`3)2>]
+ - Print|String(!2)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_UVT`3)2> -> System.String I`1::Print(T)
+
+[[HelloWorld]D_VTU`3]
+ - I\u003CV\u003E.Print|String(!2)|20: [HelloWorld]D_VTU`3 -> System.String D_VTU`3::I<V>.Print(V)
+   - [HelloWorld]D_VTU`3 -> System.String D_VTU`3::I<V>.Print(V)
+   - [HelloWorld]I`1<!([HelloWorld]D_VTU`3)2> -> System.String I`1::Print(T)
+
+ - Print_T|String(!0)|20: [HelloWorld]D_VTU`3 -> System.String D_VTU`3::Print_T(T)
+   - [HelloWorld]D_VTU`3 -> System.String D_VTU`3::Print_T(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_VTU`3)0> -> System.String I`1::Print(T)
+
+ - Print_U|String(!1)|20: [HelloWorld]D_VTU`3 -> System.String D_VTU`3::Print_U(U)
+   - [HelloWorld]D_VTU`3 -> System.String D_VTU`3::Print_U(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_VTU`3)1> -> System.String I`1::Print(T)
+
+ - Print|String(!2)|20: null
+
+[[HelloWorld]DBase`2<!([HelloWorld]D_VTU`3)0,!([HelloWorld]D_VTU`3)1>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_VTU`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_VTU`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_VTU`3)0> -> System.String I`1::Print(T)
+
+ - I\u003CU\u003E.Print|String(!1)|20: [HelloWorld]DBase`2<!([HelloWorld]D_VTU`3)0,!([HelloWorld]D_VTU`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]DBase`2<!([HelloWorld]D_VTU`3)0,!([HelloWorld]D_VTU`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_VTU`3)1> -> System.String I`1::Print(T)
+
+ - Print|String(!1)|20: null
+
+[[HelloWorld]A`1<!([HelloWorld]D_VTU`3)0>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_VTU`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_VTU`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_VTU`3)0> -> System.String I`1::Print(T)
+
+ - Print|String(!0)|20: null
+
+[[HelloWorld]I`1<!([HelloWorld]D_VTU`3)0>]
+ - Print|String(!0)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_VTU`3)0> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_VTU`3)1>]
+ - Print|String(!1)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_VTU`3)1> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_VTU`3)2>]
+ - Print|String(!2)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_VTU`3)2> -> System.String I`1::Print(T)
+
+[[HelloWorld]D_VUT`3]
+ - I\u003CV\u003E.Print|String(!2)|20: [HelloWorld]D_VUT`3 -> System.String D_VUT`3::I<V>.Print(V)
+   - [HelloWorld]D_VUT`3 -> System.String D_VUT`3::I<V>.Print(V)
+   - [HelloWorld]I`1<!([HelloWorld]D_VUT`3)2> -> System.String I`1::Print(T)
+
+ - Print_U|String(!1)|20: [HelloWorld]D_VUT`3 -> System.String D_VUT`3::Print_U(U)
+   - [HelloWorld]D_VUT`3 -> System.String D_VUT`3::Print_U(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_VUT`3)1> -> System.String I`1::Print(T)
+
+ - Print_T|String(!0)|20: [HelloWorld]D_VUT`3 -> System.String D_VUT`3::Print_T(T)
+   - [HelloWorld]D_VUT`3 -> System.String D_VUT`3::Print_T(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_VUT`3)0> -> System.String I`1::Print(T)
+
+ - Print|String(!2)|20: null
+
+[[HelloWorld]DBase`2<!([HelloWorld]D_VUT`3)0,!([HelloWorld]D_VUT`3)1>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_VUT`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_VUT`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_VUT`3)0> -> System.String I`1::Print(T)
+
+ - I\u003CU\u003E.Print|String(!1)|20: [HelloWorld]DBase`2<!([HelloWorld]D_VUT`3)0,!([HelloWorld]D_VUT`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]DBase`2<!([HelloWorld]D_VUT`3)0,!([HelloWorld]D_VUT`3)1> -> System.String DBase`2::I<U>.Print(U)
+   - [HelloWorld]I`1<!([HelloWorld]D_VUT`3)1> -> System.String I`1::Print(T)
+
+ - Print|String(!1)|20: null
+
+[[HelloWorld]A`1<!([HelloWorld]D_VUT`3)0>]
+ - I\u003CT\u003E.Print|String(!0)|20: [HelloWorld]A`1<!([HelloWorld]D_VUT`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]A`1<!([HelloWorld]D_VUT`3)0> -> System.String A`1::I<T>.Print(T)
+   - [HelloWorld]I`1<!([HelloWorld]D_VUT`3)0> -> System.String I`1::Print(T)
+
+ - Print|String(!0)|20: null
+
+[[HelloWorld]I`1<!([HelloWorld]D_VUT`3)0>]
+ - Print|String(!0)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_VUT`3)0> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_VUT`3)1>]
+ - Print|String(!1)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_VUT`3)1> -> System.String I`1::Print(T)
+
+[[HelloWorld]I`1<!([HelloWorld]D_VUT`3)2>]
+ - Print|String(!2)|20: null
+   - [HelloWorld]I`1<!([HelloWorld]D_VUT`3)2> -> System.String I`1::Print(T)
+
+* Types:
+[class [HelloWorld]HelloWorld] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Int32(String[])|0|91, Main|Int32(String[])|0, Private Static HideBySig Managed None
+   - Test_B|[HelloWorld]I`1<Int32>()|0|96, Test_B|[HelloWorld]I`1<Int32>()|0, Public Static HideBySig Managed None
+   - Test_C|[HelloWorld]I`1<Int32>()|0|96, Test_C|[HelloWorld]I`1<Int32>()|0, Public Static HideBySig Managed None
+   - Test_D_TUV|[HelloWorld]I`1<Int32>()|0|96, Test_D_TUV|[HelloWorld]I`1<Int32>()|0, Public Static HideBySig Managed None
+   - Test_D_TVU|[HelloWorld]I`1<Int32>()|0|96, Test_D_TVU|[HelloWorld]I`1<Int32>()|0, Public Static HideBySig Managed None
+   - Test_D_UTV|[HelloWorld]I`1<Int32>()|0|96, Test_D_UTV|[HelloWorld]I`1<Int32>()|0, Public Static HideBySig Managed None
+   - Test_D_UVT|[HelloWorld]I`1<Int32>()|0|96, Test_D_UVT|[HelloWorld]I`1<Int32>()|0, Public Static HideBySig Managed None
+   - Test_D_VTU|[HelloWorld]I`1<Int32>()|0|96, Test_D_VTU|[HelloWorld]I`1<Int32>()|0, Public Static HideBySig Managed None
+   - Test_D_VUT|[HelloWorld]I`1<Int32>()|0|96, Test_D_VUT|[HelloWorld]I`1<Int32>()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [HelloWorld]HelloWorld
+   - [HelloWorld]Logger
+   - String
+   - [HelloWorld]A`1<Int32>
+   - [HelloWorld]B`2<Int32,Int32>
+   - [HelloWorld]C`2<Int32,Int32>
+   - [HelloWorld]DBase`2<Int32,Int32>
+   - [HelloWorld]D_TUV`3<Int32,Int32,Int32>
+   - [HelloWorld]D_TVU`3<Int32,Int32,Int32>
+   - [HelloWorld]D_UTV`3<Int32,Int32,Int32>
+   - [HelloWorld]D_UVT`3<Int32,Int32,Int32>
+   - [HelloWorld]D_VTU`3<Int32,Int32,Int32>
+   - [HelloWorld]D_VUT`3<Int32,Int32,Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [HelloWorld]I`1<Int32>] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [HelloWorld]A`1<Int32>
+   - [HelloWorld]B`2<Int32,Int32>
+   - [HelloWorld]C`2<Int32,Int32>
+   - [HelloWorld]DBase`2<Int32,Int32>
+   - [HelloWorld]D_TUV`3<Int32,Int32,Int32>
+   - [HelloWorld]D_TVU`3<Int32,Int32,Int32>
+   - [HelloWorld]D_UTV`3<Int32,Int32,Int32>
+   - [HelloWorld]D_UVT`3<Int32,Int32,Int32>
+   - [HelloWorld]D_VTU`3<Int32,Int32,Int32>
+   - [HelloWorld]D_VUT`3<Int32,Int32,Int32>
+ - Methods:
+   - Print|String(!0)|20|5C6, Print|String([HelloWorld]I`1<Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [HelloWorld]B`2<Int32,Int32> -> Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]B`2<Int32,Int32>,Int32)|20
+     - [HelloWorld]C`2<Int32,Int32> -> Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]C`2<Int32,Int32>,Int32)|20
+     - [HelloWorld]D_TUV`3<Int32,Int32,Int32> -> Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_TUV`3<Int32,Int32,Int32>,Int32)|20
+     - [HelloWorld]D_TVU`3<Int32,Int32,Int32> -> Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_TVU`3<Int32,Int32,Int32>,Int32)|20
+     - [HelloWorld]D_UTV`3<Int32,Int32,Int32> -> Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_UTV`3<Int32,Int32,Int32>,Int32)|20
+     - [HelloWorld]D_UVT`3<Int32,Int32,Int32> -> Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_UVT`3<Int32,Int32,Int32>,Int32)|20
+     - [HelloWorld]D_VTU`3<Int32,Int32,Int32> -> Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_VTU`3<Int32,Int32,Int32>,Int32)|20
+     - [HelloWorld]D_VUT`3<Int32,Int32,Int32> -> Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_VUT`3<Int32,Int32,Int32>,Int32)|20
+
+[class [HelloWorld]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
+
+[class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - System.IComparable
+   - System.ICloneable
+   - System.IConvertible
+   - System.Collections.IEnumerable
+   - System.IComparable`1<String>
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - System.IEquatable`1<String>
+ - Fields:
+   - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
+ - Methods:
+   - op_Inequality|Boolean(String,String)|0|896, op_Inequality|Boolean(String,String)|0, Public Static HideBySig SpecialName Managed None
+   - Equals|Boolean(String,String)|0|96, Equals|Boolean(String,String)|0, Public Static HideBySig Managed None
+   - get_Length|Int32()|20|886, get_Length|Int32(String)|20, Public HideBySig SpecialName IL, InternalCall Getter
+   - EqualsHelper|Boolean(String,String)|0|91, EqualsHelper|Boolean(String,String)|0, Private Static HideBySig Managed None
+
+[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - String
+
+[class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - System.Collections.IEnumerable
+ - DerivedTypes:
+   - String
+
+[class System.IEquatable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class [HelloWorld]B`2<Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [HelloWorld]A`1<Int32>
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]B`2<Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]B`2<Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[HelloWorld]A`1<Int32>]
+   - [[HelloWorld]I`1<Int32>]
+     - System.String I`1::Print(T): [HelloWorld]B`2<Int32,Int32> -> System.String B`2::Print_T(T)
+   - [[HelloWorld]B`2<Int32,Int32>]
+
+[class [HelloWorld]A`1<Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - DerivedTypes:
+   - [HelloWorld]B`2<Int32,Int32>
+   - [HelloWorld]C`2<Int32,Int32>
+   - [HelloWorld]DBase`2<Int32,Int32>
+   - [HelloWorld]D_TUV`3<Int32,Int32,Int32>
+   - [HelloWorld]D_TVU`3<Int32,Int32,Int32>
+   - [HelloWorld]D_UTV`3<Int32,Int32,Int32>
+   - [HelloWorld]D_UVT`3<Int32,Int32,Int32>
+   - [HelloWorld]D_VTU`3<Int32,Int32,Int32>
+   - [HelloWorld]D_VUT`3<Int32,Int32,Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]A`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [HelloWorld]C`2<Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [HelloWorld]A`1<Int32>
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]C`2<Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]C`2<Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[HelloWorld]A`1<Int32>]
+   - [[HelloWorld]I`1<Int32>]
+     - System.String I`1::Print(T): [HelloWorld]C`2<Int32,Int32> -> System.String C`2::Print_T(T)
+   - [[HelloWorld]C`2<Int32,Int32>]
+
+[class [HelloWorld]D_TUV`3<Int32,Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [HelloWorld]DBase`2<Int32,Int32>
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]D_TUV`3<Int32,Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_TUV`3<Int32,Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[HelloWorld]A`1<Int32>]
+   - [[HelloWorld]I`1<Int32>]
+     - System.String I`1::Print(T): [HelloWorld]D_TUV`3<Int32,Int32,Int32> -> System.String D_TUV`3::Print_T(T)
+   - [[HelloWorld]DBase`2<Int32,Int32>]
+   - [[HelloWorld]D_TUV`3<Int32,Int32,Int32>]
+
+[class [HelloWorld]DBase`2<Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [HelloWorld]A`1<Int32>
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - DerivedTypes:
+   - [HelloWorld]D_TUV`3<Int32,Int32,Int32>
+   - [HelloWorld]D_TVU`3<Int32,Int32,Int32>
+   - [HelloWorld]D_UTV`3<Int32,Int32,Int32>
+   - [HelloWorld]D_UVT`3<Int32,Int32,Int32>
+   - [HelloWorld]D_VTU`3<Int32,Int32,Int32>
+   - [HelloWorld]D_VUT`3<Int32,Int32,Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]DBase`2<Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [HelloWorld]D_TVU`3<Int32,Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [HelloWorld]DBase`2<Int32,Int32>
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]D_TVU`3<Int32,Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_TVU`3<Int32,Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[HelloWorld]A`1<Int32>]
+   - [[HelloWorld]I`1<Int32>]
+     - System.String I`1::Print(T): [HelloWorld]D_TVU`3<Int32,Int32,Int32> -> System.String D_TVU`3::Print_T(T)
+   - [[HelloWorld]DBase`2<Int32,Int32>]
+   - [[HelloWorld]D_TVU`3<Int32,Int32,Int32>]
+
+[class [HelloWorld]D_UTV`3<Int32,Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [HelloWorld]DBase`2<Int32,Int32>
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]D_UTV`3<Int32,Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_UTV`3<Int32,Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[HelloWorld]A`1<Int32>]
+   - [[HelloWorld]I`1<Int32>]
+     - System.String I`1::Print(T): [HelloWorld]D_UTV`3<Int32,Int32,Int32> -> System.String D_UTV`3::Print_T(T)
+   - [[HelloWorld]DBase`2<Int32,Int32>]
+   - [[HelloWorld]D_UTV`3<Int32,Int32,Int32>]
+
+[class [HelloWorld]D_UVT`3<Int32,Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [HelloWorld]DBase`2<Int32,Int32>
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]D_UVT`3<Int32,Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_UVT`3<Int32,Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[HelloWorld]A`1<Int32>]
+   - [[HelloWorld]I`1<Int32>]
+     - System.String I`1::Print(T): [HelloWorld]D_UVT`3<Int32,Int32,Int32> -> System.String D_UVT`3::Print_T(T)
+   - [[HelloWorld]DBase`2<Int32,Int32>]
+   - [[HelloWorld]D_UVT`3<Int32,Int32,Int32>]
+
+[class [HelloWorld]D_VTU`3<Int32,Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [HelloWorld]DBase`2<Int32,Int32>
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]D_VTU`3<Int32,Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_VTU`3<Int32,Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[HelloWorld]A`1<Int32>]
+   - [[HelloWorld]I`1<Int32>]
+     - System.String I`1::Print(T): [HelloWorld]D_VTU`3<Int32,Int32,Int32> -> System.String D_VTU`3::Print_T(T)
+   - [[HelloWorld]DBase`2<Int32,Int32>]
+   - [[HelloWorld]D_VTU`3<Int32,Int32,Int32>]
+
+[class [HelloWorld]D_VUT`3<Int32,Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [HelloWorld]DBase`2<Int32,Int32>
+ - Interfaces:
+   - [HelloWorld]I`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]D_VUT`3<Int32,Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print_T|String(!0)|20|1C6, Print_T|String([HelloWorld]D_VUT`3<Int32,Int32,Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[HelloWorld]A`1<Int32>]
+   - [[HelloWorld]I`1<Int32>]
+     - System.String I`1::Print(T): [HelloWorld]D_VUT`3<Int32,Int32,Int32> -> System.String D_VUT`3::Print_T(T)
+   - [[HelloWorld]DBase`2<Int32,Int32>]
+   - [[HelloWorld]D_VUT`3<Int32,Int32,Int32>]
+

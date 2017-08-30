@@ -42,11 +42,10 @@ namespace il2cpp
 					Debug.Assert(oitem.Item1 == implTypeName);
 					return;
 				}
-
 				Debug.Assert(oitem.Item2.Rid != implDef.Rid);
-				// 如果现有的方法定义靠后则保留, 否则替换
-				if (oitem.Item2.Rid > implDef.Rid)
-					return;
+
+				// 如果已存在则保留现有入口
+				return;
 			}
 			defMap[entryDef] = new Tuple<string, MethodDef>(implTypeName, implDef);
 		}
