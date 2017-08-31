@@ -540,7 +540,7 @@ namespace il2cpp
 		// 解析类型并添加到映射
 		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
 		{
-			TypeX tyX = ResolveITypeDefOrRefImpl(tyDefRef, replacer);
+			TypeX tyX = ResolveTypeDefOrRefImpl(tyDefRef, replacer);
 			Debug.Assert(tyX != null);
 
 			// 尝试添加到类型映射
@@ -556,7 +556,7 @@ namespace il2cpp
 		}
 
 		// 解析类型引用
-		private TypeX ResolveITypeDefOrRefImpl(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
+		private TypeX ResolveTypeDefOrRefImpl(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
 		{
 			switch (tyDefRef)
 			{
@@ -586,11 +586,11 @@ namespace il2cpp
 			switch (tySig)
 			{
 				case TypeDefOrRefSig tyDefRefSig:
-					return ResolveITypeDefOrRefImpl(tyDefRefSig.TypeDefOrRef, null);
+					return ResolveTypeDefOrRefImpl(tyDefRefSig.TypeDefOrRef, null);
 
 				case GenericInstSig genInstSig:
 					{
-						TypeX genType = ResolveITypeDefOrRefImpl(genInstSig.GenericType.TypeDefOrRef, null);
+						TypeX genType = ResolveTypeDefOrRefImpl(genInstSig.GenericType.TypeDefOrRef, null);
 						genType.GenArgs = Helper.ReplaceGenericSigList(genInstSig.GenericArguments, replacer);
 						return genType;
 					}
