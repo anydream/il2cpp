@@ -213,7 +213,6 @@ namespace il2cpp
 						if (isReAddMethod)
 						{
 							// 尝试重新加入处理队列
-							resMetX.IsSkipProcessing = false;
 							AddPendingMethod(resMetX);
 						}
 
@@ -346,7 +345,7 @@ namespace il2cpp
 			MethodDef implDef;
 			TypeX implTyX;
 
-			for (;;)
+			for (; ; )
 			{
 				if (!derivedTyX.QueryVTable(
 					entryTypeName, entryDef,
@@ -385,7 +384,6 @@ namespace il2cpp
 			virtMetX.AddOverrideImpl(implMetX);
 
 			// 处理该方法
-			implMetX.IsSkipProcessing = false;
 			AddPendingMethod(implMetX);
 		}
 
@@ -515,7 +513,10 @@ namespace il2cpp
 		private void AddPendingMethod(MethodX metX)
 		{
 			if (!metX.IsProcessed)
+			{
+				metX.IsSkipProcessing = false;
 				PendingMethods.Enqueue(metX);
+			}
 		}
 
 		private void ExpandType(TypeX tyX)

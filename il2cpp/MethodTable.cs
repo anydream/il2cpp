@@ -517,7 +517,6 @@ namespace il2cpp
 			{
 				if (defMap.ContainsKey(entryDef))
 				{
-					Debug.Assert(defMap[entryDef].IsValid());
 					return false;
 				}
 			}
