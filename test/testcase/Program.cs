@@ -1850,6 +1850,27 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class RecursiveGeneric
+	{
+		static object M<T>(long n) where T : class
+		{
+			if (n == 1)
+			{
+				return new T[1];
+			}
+			else
+			{
+				return M<T[]>(n - 1);
+			}
+		}
+
+		public static void Entry()
+		{
+			var a = M<object>(9);
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()

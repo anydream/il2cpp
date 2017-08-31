@@ -311,8 +311,11 @@ namespace il2cpp
 			}
 		}
 
-		public static void TypeSigName(StringBuilder sb, TypeSig tySig, bool printGenOwner)
+		public static void TypeSigName(StringBuilder sb, TypeSig tySig, bool printGenOwner, int depth = 0)
 		{
+			if (depth > 512)
+				throw new TypeLoadException("The TypeSig chain is too long. Or there are some recursive generics that are expanded");
+
 			if (tySig == null)
 				return;
 
@@ -324,27 +327,27 @@ namespace il2cpp
 					return;
 
 				case ElementType.Ptr:
-					TypeSigName(sb, tySig.Next, printGenOwner);
+					TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 					sb.Append('*');
 					return;
 
 				case ElementType.ByRef:
-					TypeSigName(sb, tySig.Next, printGenOwner);
+					TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 					sb.Append('&');
 					return;
 
 				case ElementType.Pinned:
-					TypeSigName(sb, tySig.Next, printGenOwner);
+					TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 					return;
 
 				case ElementType.SZArray:
-					TypeSigName(sb, tySig.Next, printGenOwner);
+					TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 					sb.Append("[]");
 					return;
 
 				case ElementType.Array:
 					{
-						TypeSigName(sb, tySig.Next, printGenOwner);
+						TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 						ArraySig arySig = (ArraySig)tySig;
 						sb.Append('[');
 						uint rank = arySig.Rank;
@@ -379,14 +382,14 @@ namespace il2cpp
 					}
 
 				case ElementType.CModReqd:
-					TypeSigName(sb, tySig.Next, printGenOwner);
+					TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 					sb.Append(" modreq(");
 					ClassSigName(sb, ((CModReqdSig)tySig).Modifier.ResolveTypeDef());
 					sb.Append(')');
 					return;
 
 				case ElementType.CModOpt:
-					TypeSigName(sb, tySig.Next, printGenOwner);
+					TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 					sb.Append(" modopt(");
 					ClassSigName(sb, ((CModOptSig)tySig).Modifier.ResolveTypeDef());
 					sb.Append(')');
@@ -395,7 +398,7 @@ namespace il2cpp
 				case ElementType.GenericInst:
 					{
 						GenericInstSig genInstSig = (GenericInstSig)tySig;
-						TypeSigName(sb, genInstSig.GenericType, printGenOwner);
+						TypeSigName(sb, genInstSig.GenericType, printGenOwner, depth + 1);
 						sb.Append('<');
 						TypeSigListName(sb, genInstSig.GenericArguments, printGenOwner);
 						sb.Append('>');
