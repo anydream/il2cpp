@@ -23,7 +23,7 @@ namespace il2cpp
 		private readonly Queue<MethodX> PendingMethods = new Queue<MethodX>();
 
 		// 对象终结器虚调用是否已经生成
-		private bool IsVCallFinalizerGenerated = false;
+		private bool IsVCallFinalizerGenerated;
 
 		public TypeManager(Il2cppContext context)
 		{
@@ -341,12 +341,12 @@ namespace il2cpp
 				return;
 
 			// 在继承类型中查找虚方法
-			string implTypeName;
 			MethodDef implDef;
 			TypeX implTyX;
 
 			for (; ; )
 			{
+				string implTypeName;
 				if (!derivedTyX.QueryVTable(
 					entryTypeName, entryDef,
 					out implTypeName, out implDef))
