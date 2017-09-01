@@ -305,8 +305,8 @@ namespace il2cpp
 				if (sameSigDefs.TryGetValue(expSigName, out var osameDef))
 				{
 					// 遇到相同签名的方法
-					if (!Def.HasGenericParameters)
-						throw new TypeLoadException("Conflicted method signature");
+					//if (!Def.HasGenericParameters)
+					//	throw new TypeLoadException("Conflicted method signature");
 
 					if (SameSigResolvedMap == null)
 						SameSigResolvedMap = new Dictionary<string, Tuple<MethodTable, MethodDef>>();
