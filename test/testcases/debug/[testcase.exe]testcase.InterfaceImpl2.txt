@@ -1,0 +1,87 @@
+* MethodTables:
+[[testcase]testcase.InterfaceImpl2/C]
+ - Foo|Void(Int32)|20: [testcase]testcase.InterfaceImpl2/B`1<Int32> -> System.Void testcase.InterfaceImpl2/B`1::Foo(System.Int32)
+   - [testcase]testcase.InterfaceImpl2/B`1<Int32> -> System.Void testcase.InterfaceImpl2/B`1::Foo(T2)
+   - [testcase]testcase.InterfaceImpl2/B`1<Int32> -> System.Void testcase.InterfaceImpl2/B`1::Foo(System.Int32)
+
+ - testcase.InterfaceImpl2.I\u003CSystem.Int32\u003E.Foo|Void(Int32)|20: [testcase]testcase.InterfaceImpl2/C -> System.Void testcase.InterfaceImpl2/C::testcase.InterfaceImpl2.I<System.Int32>.Foo(System.Int32)
+   - [testcase]testcase.InterfaceImpl2/C -> System.Void testcase.InterfaceImpl2/C::testcase.InterfaceImpl2.I<System.Int32>.Foo(System.Int32)
+   - [testcase]testcase.InterfaceImpl2/I`1<Int32> -> System.Void testcase.InterfaceImpl2/I`1::Foo(T)
+
+[[testcase]testcase.InterfaceImpl2/B`1<Int32>]
+ - Foo|Void(Int32)|20: [testcase]testcase.InterfaceImpl2/B`1<Int32> -> System.Void testcase.InterfaceImpl2/B`1::Foo(System.Int32)
+   - [testcase]testcase.InterfaceImpl2/B`1<Int32> -> System.Void testcase.InterfaceImpl2/B`1::Foo(T2)
+   - [testcase]testcase.InterfaceImpl2/B`1<Int32> -> System.Void testcase.InterfaceImpl2/B`1::Foo(System.Int32)
+
+[[testcase]testcase.InterfaceImpl2/A`1<Int32>]
+ - Foo|Void(Int32)|20: [testcase]testcase.InterfaceImpl2/A`1<Int32> -> System.Void testcase.InterfaceImpl2/A`1::Foo(T1)
+   - [testcase]testcase.InterfaceImpl2/A`1<Int32> -> System.Void testcase.InterfaceImpl2/A`1::Foo(T1)
+   - [testcase]testcase.InterfaceImpl2/I`1<Int32> -> System.Void testcase.InterfaceImpl2/I`1::Foo(T)
+
+[Object]
+
+[[testcase]testcase.InterfaceImpl2/I`1<Int32>]
+ - Foo|Void(Int32)|20: null
+   - [testcase]testcase.InterfaceImpl2/I`1<Int32> -> System.Void testcase.InterfaceImpl2/I`1::Foo(T)
+
+* Types:
+[class [testcase]testcase.InterfaceImpl2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImpl2
+   - [testcase]testcase.InterfaceImpl2/A`1<Int32>
+   - [testcase]testcase.InterfaceImpl2/B`1<Int32>
+   - [testcase]testcase.InterfaceImpl2/C
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.InterfaceImpl2/C] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testcase]testcase.InterfaceImpl2/B`1<Int32>
+ - Interfaces:
+   - [testcase]testcase.InterfaceImpl2/I`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.InterfaceImpl2/C)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.InterfaceImpl2.I\u003CSystem.Int32\u003E.Foo|Void(Int32)|20|1E1, testcase.InterfaceImpl2.I\u003CSystem.Int32\u003E.Foo|Void([testcase]testcase.InterfaceImpl2/C,Int32)|20, Private Final Virtual HideBySig NewSlot Managed None
+ - VTable:
+   - [Object]
+   - [[testcase]testcase.InterfaceImpl2/A`1<Int32>]
+   - [[testcase]testcase.InterfaceImpl2/I`1<Int32>]
+     - System.Void testcase.InterfaceImpl2/I`1::Foo(T): [testcase]testcase.InterfaceImpl2/C -> System.Void testcase.InterfaceImpl2/C::testcase.InterfaceImpl2.I<System.Int32>.Foo(System.Int32)
+   - [[testcase]testcase.InterfaceImpl2/B`1<Int32>]
+     - System.Void testcase.InterfaceImpl2/B`1::Foo(T2): [testcase]testcase.InterfaceImpl2/B`1<Int32> -> System.Void testcase.InterfaceImpl2/B`1::Foo(System.Int32)
+   - [[testcase]testcase.InterfaceImpl2/C]
+ - FallbackTable:
+   - [testcase]testcase.InterfaceImpl2/B`1<Int32> => System.Void testcase.InterfaceImpl2/B`1::Foo(T2)
+
+[class [testcase]testcase.InterfaceImpl2/B`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [testcase]testcase.InterfaceImpl2/A`1<Int32>
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImpl2/C
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.InterfaceImpl2/B`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(!0)|20|86, Foo|Void([testcase]testcase.InterfaceImpl2/B`1<Int32>,Int32)|20, Public HideBySig Managed None
+
+[class [testcase]testcase.InterfaceImpl2/A`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - [testcase]testcase.InterfaceImpl2/I`1<Int32>
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImpl2/B`1<Int32>
+   - [testcase]testcase.InterfaceImpl2/C
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.InterfaceImpl2/A`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.InterfaceImpl2/I`1<Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testcase]testcase.InterfaceImpl2/A`1<Int32>
+   - [testcase]testcase.InterfaceImpl2/B`1<Int32>
+   - [testcase]testcase.InterfaceImpl2/C
+ - Methods:
+   - Foo|Void(!0)|20|5C6, Foo|Void([testcase]testcase.InterfaceImpl2/I`1<Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.InterfaceImpl2/C -> testcase.InterfaceImpl2.I\u003CSystem.Int32\u003E.Foo|Void(Int32)|20|1E1, testcase.InterfaceImpl2.I\u003CSystem.Int32\u003E.Foo|Void([testcase]testcase.InterfaceImpl2/C,Int32)|20
+
