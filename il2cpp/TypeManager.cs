@@ -529,8 +529,13 @@ namespace il2cpp
 			// 解析接口
 			if (tyX.Def.HasInterfaces)
 			{
+				uint lastRid = 0;
 				foreach (var inf in tyX.Def.Interfaces)
+				{
+					Debug.Assert(lastRid == 0 || inf.Rid > lastRid);
+					lastRid = inf.Rid;
 					tyX.Interfaces.Add(ResolveTypeDefOrRef(inf.Interface, replacer));
+				}
 			}
 
 			// 更新子类集合
