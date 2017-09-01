@@ -1851,6 +1851,41 @@ namespace testcase
 	}
 
 	[Test]
+	static class InterfaceImpl2
+	{
+		interface I<T>
+		{
+			void Foo(T t);
+		}
+
+		class A<T1> : I<T1>
+		{
+			public virtual void Foo(T1 t)
+			{
+			}
+		}
+
+		class B<T2> : A<int>
+		{
+			public void Foo(T2 t)
+			{
+			}
+
+			public override void Foo(int a)
+			{
+			}
+		}
+		class C : B<int>, I<int>
+		{ }
+
+		public static void Entry()
+		{
+			I<int> i = new C();
+			i.Foo(1);
+		}
+	}
+
+	[Test]
 	static class RecursiveGeneric
 	{
 		static object M<T>(long n) where T : class
