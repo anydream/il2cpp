@@ -1,0 +1,28 @@
+- 类型方法组: MethodPair: <MethodTable, MethodDef>
+
+- 使用 SlotMap 处理基本的隐式重写
+  string -> 入口列表 [ MethodPair ], 实现方法 MethodPair, newslot方法 MethodPair
+  只有 newslot 或者不存在 key 的 reuseslot 才能创建 key
+
+- 使用 EntryMap 作为展开的入口与实现映射
+  MethodTable, MethodDef -> MethodTable, MethodDef
+
+- 显式实现接口方法时, 从 SlotMap 中接口方法对应的签名中, 清除接口方法的入口
+  然后在 EntryMap 中添加接口方法到实现方法的绑定
+  实现方法如果是 virtual 的, 在该方法签名对应的 SlotMap 中添加接口方法的入口
+
+- 签名相同的情况下:
+  先 reuseslot, 展开到 EntryMap, 之后再 newslot
+  从前往后绑定, 最终绑定最后那个方法
+  
+- virtual 方法才能显式 override 基类或者接口方法
+
+- 显式重写基类方法的情况:
+  本质上相当于在目标方法体内插入了 callvirt 本方法体的签名对应的 newslot 方法
+  解析流程:
+  callvirt -> for { 实现方法 -> 显式方法替换表内查找替换方法 -> callvirt 替换方法(已经是 newslot 方法了) }
+  查找替换方法失败则退出解析循环
+  抽象方法的实现方法, 在这里为其本身
+  call 只替换同一个类内的方法重写(且不需要重写方法的解析newslot), 不处理跨到父类的替换
+  
+- 对于泛型类型, 始终都分析泛型未展开时的绑定, 然后才根据实际的泛型参数实例化
