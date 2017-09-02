@@ -1,8 +1,10 @@
-- 类型方法组: MethodPair: <MethodTable, MethodDef>
+- 类型方法组: TypeMethodPair: <MethodTable, MethodDef>
 
 - 使用 SlotMap 处理基本的隐式重写
-  string -> 入口列表 [ MethodPair ], 实现方法 MethodPair, newslot方法 MethodPair
+  string -> 入口列表 [ TypeMethodPair ], 实现方法 TypeMethodPair, newslot方法 TypeMethodPair
   只有 newslot 或者不存在 key 的 reuseslot 才能创建 key
+  
+- newslot/reuseslot 是根据基类的 SlotMap 来处理的
 
 - 使用 EntryMap 作为展开的入口与实现映射
   MethodTable, MethodDef -> MethodTable, MethodDef
@@ -10,8 +12,12 @@
 - 显式实现接口方法时, 从 SlotMap 中接口方法对应的签名中, 清除接口方法的入口
   然后在 EntryMap 中添加接口方法到实现方法的绑定
   实现方法如果是 virtual 的, 在该方法签名对应的 SlotMap 中添加接口方法的入口
+  
+- 显示重写在隐式重写的后面处理
+- 同一个类中, 不允许同时重写同一个目标方法
 
 - 签名相同的情况下:
+  排序: reuseslot 方法在前, newslot 在后
   先 reuseslot, 展开到 EntryMap, 之后再 newslot
   从前往后绑定, 最终绑定最后那个方法
   
