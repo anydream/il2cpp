@@ -114,8 +114,8 @@ namespace test
 			{
 				HierarchyDump dumper = new HierarchyDump(context);
 
-				sb.Append("* MethodTables:\n");
-				dumper.DumpMethodTables(sb);
+				/*sb.Append("* MethodTables:\n");
+				dumper.DumpMethodTables(sb);*/
 				sb.Append("* Types:\n");
 				dumper.DumpTypes(sb);
 			}

@@ -1,15 +1,3 @@
-* MethodTables:
-[[self_override1]BarImpl]
- - DoBar|Int32()|20: [self_override1]BarImpl -> System.Int32 BarImpl::DoBar()
-   - [self_override1]MyBar -> System.Int32 MyBar::DoBar()
-   - [self_override1]BarImpl -> System.Int32 BarImpl::DoBar()
-
-[[self_override1]MyBar]
- - DoBar|Int32()|20: null
-   - [self_override1]MyBar -> System.Int32 MyBar::DoBar()
-
-[Object]
-
 * Types:
 [class [self_override1]CMain] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -31,13 +19,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([self_override1]BarImpl)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - DoBar|Int32()|20|C6, DoBar|Int32([self_override1]BarImpl)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[self_override1]MyBar]
-     - System.Int32 MyBar::DoBar(): [self_override1]BarImpl -> System.Int32 BarImpl::DoBar()
-   - [[self_override1]BarImpl]
- - ReplaceMap:
-   - System.Int32 MyBar::DoBar() => System.Int32 MyBar::DoSelfBar()
 
 [class [self_override1]MyBar] Public AutoLayout Abstract AnsiClass BeforeFieldInit 
  - Base: Object

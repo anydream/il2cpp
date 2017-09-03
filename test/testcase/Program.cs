@@ -1906,6 +1906,47 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class SameSignature1
+	{
+		interface Inf<T>
+		{
+			void Foo(T t);
+		}
+
+		class A<T> : Inf<T>
+		{
+			public virtual void Foo(T t)
+			{
+
+			}
+		}
+
+		class B<T> : A<T>
+		{
+			public override void Foo(T t)
+			{
+
+			}
+
+			public virtual void Foo(int t)
+			{
+
+			}
+		}
+
+		class C : B<int>
+		{
+
+		}
+
+		public static void Entry()
+		{
+			Inf<int> i = new C();
+			i.Foo(123);
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()

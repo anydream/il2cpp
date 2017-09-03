@@ -1,34 +1,3 @@
-* MethodTables:
-[[testcase]group4.ClsB]
- - Foo|Void()|20: [testcase]group4.ClsB -> System.Void group4.ClsB::Foo()
-   - [testcase]group4.Base -> System.Void group4.Base::Foo()
-   - [testcase]group4.Inf -> System.Void group4.Inf::Foo()
-   - [testcase]group4.ClsB -> System.Void group4.ClsB::Foo()
-
- - Foo|Void(Int32)|20: [testcase]group4.ClsB -> System.Void group4.ClsB::Foo(System.Int32)
-   - [testcase]group4.ClsB -> System.Void group4.ClsB::Foo(System.Int32)
-   - [testcase]group4.Inf -> System.Void group4.Inf::Foo(System.Int32)
-
-[[testcase]group4.Base]
- - Foo|Void()|20: [testcase]group4.Base -> System.Void group4.Base::Foo()
-   - [testcase]group4.Base -> System.Void group4.Base::Foo()
-   - [testcase]group4.Inf -> System.Void group4.Inf::Foo()
-
- - group4.Inf.Foo|Void(Int32)|20: [testcase]group4.Base -> System.Void group4.Base::group4.Inf.Foo(System.Int32)
-   - [testcase]group4.Base -> System.Void group4.Base::group4.Inf.Foo(System.Int32)
-   - [testcase]group4.Inf -> System.Void group4.Inf::Foo(System.Int32)
-
- - Foo|Void(Int32)|20: null
-
-[Object]
-
-[[testcase]group4.Inf]
- - Foo|Void()|20: null
-   - [testcase]group4.Inf -> System.Void group4.Inf::Foo()
-
- - Foo|Void(Int32)|20: null
-   - [testcase]group4.Inf -> System.Void group4.Inf::Foo(System.Int32)
-
 * Types:
 [class [testcase]testcase.ExpOverride3] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -53,14 +22,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group4.ClsB)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo|Void(Int32)|20|1E6, Foo|Void([testcase]group4.ClsB,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
- - VTable:
-   - [Object]
-   - [[testcase]group4.Base]
-     - System.Void group4.Base::Foo(): [testcase]group4.ClsB -> System.Void group4.ClsB::Foo()
-   - [[testcase]group4.Inf]
-     - System.Void group4.Inf::Foo(): [testcase]group4.ClsB -> System.Void group4.ClsB::Foo()
-     - System.Void group4.Inf::Foo(System.Int32): [testcase]group4.ClsB -> System.Void group4.ClsB::Foo(System.Int32)
-   - [[testcase]group4.ClsB]
 
 [class [testcase]group4.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

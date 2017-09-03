@@ -1,22 +1,3 @@
-* MethodTables:
-[[testcase]group8.Sub1]
- - group8.Inf.Foo|Int32(Int32)|20: [testcase]group8.Base -> System.Int32 group8.Base::group8.Inf.Foo(System.Int32)
-   - [testcase]group8.Base -> System.Int32 group8.Base::group8.Inf.Foo(System.Int32)
-   - [testcase]group8.Inf -> System.Int32 group8.Inf::Foo(System.Int32)
-
-[[testcase]group8.Base]
- - group8.Inf.Foo|Int32(Int32)|20: [testcase]group8.Base -> System.Int32 group8.Base::group8.Inf.Foo(System.Int32)
-   - [testcase]group8.Base -> System.Int32 group8.Base::group8.Inf.Foo(System.Int32)
-   - [testcase]group8.Inf -> System.Int32 group8.Inf::Foo(System.Int32)
-
- - Foo|Int32(Int32)|20: null
-
-[Object]
-
-[[testcase]group8.Inf]
- - Foo|Int32(Int32)|20: null
-   - [testcase]group8.Inf -> System.Int32 group8.Inf::Foo(System.Int32)
-
 * Types:
 [class [testcase]testcase.ExpOverride9] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -36,12 +17,6 @@
  - Base: [testcase]group8.Base
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group8.Sub1)|20, Public HideBySig SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
-   - [[testcase]group8.Base]
-   - [[testcase]group8.Inf]
-     - System.Int32 group8.Inf::Foo(System.Int32): [testcase]group8.Base -> System.Int32 group8.Base::group8.Inf.Foo(System.Int32)
-   - [[testcase]group8.Sub1]
 
 [class [testcase]group8.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

@@ -1,17 +1,3 @@
-* MethodTables:
-[[testcase]group12.Derived]
- - Foo1|Void()|20: [testcase]group12.Derived -> System.Void group12.Derived::Foo1()
-   - [testcase]group12.Base -> System.Void group12.Base::Foo1()
-   - [testcase]group12.Derived -> System.Void group12.Derived::Foo1()
-
- - Foo2|Void()|20: [testcase]group12.Derived -> System.Void group12.Derived::Foo2()
-   - [testcase]group12.Base -> System.Void group12.Base::Foo2()
-   - [testcase]group12.Derived -> System.Void group12.Derived::Foo2()
-
-[[testcase]group12.Base]
-
-[Object]
-
 * Types:
 [class [testcase]testcase.ExpOverrideWithoutInf1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -33,14 +19,6 @@
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group12.Derived)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo1|Void()|20|C6, Foo1|Void([testcase]group12.Derived)|20 = 0, Public Virtual HideBySig Managed None
    - Foo2|Void()|20|C6, Foo2|Void([testcase]group12.Derived)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[testcase]group12.Base]
-     - System.Void group12.Base::Foo1(): [testcase]group12.Derived -> System.Void group12.Derived::Foo1()
-     - System.Void group12.Base::Foo2(): [testcase]group12.Derived -> System.Void group12.Derived::Foo2()
-   - [[testcase]group12.Derived]
- - ReplaceMap:
-   - System.Void group12.Derived::Foo1() => System.Void group12.Derived::Foo2()
 
 [class [testcase]group12.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

@@ -1,53 +1,3 @@
-* MethodTables:
-[[testcase]group9.Sub1]
- - Foo|Int32(Int32)|20: [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Foo(System.Int32)
-   - [testcase]group9.BaseCls -> System.Int32 group9.BaseCls::Foo(System.Int32)
-   - [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Foo(System.Int32)
-
- - Bla|Int32(Int32)|20: [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
-   - [testcase]group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
-   - [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
-
-[[testcase]group9.BaseCls]
- - Foo|Int32(Int32)|20: null
-   - [testcase]group9.BaseCls -> System.Int32 group9.BaseCls::Foo(System.Int32)
-
-[Object]
-
-[[testcase]group9.Sub5]
- - Bla|Int32(Int32)|20: [testcase]group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
-   - [testcase]group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
-   - [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
-   - [testcase]group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
-   - [testcase]group9.Sub3 -> System.Int32 group9.Sub3::Bla(System.Int32)
-   - [testcase]group9.Sub4 -> System.Int32 group9.Sub4::Bla(System.Int32)
-   - [testcase]group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
-
-[[testcase]group9.Sub4]
- - Bla|Int32(Int32)|20: [testcase]group9.Sub4 -> System.Int32 group9.Sub4::Bla(System.Int32)
-   - [testcase]group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
-   - [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
-   - [testcase]group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
-   - [testcase]group9.Sub3 -> System.Int32 group9.Sub3::Bla(System.Int32)
-   - [testcase]group9.Sub4 -> System.Int32 group9.Sub4::Bla(System.Int32)
-
-[[testcase]group9.Sub3]
- - Foo|Int32(Int32)|20: [testcase]group9.Sub3 -> System.Int32 group9.Sub3::Foo(System.Int32)
-   - [testcase]group9.Sub2 -> System.Int32 group9.Sub2::Foo(System.Int32)
-   - [testcase]group9.Sub3 -> System.Int32 group9.Sub3::Foo(System.Int32)
-
- - Bla|Int32(Int32)|20: [testcase]group9.Sub3 -> System.Int32 group9.Sub3::Bla(System.Int32)
-   - [testcase]group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
-   - [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
-   - [testcase]group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
-   - [testcase]group9.Sub3 -> System.Int32 group9.Sub3::Bla(System.Int32)
-
-[[testcase]group9.Sub2]
- - Bla|Int32(Int32)|20: [testcase]group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
-   - [testcase]group9.BaseCls -> System.Int32 group9.BaseCls::Bla(System.Int32)
-   - [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
-   - [testcase]group9.Sub2 -> System.Int32 group9.Sub2::Bla(System.Int32)
-
 * Types:
 [class [testcase]testcase.Override3] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -80,12 +30,6 @@
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group9.Sub1)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo|Int32(Int32)|20|C6, Foo|Int32([testcase]group9.Sub1,Int32)|20, Public Virtual HideBySig Managed None
    - Bla|Int32(Int32)|20|C6, Bla|Int32([testcase]group9.Sub1,Int32)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[testcase]group9.BaseCls]
-     - System.Int32 group9.BaseCls::Foo(System.Int32): [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Foo(System.Int32)
-     - System.Int32 group9.BaseCls::Bla(System.Int32): [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Bla(System.Int32)
-   - [[testcase]group9.Sub1]
 
 [class [testcase]group9.BaseCls] NotPublic AutoLayout Abstract AnsiClass BeforeFieldInit 
  - Base: Object
@@ -111,21 +55,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group9.Sub5)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Bla|Int32(Int32)|20|C6, Bla|Int32([testcase]group9.Sub5,Int32)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[testcase]group9.BaseCls]
-     - System.Int32 group9.BaseCls::Foo(System.Int32): [testcase]group9.Sub1 -> System.Int32 group9.Sub1::Foo(System.Int32)
-     - System.Int32 group9.BaseCls::Bla(System.Int32): [testcase]group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
-   - [[testcase]group9.Sub1]
-     - System.Int32 group9.Sub1::Bla(System.Int32): [testcase]group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
-   - [[testcase]group9.Sub2]
-     - System.Int32 group9.Sub2::Foo(System.Int32): [testcase]group9.Sub3 -> System.Int32 group9.Sub3::Foo(System.Int32)
-     - System.Int32 group9.Sub2::Bla(System.Int32): [testcase]group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
-   - [[testcase]group9.Sub3]
-     - System.Int32 group9.Sub3::Bla(System.Int32): [testcase]group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
-   - [[testcase]group9.Sub4]
-     - System.Int32 group9.Sub4::Bla(System.Int32): [testcase]group9.Sub5 -> System.Int32 group9.Sub5::Bla(System.Int32)
-   - [[testcase]group9.Sub5]
 
 [class [testcase]group9.Sub4] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: [testcase]group9.Sub3

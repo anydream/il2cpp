@@ -1,31 +1,3 @@
-* MethodTables:
-[[testcase]group10.Cls]
- - Foo|Void()|20: [testcase]group10.Cls -> System.Void group10.Cls::Foo()
-   - [testcase]group10.Cls -> System.Void group10.Cls::Foo()
-   - [testcase]group10.Inf`1<UInt32> -> System.Void group10.Inf`1::Foo()
-
- - group10.Inf.Foo|Void()|20: [testcase]group10.Cls -> System.Void group10.Cls::group10.Inf.Foo()
-   - [testcase]group10.Cls -> System.Void group10.Cls::group10.Inf.Foo()
-   - [testcase]group10.Inf -> System.Void group10.Inf::Foo()
-
- - group10.Inf\u003CSystem.Int16\u003E.Foo|Void()|20: [testcase]group10.Cls -> System.Void group10.Cls::group10.Inf<System.Int16>.Foo()
-   - [testcase]group10.Cls -> System.Void group10.Cls::group10.Inf<System.Int16>.Foo()
-   - [testcase]group10.Inf`1<Int16> -> System.Void group10.Inf`1::Foo()
-
-[Object]
-
-[[testcase]group10.Inf]
- - Foo|Void()|20: null
-   - [testcase]group10.Inf -> System.Void group10.Inf::Foo()
-
-[[testcase]group10.Inf`1<Int16>]
- - Foo|Void()|20: null
-   - [testcase]group10.Inf`1<Int16> -> System.Void group10.Inf`1::Foo()
-
-[[testcase]group10.Inf`1<UInt32>]
- - Foo|Void()|20: null
-   - [testcase]group10.Inf`1<UInt32> -> System.Void group10.Inf`1::Foo()
-
 * Types:
 [class [testcase]testcase.GenExpOverride7] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -51,15 +23,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group10.Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - group10.Inf.Foo|Void()|20|1E1, group10.Inf.Foo|Void([testcase]group10.Cls)|20, Private Final Virtual HideBySig NewSlot Managed None
- - VTable:
-   - [Object]
-   - [[testcase]group10.Cls]
-   - [[testcase]group10.Inf`1<UInt32>]
-     - System.Void group10.Inf`1::Foo(): [testcase]group10.Cls -> System.Void group10.Cls::Foo()
-   - [[testcase]group10.Inf]
-     - System.Void group10.Inf::Foo(): [testcase]group10.Cls -> System.Void group10.Cls::group10.Inf.Foo()
-   - [[testcase]group10.Inf`1<Int16>]
-     - System.Void group10.Inf`1::Foo(): [testcase]group10.Cls -> System.Void group10.Cls::group10.Inf<System.Int16>.Foo()
 
 [class [testcase]group10.Inf] NotPublic AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:

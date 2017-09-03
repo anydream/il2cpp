@@ -1,8 +1,3 @@
-* MethodTables:
-[[self_override2]MyBar]
-
-[Object]
-
 * Types:
 [class [self_override2]CMain] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -25,11 +20,6 @@
    - DoBar|Int32()|20|1C6, DoBar|Int32([self_override2]MyBar)|20 = 0, Public Virtual HideBySig NewSlot Managed None
      - [self_override2]MyBar -> DoSelfBar|Int32()|20|1C6, DoSelfBar|Int32([self_override2]MyBar)|20
    - DoSelfBar|Int32()|20|1C6, DoSelfBar|Int32([self_override2]MyBar)|20, Public Virtual HideBySig NewSlot Managed None
- - VTable:
-   - [Object]
-   - [[self_override2]MyBar]
- - ReplaceMap:
-   - System.Int32 MyBar::DoBar() => System.Int32 MyBar::DoSelfBar()
 
 [class [self_override2]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

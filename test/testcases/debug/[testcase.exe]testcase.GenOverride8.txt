@@ -1,17 +1,3 @@
-* MethodTables:
-[[testcase]testcase.GenOverride8/Cls]
- - Foo|Int32(Int16)|20: [testcase]testcase.GenOverride8/Base -> System.Int32 testcase.GenOverride8/Base::Foo(System.Int16)
-   - [testcase]testcase.GenOverride8/Base -> System.Int32 testcase.GenOverride8/Base::Foo(System.Int16)
-   - [testcase]testcase.GenOverride8/Inf`2<Int32,Int16> -> T1 testcase.GenOverride8/Inf`2::Foo(T2)
-
-[[testcase]testcase.GenOverride8/Base]
-
-[Object]
-
-[[testcase]testcase.GenOverride8/Inf`2<Int32,Int16>]
- - Foo|Int32(Int16)|20: null
-   - [testcase]testcase.GenOverride8/Inf`2<Int32,Int16> -> T1 testcase.GenOverride8/Inf`2::Foo(T2)
-
 * Types:
 [class [testcase]testcase.GenOverride8] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -33,11 +19,6 @@
    - [testcase]testcase.GenOverride8/Inf`2<Int32,Int16>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenOverride8/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.GenOverride8/Base]
-   - [[testcase]testcase.GenOverride8/Inf`2<Int32,Int16>]
-     - T1 testcase.GenOverride8/Inf`2::Foo(T2): [testcase]testcase.GenOverride8/Base -> System.Int32 testcase.GenOverride8/Base::Foo(System.Int16)
 
 [class [testcase]testcase.GenOverride8/Base] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

@@ -1,14 +1,3 @@
-* MethodTables:
-[[testcase]testcase.CycleType1/A`1]
-
-[[testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<!([testcase]testcase.CycleType1/A`1)0>>]
-
-[Object]
-
-[[testcase]testcase.CycleType1/B`1]
-
-[[testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<!([testcase]testcase.CycleType1/B`1)0>>]
-
 * Types:
 [class [testcase]testcase.CycleType1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -30,8 +19,6 @@
  - Base: [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<Int32>>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType1/A`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
 
 [class [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/B`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -45,8 +32,6 @@
  - Base: [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<Int32>>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.CycleType1/B`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
 
 [class [testcase]testcase.CycleType1/C`1<[testcase]testcase.CycleType1/A`1<Int32>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

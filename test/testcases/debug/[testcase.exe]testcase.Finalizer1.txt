@@ -1,11 +1,3 @@
-* MethodTables:
-[[testcase]testcase.Finalizer1/Cls]
- - Finalize|Void()|20: [testcase]testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
-   - Object -> System.Void System.Object::Finalize()
-   - [testcase]testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
-
-[Object]
-
 * Types:
 [class [testcase]testcase.Finalizer1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -31,8 +23,4 @@
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Finalizer1/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - .cctor|Void()|0|1891, .cctor|Void()|0, Private Static HideBySig SpecialName RTSpecialName Managed None
    - Finalize|Void()|20|C4, Finalize|Void([testcase]testcase.Finalizer1/Cls)|20, Family Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-     - System.Void System.Object::Finalize(): [testcase]testcase.Finalizer1/Cls -> System.Void testcase.Finalizer1/Cls::Finalize()
-   - [[testcase]testcase.Finalizer1/Cls]
 

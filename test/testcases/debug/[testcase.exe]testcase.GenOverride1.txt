@@ -1,13 +1,3 @@
-* MethodTables:
-[[testcase]group1.Derived`2]
- - Foo|Void(!1,!0)|20: [testcase]group1.Derived`2 -> System.Void group1.Derived`2::Foo(P,T)
-   - [testcase]group1.Base`2<!([testcase]group1.Derived`2)1,!([testcase]group1.Derived`2)0> -> System.Void group1.Base`2::Foo(T,P)
-   - [testcase]group1.Derived`2 -> System.Void group1.Derived`2::Foo(P,T)
-
-[[testcase]group1.Base`2<!([testcase]group1.Derived`2)1,!([testcase]group1.Derived`2)0>]
-
-[Object]
-
 * Types:
 [class [testcase]testcase.GenOverride1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -30,11 +20,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group1.Derived`2<Single,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo|Void(!1,!0)|20|C6, Foo|Void([testcase]group1.Derived`2<Single,Int32>,Int32,Single)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[testcase]group1.Base`2<Int32,Single>]
-     - System.Void group1.Base`2::Foo(T,P): [testcase]group1.Derived`2<Single,Int32> -> System.Void group1.Derived`2::Foo(P,T)
-   - [[testcase]group1.Derived`2<Single,Int32>]
 
 [class [testcase]group1.Base`2<Int32,Single>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

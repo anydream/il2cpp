@@ -1,38 +1,3 @@
-* MethodTables:
-[[HelloWorld]A2_IntInt]
- - Print|String(Int32)|20: [HelloWorld]A2_IntInt -> System.String A2_IntInt::Print(System.Int32)
-   - [HelloWorld]A`2<Int32,Int32> -> System.String A`2::Print(U)
-   - [HelloWorld]A2_IntInt -> System.String A2_IntInt::Print(System.Int32)
-
-[[HelloWorld]A`2<Int32,Int32>]
-
-[Object]
-
-[[HelloWorld]A2_StringString]
- - Print|String(String)|20: [HelloWorld]A2_StringString -> System.String A2_StringString::Print(System.String)
-   - [HelloWorld]A`2<String,String> -> System.String A`2::Print(U)
-   - [HelloWorld]A2_StringString -> System.String A2_StringString::Print(System.String)
-
-[[HelloWorld]A`2<String,String>]
-
-[[HelloWorld]B2_IntInt]
- - Print|String(Int32)|20: [HelloWorld]B2_IntInt -> System.String B2_IntInt::Print(System.Int32)
-   - [HelloWorld]B`2<Int32,Int32> -> System.String B`2::Print(T)
-   - [HelloWorld]B2_IntInt -> System.String B2_IntInt::Print(System.Int32)
-
-[[HelloWorld]B`2<Int32,Int32>]
-
-[[HelloWorld]B2_StringString]
- - Print|String(String)|20: [HelloWorld]B2_StringString -> System.String B2_StringString::Print(System.String)
-   - [HelloWorld]B`2<String,String> -> System.String B`2::Print(T)
-   - [HelloWorld]B2_StringString -> System.String B2_StringString::Print(System.String)
-
-[[HelloWorld]B`2<String,String>]
-
-[[HelloWorld]A`2]
-
-[[HelloWorld]B`2]
-
 * Types:
 [class [HelloWorld]HelloWorld] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -61,13 +26,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]A2_IntInt)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Print|String(Int32)|20|C6, Print|String([HelloWorld]A2_IntInt,Int32)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[HelloWorld]A`2<Int32,Int32>]
-     - System.String A`2::Print(U): [HelloWorld]A2_IntInt -> System.String A2_IntInt::Print(System.Int32)
-   - [[HelloWorld]A2_IntInt]
- - FallbackTable:
-   - [HelloWorld]A`2<Int32,Int32> => System.String A`2::Print(T)
 
 [class [HelloWorld]A`2<Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -88,13 +46,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]A2_StringString)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Print|String(String)|20|C6, Print|String([HelloWorld]A2_StringString,String)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[HelloWorld]A`2<String,String>]
-     - System.String A`2::Print(U): [HelloWorld]A2_StringString -> System.String A2_StringString::Print(System.String)
-   - [[HelloWorld]A2_StringString]
- - FallbackTable:
-   - [HelloWorld]A`2<String,String> => System.String A`2::Print(T)
 
 [class [HelloWorld]A`2<String,String>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -115,13 +66,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]B2_IntInt)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Print|String(Int32)|20|C6, Print|String([HelloWorld]B2_IntInt,Int32)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[HelloWorld]B`2<Int32,Int32>]
-     - System.String B`2::Print(T): [HelloWorld]B2_IntInt -> System.String B2_IntInt::Print(System.Int32)
-   - [[HelloWorld]B2_IntInt]
- - FallbackTable:
-   - [HelloWorld]B`2<Int32,Int32> => System.String B`2::Print(U)
 
 [class [HelloWorld]B`2<Int32,Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -142,13 +86,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]B2_StringString)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Print|String(String)|20|C6, Print|String([HelloWorld]B2_StringString,String)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[HelloWorld]B`2<String,String>]
-     - System.String B`2::Print(T): [HelloWorld]B2_StringString -> System.String B2_StringString::Print(System.String)
-   - [[HelloWorld]B2_StringString]
- - FallbackTable:
-   - [HelloWorld]B`2<String,String> => System.String B`2::Print(U)
 
 [class [HelloWorld]B`2<String,String>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

@@ -1,12 +1,3 @@
-* MethodTables:
-[[testcase]testcase.GenSameSig1/Derived]
-
-[[testcase]testcase.GenSameSig1/Base`2<Int32,Int32>]
-
-[Object]
-
-[[testcase]testcase.GenSameSig1/Base`2]
-
 * Types:
 [class [testcase]testcase.GenSameSig1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -26,11 +17,6 @@
  - Base: [testcase]testcase.GenSameSig1/Base`2<Int32,Int32>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenSameSig1/Derived)|20, Public HideBySig SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.GenSameSig1/Base`2<Int32,Int32>]
- - FallbackTable:
-   - [testcase]testcase.GenSameSig1/Base`2<Int32,Int32> => System.Void testcase.GenSameSig1/Base`2::Foo(T)
 
 [class [testcase]testcase.GenSameSig1/Base`2<Int32,Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

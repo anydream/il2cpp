@@ -1,24 +1,3 @@
-* MethodTables:
-[[testcase]group5.Derived]
- - Foo|Int32(Int32)|20: [testcase]group5.Derived -> System.Int32 group5.Derived::Foo(System.Int32)
-   - [testcase]group5.Derived -> System.Int32 group5.Derived::Foo(System.Int32)
-   - [testcase]group5.InfB -> System.Int32 group5.InfB::Foo(System.Int32)
-
-[[testcase]group5.Base]
- - Foo|Int32(Int32)|20: [testcase]group5.Base -> System.Int32 group5.Base::Foo(System.Int32)
-   - [testcase]group5.Base -> System.Int32 group5.Base::Foo(System.Int32)
-   - [testcase]group5.InfA -> System.Int32 group5.InfA::Foo(System.Int32)
-
-[Object]
-
-[[testcase]group5.InfA]
- - Foo|Int32(Int32)|20: null
-   - [testcase]group5.InfA -> System.Int32 group5.InfA::Foo(System.Int32)
-
-[[testcase]group5.InfB]
- - Foo|Int32(Int32)|20: null
-   - [testcase]group5.InfB -> System.Int32 group5.InfB::Foo(System.Int32)
-
 * Types:
 [class [testcase]testcase.Interface3] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -40,14 +19,6 @@
    - [testcase]group5.InfB
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group5.Derived)|20, Public HideBySig SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
-   - [[testcase]group5.Base]
-   - [[testcase]group5.InfA]
-     - System.Int32 group5.InfA::Foo(System.Int32): [testcase]group5.Base -> System.Int32 group5.Base::Foo(System.Int32)
-   - [[testcase]group5.Derived]
-   - [[testcase]group5.InfB]
-     - System.Int32 group5.InfB::Foo(System.Int32): [testcase]group5.Derived -> System.Int32 group5.Derived::Foo(System.Int32)
 
 [class [testcase]group5.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

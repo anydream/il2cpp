@@ -1,60 +1,3 @@
-* MethodTables:
-[[testcase]testcase.GenOverride9/Sub2]
- - Foo|!!0<1>(!!0,Int32*[])|30: [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int32*[])
-   - [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
-   - [testcase]testcase.GenOverride9/Inf`1<Int32*[]> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
-   - [testcase]testcase.GenOverride9/Sub1`1<Int32*[]> -> TCF1 testcase.GenOverride9/Sub1`1::Foo<TCF1>(TCF1,TC1)
-   - [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int32*[])
-
- - Foo|!!0<1>(!!0,Int16*[])|30: [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int16*[])
-   - [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
-   - [testcase]testcase.GenOverride9/Inf2`1<Int16*[]> -> TF testcase.GenOverride9/Inf2`1::Foo<TF>(TF,TI)
-   - [testcase]testcase.GenOverride9/Sub1`1<Int32*[]> -> TCF1 testcase.GenOverride9/Sub1`1::Foo<TCF1>(TCF1,System.Int16*[])
-   - [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int16*[])
-
-[[testcase]testcase.GenOverride9/Sub1`1<Int32*[]>]
- - Foo|!!0<1>(!!0,Int32*[])|30: [testcase]testcase.GenOverride9/Sub1`1<Int32*[]> -> TCF1 testcase.GenOverride9/Sub1`1::Foo<TCF1>(TCF1,TC1)
-   - [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
-   - [testcase]testcase.GenOverride9/Inf`1<Int32*[]> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
-   - [testcase]testcase.GenOverride9/Sub1`1<Int32*[]> -> TCF1 testcase.GenOverride9/Sub1`1::Foo<TCF1>(TCF1,TC1)
-
- - Foo|!!0<1>(!!0,Int16*[])|30: [testcase]testcase.GenOverride9/Sub1`1<Int32*[]> -> TCF1 testcase.GenOverride9/Sub1`1::Foo<TCF1>(TCF1,System.Int16*[])
-   - [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
-   - [testcase]testcase.GenOverride9/Inf2`1<Int16*[]> -> TF testcase.GenOverride9/Inf2`1::Foo<TF>(TF,TI)
-   - [testcase]testcase.GenOverride9/Sub1`1<Int32*[]> -> TCF1 testcase.GenOverride9/Sub1`1::Foo<TCF1>(TCF1,System.Int16*[])
-
-[[testcase]testcase.GenOverride9/Cls`1<Int32*[]>]
- - Foo|!!0<1>(!!0,Int32*[])|30: [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
-   - [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
-   - [testcase]testcase.GenOverride9/Inf`1<Int32*[]> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
-
- - Foo|!!0<1>(!!0,Int16*[])|30: [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
-   - [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
-   - [testcase]testcase.GenOverride9/Inf2`1<Int16*[]> -> TF testcase.GenOverride9/Inf2`1::Foo<TF>(TF,TI)
-
-[Object]
-
-[[testcase]testcase.GenOverride9/Inf`1<Int32*[]>]
- - Foo|!!0<1>(!!0,Int32*[])|30: null
-   - [testcase]testcase.GenOverride9/Inf`1<Int32*[]> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
-
-[[testcase]testcase.GenOverride9/Inf2`1<Int16*[]>]
- - Foo|!!0<1>(!!0,Int16*[])|30: null
-   - [testcase]testcase.GenOverride9/Inf2`1<Int16*[]> -> TF testcase.GenOverride9/Inf2`1::Foo<TF>(TF,TI)
-
-[[testcase]testcase.GenOverride9/Cls`1]
- - Foo|!!0<1>(!!0,!0)|30: [testcase]testcase.GenOverride9/Cls`1 -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
-   - [testcase]testcase.GenOverride9/Cls`1 -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
-   - [testcase]testcase.GenOverride9/Inf`1<!([testcase]testcase.GenOverride9/Cls`1)0> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
-
- - Foo|!!0<1>(!!0,Int16*[])|30: [testcase]testcase.GenOverride9/Cls`1 -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
-   - [testcase]testcase.GenOverride9/Cls`1 -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
-   - [testcase]testcase.GenOverride9/Inf2`1<Int16*[]> -> TF testcase.GenOverride9/Inf2`1::Foo<TF>(TF,TI)
-
-[[testcase]testcase.GenOverride9/Inf`1<!([testcase]testcase.GenOverride9/Cls`1)0>]
- - Foo|!!0<1>(!!0,!0)|30: null
-   - [testcase]testcase.GenOverride9/Inf`1<!([testcase]testcase.GenOverride9/Cls`1)0> -> TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI)
-
 * Types:
 [class [testcase]testcase.GenOverride9] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -78,19 +21,6 @@
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenOverride9/Sub2)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo|!!0<Char*[]>(!!0,Int32*[])|30|C6, Foo|Char*[]<Char*[]>([testcase]testcase.GenOverride9/Sub2,Char*[],Int32*[])|30, Public Virtual HideBySig Managed None
    - Foo|!!0<Char*[]>(!!0,Int16*[])|30|C6, Foo|Char*[]<Char*[]>([testcase]testcase.GenOverride9/Sub2,Char*[],Int16*[])|30, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.GenOverride9/Cls`1<Int32*[]>]
-     - TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC): [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int32*[])
-     - TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[]): [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int16*[])
-   - [[testcase]testcase.GenOverride9/Inf`1<Int32*[]>]
-     - TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI): [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int32*[])
-   - [[testcase]testcase.GenOverride9/Inf2`1<Int16*[]>]
-     - TF testcase.GenOverride9/Inf2`1::Foo<TF>(TF,TI): [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int16*[])
-   - [[testcase]testcase.GenOverride9/Sub1`1<Int32*[]>]
-     - TCF1 testcase.GenOverride9/Sub1`1::Foo<TCF1>(TCF1,TC1): [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int32*[])
-     - TCF1 testcase.GenOverride9/Sub1`1::Foo<TCF1>(TCF1,System.Int16*[]): [testcase]testcase.GenOverride9/Sub2 -> TCF2 testcase.GenOverride9/Sub2::Foo<TCF2>(TCF2,System.Int16*[])
-   - [[testcase]testcase.GenOverride9/Sub2]
 
 [class [testcase]testcase.GenOverride9/Sub1`1<Int32*[]>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: [testcase]testcase.GenOverride9/Cls`1<Int32*[]>
@@ -116,13 +46,6 @@
      - [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> Foo|!!0<Char*[]>(!!0,Int16*[])|30|1C6, Foo|Char*[]<Char*[]>([testcase]testcase.GenOverride9/Cls`1<Int32*[]>,Char*[],Int16*[])|30
      - [testcase]testcase.GenOverride9/Sub2 -> Foo|!!0<Char*[]>(!!0,Int16*[])|30|C6, Foo|Char*[]<Char*[]>([testcase]testcase.GenOverride9/Sub2,Char*[],Int16*[])|30
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenOverride9/Cls`1<Int32*[]>)|20, Public HideBySig SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.GenOverride9/Cls`1<Int32*[]>]
-   - [[testcase]testcase.GenOverride9/Inf`1<Int32*[]>]
-     - TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI): [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
-   - [[testcase]testcase.GenOverride9/Inf2`1<Int16*[]>]
-     - TF testcase.GenOverride9/Inf2`1::Foo<TF>(TF,TI): [testcase]testcase.GenOverride9/Cls`1<Int32*[]> -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
 
 [class [testcase]testcase.GenOverride9/Inf`1<Int32*[]>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
@@ -155,13 +78,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenOverride9/Cls`1<Int64*[]>)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo|!!0<Char*[]>(!!0,Int16*[])|30|1C6, Foo|Char*[]<Char*[]>([testcase]testcase.GenOverride9/Cls`1<Int64*[]>,Char*[],Int16*[])|30, Public Virtual HideBySig NewSlot Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.GenOverride9/Cls`1<Int64*[]>]
-   - [[testcase]testcase.GenOverride9/Inf`1<Int64*[]>]
-     - TF testcase.GenOverride9/Inf`1::Foo<TF>(TF,TI): [testcase]testcase.GenOverride9/Cls`1<Int64*[]> -> TCF testcase.GenOverride9/Cls`1::Foo<TCF>(TCF,TC)
-   - [[testcase]testcase.GenOverride9/Inf2`1<Int16*[]>]
-     - TF testcase.GenOverride9/Inf2`1::Foo<TF>(TF,TI): [testcase]testcase.GenOverride9/Cls`1<Int64*[]> -> TF testcase.GenOverride9/Cls`1::Foo<TF>(TF,System.Int16*[])
 
 [class [testcase]testcase.GenOverride9/Inf`1<Int64*[]>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:

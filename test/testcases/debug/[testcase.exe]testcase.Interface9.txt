@@ -1,30 +1,3 @@
-* MethodTables:
-[[testcase]testcase.Interface9/Sub3]
- - getWidth|Int32()|20: [testcase]testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
-   - [testcase]testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getWidth()
-   - [testcase]testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
-   - [testcase]testcase.Interface9/Inf -> System.Int32 testcase.Interface9/Inf::getWidth()
-
- - getHeight|Int32()|20: [testcase]testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getHeight()
-   - [testcase]testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getHeight()
-   - [testcase]testcase.Interface9/Inf -> System.Int32 testcase.Interface9/Inf::getHeight()
-
-[[testcase]testcase.Interface9/Sub2]
- - getWidth|Int32()|20: [testcase]testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
-   - [testcase]testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getWidth()
-   - [testcase]testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
-
-[[testcase]testcase.Interface9/Sub1]
-
-[Object]
-
-[[testcase]testcase.Interface9/Inf]
- - getWidth|Int32()|20: null
-   - [testcase]testcase.Interface9/Inf -> System.Int32 testcase.Interface9/Inf::getWidth()
-
- - getHeight|Int32()|20: null
-   - [testcase]testcase.Interface9/Inf -> System.Int32 testcase.Interface9/Inf::getHeight()
-
 * Types:
 [class [testcase]testcase.Interface9] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -47,14 +20,6 @@
    - [testcase]testcase.Interface9/Inf
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Interface9/Sub3)|20, Public HideBySig SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.Interface9/Sub1]
-     - System.Int32 testcase.Interface9/Sub1::getWidth(): [testcase]testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
-   - [[testcase]testcase.Interface9/Sub2]
-   - [[testcase]testcase.Interface9/Inf]
-     - System.Int32 testcase.Interface9/Inf::getWidth(): [testcase]testcase.Interface9/Sub2 -> System.Int32 testcase.Interface9/Sub2::getWidth()
-     - System.Int32 testcase.Interface9/Inf::getHeight(): [testcase]testcase.Interface9/Sub1 -> System.Int32 testcase.Interface9/Sub1::getHeight()
 
 [class [testcase]testcase.Interface9/Sub2] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: [testcase]testcase.Interface9/Sub1

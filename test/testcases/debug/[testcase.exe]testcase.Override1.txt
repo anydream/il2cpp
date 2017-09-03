@@ -1,15 +1,3 @@
-* MethodTables:
-[[testcase]testcase.Override1/Cls]
- - Foo|Void()|20: [testcase]testcase.Override1/Cls -> System.Void testcase.Override1/Cls::Foo()
-   - [testcase]testcase.Override1/Cls -> System.Void testcase.Override1/Cls::Foo()
-   - [testcase]testcase.Override1/Inf -> System.Void testcase.Override1/Inf::Foo()
-
-[Object]
-
-[[testcase]testcase.Override1/Inf]
- - Foo|Void()|20: null
-   - [testcase]testcase.Override1/Inf -> System.Void testcase.Override1/Inf::Foo()
-
 * Types:
 [class [testcase]testcase.Override1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -33,11 +21,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Override1/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo|Void()|20|1E6, Foo|Void([testcase]testcase.Override1/Cls)|20, Public Final Virtual HideBySig NewSlot Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.Override1/Cls]
-   - [[testcase]testcase.Override1/Inf]
-     - System.Void testcase.Override1/Inf::Foo(): [testcase]testcase.Override1/Cls -> System.Void testcase.Override1/Cls::Foo()
 
 [class [testcase]testcase.Override1/Inf] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:

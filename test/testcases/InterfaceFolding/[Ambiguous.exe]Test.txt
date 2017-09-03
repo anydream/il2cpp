@@ -1,32 +1,3 @@
-* MethodTables:
-[[Ambiguous]B`2]
- - I\u003CW\u003E.Foo|String()|20: [Ambiguous]B`2 -> System.String B`2::I<W>.Foo()
-   - [Ambiguous]B`2 -> System.String B`2::I<W>.Foo()
-   - [Ambiguous]I`1<!([Ambiguous]B`2)1> -> System.String I`1::Foo()
-
- - I\u003CV\u003E.Foo|String()|20: [Ambiguous]B`2 -> System.String B`2::I<V>.Foo()
-   - [Ambiguous]B`2 -> System.String B`2::I<V>.Foo()
-   - [Ambiguous]I`1<!([Ambiguous]B`2)0> -> System.String I`1::Foo()
-
- - Foo|String()|20: null
-
-[[Ambiguous]A`1<!([Ambiguous]B`2)0>]
- - I\u003CU\u003E.Foo|String()|20: [Ambiguous]A`1<!([Ambiguous]B`2)0> -> System.String A`1::I<U>.Foo()
-   - [Ambiguous]A`1<!([Ambiguous]B`2)0> -> System.String A`1::I<U>.Foo()
-   - [Ambiguous]I`1<!([Ambiguous]B`2)0> -> System.String I`1::Foo()
-
- - Foo|String()|20: null
-
-[Object]
-
-[[Ambiguous]I`1<!([Ambiguous]B`2)0>]
- - Foo|String()|20: null
-   - [Ambiguous]I`1<!([Ambiguous]B`2)0> -> System.String I`1::Foo()
-
-[[Ambiguous]I`1<!([Ambiguous]B`2)1>]
- - Foo|String()|20: null
-   - [Ambiguous]I`1<!([Ambiguous]B`2)1> -> System.String I`1::Foo()
-
 * Types:
 [class [Ambiguous]Test] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -53,12 +24,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([Ambiguous]B`2<Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - I\u003CV\u003E.Foo|String()|20|1E1, I\u003CV\u003E.Foo|String([Ambiguous]B`2<Int32,Int32>)|20, Private Final Virtual HideBySig NewSlot Managed None
- - VTable:
-   - [Object]
-   - [[Ambiguous]A`1<Int32>]
-   - [[Ambiguous]I`1<Int32>]
-     - System.String I`1::Foo(): [Ambiguous]B`2<Int32,Int32> -> System.String B`2::I<V>.Foo()
-   - [[Ambiguous]B`2<Int32,Int32>]
 
 [class [Ambiguous]A`1<Int32>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -134,12 +99,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([Ambiguous]B`2<String,String>)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - I\u003CV\u003E.Foo|String()|20|1E1, I\u003CV\u003E.Foo|String([Ambiguous]B`2<String,String>)|20, Private Final Virtual HideBySig NewSlot Managed None
- - VTable:
-   - [Object]
-   - [[Ambiguous]A`1<String>]
-   - [[Ambiguous]I`1<String>]
-     - System.String I`1::Foo(): [Ambiguous]B`2<String,String> -> System.String B`2::I<V>.Foo()
-   - [[Ambiguous]B`2<String,String>]
 
 [class [Ambiguous]A`1<String>] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

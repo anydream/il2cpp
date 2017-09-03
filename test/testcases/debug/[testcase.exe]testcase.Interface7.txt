@@ -1,17 +1,3 @@
-* MethodTables:
-[[testcase]testcase.Interface7/Derived]
- - Foo|Void()|20: [testcase]testcase.Interface7/Base -> System.Void testcase.Interface7/Base::Foo()
-   - [testcase]testcase.Interface7/Base -> System.Void testcase.Interface7/Base::Foo()
-   - [testcase]testcase.Interface7/Inf -> System.Void testcase.Interface7/Inf::Foo()
-
-[[testcase]testcase.Interface7/Base]
-
-[Object]
-
-[[testcase]testcase.Interface7/Inf]
- - Foo|Void()|20: null
-   - [testcase]testcase.Interface7/Inf -> System.Void testcase.Interface7/Inf::Foo()
-
 * Types:
 [class [testcase]testcase.Interface7] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -33,11 +19,6 @@
    - [testcase]testcase.Interface7/Inf
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Interface7/Derived)|20, Public HideBySig SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.Interface7/Base]
-   - [[testcase]testcase.Interface7/Inf]
-     - System.Void testcase.Interface7/Inf::Foo(): [testcase]testcase.Interface7/Base -> System.Void testcase.Interface7/Base::Foo()
 
 [class [testcase]testcase.Interface7/Base] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

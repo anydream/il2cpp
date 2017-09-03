@@ -1,18 +1,3 @@
-* MethodTables:
-[[testcase]testcase.Override2/SubCls]
- - Foo|Int32(Int32)|20: [testcase]testcase.Override2/SubCls -> System.Int32 testcase.Override2/SubCls::Foo(System.Int32)
-   - [testcase]testcase.Override2/BaseCls -> System.Int32 testcase.Override2/BaseCls::Foo(System.Int32)
-   - [testcase]testcase.Override2/SubCls -> System.Int32 testcase.Override2/SubCls::Foo(System.Int32)
-
-[[testcase]testcase.Override2/BaseCls]
-
-[Object]
-
-[[testcase]testcase.Override2/SubCls2]
- - Foo|Int32(Int32)|20: [testcase]testcase.Override2/SubCls2 -> System.Int32 testcase.Override2/SubCls2::Foo(System.Int32)
-   - [testcase]testcase.Override2/BaseCls -> System.Int32 testcase.Override2/BaseCls::Foo(System.Int32)
-   - [testcase]testcase.Override2/SubCls2 -> System.Int32 testcase.Override2/SubCls2::Foo(System.Int32)
-
 * Types:
 [class [testcase]testcase.Override2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -34,11 +19,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Override2/SubCls)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo|Int32(Int32)|20|C6, Foo|Int32([testcase]testcase.Override2/SubCls,Int32)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.Override2/BaseCls]
-     - System.Int32 testcase.Override2/BaseCls::Foo(System.Int32): [testcase]testcase.Override2/SubCls -> System.Int32 testcase.Override2/SubCls::Foo(System.Int32)
-   - [[testcase]testcase.Override2/SubCls]
 
 [class [testcase]testcase.Override2/BaseCls] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -59,9 +39,4 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Override2/SubCls2)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo|Int32(Int32)|20|C6, Foo|Int32([testcase]testcase.Override2/SubCls2,Int32)|20, Public Virtual HideBySig Managed None
- - VTable:
-   - [Object]
-   - [[testcase]testcase.Override2/BaseCls]
-     - System.Int32 testcase.Override2/BaseCls::Foo(System.Int32): [testcase]testcase.Override2/SubCls2 -> System.Int32 testcase.Override2/SubCls2::Foo(System.Int32)
-   - [[testcase]testcase.Override2/SubCls2]
 

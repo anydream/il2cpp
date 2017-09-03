@@ -1,40 +1,3 @@
-* MethodTables:
-[[testcase]testcase.vsw593884/Level3]
- - testcase.vsw593884.ITest.get_Test|Int32()|20: [testcase]testcase.vsw593884/Level2 -> System.Int32 testcase.vsw593884/Level2::testcase.vsw593884.ITest.get_Test()
-   - [testcase]testcase.vsw593884/Level2 -> System.Int32 testcase.vsw593884/Level2::testcase.vsw593884.ITest.get_Test()
-   - [testcase]testcase.vsw593884/ITest -> System.Int32 testcase.vsw593884/ITest::get_Test()
-
- - testcase.vsw593884.ITest.get_Test2|Int32()|20: [testcase]testcase.vsw593884/Level3 -> System.Int32 testcase.vsw593884/Level3::testcase.vsw593884.ITest.get_Test2()
-   - [testcase]testcase.vsw593884/Level3 -> System.Int32 testcase.vsw593884/Level3::testcase.vsw593884.ITest.get_Test2()
-   - [testcase]testcase.vsw593884/ITest -> System.Int32 testcase.vsw593884/ITest::get_Test2()
-
-[[testcase]testcase.vsw593884/Level2]
- - testcase.vsw593884.ITest.get_Test|Int32()|20: [testcase]testcase.vsw593884/Level2 -> System.Int32 testcase.vsw593884/Level2::testcase.vsw593884.ITest.get_Test()
-   - [testcase]testcase.vsw593884/Level2 -> System.Int32 testcase.vsw593884/Level2::testcase.vsw593884.ITest.get_Test()
-   - [testcase]testcase.vsw593884/ITest -> System.Int32 testcase.vsw593884/ITest::get_Test()
-
- - testcase.vsw593884.ITest.get_Test2|Int32()|20: [testcase]testcase.vsw593884/Level2 -> System.Int32 testcase.vsw593884/Level2::testcase.vsw593884.ITest.get_Test2()
-   - [testcase]testcase.vsw593884/Level2 -> System.Int32 testcase.vsw593884/Level2::testcase.vsw593884.ITest.get_Test2()
-   - [testcase]testcase.vsw593884/ITest -> System.Int32 testcase.vsw593884/ITest::get_Test2()
-
-[[testcase]testcase.vsw593884/Level1]
- - get_Test|Int32()|20: [testcase]testcase.vsw593884/Level1 -> System.Int32 testcase.vsw593884/Level1::get_Test()
-   - [testcase]testcase.vsw593884/Level1 -> System.Int32 testcase.vsw593884/Level1::get_Test()
-   - [testcase]testcase.vsw593884/ITest -> System.Int32 testcase.vsw593884/ITest::get_Test()
-
- - get_Test2|Int32()|20: [testcase]testcase.vsw593884/Level1 -> System.Int32 testcase.vsw593884/Level1::get_Test2()
-   - [testcase]testcase.vsw593884/Level1 -> System.Int32 testcase.vsw593884/Level1::get_Test2()
-   - [testcase]testcase.vsw593884/ITest -> System.Int32 testcase.vsw593884/ITest::get_Test2()
-
-[Object]
-
-[[testcase]testcase.vsw593884/ITest]
- - get_Test|Int32()|20: null
-   - [testcase]testcase.vsw593884/ITest -> System.Int32 testcase.vsw593884/ITest::get_Test()
-
- - get_Test2|Int32()|20: null
-   - [testcase]testcase.vsw593884/ITest -> System.Int32 testcase.vsw593884/ITest::get_Test2()
-
 * Types:
 [class [testcase]testcase.vsw593884] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -58,14 +21,6 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.vsw593884/Level3)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - testcase.vsw593884.ITest.get_Test2|Int32()|20|9E1, testcase.vsw593884.ITest.get_Test2|Int32([testcase]testcase.vsw593884/Level3)|20, Private Final Virtual HideBySig NewSlot SpecialName Managed Getter
- - VTable:
-   - [Object]
-   - [[testcase]testcase.vsw593884/Level1]
-   - [[testcase]testcase.vsw593884/ITest]
-     - System.Int32 testcase.vsw593884/ITest::get_Test(): [testcase]testcase.vsw593884/Level2 -> System.Int32 testcase.vsw593884/Level2::testcase.vsw593884.ITest.get_Test()
-     - System.Int32 testcase.vsw593884/ITest::get_Test2(): [testcase]testcase.vsw593884/Level3 -> System.Int32 testcase.vsw593884/Level3::testcase.vsw593884.ITest.get_Test2()
-   - [[testcase]testcase.vsw593884/Level2]
-   - [[testcase]testcase.vsw593884/Level3]
 
 [class [testcase]testcase.vsw593884/Level2] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
  - Base: [testcase]testcase.vsw593884/Level1

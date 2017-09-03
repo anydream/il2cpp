@@ -1,6 +1,3 @@
-* MethodTables:
-[Object]
-
 * Types:
 [class [testcase]testcase.CrossRuntimeVersion1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object
@@ -20,8 +17,6 @@
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Finalize|Void()|20|1C4, Finalize|Void(Object)|20, Family Virtual HideBySig NewSlot Managed None
      - Object -> Finalize|Void()|20|1C4, Finalize|Void(Object)|20
- - VTable:
-   - [Object]
 
 [class [net20x1]net20x1.Class] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

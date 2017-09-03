@@ -1,4 +1,3 @@
-* MethodTables:
 * Types:
 [class [testcase]testcase.StaticCctor1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
  - Base: Object

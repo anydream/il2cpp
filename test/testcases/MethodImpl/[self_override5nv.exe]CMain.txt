@@ -1,13 +1,3 @@
-* MethodTables:
-[[self_override5]MyFoo]
- - DoBarOverride|Int32()|20: [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
-   - [self_override5]MyBar -> System.Int32 MyBar::DoBarOverride()
-   - [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
-
-[[self_override5]MyBar]
-
-[Object]
-
 * Types:
 [class [self_override5]CMain] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -28,13 +18,6 @@
  - Base: [self_override5]MyBar
  - Methods:
    - .ctor|Void()|20|1806, .ctor|Void([self_override5]MyFoo)|20, Public SpecialName RTSpecialName Managed None
- - VTable:
-   - [Object]
-   - [[self_override5]MyBar]
-     - System.Int32 MyBar::DoBarOverride(): [self_override5]MyFoo -> System.Int32 MyFoo::DoBarOverride()
-   - [[self_override5]MyFoo]
- - ReplaceMap:
-   - System.Int32 MyBar::DoBar() => System.Int32 MyBar::DoBarOverride()
 
 [class [self_override5]MyBar] Public AutoLayout AnsiClass 
  - Base: Object
