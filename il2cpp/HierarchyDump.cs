@@ -14,7 +14,7 @@ namespace il2cpp
 		}
 
 		// 导出方法表结构
-		public void DumpMethodTables(StringBuilder sb)
+		/*public void DumpMethodTables(StringBuilder sb)
 		{
 			foreach (var kv in Context.TypeMgr.MethodTableMap)
 			{
@@ -48,7 +48,7 @@ namespace il2cpp
 				if (!flag)
 					sb.Append('\n');
 			}
-		}
+		}*/
 
 		public void DumpTypes(StringBuilder sb)
 		{
@@ -65,20 +65,20 @@ namespace il2cpp
 
 				if (tyX.BaseType != null)
 					sb.AppendFormat(" - Base: {0}\n", tyX.BaseType);
-				if (Helper.IsCollectionValid(tyX.Interfaces))
+				if (tyX.Interfaces.IsCollectionValid())
 				{
 					sb.Append(" - Interfaces:\n");
 					foreach (TypeX infTyX in tyX.Interfaces)
 						sb.AppendFormat("   - {0}\n", infTyX);
 				}
-				if (Helper.IsCollectionValid(tyX.DerivedTypes))
+				if (tyX.DerivedTypes.IsCollectionValid())
 				{
 					sb.Append(" - DerivedTypes:\n");
 					foreach (TypeX derivedTyX in tyX.DerivedTypes)
 						sb.AppendFormat("   - {0}\n", derivedTyX);
 				}
 
-				if (Helper.IsCollectionValid(tyX.FieldMap))
+				if (tyX.FieldMap.IsCollectionValid())
 				{
 					sb.Append(" - Fields:\n");
 					foreach (FieldX fldX in tyX.FieldMap.Values)
@@ -90,7 +90,7 @@ namespace il2cpp
 					}
 				}
 
-				if (Helper.IsCollectionValid(tyX.MethodMap))
+				if (tyX.MethodMap.IsCollectionValid())
 				{
 					sb.Append(" - Methods:\n");
 					foreach (MethodX metX in tyX.MethodMap.Values)
@@ -115,7 +115,7 @@ namespace il2cpp
 					}
 				}
 
-				if (tyX.IsInstantiated &&
+				/*if (tyX.IsInstantiated &&
 					tyX.VTable != null)
 				{
 					if (Helper.IsCollectionValid(tyX.VTable.Table))
@@ -154,7 +154,7 @@ namespace il2cpp
 							sb.AppendFormat("   - {0} => {1}\n", kv2.Key, kv2.Value.FullName);
 						}
 					}
-				}
+				}*/
 
 				sb.Append('\n');
 			}

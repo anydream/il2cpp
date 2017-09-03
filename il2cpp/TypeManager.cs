@@ -665,7 +665,7 @@ namespace il2cpp
 		private MethodX MakeMethodX(TypeX declType, MethodDef metDef, IList<TypeSig> genArgs)
 		{
 			MethodX metX = new MethodX(declType, metDef);
-			if (Helper.IsCollectionValid(genArgs))
+			if (genArgs.IsCollectionValid())
 				metX.GenArgs = new List<TypeSig>(genArgs);
 			return AddMethod(metX);
 		}

@@ -67,9 +67,21 @@ namespace il2cpp
 	// 辅助扩展方法
 	internal static class Helper
 	{
-		public static bool IsCollectionValid<T>(ICollection<T> co)
+		public static bool IsCollectionValid<T>(this ICollection<T> co)
 		{
 			return co != null && co.Count > 0;
+		}
+
+		public static TValue GetOrCreate<TKey, TValue>(
+			this IDictionary<TKey, TValue> dict,
+			TKey key,
+			Func<TValue> creator)
+		{
+			if (dict.TryGetValue(key, out TValue val))
+				return val;
+			val = creator();
+			dict.Add(key, val);
+			return val;
 		}
 
 		// 替换类型中的泛型签名
@@ -195,7 +207,7 @@ namespace il2cpp
 			IList<TypeSig> genArgs)
 		{
 			ClassSigName(sb, tyDef);
-			if (IsCollectionValid(genArgs))
+			if (genArgs.IsCollectionValid())
 			{
 				sb.Append('<');
 				TypeSigListName(sb, genArgs, true);
@@ -244,7 +256,7 @@ namespace il2cpp
 
 			TypeSigName(sb, retType, false);
 
-			if (IsCollectionValid(genArgs))
+			if (genArgs.IsCollectionValid())
 			{
 				sb.Append('<');
 				TypeSigListName(sb, genArgs, false);

@@ -43,7 +43,7 @@ namespace il2cpp
 
 		// 虚方法绑定的实现方法
 		public HashSet<MethodX> OverrideImpls;
-		public bool HasOverrideImpls => Helper.IsCollectionValid(OverrideImpls);
+		public bool HasOverrideImpls => OverrideImpls.IsCollectionValid();
 
 		public bool HasThis => DefSig.HasThis;
 		public bool IsStatic => !HasThis;

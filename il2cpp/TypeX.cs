@@ -7,7 +7,7 @@ namespace il2cpp
 	internal class GenericArgs
 	{
 		public IList<TypeSig> GenArgs;
-		public bool HasGenArgs => Helper.IsCollectionValid(GenArgs);
+		public bool HasGenArgs => GenArgs.IsCollectionValid();
 	}
 
 	internal class TypeX : GenericArgs
