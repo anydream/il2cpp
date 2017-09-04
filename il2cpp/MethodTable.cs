@@ -294,7 +294,8 @@ namespace il2cpp
 			if (metDef.HasOverrides)
 				expOverrides.Add(new Tuple<string, MethodDef>(metNameKey, metDef));
 
-			var impl = new TypeMethodPair(this, metDef);
+			var entry = new TypeMethodPair(this, metDef);
+			var impl = Def.IsInterface ? null : entry;
 
 			VirtualSlot vslot;
 			if (metDef.IsReuseSlot)
@@ -307,7 +308,7 @@ namespace il2cpp
 				else
 				{
 					vslot = new VirtualSlot(vslot, impl);
-					vslot.Entries.Add(impl);
+					vslot.Entries.Add(entry);
 					vslot.Implemented = impl;
 					SlotMap[metNameKey] = vslot;
 					return vslot;
@@ -316,7 +317,7 @@ namespace il2cpp
 
 			Debug.Assert(metDef.IsNewSlot);
 			vslot = new VirtualSlot(impl);
-			vslot.Entries.Add(impl);
+			vslot.Entries.Add(entry);
 			vslot.Implemented = impl;
 			SlotMap[metNameKey] = vslot;
 			return vslot;
