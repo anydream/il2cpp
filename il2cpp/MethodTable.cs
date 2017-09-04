@@ -207,8 +207,9 @@ namespace il2cpp
 					MethodDef implDef = overImpl.ResolveMethodDef();
 					Debug.Assert(metDef == implDef);
 
-					// 同一个类内重复的显式重写视为错误
-					if (expOverTargets.Contains(targetEntry))
+					// 同一个类内重复的显式重写, 以及重写存在重写的方法, 视为错误
+					if ((targetTable == this && targetDef.HasOverrides) ||
+						expOverTargets.Contains(targetEntry))
 					{
 						throw new TypeLoadException(
 							string.Format("Explicit overriding target has been overridden: {0}",
@@ -248,13 +249,13 @@ namespace il2cpp
 				TypeMethodPair impl = kv.Value.Implemented;
 				var entries = kv.Value.Entries;
 
-				if (impl == null)
+				if (impl == null || impl.Item2.IsAbstract)
 				{
 					// 对于非抽象类需要检查是否存在实现
 					if (!Def.IsInterface && !Def.IsAbstract)
 					{
 						throw new TypeLoadException(
-							string.Format("There are some interface/abstract methods not implemented in type {0}: {1}",
+							string.Format("Interface/abstract methods not implemented in type {0}: {1}",
 								Def.FullName,
 								entries.First().Item2.FullName));
 					}
