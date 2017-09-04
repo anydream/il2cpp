@@ -4,7 +4,7 @@
   string -> 入口列表 [ TypeMethodPair ], 实现方法 TypeMethodPair, newslot方法 TypeMethodPair
   只有 newslot 或者不存在 key 的 reuseslot 才能创建 key
   
-- newslot/reuseslot 是根据基类的 SlotMap 来处理的
+- newslot/reuseslot 是根据基类的 SlotMap 来处理重写的
 
 - 签名相同的情况下:
   排序: reuseslot 方法在前, newslot 在后
@@ -18,7 +18,7 @@
 
 - 显式实现接口方法时, 从 SlotMap 中接口方法对应的签名中, 清除接口方法的入口
   然后在 EntryMap 中添加接口方法到实现方法的绑定
-  实现方法如果是 virtual 的, 在该方法签名对应的 SlotMap 中添加接口方法的入口
+  实现方法肯定是 virtual 的. 在该方法签名对应的 SlotMap 中添加接口方法的入口
 
 - *由于接口能实现的方法肯定是 virtual 的, 所以无需从基类查找*
   接口修饰类型时, 如果当前类型找不到签名, 则查看 EntryMap 有没有, 没有则从基类里继续查找
@@ -28,7 +28,7 @@
   
 - 显式重写在隐式重写的后面处理
 
-- 同一个类中, 不允许同时重写同一个目标方法
+- 同一个类中, 不允许同时重写同一个目标方法(包括接口和类的重写)
   不同类则可以
 
 - 显式重写基类方法的情况:

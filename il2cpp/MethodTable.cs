@@ -17,11 +17,14 @@ namespace il2cpp
 		public readonly TypeMethodPair NewSlotEntry;
 		public TypeMethodPair Implemented;
 
-		public VirtualSlot(VirtualSlot other)
+		public VirtualSlot(VirtualSlot other, TypeMethodPair newEntry)
 		{
 			Entries.UnionWith(other.Entries);
 			NewSlotEntry = other.NewSlotEntry;
 			Implemented = other.Implemented;
+
+			if (NewSlotEntry == null)
+				NewSlotEntry = newEntry;
 		}
 
 		public VirtualSlot(TypeMethodPair newEntry)
@@ -113,9 +116,12 @@ namespace il2cpp
 			// 解析基类方法表
 			MethodTable baseTable = null;
 			if (Def.BaseType != null)
+			{
 				baseTable = Context.TypeMgr.ResolveMethodTable(Def.BaseType);
 
-			//! 继承基类数据
+				// 继承基类数据
+				DerivedTable(baseTable);
+			}
 
 			var expOverrides = new List<Tuple<string, MethodDef>>();
 			// 解析隐式重写
@@ -144,6 +150,7 @@ namespace il2cpp
 			}
 			metDefList = null;
 			conflictMap = null;
+			baseTable = null;
 
 			// 关联接口
 			if (Def.HasInterfaces)
@@ -162,7 +169,7 @@ namespace il2cpp
 						else
 						{
 							// 当前类没有对应接口的签名, 可能存在显式重写, 或者为抽象类
-							vslot = new VirtualSlot((TypeMethodPair)null);
+							vslot = new VirtualSlot(null);
 							SlotMap[metNameKey] = vslot;
 							vslot.Entries.UnionWith(infEntries);
 						}
@@ -233,6 +240,7 @@ namespace il2cpp
 					}
 				}
 			}
+			expOverTargets = null;
 
 			// 展开入口映射
 			foreach (var kv in SlotMap)
@@ -259,6 +267,21 @@ namespace il2cpp
 			}
 		}
 
+		private void DerivedTable(MethodTable baseTable)
+		{
+			foreach (var kv in baseTable.SlotMap)
+				SlotMap.Add(kv.Key, new VirtualSlot(kv.Value, null));
+
+			foreach (var kv in baseTable.EntryMap)
+				EntryMap.Add(kv.Key, kv.Value);
+
+			foreach (var kv in baseTable.ReplaceMap)
+				ReplaceMap.Add(kv.Key, kv.Value);
+
+			foreach (var kv in baseTable.SameTypeReplaceMap)
+				SameTypeReplaceMap.Add(kv.Key, kv.Value);
+		}
+
 		private VirtualSlot ProcessMethod(
 			string metNameKey,
 			MethodDef metDef,
@@ -283,7 +306,7 @@ namespace il2cpp
 					metDef.IsNewSlot = true;
 				else
 				{
-					vslot = new VirtualSlot(vslot);
+					vslot = new VirtualSlot(vslot, impl);
 					vslot.Entries.Add(impl);
 					vslot.Implemented = impl;
 					SlotMap[metNameKey] = vslot;
