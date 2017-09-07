@@ -605,9 +605,31 @@ namespace il2cpp
 			}
 		}
 
-		public MethodTable ResolveMethodTable(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
+		public MethodTable ResolveMethodTable(ITypeDefOrRef tyDefRef)
 		{
-			MethodTable mtable = ResolveMethodTableImpl(tyDefRef, replacer);
+			if (tyDefRef is TypeSpec tySpec)
+				return ResolveMethodTableSpec(tySpec.TypeSig);
+			else
+				return ResolveMethodTableDefRef(tyDefRef);
+		}
+
+		public MethodTable ResolveMethodTableDefRef(ITypeDefOrRef tyDefRef)
+		{
+			MethodTable mtable = null;
+			if (tyDefRef is TypeDef tyDef)
+			{
+				mtable = new MethodTable(Context, tyDef);
+			}
+			else if (tyDefRef is TypeRef tyRef)
+			{
+				TypeDef def = tyRef.Resolve();
+				if (def != null)
+					mtable = new MethodTable(Context, def);
+				else
+					throw new NotSupportedException();
+			}
+			else
+				throw new ArgumentOutOfRangeException();
 
 			string nameKey = mtable.GetNameKey();
 			if (MethodTableMap.TryGetValue(nameKey, out var omtable))
@@ -619,47 +641,34 @@ namespace il2cpp
 			return mtable;
 		}
 
-		private MethodTable ResolveMethodTableImpl(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
+		public MethodTable ResolveMethodTableSpec(TypeSig tySig)
 		{
-			switch (tyDefRef)
+			if (tySig is GenericInstSig genInstSig)
 			{
-				case TypeDef tyDef:
-					return new MethodTable(Context, tyDef);
-
-				case TypeRef tyRef:
-					{
-						TypeDef tyDef = tyRef.Resolve();
-						if (tyDef != null)
-							return new MethodTable(Context, tyDef);
-
-						throw new NotSupportedException();
-					}
-
-				case TypeSpec tySpec:
-					return ResolveMethodTableImpl(tySpec.TypeSig, replacer);
-
-				default:
-					throw new ArgumentOutOfRangeException();
+				return ResolveMethodTableSpec(genInstSig.GenericType.TypeDefOrRef, genInstSig.GenericArguments);
 			}
+			else if (tySig is TypeDefOrRefSig tyDefRefSig)
+			{
+				return ResolveMethodTableDefRef(tyDefRefSig.TypeDefOrRef);
+			}
+			else
+				throw new ArgumentOutOfRangeException();
 		}
 
-		private MethodTable ResolveMethodTableImpl(TypeSig tySig, IGenericReplacer replacer)
+		public MethodTable ResolveMethodTableSpec(ITypeDefOrRef tyDefRef, IList<TypeSig> genArgs)
 		{
-			switch (tySig)
-			{
-				case TypeDefOrRefSig tyDefRefSig:
-					return ResolveMethodTableImpl(tyDefRefSig.TypeDefOrRef, null);
+			MethodTable baseTable = ResolveMethodTableDefRef(tyDefRef);
 
-				case GenericInstSig genInstSig:
-					{
-						MethodTable mtable = ResolveMethodTableImpl(genInstSig.GenericType.TypeDefOrRef, null);
-						mtable.GenArgs = Helper.ReplaceGenericSigList(genInstSig.GenericArguments, replacer);
-						return mtable;
-					}
+			string nameKey = baseTable.GetExpandedNameKey(genArgs);
+			if (MethodTableMap.TryGetValue(nameKey, out var omtable))
+				return omtable;
 
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
+			MethodTable mtable = baseTable.ExpandTable(genArgs);
+			string expNameKey = mtable.GetNameKey();
+			Debug.Assert(expNameKey == nameKey);
+			MethodTableMap.Add(expNameKey, mtable);
+
+			return mtable;
 		}
 
 		private MethodX MakeMethodX(TypeX declType, MethodDef metDef, IList<TypeSig> genArgs)

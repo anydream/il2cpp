@@ -37,7 +37,7 @@ namespace il2cpp
 		public readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
 
 		// 虚表
-		public VirtualTable VTable;
+		//public VirtualTable VTable;
 
 		// 静态构造方法
 		public MethodX CctorMethod;
@@ -76,7 +76,7 @@ namespace il2cpp
 			return NameKey;
 		}
 
-		public TypeSig GetThisTypeSig()
+		public TypeSig GetTypeSig()
 		{
 			ClassOrValueTypeSig tySig;
 			if (IsValueType)
@@ -87,6 +87,14 @@ namespace il2cpp
 			TypeSig thisSig = tySig;
 			if (HasGenArgs)
 				thisSig = new GenericInstSig(tySig, GenArgs);
+
+			return thisSig;
+		}
+
+		public TypeSig GetThisTypeSig()
+		{
+			TypeSig thisSig = GetTypeSig();
+
 			if (IsValueType)
 				thisSig = new ByRefSig(thisSig);
 			return thisSig;
@@ -131,18 +139,20 @@ namespace il2cpp
 
 		public void ResolveVTable()
 		{
-			if (VTable == null)
-			{
-				MethodTable mtable = Context.TypeMgr.ResolveMethodTable(Def, null);
-				VTable = mtable.ExpandVTable(GenArgs);
-			}
+			if (HasGenArgs)
+				Context.TypeMgr.ResolveMethodTableSpec(Def, GenArgs);
+			else
+				Context.TypeMgr.ResolveMethodTableDefRef(Def);
 		}
 
 		public bool QueryVTable(
 			string entryTypeName, MethodDef entryDef,
 			out string implTypeName, out MethodDef implDef)
 		{
-			if (VTable.Query(entryTypeName, entryDef, out implTypeName, out implDef))
+			implTypeName = null;
+			implDef = null;
+
+			/*if (VTable.Query(entryTypeName, entryDef, out implTypeName, out implDef))
 				return true;
 
 			if (VTable.FallbackTable.TryGetValue(entryTypeName, out var resMetDef) &&
@@ -151,7 +161,7 @@ namespace il2cpp
 				implTypeName = entryTypeName;
 				implDef = entryDef;
 				return true;
-			}
+			}*/
 			return false;
 		}
 
@@ -159,7 +169,7 @@ namespace il2cpp
 		{
 			ResolveVTable();
 
-			StringBuilder sb = new StringBuilder();
+			/*StringBuilder sb = new StringBuilder();
 			Helper.MethodDefNameKey(sb, metDef, null);
 
 			if (VTable.NewSlotMap.TryGetValue(sb.ToString(), out var impl))
@@ -167,7 +177,7 @@ namespace il2cpp
 				slotTypeName = impl.Item1;
 				slotMetDef = impl.Item2;
 				return true;
-			}
+			}*/
 			slotTypeName = null;
 			slotMetDef = null;
 			return false;
@@ -177,12 +187,12 @@ namespace il2cpp
 		{
 			ResolveVTable();
 
-			if (VTable.MethodReplaceMap.TryGetValue(metDef, out var impl))
+			/*if (VTable.MethodReplaceMap.TryGetValue(metDef, out var impl))
 			{
 				repTypeName = impl.Item1;
 				repMetDef = impl.Item2;
 				return true;
-			}
+			}*/
 			repTypeName = null;
 			repMetDef = null;
 			return false;

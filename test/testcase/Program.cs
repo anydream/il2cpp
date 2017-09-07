@@ -1947,10 +1947,49 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class GenTest
+	{
+		interface Inf<T, P>
+		{
+			void Foo(Cls<T, P> p);
+		}
+
+		interface Bla<T>
+		{ }
+
+		class Cls<T, P> : Inf<T, P>
+		{
+			public virtual void Foo(Cls<T, P> self)
+			{
+			}
+
+			public virtual void Foo(Cls<P, T> self)
+			{
+			}
+
+			public virtual void Foo(Cls<int, int> self)
+			{
+			}
+
+			public virtual void Foo(Bla<T> self)
+			{
+			}
+		}
+
+		public static void Entry()
+		{
+			var c = new Cls<int, int>();
+			Inf<int, int> i = c;
+			i.Foo(c);
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()
 		{
+			GenTest.Entry();
 		}
 	}
 }

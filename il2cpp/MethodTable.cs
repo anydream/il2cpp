@@ -48,6 +48,9 @@ namespace il2cpp
 		public readonly Il2cppContext Context;
 		public readonly TypeDef Def;
 
+		private string NameKey;
+		private IList<TypeSig> InstGenArgs;
+
 		// 槽位映射
 		public readonly Dictionary<string, VirtualSlot> SlotMap = new Dictionary<string, VirtualSlot>();
 		// 入口实现映射
@@ -57,11 +60,116 @@ namespace il2cpp
 		// 同类内的方法替换映射
 		public readonly Dictionary<MethodDef, TypeMethodPair> SameTypeReplaceMap = new Dictionary<MethodDef, TypeMethodPair>();
 
-
 		public MethodTable(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
 			Def = tyDef;
+		}
+
+		public override string ToString()
+		{
+			return NameKey;
+		}
+
+		public string GetNameKey()
+		{
+			if (NameKey == null)
+			{
+				StringBuilder sb = new StringBuilder();
+				Helper.TypeNameKey(sb, Def, InstGenArgs);
+				NameKey = sb.ToString();
+			}
+			return NameKey;
+		}
+
+		public string GetExpandedNameKey(IList<TypeSig> genArgs)
+		{
+			Debug.Assert(genArgs.IsCollectionValid());
+			Debug.Assert(!InstGenArgs.IsCollectionValid());
+			Debug.Assert(Def.GenericParameters.Count == genArgs.Count);
+
+			StringBuilder sb = new StringBuilder();
+			Helper.TypeNameKey(sb, Def, genArgs);
+			return sb.ToString();
+		}
+
+		public MethodTable ExpandTable(IList<TypeSig> genArgs)
+		{
+			Debug.Assert(genArgs.IsCollectionValid());
+			Debug.Assert(!InstGenArgs.IsCollectionValid());
+			Debug.Assert(Def.GenericParameters.Count == genArgs.Count);
+
+			MethodTable expMetTable = new MethodTable(Context, Def);
+			expMetTable.InstGenArgs = genArgs;
+			expMetTable.GetNameKey();
+
+			IGenericReplacer replacer = new TypeDefGenReplacer(Def, genArgs);
+			StringBuilder sb = new StringBuilder();
+
+			foreach (var kv in SlotMap)
+			{
+				if (kv.Value.Entries.Count == 0)
+					continue;
+
+				VirtualSlot vslot = ExpandVirtualSlot(kv.Value, expMetTable, replacer);
+
+				Helper.MethodDefNameKey(sb, vslot.Entries.First().Item2, replacer);
+				string metNameKey = sb.ToString();
+				sb.Clear();
+
+				expMetTable.SlotMap[metNameKey] = vslot;
+			}
+
+			foreach (var kv in EntryMap)
+			{
+				expMetTable.EntryMap[ExpandMethodPair(kv.Key, expMetTable, replacer)] =
+					ExpandMethodPair(kv.Value, expMetTable, replacer);
+			}
+
+			foreach (var kv in ReplaceMap)
+			{
+				expMetTable.ReplaceMap[kv.Key] = ExpandMethodPair(kv.Value, expMetTable, replacer);
+			}
+
+			foreach (var kv in SameTypeReplaceMap)
+			{
+				expMetTable.SameTypeReplaceMap[kv.Key] = ExpandMethodPair(kv.Value, expMetTable, replacer);
+			}
+
+			return expMetTable;
+		}
+
+		private TypeMethodPair ExpandMethodPair(TypeMethodPair metPair, MethodTable expMetTable, IGenericReplacer replacer)
+		{
+			if (metPair == null)
+				return null;
+
+			MethodTable mtable = metPair.Item1;
+			if (mtable == this)
+				return new TypeMethodPair(expMetTable, metPair.Item2);
+
+			if (mtable.InstGenArgs.IsCollectionValid())
+			{
+				var genArgs = Helper.ReplaceGenericSigList(mtable.InstGenArgs, replacer);
+				mtable = Context.TypeMgr.ResolveMethodTableSpec(mtable.Def, genArgs);
+
+				Debug.Assert(mtable != this);
+				return new TypeMethodPair(mtable, metPair.Item2);
+			}
+
+			return metPair;
+		}
+
+		private VirtualSlot ExpandVirtualSlot(VirtualSlot vslot, MethodTable expMetTable, IGenericReplacer replacer)
+		{
+			VirtualSlot expVSlot = new VirtualSlot(ExpandMethodPair(vslot.NewSlotEntry, expMetTable, replacer));
+
+			foreach (var entry in vslot.Entries)
+				expVSlot.Entries.Add(ExpandMethodPair(entry, expMetTable, replacer));
+
+			expVSlot.Implemented = ExpandMethodPair(vslot.Implemented, expMetTable, replacer);
+
+			return expVSlot;
 		}
 
 		public void ResolveTable()
