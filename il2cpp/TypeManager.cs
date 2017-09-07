@@ -172,7 +172,7 @@ namespace il2cpp
 								 inst.OpCode.Code == Code.Ldvirtftn))
 						{
 							// 处理非入口虚调用重定向
-							if (!resMetX.Def.IsNewSlot)
+							/*if (!resMetX.Def.IsNewSlot)
 							{
 								if (GetNewSlotMethodChecked(resMetX.DeclType, resMetX.Def, out var slotTypeName, out var slotMetDef))
 								{
@@ -185,7 +185,7 @@ namespace il2cpp
 
 									resMetX = slotMetX;
 								}
-							}
+							}*/
 							AddVCallEntry(resMetX);
 						}
 						else if (resMetX.IsVirtual &&
@@ -193,16 +193,16 @@ namespace il2cpp
 								 inst.OpCode.Code == Code.Ldftn))
 						{
 							// 处理方法替换
-							if (resMetX.DeclType.IsMethodReplaced(resMetX.Def, out var repTypeName, out var repMetDef))
+							if (resMetX.DeclType.QueryCallReplace(resMetX.Def, out var implTypeName, out var implDef))
 							{
 								resMetX.IsSkipProcessing = true;
 
-								TypeX repTyX = GetTypeByName(repTypeName);
-								Debug.Assert(repTyX != null);
+								TypeX implTyX = GetTypeByName(implTypeName);
+								Debug.Assert(implTyX != null);
 
-								MethodX repMetX = MakeMethodX(repTyX, repMetDef, resMetX.GenArgs);
+								MethodX implMetX = MakeMethodX(implTyX, implDef, resMetX.GenArgs);
 
-								resMetX = repMetX;
+								resMetX = implMetX;
 							}
 							else
 								isReAddMethod = true;
@@ -340,43 +340,12 @@ namespace il2cpp
 			if (!derivedTyX.IsInstantiated)
 				return;
 
-			// 在继承类型中查找虚方法
-			MethodDef implDef;
-			TypeX implTyX;
+			// 查询虚方法绑定
+			derivedTyX.QueryCallVirt(entryTypeName, entryDef, out var implTypeName, out var implDef);
 
-			for (; ; )
-			{
-				string implTypeName;
-				if (!derivedTyX.QueryVTable(
-					entryTypeName, entryDef,
-					out implTypeName, out implDef))
-				{
-					throw new TypeLoadException("Resolve virtual method failed");
-				}
-
-				// 构造实现方法
-				implTyX = GetTypeByName(implTypeName);
-
-				if (!implDef.IsNewSlot)
-				{
-					// 解析对应的虚方法并尝试替换
-					if (GetNewSlotMethodChecked(implTyX, implDef, out var slotTypeName, out var slotMetDef) &&
-						entryDef != slotMetDef)
-					{
-						entryTypeName = slotTypeName;
-						entryDef = slotMetDef;
-						continue;
-					}
-				}
-
-				if (implTyX.IsMethodReplaced(implDef, out var repTypeName, out var repMetDef))
-				{
-					entryTypeName = repTypeName;
-					entryDef = repMetDef;
-				}
-				else
-					break;
-			}
+			// 构造实现方法
+			TypeX implTyX = GetTypeByName(implTypeName);
+			Debug.Assert(implTyX != null);
 
 			MethodX implMetX = MakeMethodX(implTyX, implDef, virtMetX.GenArgs);
 
@@ -679,7 +648,7 @@ namespace il2cpp
 			return AddMethod(metX);
 		}
 
-		private static bool GetNewSlotMethodChecked(
+		/*private static bool GetNewSlotMethodChecked(
 			TypeX declType,
 			MethodDef metDef,
 			out string slotTypeName,
@@ -691,6 +660,6 @@ namespace il2cpp
 			Debug.Assert(slotTypeName != null);
 			Debug.Assert(slotMetDef != null);
 			return status && metDef != slotMetDef;
-		}
+		}*/
 	}
 }

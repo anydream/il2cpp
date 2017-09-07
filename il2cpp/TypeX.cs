@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using dnlib.DotNet;
 
@@ -36,8 +37,8 @@ namespace il2cpp
 		// 字段映射
 		public readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
 
-		// 虚表
-		//public VirtualTable VTable;
+		// 方法表
+		private VirtualTable VTable;
 
 		// 静态构造方法
 		public MethodX CctorMethod;
@@ -139,63 +140,35 @@ namespace il2cpp
 
 		public void ResolveVTable()
 		{
+			if (VTable != null)
+				return;
+
+			MethodTable mtable;
 			if (HasGenArgs)
-				Context.TypeMgr.ResolveMethodTableSpec(Def, GenArgs);
+				mtable = Context.TypeMgr.ResolveMethodTableSpec(Def, GenArgs);
 			else
-				Context.TypeMgr.ResolveMethodTableDefRef(Def);
+				mtable = Context.TypeMgr.ResolveMethodTableDefRef(Def);
+
+			VTable = new VirtualTable(mtable);
 		}
 
-		public bool QueryVTable(
-			string entryTypeName, MethodDef entryDef,
-			out string implTypeName, out MethodDef implDef)
-		{
-			implTypeName = null;
-			implDef = null;
-
-			/*if (VTable.Query(entryTypeName, entryDef, out implTypeName, out implDef))
-				return true;
-
-			if (VTable.FallbackTable.TryGetValue(entryTypeName, out var resMetDef) &&
-				resMetDef == entryDef)
-			{
-				implTypeName = entryTypeName;
-				implDef = entryDef;
-				return true;
-			}*/
-			return false;
-		}
-
-		public bool GetNewSlotMethod(MethodDef metDef, out string slotTypeName, out MethodDef slotMetDef)
+		public bool QueryCallReplace(
+			MethodDef entryDef,
+			out string implTypeName,
+			out MethodDef implDef)
 		{
 			ResolveVTable();
-
-			/*StringBuilder sb = new StringBuilder();
-			Helper.MethodDefNameKey(sb, metDef, null);
-
-			if (VTable.NewSlotMap.TryGetValue(sb.ToString(), out var impl))
-			{
-				slotTypeName = impl.Item1;
-				slotMetDef = impl.Item2;
-				return true;
-			}*/
-			slotTypeName = null;
-			slotMetDef = null;
-			return false;
+			return VTable.QueryCallReplace(entryDef, out implTypeName, out implDef);
 		}
 
-		public bool IsMethodReplaced(MethodDef metDef, out string repTypeName, out MethodDef repMetDef)
+		public void QueryCallVirt(
+			string entryTypeName,
+			MethodDef entryDef,
+			out string implTypeName,
+			out MethodDef implDef)
 		{
 			ResolveVTable();
-
-			/*if (VTable.MethodReplaceMap.TryGetValue(metDef, out var impl))
-			{
-				repTypeName = impl.Item1;
-				repMetDef = impl.Item2;
-				return true;
-			}*/
-			repTypeName = null;
-			repMetDef = null;
-			return false;
+			VTable.QueryCallVirt(entryTypeName, entryDef, out implTypeName, out implDef);
 		}
 
 		public TypeX FindBaseType(TypeDef tyDef)

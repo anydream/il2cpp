@@ -9,6 +9,8 @@ namespace il2cpp
 {
 	// 类型方法编组
 	using TypeMethodPair = Tuple<MethodTable, MethodDef>;
+	// 类型名称方法编组
+	using TypeNameMethodPair = Tuple<string, MethodDef>;
 
 	// 虚槽数据
 	internal class VirtualSlot
@@ -40,6 +42,97 @@ namespace il2cpp
 		public readonly List<MethodDef> ReuseSlots = new List<MethodDef>();
 		// 新建槽位的方法
 		public readonly List<MethodDef> NewSlots = new List<MethodDef>();
+	}
+
+	// 展开的虚表
+	internal class VirtualTable
+	{
+		// 入口实现映射
+		private readonly Dictionary<TypeNameMethodPair, TypeNameMethodPair> EntryMap =
+			new Dictionary<TypeNameMethodPair, TypeNameMethodPair>();
+		// 方法替换映射
+		private readonly Dictionary<MethodDef, TypeNameMethodPair> ReplaceMap =
+			new Dictionary<MethodDef, TypeNameMethodPair>();
+		// 同类内的方法替换映射
+		private readonly Dictionary<MethodDef, TypeNameMethodPair> SameTypeReplaceMap =
+			new Dictionary<MethodDef, TypeNameMethodPair>();
+
+		private readonly Dictionary<TypeNameMethodPair, TypeNameMethodPair> CachedMap =
+			new Dictionary<TypeNameMethodPair, TypeNameMethodPair>();
+
+		public VirtualTable(MethodTable mtable)
+		{
+			foreach (var kv in mtable.EntryMap)
+			{
+				EntryMap.Add(
+					new TypeNameMethodPair(kv.Key.Item1.GetNameKey(), kv.Key.Item2),
+					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
+			}
+
+			foreach (var kv in mtable.ReplaceMap)
+			{
+				ReplaceMap.Add(
+					kv.Key,
+					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
+			}
+
+			foreach (var kv in mtable.SameTypeReplaceMap)
+			{
+				SameTypeReplaceMap.Add(
+					kv.Key,
+					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
+			}
+		}
+
+		public bool QueryCallReplace(
+			MethodDef entryDef,
+			out string implTypeName,
+			out MethodDef implDef)
+		{
+			if (SameTypeReplaceMap.TryGetValue(entryDef, out var implPair))
+			{
+				implTypeName = implPair.Item1;
+				implDef = implPair.Item2;
+				return true;
+			}
+			implTypeName = null;
+			implDef = null;
+			return false;
+		}
+
+		public void QueryCallVirt(
+			string entryTypeName,
+			MethodDef entryDef,
+			out string implTypeName,
+			out MethodDef implDef)
+		{
+			var entryPair = new TypeNameMethodPair(entryTypeName, entryDef);
+			if (!CachedMap.TryGetValue(entryPair, out var implPair))
+			{
+				QueryCallVirtImpl(entryPair, out implPair);
+				CachedMap[entryPair] = implPair;
+			}
+			implTypeName = implPair.Item1;
+			implDef = implPair.Item2;
+		}
+
+		private void QueryCallVirtImpl(
+			TypeNameMethodPair entryPair,
+			out TypeNameMethodPair implPair)
+		{
+			for (; ; )
+			{
+				if (EntryMap.TryGetValue(
+					entryPair,
+					out implPair))
+				{
+					if (!ReplaceMap.TryGetValue(implPair.Item2, out entryPair))
+						return;
+				}
+				else
+					throw new TypeLoadException("Virtual method not bound");
+			}
+		}
 	}
 
 	// 方法表
