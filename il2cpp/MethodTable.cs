@@ -130,7 +130,12 @@ namespace il2cpp
 						return;
 				}
 				else
-					throw new TypeLoadException("Virtual method not bound");
+				{
+					throw new TypeLoadException(
+						string.Format("Virtual method can't resolve: {0} -> {1}",
+							entryPair.Item1,
+							entryPair.Item2));
+				}
 			}
 		}
 	}
