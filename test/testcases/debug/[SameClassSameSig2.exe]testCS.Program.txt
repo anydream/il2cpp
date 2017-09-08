@@ -1,0 +1,50 @@
+* Types:
+[class [testCS]testCS.Program] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Void()|0|96, Main|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testCS]testCS.Program
+   - [testCS]testCS.Program/A
+   - [testCS]testCS.Program/B
+   - [testCS]testCS.Program/C
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testCS]testCS.Program/C] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testCS]testCS.Program/B
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testCS]testCS.Program/C)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testCS]testCS.Program/B] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [testCS]testCS.Program/A
+ - DerivedTypes:
+   - [testCS]testCS.Program/C
+ - Fields:
+   - fld2|Int32|6, fld2|Int32, Public 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testCS]testCS.Program/B)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(Int32)|20|C6, Foo|Void([testCS]testCS.Program/B,Int32)|20, Public Virtual HideBySig Managed None
+
+[class [testCS]testCS.Program/A] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - [testCS]testCS.Program/Inf
+ - DerivedTypes:
+   - [testCS]testCS.Program/B
+   - [testCS]testCS.Program/C
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testCS]testCS.Program/A)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testCS]testCS.Program/Inf] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testCS]testCS.Program/A
+   - [testCS]testCS.Program/B
+   - [testCS]testCS.Program/C
+ - Methods:
+   - Foo|Void(Int32)|20|5C6, Foo|Void([testCS]testCS.Program/Inf,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testCS]testCS.Program/B -> Foo|Void(Int32)|20|C6, Foo|Void([testCS]testCS.Program/B,Int32)|20
+
