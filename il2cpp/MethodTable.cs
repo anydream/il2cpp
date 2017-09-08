@@ -69,6 +69,7 @@ namespace il2cpp
 	// 展开的虚表
 	internal class VirtualTable
 	{
+		private readonly string Name;
 		// 入口实现映射
 		private readonly Dictionary<TypeNameMethodPair, TypeNameMethodPair> EntryMap =
 			new Dictionary<TypeNameMethodPair, TypeNameMethodPair>();
@@ -84,6 +85,8 @@ namespace il2cpp
 
 		public VirtualTable(MethodTable mtable)
 		{
+			Name = mtable.GetNameKey();
+
 			foreach (var kv in mtable.EntryMap)
 			{
 				EntryMap.Add(
@@ -154,7 +157,8 @@ namespace il2cpp
 				else
 				{
 					throw new TypeLoadException(
-						string.Format("Virtual method can't resolve: {0} -> {1}",
+						string.Format("Virtual method can't resolve in type {0}: {1} -> {2}",
+							Name,
 							entryPair.Item1,
 							entryPair.Item2));
 				}
@@ -333,7 +337,8 @@ namespace il2cpp
 					if (metDef.HasOverrides)
 					{
 						throw new TypeLoadException(
-							string.Format("Explicit overridden method must be virtual: {0}",
+							string.Format("Explicit overridden method must be virtual in type {0}: {1}",
+								GetNameKey(),
 								metDef.FullName));
 					}
 
@@ -447,7 +452,8 @@ namespace il2cpp
 					if (targetDef == null || targetDef.DeclaringType != targetTable.Def)
 					{
 						throw new TypeLoadException(
-							string.Format("Illegal explicit overriding target: {0}",
+							string.Format("Illegal explicit overriding target in type {0}: {1}",
+								GetNameKey(),
 								overTarget.FullName));
 					}
 
@@ -461,7 +467,8 @@ namespace il2cpp
 						expOverTargets.Contains(targetEntry))
 					{
 						throw new TypeLoadException(
-							string.Format("Explicit overriding target has been overridden: {0}",
+							string.Format("Explicit overriding target has been overridden in type {0}: {1}",
+								GetNameKey(),
 								overTarget.FullName));
 					}
 					expOverTargets.Add(targetEntry);
@@ -551,10 +558,10 @@ namespace il2cpp
 									else
 									{
 										throw new TypeLoadException(
-												string.Format("Interface method not implemented in type {0}: {1} -> {2}",
-													GetNameKey(),
-													entry.Item1.GetNameKey(),
-													entry.Item2));
+											string.Format("Interface method not implemented in type {0}: {1} -> {2}",
+												GetNameKey(),
+												entry.Item1.GetNameKey(),
+												entry.Item2));
 									}
 								}
 							}
