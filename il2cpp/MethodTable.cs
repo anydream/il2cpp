@@ -199,6 +199,15 @@ namespace il2cpp
 			return sb.ToString();
 		}
 
+		private string GetExpandedMethodNameKey(StringBuilder sb, MethodDef metDef)
+		{
+			IGenericReplacer replacer = new TypeDefGenReplacer(Def, InstGenArgs);
+			Helper.MethodDefNameKey(sb, metDef, replacer);
+			string metNameKey = sb.ToString();
+			sb.Clear();
+			return metNameKey;
+		}
+
 		public MethodTable ExpandTable(IList<TypeSig> genArgs)
 		{
 			Debug.Assert(genArgs.IsCollectionValid());
@@ -220,9 +229,8 @@ namespace il2cpp
 
 				VirtualSlot vslot = ExpandVirtualSlot(kv.Value, expMetTable, replacer);
 
-				Helper.MethodDefNameKey(sb, vslot.Entries.First().Item2, replacer);
-				string metNameKey = sb.ToString();
-				sb.Clear();
+				TypeMethodPair metPair = vslot.Entries.First();
+				string metNameKey = metPair.Item1.GetExpandedMethodNameKey(sb, metPair.Item2);
 
 				// 接口合并相同签名的方法
 				if (isInterface)
