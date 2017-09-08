@@ -205,6 +205,8 @@ namespace il2cpp
 			Debug.Assert(!InstGenArgs.IsCollectionValid());
 			Debug.Assert(Def.GenericParameters.Count == genArgs.Count);
 
+			bool isInterface = Def.IsInterface;
+
 			MethodTable expMetTable = new MethodTable(Context, Def);
 			expMetTable.InstGenArgs = genArgs;
 			expMetTable.GetNameKey();
@@ -214,8 +216,7 @@ namespace il2cpp
 
 			foreach (var kv in SlotMap)
 			{
-				if (kv.Value.Entries.Count == 0)
-					continue;
+				Debug.Assert(kv.Value.Entries.Count != 0);
 
 				VirtualSlot vslot = ExpandVirtualSlot(kv.Value, expMetTable, replacer);
 
@@ -223,7 +224,11 @@ namespace il2cpp
 				string metNameKey = sb.ToString();
 				sb.Clear();
 
-				expMetTable.SlotMap[metNameKey] = vslot;
+				// 接口合并相同签名的方法
+				if (isInterface)
+					expMetTable.MergeInterfaces(metNameKey, vslot.Entries);
+				else
+					expMetTable.SlotMap[metNameKey] = vslot;
 			}
 
 			foreach (var kv in EntryMap)
@@ -285,6 +290,8 @@ namespace il2cpp
 			var metDefList = new List<Tuple<string, MethodDef>>();
 			var conflictMap = new Dictionary<string, ConflictPair>();
 
+			bool isInterface = Def.IsInterface;
+
 			StringBuilder sb = new StringBuilder();
 
 			uint lastRid = 0;
@@ -312,23 +319,34 @@ namespace il2cpp
 				string metNameKey = sb.ToString();
 				sb.Clear();
 
-				// 特殊处理签名冲突的方法
-				if (!conflictMap.TryGetValue(metNameKey, out var confPair))
+				if (isInterface)
 				{
-					confPair = new ConflictPair();
-					conflictMap.Add(metNameKey, confPair);
+					Debug.Assert(metDef.IsAbstract && metDef.IsNewSlot);
 					metDefList.Add(new Tuple<string, MethodDef>(metNameKey, metDef));
 				}
-
-				if (metDef.IsNewSlot)
-					confPair.NewSlots.Add(metDef);
 				else
-					confPair.ReuseSlots.Add(metDef);
+				{
+					// 特殊处理签名冲突的方法
+					if (!conflictMap.TryGetValue(metNameKey, out var confPair))
+					{
+						confPair = new ConflictPair();
+						conflictMap.Add(metNameKey, confPair);
+						metDefList.Add(new Tuple<string, MethodDef>(metNameKey, metDef));
+					}
+
+					if (metDef.IsNewSlot)
+						confPair.NewSlots.Add(metDef);
+					else
+						confPair.ReuseSlots.Add(metDef);
+				}
 			}
 
-			foreach (var item in conflictMap.Where(kvp => !kvp.Value.ContainsConflicts()).ToList())
+			if (!isInterface)
 			{
-				conflictMap.Remove(item.Key);
+				foreach (var item in conflictMap.Where(kvp => !kvp.Value.ContainsConflicts()).ToList())
+				{
+					conflictMap.Remove(item.Key);
+				}
 			}
 
 			// 解析基类方法表
@@ -347,7 +365,14 @@ namespace il2cpp
 			{
 				string metNameKey = metItem.Item1;
 
-				if (conflictMap.TryGetValue(metNameKey, out var confPair))
+				if (isInterface)
+				{
+					// 接口需要合并相同签名的方法
+					MethodDef metDef = metItem.Item2;
+					var entry = new TypeMethodPair(this, metDef);
+					MergeInterface(metNameKey, entry);
+				}
+				else if (conflictMap.TryGetValue(metNameKey, out var confPair))
 				{
 					Debug.Assert(confPair.ContainsConflicts());
 
@@ -468,7 +493,12 @@ namespace il2cpp
 					{
 						string metNameKey = kv.Key;
 						var infEntries = kv.Value.Entries;
-						if (SlotMap.TryGetValue(metNameKey, out var vslot))
+
+						if (isInterface)
+						{
+							MergeInterfaces(metNameKey, infEntries);
+						}
+						else if (SlotMap.TryGetValue(metNameKey, out var vslot))
 						{
 							vslot.Entries.UnionWith(infEntries);
 						}
@@ -478,17 +508,17 @@ namespace il2cpp
 							{
 								if (!EntryMap.ContainsKey(entry))
 								{
-									if (!Def.IsInterface && !Def.IsAbstract)
+									if (Def.IsAbstract)
 									{
-										throw new TypeLoadException(
-											string.Format("Interface method not implemented in type {0}: {1} -> {2}",
-												GetNameKey(),
-												entry.Item1.GetNameKey(),
-												entry.Item2));
+										AddNotImplInterface(metNameKey, entry);
 									}
 									else
 									{
-										AddNotImplInterface(metNameKey, entry);
+										throw new TypeLoadException(
+												string.Format("Interface method not implemented in type {0}: {1} -> {2}",
+													GetNameKey(),
+													entry.Item1.GetNameKey(),
+													entry.Item2));
 									}
 								}
 							}
@@ -496,6 +526,9 @@ namespace il2cpp
 					}
 				}
 			}
+
+			if (isInterface)
+				return;
 
 			for (; ; )
 			{
@@ -565,6 +598,27 @@ namespace il2cpp
 				foreach (var kv in baseTable.NotImplInterfaces)
 					NotImplInterfaces.Add(kv.Key, new HashSet<TypeMethodPair>(kv.Value));
 			}
+		}
+
+		private void MergeInterface(string metNameKey, TypeMethodPair entry)
+		{
+			Debug.Assert(entry.Item1.Def.IsInterface);
+			if (!SlotMap.TryGetValue(metNameKey, out var vslot))
+			{
+				vslot = new VirtualSlot(null);
+				SlotMap.Add(metNameKey, vslot);
+			}
+			vslot.Entries.Add(entry);
+		}
+
+		private void MergeInterfaces(string metNameKey, HashSet<TypeMethodPair> entrySet)
+		{
+			if (!SlotMap.TryGetValue(metNameKey, out var vslot))
+			{
+				vslot = new VirtualSlot(null);
+				SlotMap.Add(metNameKey, vslot);
+			}
+			vslot.Entries.UnionWith(entrySet);
 		}
 
 		private VirtualSlot ProcessMethod(

@@ -23,7 +23,6 @@
 [class [testCS]testCS.Program/Derived] NestedPrivate AutoLayout Abstract AnsiClass BeforeFieldInit 
  - Base: [testCS]testCS.Program/Base
  - Interfaces:
-   - [testCS]testCS.Program/InfA
    - [testCS]testCS.Program/InfB
  - DerivedTypes:
    - [testCS]testCS.Program/Der2
