@@ -79,6 +79,8 @@ namespace il2cpp
 		// 同类内的方法替换映射
 		private readonly Dictionary<MethodDef, TypeNameMethodPair> SameTypeReplaceMap =
 			new Dictionary<MethodDef, TypeNameMethodPair>();
+		// 方法新建槽映射
+		private readonly Dictionary<MethodDef, MethodDef> NewSlotEntryMap;
 
 		private readonly Dictionary<TypeNameMethodPair, TypeNameMethodPair> CachedMap =
 			new Dictionary<TypeNameMethodPair, TypeNameMethodPair>();
@@ -107,6 +109,8 @@ namespace il2cpp
 					kv.Key,
 					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
 			}
+
+			NewSlotEntryMap = mtable.NewSlotEntryMap;
 		}
 
 		public bool QueryCallReplace(
@@ -147,6 +151,19 @@ namespace il2cpp
 		{
 			for (; ; )
 			{
+				for (; ; )
+				{
+					MethodDef entryDef = entryPair.Item2;
+
+					if (NewSlotEntryMap.TryGetValue(entryDef, out var newSlotDef))
+						entryDef = newSlotDef;
+
+					if (ReplaceMap.TryGetValue(entryDef, out var repPair))
+						entryPair = repPair;
+					else
+						break;
+				}
+
 				if (EntryMap.TryGetValue(
 					entryPair,
 					out implPair))
@@ -183,6 +200,8 @@ namespace il2cpp
 		public readonly Dictionary<MethodDef, TypeMethodPair> ReplaceMap = new Dictionary<MethodDef, TypeMethodPair>();
 		// 同类内的方法替换映射
 		public readonly Dictionary<MethodDef, TypeMethodPair> SameTypeReplaceMap = new Dictionary<MethodDef, TypeMethodPair>();
+		// 方法新建槽映射
+		public Dictionary<MethodDef, MethodDef> NewSlotEntryMap = new Dictionary<MethodDef, MethodDef>();
 
 		// 未实现的接口映射
 		private Dictionary<string, HashSet<TypeMethodPair>> NotImplInterfaces;
@@ -271,14 +290,12 @@ namespace il2cpp
 			merger = null;
 
 			foreach (var kv in ReplaceMap)
-			{
 				expMetTable.ReplaceMap[kv.Key] = ExpandMethodPair(kv.Value, expMetTable, replacer);
-			}
 
 			foreach (var kv in SameTypeReplaceMap)
-			{
 				expMetTable.SameTypeReplaceMap[kv.Key] = ExpandMethodPair(kv.Value, expMetTable, replacer);
-			}
+
+			expMetTable.NewSlotEntryMap = NewSlotEntryMap;
 
 			return expMetTable;
 		}
@@ -580,10 +597,13 @@ namespace il2cpp
 				{
 					TypeMethodPair impl = kv.Value.Implemented;
 					var entries = kv.Value.Entries;
+					var newSlotDef = kv.Value.NewSlotEntry.Item2;
 
 					foreach (TypeMethodPair entry in entries)
 					{
 						EntryMap[entry] = impl;
+						if (entry.Item2 != newSlotDef)
+							NewSlotEntryMap[entry.Item2] = newSlotDef;
 					}
 				}
 
@@ -595,23 +615,11 @@ namespace il2cpp
 					{
 						if (kv.Value == null)
 						{
-							/*Helper.MethodDefNameKey(sb, kv.Key.Item2, null);
-							string metNameKey = sb.ToString();
-							sb.Clear();
-
-							if (SlotMap.TryGetValue(metNameKey, out var vslot))
-							{
-								if (vslot.Entries.Add(kv.Key))
-									isRebound = true;
-							}
-							else*/
-							{
-								throw new TypeLoadException(
-									string.Format("Abstract method not implemented in type {0}: {1} -> {2}",
-										GetNameKey(),
-										kv.Key.Item1.GetNameKey(),
-										kv.Key.Item2));
-							}
+							throw new TypeLoadException(
+								string.Format("Abstract method not implemented in type {0}: {1} -> {2}",
+									GetNameKey(),
+									kv.Key.Item1.GetNameKey(),
+									kv.Key.Item2));
 						}
 					}
 				}
@@ -633,6 +641,9 @@ namespace il2cpp
 
 			foreach (var kv in baseTable.SameTypeReplaceMap)
 				SameTypeReplaceMap.Add(kv.Key, kv.Value);
+
+			foreach (var kv in baseTable.NewSlotEntryMap)
+				NewSlotEntryMap.Add(kv.Key, kv.Value);
 
 			if (baseTable.NotImplInterfaces.IsCollectionValid())
 			{
