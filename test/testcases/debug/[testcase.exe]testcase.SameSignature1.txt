@@ -1,0 +1,48 @@
+* Types:
+[class [testcase]testcase.SameSignature1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.SameSignature1
+   - [testcase]testcase.SameSignature1/A`1<Int32>
+   - [testcase]testcase.SameSignature1/B`1<Int32>
+   - [testcase]testcase.SameSignature1/C
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.SameSignature1/C] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testcase]testcase.SameSignature1/B`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.SameSignature1/C)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.SameSignature1/B`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [testcase]testcase.SameSignature1/A`1<Int32>
+ - DerivedTypes:
+   - [testcase]testcase.SameSignature1/C
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.SameSignature1/B`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(!0)|20|C6, Foo|Void([testcase]testcase.SameSignature1/B`1<Int32>,Int32)|20, Public Virtual HideBySig Managed None
+
+[class [testcase]testcase.SameSignature1/A`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - [testcase]testcase.SameSignature1/Inf`1<Int32>
+ - DerivedTypes:
+   - [testcase]testcase.SameSignature1/B`1<Int32>
+   - [testcase]testcase.SameSignature1/C
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.SameSignature1/A`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.SameSignature1/Inf`1<Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testcase]testcase.SameSignature1/A`1<Int32>
+   - [testcase]testcase.SameSignature1/B`1<Int32>
+   - [testcase]testcase.SameSignature1/C
+ - Methods:
+   - Foo|Void(!0)|20|5C6, Foo|Void([testcase]testcase.SameSignature1/Inf`1<Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.SameSignature1/B`1<Int32> -> Foo|Void(!0)|20|C6, Foo|Void([testcase]testcase.SameSignature1/B`1<Int32>,Int32)|20
+
