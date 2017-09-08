@@ -498,8 +498,10 @@ namespace il2cpp
 						{
 							MergeInterfaces(metNameKey, infEntries);
 						}
-						else if (SlotMap.TryGetValue(metNameKey, out var vslot))
+						else if (SlotMap.TryGetValue(metNameKey, out var vslot) &&
+								 vslot.Implemented.Item1 == this)
 						{
+							// 关联当前类型内签名相同的方法
 							vslot.Entries.UnionWith(infEntries);
 						}
 						else
@@ -508,7 +510,12 @@ namespace il2cpp
 							{
 								if (!EntryMap.ContainsKey(entry))
 								{
-									if (Def.IsAbstract)
+									if (SlotMap.TryGetValue(metNameKey, out vslot))
+									{
+										// 关联继承链上签名相同的方法
+										vslot.Entries.Add(entry);
+									}
+									else if (Def.IsAbstract)
 									{
 										AddNotImplInterface(metNameKey, entry);
 									}
