@@ -49,6 +49,23 @@ namespace il2cpp
 		}
 	}
 
+	// 入口合并器
+	internal class EntryMerger
+	{
+		public readonly Dictionary<TypeMethodPair, TypeMethodPair> EntryMap = new Dictionary<TypeMethodPair, TypeMethodPair>();
+
+		public void Add(TypeMethodPair key, TypeMethodPair val)
+		{
+			if (EntryMap.TryGetValue(key, out var oval))
+			{
+				if (oval.Equals(val) ||
+					(oval.Item1 == val.Item1 && oval.Item2.Rid > val.Item2.Rid))
+					return;
+			}
+			EntryMap[key] = val;
+		}
+	}
+
 	// 展开的虚表
 	internal class VirtualTable
 	{
@@ -155,9 +172,9 @@ namespace il2cpp
 		private IList<TypeSig> InstGenArgs;
 
 		// 槽位映射
-		public readonly Dictionary<string, VirtualSlot> SlotMap = new Dictionary<string, VirtualSlot>();
+		private readonly Dictionary<string, VirtualSlot> SlotMap = new Dictionary<string, VirtualSlot>();
 		// 入口实现映射
-		public readonly Dictionary<TypeMethodPair, TypeMethodPair> EntryMap = new Dictionary<TypeMethodPair, TypeMethodPair>();
+		public Dictionary<TypeMethodPair, TypeMethodPair> EntryMap = new Dictionary<TypeMethodPair, TypeMethodPair>();
 		// 方法替换映射
 		public readonly Dictionary<MethodDef, TypeMethodPair> ReplaceMap = new Dictionary<MethodDef, TypeMethodPair>();
 		// 同类内的方法替换映射
@@ -239,11 +256,15 @@ namespace il2cpp
 					expMetTable.SlotMap[metNameKey] = vslot;
 			}
 
+			EntryMerger merger = new EntryMerger();
 			foreach (var kv in EntryMap)
 			{
-				expMetTable.EntryMap[ExpandMethodPair(kv.Key, expMetTable, replacer)] =
-					ExpandMethodPair(kv.Value, expMetTable, replacer);
+				merger.Add(
+					ExpandMethodPair(kv.Key, expMetTable, replacer),
+					ExpandMethodPair(kv.Value, expMetTable, replacer));
 			}
+			expMetTable.EntryMap = merger.EntryMap;
+			merger = null;
 
 			foreach (var kv in ReplaceMap)
 			{

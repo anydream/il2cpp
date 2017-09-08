@@ -1,0 +1,29 @@
+* Types:
+[class [testcase]testcase.GenTest] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.GenTest
+   - [testcase]testcase.GenTest/Cls`2<Int32,Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.GenTest/Cls`2<Int32,Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - [testcase]testcase.GenTest/Inf`2<Int32,Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.GenTest/Cls`2<Int32,Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void([testcase]testcase.GenTest/Cls`2<!0,!1>)|20|1C6, Foo|Void([testcase]testcase.GenTest/Cls`2<Int32,Int32>,[testcase]testcase.GenTest/Cls`2<Int32,Int32>)|20, Public Virtual HideBySig NewSlot Managed None
+
+[class [testcase]testcase.GenTest/Inf`2<Int32,Int32>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testcase]testcase.GenTest/Cls`2<Int32,Int32>
+ - Methods:
+   - Foo|Void([testcase]testcase.GenTest/Cls`2<!0,!1>)|20|5C6, Foo|Void([testcase]testcase.GenTest/Inf`2<Int32,Int32>,[testcase]testcase.GenTest/Cls`2<Int32,Int32>)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.GenTest/Cls`2<Int32,Int32> -> Foo|Void([testcase]testcase.GenTest/Cls`2<!0,!1>)|20|1C6, Foo|Void([testcase]testcase.GenTest/Cls`2<Int32,Int32>,[testcase]testcase.GenTest/Cls`2<Int32,Int32>)|20
+
