@@ -1,1 +1,1 @@
-Method already has overrides: System.Int32 MyBar::DoBar()
+Explicit overriding target has been overridden in type [override_override1]MyBar: System.Int32 MyBar::DoBar()

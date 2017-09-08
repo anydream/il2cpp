@@ -27,7 +27,7 @@
  - Methods:
    - DoBar|Int32()|20|5C6, DoBar|Int32([self_override1]MyBar)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
      - [self_override1]BarImpl -> DoBar|Int32()|20|C6, DoBar|Int32([self_override1]BarImpl)|20
-   - DoSelfBar|Int32()|20|C6, DoSelfBar|Int32([self_override1]MyBar)|20, Public Virtual HideBySig Managed None
+   - DoSelfBar|Int32()|20|1C6, DoSelfBar|Int32([self_override1]MyBar)|20, Public Virtual HideBySig NewSlot Managed None
    - .ctor|Void()|20|1884, .ctor|Void([self_override1]MyBar)|20, Family HideBySig SpecialName RTSpecialName Managed None
 
 [class [self_override1]Logger] Public AutoLayout AnsiClass BeforeFieldInit 

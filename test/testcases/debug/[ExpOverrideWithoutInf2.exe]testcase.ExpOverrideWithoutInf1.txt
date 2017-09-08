@@ -18,6 +18,7 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group12.Derived)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Foo1|Void()|20|C6, Foo1|Void([testcase]group12.Derived)|20 = 0, Public Virtual HideBySig Managed None
+     - [testcase]group12.Derived -> Foo2|Void()|20|C6, Foo2|Void([testcase]group12.Derived)|20
    - Foo2|Void()|20|C6, Foo2|Void([testcase]group12.Derived)|20, Public Virtual HideBySig Managed None
 
 [class [testcase]group12.Base] NotPublic AutoLayout AnsiClass BeforeFieldInit 
@@ -25,7 +26,5 @@
  - DerivedTypes:
    - [testcase]group12.Derived
  - Methods:
-   - Foo1|Void()|20|1C6, Foo1|Void([testcase]group12.Base)|20 = 0, Public Virtual HideBySig NewSlot Managed None
-     - [testcase]group12.Derived -> Foo2|Void()|20|C6, Foo2|Void([testcase]group12.Derived)|20
    - .ctor|Void()|20|1886, .ctor|Void([testcase]group12.Base)|20, Public HideBySig SpecialName RTSpecialName Managed None
 

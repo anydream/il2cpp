@@ -1989,7 +1989,6 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			GenTest.Entry();
 		}
 	}
 }
