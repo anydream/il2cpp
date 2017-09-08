@@ -42,6 +42,11 @@ namespace il2cpp
 		public readonly List<MethodDef> ReuseSlots = new List<MethodDef>();
 		// 新建槽位的方法
 		public readonly List<MethodDef> NewSlots = new List<MethodDef>();
+
+		public bool ContainsConflicts()
+		{
+			return ReuseSlots.Count + NewSlots.Count > 1;
+		}
 	}
 
 	// 展开的虚表
@@ -272,9 +277,10 @@ namespace il2cpp
 
 		public void ResolveTable()
 		{
+			Debug.Assert(InstGenArgs == null);
+
 			var metDefList = new List<Tuple<string, MethodDef>>();
 			var conflictMap = new Dictionary<string, ConflictPair>();
-			var nameSet = new HashSet<string>();
 
 			StringBuilder sb = new StringBuilder();
 
@@ -304,20 +310,23 @@ namespace il2cpp
 				sb.Clear();
 
 				// 特殊处理签名冲突的方法
-				if (nameSet.Contains(metNameKey))
+				if (!conflictMap.TryGetValue(metNameKey, out var confPair))
 				{
-					var pair = conflictMap.GetOrCreate(metNameKey, () => new ConflictPair());
-					if (metDef.IsNewSlot)
-						pair.NewSlots.Add(metDef);
-					else
-						pair.ReuseSlots.Add(metDef);
-				}
-				else
+					confPair = new ConflictPair();
+					conflictMap.Add(metNameKey, confPair);
 					metDefList.Add(new Tuple<string, MethodDef>(metNameKey, metDef));
+				}
 
-				nameSet.Add(metNameKey);
+				if (metDef.IsNewSlot)
+					confPair.NewSlots.Add(metDef);
+				else
+					confPair.ReuseSlots.Add(metDef);
 			}
-			nameSet = null;
+
+			foreach (var item in conflictMap.Where(kvp => !kvp.Value.ContainsConflicts()).ToList())
+			{
+				conflictMap.Remove(item.Key);
+			}
 
 			// 解析基类方法表
 			MethodTable baseTable = null;
@@ -337,6 +346,8 @@ namespace il2cpp
 
 				if (conflictMap.TryGetValue(metNameKey, out var confPair))
 				{
+					Debug.Assert(confPair.ContainsConflicts());
+
 					// 冲突签名的方法需要先处理重写槽方法, 再处理新建槽方法
 					VirtualSlot lastVSlot = null;
 					foreach (var metDef in confPair.ReuseSlots)
@@ -449,28 +460,50 @@ namespace il2cpp
 			}
 			expOverTargets = null;
 
-			// 展开入口映射
-			foreach (var kv in SlotMap)
+			for (; ; )
 			{
-				TypeMethodPair impl = kv.Value.Implemented;
-				var entries = kv.Value.Entries;
-
-				if (impl == null || impl.Item2.IsAbstract)
+				// 展开入口映射
+				foreach (var kv in SlotMap)
 				{
-					// 对于非抽象类需要检查是否存在实现
-					if (!Def.IsInterface && !Def.IsAbstract)
+					TypeMethodPair impl = kv.Value.Implemented;
+					var entries = kv.Value.Entries;
+
+					foreach (TypeMethodPair entry in entries)
 					{
-						throw new TypeLoadException(
-							string.Format("Interface/abstract methods not implemented in type {0}: {1}",
-								Def.FullName,
-								entries.First().Item2.FullName));
+						EntryMap[entry] = impl;
 					}
 				}
 
-				foreach (TypeMethodPair entry in entries)
+				bool isRebound = false;
+				// 对于非抽象类需要检查是否存在实现
+				if (!Def.IsInterface && !Def.IsAbstract)
 				{
-					EntryMap[entry] = impl;
+					foreach (var kv in EntryMap)
+					{
+						if (kv.Value == null)
+						{
+							Helper.MethodDefNameKey(sb, kv.Key.Item2, null);
+							string metNameKey = sb.ToString();
+							sb.Clear();
+
+							if (SlotMap.TryGetValue(metNameKey, out var vslot))
+							{
+								if (vslot.Entries.Add(kv.Key))
+									isRebound = true;
+							}
+							else
+							{
+								throw new TypeLoadException(
+									string.Format("Interface/abstract method not implemented in type {0}: {1} -> {2}",
+										GetNameKey(),
+										kv.Key.Item1.GetNameKey(),
+										kv.Key.Item2));
+							}
+						}
+					}
 				}
+				if (!isRebound)
+					break;
 			}
 		}
 
@@ -532,6 +565,8 @@ namespace il2cpp
 
 		private void ApplyVirtualSlot(VirtualSlot vslot)
 		{
+			Debug.Assert(vslot != null);
+
 			foreach (TypeMethodPair entry in vslot.Entries)
 			{
 				EntryMap[entry] = vslot.Implemented;
