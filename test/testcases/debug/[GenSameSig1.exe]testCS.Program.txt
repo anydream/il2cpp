@@ -1,0 +1,38 @@
+* Types:
+[class [testCS]testCS.Program] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Void(String[])|0|96, Main|Void(String[])|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testCS]testCS.Program
+   - [testCS]testCS.Program/A`1<Int32>
+   - [testCS]testCS.Program/B
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testCS]testCS.Program/B] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testCS]testCS.Program/A`1<Int32>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testCS]testCS.Program/B)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testCS]testCS.Program/A`1<Int32>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - [testCS]testCS.Program/Inf`1<Int32>
+ - DerivedTypes:
+   - [testCS]testCS.Program/B
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testCS]testCS.Program/A`1<Int32>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void(!0)|20|1C6, Foo|Void([testCS]testCS.Program/A`1<Int32>,Int32)|20, Public Virtual HideBySig NewSlot Managed None
+
+[class [testCS]testCS.Program/Inf`1<Int32>] NestedPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testCS]testCS.Program/A`1<Int32>
+   - [testCS]testCS.Program/B
+ - Methods:
+   - Foo|Void(!0)|20|5C6, Foo|Void([testCS]testCS.Program/Inf`1<Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testCS]testCS.Program/A`1<Int32> -> Foo|Void(!0)|20|1C6, Foo|Void([testCS]testCS.Program/A`1<Int32>,Int32)|20
+
