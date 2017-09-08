@@ -163,6 +163,9 @@ namespace il2cpp
 		// 同类内的方法替换映射
 		public readonly Dictionary<MethodDef, TypeMethodPair> SameTypeReplaceMap = new Dictionary<MethodDef, TypeMethodPair>();
 
+		// 未实现的接口映射
+		private Dictionary<string, HashSet<TypeMethodPair>> NotImplInterfaces;
+
 		public MethodTable(Il2cppContext context, TypeDef tyDef)
 		{
 			Context = context;
@@ -369,31 +372,6 @@ namespace il2cpp
 			conflictMap = null;
 			baseTable = null;
 
-			// 关联接口
-			if (Def.HasInterfaces)
-			{
-				foreach (var inf in Def.Interfaces)
-				{
-					MethodTable infTable = Context.TypeMgr.ResolveMethodTable(inf.Interface);
-					foreach (var kv in infTable.SlotMap)
-					{
-						string metNameKey = kv.Key;
-						var infEntries = kv.Value.Entries;
-						if (SlotMap.TryGetValue(metNameKey, out var vslot))
-						{
-							vslot.Entries.UnionWith(infEntries);
-						}
-						else
-						{
-							// 当前类没有对应接口的签名, 可能存在显式重写, 或者为抽象类
-							vslot = new VirtualSlot(null);
-							SlotMap[metNameKey] = vslot;
-							vslot.Entries.UnionWith(infEntries);
-						}
-					}
-				}
-			}
-
 			// 记录显式重写目标以便查重
 			var expOverTargets = new HashSet<TypeMethodPair>();
 
@@ -438,7 +416,9 @@ namespace il2cpp
 					{
 						// 接口方法显式重写
 						RemoveSlotEntry(targetEntry);
-						SlotMap[metNameKey].Entries.Add(targetEntry);
+						var vslot = SlotMap[metNameKey];
+						vslot.Entries.Add(targetEntry);
+						ApplyVirtualSlot(vslot);
 					}
 					else
 					{
@@ -459,6 +439,63 @@ namespace il2cpp
 				}
 			}
 			expOverTargets = null;
+
+			// 关联抽象基类未实现的接口
+			if (NotImplInterfaces.IsCollectionValid())
+			{
+				List<string> removedKeys = new List<string>();
+				foreach (var kv in NotImplInterfaces)
+				{
+					string metNameKey = kv.Key;
+					var notImplEntries = kv.Value;
+					if (SlotMap.TryGetValue(metNameKey, out var vslot))
+					{
+						vslot.Entries.UnionWith(notImplEntries);
+						removedKeys.Add(metNameKey);
+					}
+				}
+				foreach (var key in removedKeys)
+					NotImplInterfaces.Remove(key);
+			}
+
+			// 关联接口
+			if (Def.HasInterfaces)
+			{
+				foreach (var inf in Def.Interfaces)
+				{
+					MethodTable infTable = Context.TypeMgr.ResolveMethodTable(inf.Interface);
+					foreach (var kv in infTable.SlotMap)
+					{
+						string metNameKey = kv.Key;
+						var infEntries = kv.Value.Entries;
+						if (SlotMap.TryGetValue(metNameKey, out var vslot))
+						{
+							vslot.Entries.UnionWith(infEntries);
+						}
+						else
+						{
+							foreach (var entry in infEntries)
+							{
+								if (!EntryMap.ContainsKey(entry))
+								{
+									if (!Def.IsInterface && !Def.IsAbstract)
+									{
+										throw new TypeLoadException(
+											string.Format("Interface method not implemented in type {0}: {1} -> {2}",
+												GetNameKey(),
+												entry.Item1.GetNameKey(),
+												entry.Item2));
+									}
+									else
+									{
+										AddNotImplInterface(metNameKey, entry);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 
 			for (; ; )
 			{
@@ -482,7 +519,7 @@ namespace il2cpp
 					{
 						if (kv.Value == null)
 						{
-							Helper.MethodDefNameKey(sb, kv.Key.Item2, null);
+							/*Helper.MethodDefNameKey(sb, kv.Key.Item2, null);
 							string metNameKey = sb.ToString();
 							sb.Clear();
 
@@ -491,10 +528,10 @@ namespace il2cpp
 								if (vslot.Entries.Add(kv.Key))
 									isRebound = true;
 							}
-							else
+							else*/
 							{
 								throw new TypeLoadException(
-									string.Format("Interface/abstract method not implemented in type {0}: {1} -> {2}",
+									string.Format("Abstract method not implemented in type {0}: {1} -> {2}",
 										GetNameKey(),
 										kv.Key.Item1.GetNameKey(),
 										kv.Key.Item2));
@@ -520,6 +557,14 @@ namespace il2cpp
 
 			foreach (var kv in baseTable.SameTypeReplaceMap)
 				SameTypeReplaceMap.Add(kv.Key, kv.Value);
+
+			if (baseTable.NotImplInterfaces.IsCollectionValid())
+			{
+				Debug.Assert(baseTable.Def.IsAbstract);
+				NotImplInterfaces = new Dictionary<string, HashSet<TypeMethodPair>>();
+				foreach (var kv in baseTable.NotImplInterfaces)
+					NotImplInterfaces.Add(kv.Key, new HashSet<TypeMethodPair>(kv.Value));
+			}
 		}
 
 		private VirtualSlot ProcessMethod(
@@ -567,18 +612,61 @@ namespace il2cpp
 		{
 			Debug.Assert(vslot != null);
 
+			var impl = vslot.Implemented;
 			foreach (TypeMethodPair entry in vslot.Entries)
 			{
-				EntryMap[entry] = vslot.Implemented;
+				EntryMap[entry] = impl;
 			}
 		}
 
 		private void RemoveSlotEntry(TypeMethodPair entry)
 		{
+			List<string> removedKeys = new List<string>();
 			foreach (var kv in SlotMap)
 			{
-				kv.Value.Entries.Remove(entry);
+				string metNameKey = kv.Key;
+				var vslot = kv.Value;
+
+				vslot.Entries.Remove(entry);
+
+				if (vslot.Entries.Count == 0)
+				{
+					Debug.Assert(vslot.Implemented == null);
+					removedKeys.Add(metNameKey);
+				}
 			}
+			foreach (var key in removedKeys)
+				SlotMap.Remove(key);
+
+			if (NotImplInterfaces.IsCollectionValid())
+			{
+				removedKeys.Clear();
+				foreach (var kv in NotImplInterfaces)
+				{
+					string metNameKey = kv.Key;
+					var notImplEntries = kv.Value;
+
+					notImplEntries.Remove(entry);
+
+					if (notImplEntries.Count == 0)
+						removedKeys.Add(metNameKey);
+				}
+				foreach (var key in removedKeys)
+					NotImplInterfaces.Remove(key);
+			}
+		}
+
+		private void AddNotImplInterface(string metNameKey, TypeMethodPair notImplPair)
+		{
+			if (NotImplInterfaces == null)
+				NotImplInterfaces = new Dictionary<string, HashSet<TypeMethodPair>>();
+
+			if (!NotImplInterfaces.TryGetValue(metNameKey, out var entries))
+			{
+				entries = new HashSet<TypeMethodPair>();
+				NotImplInterfaces.Add(metNameKey, entries);
+			}
+			entries.Add(notImplPair);
 		}
 	}
 }

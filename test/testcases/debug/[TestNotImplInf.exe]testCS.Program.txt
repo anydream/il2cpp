@@ -1,0 +1,63 @@
+* Types:
+[class [testCS]testCS.Program] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Void()|0|96, Main|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testCS]testCS.Program
+   - [testCS]testCS.Program/Base
+   - [testCS]testCS.Program/Derived
+   - [testCS]testCS.Program/Der2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testCS]testCS.Program/Der2] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [testCS]testCS.Program/Derived
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testCS]testCS.Program/Der2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|Void()|20|1C6, Foo|Void([testCS]testCS.Program/Der2)|20, Public Virtual HideBySig NewSlot Managed None
+
+[class [testCS]testCS.Program/Derived] NestedPrivate AutoLayout Abstract AnsiClass BeforeFieldInit 
+ - Base: [testCS]testCS.Program/Base
+ - Interfaces:
+   - [testCS]testCS.Program/InfA
+   - [testCS]testCS.Program/InfB
+ - DerivedTypes:
+   - [testCS]testCS.Program/Der2
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testCS]testCS.Program/Derived)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testCS]testCS.Program/Base] NestedPrivate AutoLayout Abstract AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - [testCS]testCS.Program/InfA
+ - DerivedTypes:
+   - [testCS]testCS.Program/Derived
+   - [testCS]testCS.Program/Der2
+ - Methods:
+   - .ctor|Void()|20|1884, .ctor|Void([testCS]testCS.Program/Base)|20, Family HideBySig SpecialName RTSpecialName Managed None
+   - testCS.Program.InfA.Foo|Void()|20|1E1, testCS.Program.InfA.Foo|Void([testCS]testCS.Program/Base)|20, Private Final Virtual HideBySig NewSlot Managed None
+
+[class [testCS]testCS.Program/InfA] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testCS]testCS.Program/Base
+   - [testCS]testCS.Program/InfB
+   - [testCS]testCS.Program/Derived
+   - [testCS]testCS.Program/Der2
+ - Methods:
+   - Foo|Void()|20|5C6, Foo|Void([testCS]testCS.Program/InfA)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testCS]testCS.Program/Base -> testCS.Program.InfA.Foo|Void()|20|1E1, testCS.Program.InfA.Foo|Void([testCS]testCS.Program/Base)|20
+
+[class [testCS]testCS.Program/InfB] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - [testCS]testCS.Program/InfA
+ - DerivedTypes:
+   - [testCS]testCS.Program/Derived
+   - [testCS]testCS.Program/Der2
+ - Methods:
+   - Foo|Void()|20|5C6, Foo|Void([testCS]testCS.Program/InfB)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testCS]testCS.Program/Der2 -> Foo|Void()|20|1C6, Foo|Void([testCS]testCS.Program/Der2)|20
+
