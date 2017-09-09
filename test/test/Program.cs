@@ -33,11 +33,13 @@ namespace test
 			}
 			else
 			{
-				MethodDef mainDef = typeDef.FindMethod("Main");
-				if (mainDef != null &&
-					mainDef.HasBody &&
-					mainDef.Body.Instructions.Count > 2)
-					return mainDef;
+				MethodDef entryPoint = typeDef.Module.EntryPoint;
+				if (entryPoint != null && entryPoint.DeclaringType == typeDef)
+				{
+					if (entryPoint.HasBody &&
+						entryPoint.Body.Instructions.Count > 2)
+						return entryPoint;
+				}
 			}
 			return null;
 		}
@@ -76,6 +78,19 @@ namespace test
 			}
 			else
 				return data;
+		}
+
+		private static string ValidatePath(string str)
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (var ch in str)
+			{
+				if (ch == '<' || ch == '>')
+					sb.Append('_');
+				else
+					sb.Append(ch);
+			}
+			return sb.ToString();
 		}
 
 		private static void TestType(
@@ -121,14 +136,16 @@ namespace test
 			}
 
 			var dumpData = Encoding.UTF8.GetBytes(sb.ToString());
+
+			string validatedName = ValidatePath(testName);
 			File.WriteAllBytes(
-				Path.Combine(imageDir, testName + ".dump"),
+				Path.Combine(imageDir, validatedName + ".dump"),
 				dumpData);
 
 			byte[] cmpData = null;
 			try
 			{
-				cmpData = File.ReadAllBytes(Path.Combine(imageDir, testName + ".txt"));
+				cmpData = File.ReadAllBytes(Path.Combine(imageDir, validatedName + ".txt"));
 				cmpData = ReplaceNewLines(cmpData);
 			}
 			catch
