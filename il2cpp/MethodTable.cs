@@ -177,7 +177,7 @@ namespace il2cpp
 						string.Format("Virtual method can't resolve in type {0}: {1} -> {2}",
 							Name,
 							entryPair.Item1,
-							entryPair.Item2));
+							entryPair.Item2.FullName));
 				}
 			}
 		}
@@ -473,6 +473,13 @@ namespace il2cpp
 								GetNameKey(),
 								overTarget.FullName));
 					}
+					if (!targetDef.IsVirtual)
+					{
+						throw new TypeLoadException(
+							string.Format("Explicit overriding target must be virtual in type {0}: {1}",
+								GetNameKey(),
+								overTarget.FullName));
+					}
 
 					var targetEntry = new TypeMethodPair(targetTable, targetDef);
 
@@ -578,7 +585,7 @@ namespace il2cpp
 											string.Format("Interface method not implemented in type {0}: {1} -> {2}",
 												GetNameKey(),
 												entry.Item1.GetNameKey(),
-												entry.Item2));
+												entry.Item2.FullName));
 									}
 								}
 							}
@@ -598,18 +605,21 @@ namespace il2cpp
 					TypeMethodPair impl = kv.Value.Implemented;
 					var entries = kv.Value.Entries;
 					var newSlotDef = kv.Value.NewSlotEntry.Item2;
+					Debug.Assert(newSlotDef.IsNewSlot);
 
 					foreach (TypeMethodPair entry in entries)
 					{
 						EntryMap[entry] = impl;
-						if (entry.Item2 != newSlotDef)
-							NewSlotEntryMap[entry.Item2] = newSlotDef;
+
+						var entryDef = entry.Item2;
+						if (entryDef.IsReuseSlot && entryDef != newSlotDef)
+							NewSlotEntryMap[entryDef] = newSlotDef;
 					}
 				}
 
 				bool isRebound = false;
 				// 对于非抽象类需要检查是否存在实现
-				if (!Def.IsInterface && !Def.IsAbstract)
+				if (!Def.IsAbstract)
 				{
 					foreach (var kv in EntryMap)
 					{
@@ -619,7 +629,7 @@ namespace il2cpp
 								string.Format("Abstract method not implemented in type {0}: {1} -> {2}",
 									GetNameKey(),
 									kv.Key.Item1.GetNameKey(),
-									kv.Key.Item2));
+									kv.Key.Item2.FullName));
 						}
 					}
 				}
