@@ -78,15 +78,14 @@ namespace il2cpp
 		// 入口实现映射
 		private readonly Dictionary<TypeNameMethodPair, TypeNameMethodPair> EntryMap =
 			new Dictionary<TypeNameMethodPair, TypeNameMethodPair>();
-		// 方法替换映射
-		private readonly Dictionary<MethodDef, TypeNameMethodPair> ReplaceMap =
-			new Dictionary<MethodDef, TypeNameMethodPair>();
 		// 同类内的方法替换映射
 		private readonly Dictionary<MethodDef, TypeNameMethodPair> SameTypeReplaceMap =
 			new Dictionary<MethodDef, TypeNameMethodPair>();
 		// 方法新建槽映射
-		private readonly Dictionary<MethodDef, MethodDef> NewSlotEntryMap;
+		private readonly Dictionary<MethodDef, TypeNameMethodPair> NewSlotEntryMap =
+			new Dictionary<MethodDef, TypeNameMethodPair>();
 
+		// 虚方法关联缓存
 		private readonly Dictionary<TypeNameMethodPair, TypeNameMethodPair> CachedMap =
 			new Dictionary<TypeNameMethodPair, TypeNameMethodPair>();
 
@@ -101,13 +100,6 @@ namespace il2cpp
 					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
 			}
 
-			foreach (var kv in mtable.ReplaceMap)
-			{
-				ReplaceMap.Add(
-					kv.Key,
-					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
-			}
-
 			foreach (var kv in mtable.SameTypeReplaceMap)
 			{
 				SameTypeReplaceMap.Add(
@@ -115,7 +107,12 @@ namespace il2cpp
 					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
 			}
 
-			NewSlotEntryMap = mtable.NewSlotEntryMap;
+			foreach (var kv in mtable.NewSlotEntryMap)
+			{
+				NewSlotEntryMap.Add(
+					kv.Key,
+					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
+			}
 		}
 
 		public bool QueryCallReplace(
@@ -154,29 +151,15 @@ namespace il2cpp
 			TypeNameMethodPair entryPair,
 			out TypeNameMethodPair implPair)
 		{
+			// 尝试重定向入口到新建槽方法
+			if (NewSlotEntryMap.TryGetValue(entryPair.Item2, out var newSlotPair))
+				entryPair = newSlotPair;
+
 			for (; ; )
 			{
-				/*for (; ; )
-				{
-					MethodDef entryDef = entryPair.Item2;
-
-					if (NewSlotEntryMap.TryGetValue(entryDef, out var newSlotDef))
-						entryDef = newSlotDef;
-
-					if (ReplaceMap.TryGetValue(entryDef, out var repPair))
-						entryPair = repPair;
-					else
-						break;
-				}*/
-
-				if (EntryMap.TryGetValue(
+				if (!EntryMap.TryGetValue(
 					entryPair,
 					out implPair))
-				{
-					if (!ReplaceMap.TryGetValue(implPair.Item2, out entryPair))
-						return;
-				}
-				else
 				{
 					throw new TypeLoadException(
 						string.Format("Virtual method can't resolve in type {0}: {1} -> {2}",
@@ -184,6 +167,20 @@ namespace il2cpp
 							entryPair.Item1,
 							entryPair.Item2.FullName));
 				}
+
+				if (NewSlotEntryMap.TryGetValue(implPair.Item2, out newSlotPair) &&
+					!entryPair.Equals(newSlotPair))
+				{
+					entryPair = newSlotPair;
+					continue;
+				}
+
+				if (SameTypeReplaceMap.TryGetValue(implPair.Item2, out var repPair))
+				{
+					entryPair = repPair;
+				}
+				else
+					break;
 			}
 		}
 	}
@@ -201,12 +198,10 @@ namespace il2cpp
 		private readonly Dictionary<string, VirtualSlot> SlotMap = new Dictionary<string, VirtualSlot>();
 		// 入口实现映射
 		public Dictionary<TypeMethodPair, TypeMethodPair> EntryMap = new Dictionary<TypeMethodPair, TypeMethodPair>();
-		// 方法替换映射
-		public readonly Dictionary<MethodDef, TypeMethodPair> ReplaceMap = new Dictionary<MethodDef, TypeMethodPair>();
 		// 同类内的方法替换映射
 		public readonly Dictionary<MethodDef, TypeMethodPair> SameTypeReplaceMap = new Dictionary<MethodDef, TypeMethodPair>();
 		// 方法新建槽映射
-		public Dictionary<MethodDef, MethodDef> NewSlotEntryMap = new Dictionary<MethodDef, MethodDef>();
+		public readonly Dictionary<MethodDef, TypeMethodPair> NewSlotEntryMap = new Dictionary<MethodDef, TypeMethodPair>();
 
 		// 未实现的接口映射
 		private Dictionary<string, HashSet<TypeMethodPair>> NotImplInterfaces;
@@ -293,13 +288,11 @@ namespace il2cpp
 			}
 			merger = null;
 
-			foreach (var kv in ReplaceMap)
-				expMetTable.ReplaceMap[kv.Key] = ExpandMethodPair(kv.Value, expMetTable, replacer);
-
 			foreach (var kv in SameTypeReplaceMap)
 				expMetTable.SameTypeReplaceMap[kv.Key] = ExpandMethodPair(kv.Value, expMetTable, replacer);
 
-			expMetTable.NewSlotEntryMap = NewSlotEntryMap;
+			foreach (var kv in NewSlotEntryMap)
+				expMetTable.NewSlotEntryMap[kv.Key] = ExpandMethodPair(kv.Value, expMetTable, replacer);
 
 			return expMetTable;
 		}
@@ -507,26 +500,15 @@ namespace il2cpp
 					if (targetTable.Def.IsInterface)
 					{
 						// 接口方法显式重写
-						RemoveSlotEntry(targetEntry);
-						var vslot = SlotMap[metNameKey];
-						vslot.Entries.Add(targetEntry);
-						ApplyVirtualSlot(vslot);
+						ExplicitOverride(targetEntry, metNameKey);
 					}
 					else
 					{
-						// 类方法显式重写
-						var impl = new TypeMethodPair(this, implDef);
-
-						// 相同类型的需要单独添加, 以便非虚调用时处理替换
+						// 相同类型的需要添加到替换映射, 以便非虚调用时处理替换
 						if (targetTable == this)
-							SameTypeReplaceMap[targetDef] = impl;
-
-						// 如果当前方法存在新建槽位的那个方法, 则显式重写记录使用新建槽方法
-						var newSlotEntry = SlotMap[metNameKey].NewSlotEntry;
-						if (newSlotEntry != null)
-							ReplaceMap[targetDef] = newSlotEntry;
+							SameTypeReplaceMap[targetDef] = new TypeMethodPair(this, implDef);
 						else
-							ReplaceMap[targetDef] = impl;
+							ExplicitOverride(targetEntry, metNameKey);
 					}
 				}
 			}
@@ -610,16 +592,16 @@ namespace il2cpp
 			{
 				TypeMethodPair impl = kv.Value.Implemented;
 				var entries = kv.Value.Entries;
-				var newSlotDef = kv.Value.NewSlotEntry.Item2;
-				Debug.Assert(newSlotDef.IsNewSlot);
+				var newSlotEntry = kv.Value.NewSlotEntry;
+				Debug.Assert(newSlotEntry.Item2.IsNewSlot);
 
 				foreach (TypeMethodPair entry in entries)
 				{
 					EntryMap[entry] = impl;
 
 					var entryDef = entry.Item2;
-					if (entryDef.IsReuseSlot && entryDef != newSlotDef)
-						NewSlotEntryMap[entryDef] = newSlotDef;
+					if (entryDef.IsReuseSlot && entryDef != newSlotEntry.Item2)
+						NewSlotEntryMap[entryDef] = newSlotEntry;
 				}
 			}
 
@@ -647,9 +629,6 @@ namespace il2cpp
 
 			foreach (var kv in baseTable.EntryMap)
 				EntryMap.Add(kv.Key, kv.Value);
-
-			foreach (var kv in baseTable.ReplaceMap)
-				ReplaceMap.Add(kv.Key, kv.Value);
 
 			foreach (var kv in baseTable.SameTypeReplaceMap)
 				SameTypeReplaceMap.Add(kv.Key, kv.Value);
@@ -728,6 +707,15 @@ namespace il2cpp
 			return vslot;
 		}
 
+		private void ExplicitOverride(TypeMethodPair targetEntry, string overriddenMet)
+		{
+			RemoveSlotEntry(targetEntry);
+			var vslot = SlotMap[overriddenMet];
+			Debug.Assert(vslot != null);
+			vslot.Entries.Add(targetEntry);
+			ApplyVirtualSlot(vslot);
+		}
+
 		private void ApplyVirtualSlot(VirtualSlot vslot)
 		{
 			Debug.Assert(vslot != null);
@@ -751,7 +739,6 @@ namespace il2cpp
 
 				if (vslot.Entries.Count == 0)
 				{
-					Debug.Assert(vslot.Implemented == null);
 					removedKeys.Add(metNameKey);
 				}
 			}
