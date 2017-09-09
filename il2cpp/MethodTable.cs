@@ -156,7 +156,7 @@ namespace il2cpp
 		{
 			for (; ; )
 			{
-				for (; ; )
+				/*for (; ; )
 				{
 					MethodDef entryDef = entryPair.Item2;
 
@@ -167,7 +167,7 @@ namespace il2cpp
 						entryPair = repPair;
 					else
 						break;
-				}
+				}*/
 
 				if (EntryMap.TryGetValue(
 					entryPair,
@@ -343,8 +343,10 @@ namespace il2cpp
 
 			var metDefList = new List<Tuple<string, MethodDef>>();
 			var conflictMap = new Dictionary<string, ConflictPair>();
+			var nameSet = new HashSet<string>();
 
-			bool isInterface = Def.IsInterface;
+			bool thisIsInterface = Def.IsInterface;
+			bool thisIsAbstract = Def.IsAbstract;
 
 			StringBuilder sb = new StringBuilder();
 
@@ -373,8 +375,9 @@ namespace il2cpp
 				Helper.MethodDefNameKey(sb, metDef, null);
 				string metNameKey = sb.ToString();
 				sb.Clear();
+				nameSet.Add(metNameKey);
 
-				if (isInterface)
+				if (thisIsInterface)
 				{
 					Debug.Assert(metDef.IsAbstract && metDef.IsNewSlot);
 					metDefList.Add(new Tuple<string, MethodDef>(metNameKey, metDef));
@@ -396,7 +399,7 @@ namespace il2cpp
 				}
 			}
 
-			if (!isInterface)
+			if (!thisIsInterface)
 			{
 				foreach (var item in conflictMap.Where(kvp => !kvp.Value.ContainsConflicts()).ToList())
 				{
@@ -420,7 +423,7 @@ namespace il2cpp
 			{
 				string metNameKey = metItem.Item1;
 
-				if (isInterface)
+				if (thisIsInterface)
 				{
 					// 接口需要合并相同签名的方法
 					MethodDef metDef = metItem.Item2;
@@ -558,12 +561,12 @@ namespace il2cpp
 						string metNameKey = kv.Key;
 						var infEntries = kv.Value.Entries;
 
-						if (isInterface)
+						if (thisIsInterface)
 						{
 							MergeInterfaces(metNameKey, infEntries);
 						}
-						else if (SlotMap.TryGetValue(metNameKey, out var vslot) &&
-								 vslot.Implemented.Item1 == this)
+						else if (nameSet.Contains(metNameKey) &&
+								 SlotMap.TryGetValue(metNameKey, out var vslot))
 						{
 							// 关联当前类型内签名相同的方法
 							vslot.Entries.UnionWith(infEntries);
@@ -579,7 +582,7 @@ namespace il2cpp
 										// 关联继承链上签名相同的方法
 										vslot.Entries.Add(entry);
 									}
-									else if (Def.IsAbstract)
+									else if (thisIsAbstract)
 									{
 										AddNotImplInterface(metNameKey, entry);
 									}
@@ -598,47 +601,42 @@ namespace il2cpp
 				}
 			}
 
-			if (isInterface)
+			// 接口不需要展开入口
+			if (thisIsInterface)
 				return;
 
-			for (; ; )
+			// 展开入口映射
+			foreach (var kv in SlotMap)
 			{
-				// 展开入口映射
-				foreach (var kv in SlotMap)
+				TypeMethodPair impl = kv.Value.Implemented;
+				var entries = kv.Value.Entries;
+				var newSlotDef = kv.Value.NewSlotEntry.Item2;
+				Debug.Assert(newSlotDef.IsNewSlot);
+
+				foreach (TypeMethodPair entry in entries)
 				{
-					TypeMethodPair impl = kv.Value.Implemented;
-					var entries = kv.Value.Entries;
-					var newSlotDef = kv.Value.NewSlotEntry.Item2;
-					Debug.Assert(newSlotDef.IsNewSlot);
+					EntryMap[entry] = impl;
 
-					foreach (TypeMethodPair entry in entries)
+					var entryDef = entry.Item2;
+					if (entryDef.IsReuseSlot && entryDef != newSlotDef)
+						NewSlotEntryMap[entryDef] = newSlotDef;
+				}
+			}
+
+			// 对于非抽象类需要检查是否存在实现
+			if (!thisIsAbstract)
+			{
+				foreach (var kv in EntryMap)
+				{
+					if (kv.Value == null)
 					{
-						EntryMap[entry] = impl;
-
-						var entryDef = entry.Item2;
-						if (entryDef.IsReuseSlot && entryDef != newSlotDef)
-							NewSlotEntryMap[entryDef] = newSlotDef;
+						throw new TypeLoadException(
+							string.Format("Abstract method not implemented in type {0}: {1} -> {2}",
+								GetNameKey(),
+								kv.Key.Item1.GetNameKey(),
+								kv.Key.Item2.FullName));
 					}
 				}
-
-				bool isRebound = false;
-				// 对于非抽象类需要检查是否存在实现
-				if (!Def.IsAbstract)
-				{
-					foreach (var kv in EntryMap)
-					{
-						if (kv.Value == null)
-						{
-							throw new TypeLoadException(
-								string.Format("Abstract method not implemented in type {0}: {1} -> {2}",
-									GetNameKey(),
-									kv.Key.Item1.GetNameKey(),
-									kv.Key.Item2.FullName));
-						}
-					}
-				}
-				if (!isRebound)
-					break;
 			}
 		}
 
