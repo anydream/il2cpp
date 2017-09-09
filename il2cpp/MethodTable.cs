@@ -61,13 +61,8 @@ namespace il2cpp
 
 		public void Add(TypeMethodPair key, TypeMethodPair val)
 		{
-			if (EntryMap.TryGetValue(key, out var oval))
-			{
-				if (oval.Equals(val) ||
-					(oval.Item1 == val.Item1 && oval.Item2.Rid > val.Item2.Rid))
-					return;
-			}
-			EntryMap[key] = val;
+			if (!EntryMap.ContainsKey(key))
+				EntryMap[key] = val;
 		}
 	}
 

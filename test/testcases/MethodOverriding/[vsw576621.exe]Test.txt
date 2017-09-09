@@ -18,14 +18,13 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([test]C2)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - M3|Int32()|20|46, M3|Int32([test]C2)|20 = 0, Public Virtual Managed None
-   - M4|Int32()|20|46, M4|Int32([test]C2)|20, Public Virtual Managed None
+     - [test]C2 -> M4|Int32()|20|146, M4|Int32([test]C2)|20
+   - M4|Int32()|20|146, M4|Int32([test]C2)|20, Public Virtual NewSlot Managed None
 
 [class [test]C1] Public AutoLayout AnsiClass 
  - Base: Object
  - DerivedTypes:
    - [test]C2
  - Methods:
-   - M3|Int32()|20|46, M3|Int32([test]C1)|20 = 0, Public Virtual Managed None
-     - [test]C2 -> M4|Int32()|20|46, M4|Int32([test]C2)|20
    - .ctor|Void()|20|1886, .ctor|Void([test]C1)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
