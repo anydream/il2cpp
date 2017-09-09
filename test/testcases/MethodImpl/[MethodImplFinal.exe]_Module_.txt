@@ -1,0 +1,61 @@
+* Types:
+[class [MethodImplFinal]\u003CModule\u003E] NotPublic AutoLayout AnsiClass 
+ - Methods:
+   - main|Int32 modopt(System.Runtime.CompilerServices.CallConvCdecl)()|0|16, main|Int32 modopt(System.Runtime.CompilerServices.CallConvCdecl)()|0, Public Static Managed None
+
+[class [MethodImplFinal]A] Public AutoLayout AnsiClass 
+ - Instantiated
+ - Base: Object
+ - DerivedTypes:
+   - [MethodImplFinal]B
+   - [MethodImplFinal]C
+   - [MethodImplFinal]D
+ - Methods:
+   - .ctor|Void()|20|1806, .ctor|Void([MethodImplFinal]A)|20, Public SpecialName RTSpecialName Managed None
+   - f|Void()|20|146, f|Void([MethodImplFinal]A)|20, Public Virtual NewSlot Managed None
+     - [MethodImplFinal]A -> f|Void()|20|146, f|Void([MethodImplFinal]A)|20
+     - [MethodImplFinal]B -> g|Void()|20|166, g|Void([MethodImplFinal]B)|20
+     - [MethodImplFinal]C -> f|Void()|20|46, f|Void([MethodImplFinal]C)|20
+     - [MethodImplFinal]D -> f|Void()|20|46, f|Void([MethodImplFinal]D)|20
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [MethodImplFinal]A
+   - [MethodImplFinal]B
+   - [MethodImplFinal]C
+   - [MethodImplFinal]D
+   - [MethodImplFinal]Logger
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [MethodImplFinal]B] Public AutoLayout AnsiClass 
+ - Instantiated
+ - Base: [MethodImplFinal]A
+ - DerivedTypes:
+   - [MethodImplFinal]C
+   - [MethodImplFinal]D
+ - Methods:
+   - .ctor|Void()|20|1806, .ctor|Void([MethodImplFinal]B)|20, Public SpecialName RTSpecialName Managed None
+   - g|Void()|20|166, g|Void([MethodImplFinal]B)|20, Public Final Virtual NewSlot Managed None
+
+[class [MethodImplFinal]C] Public AutoLayout AnsiClass 
+ - Instantiated
+ - Base: [MethodImplFinal]B
+ - DerivedTypes:
+   - [MethodImplFinal]D
+ - Methods:
+   - .ctor|Void()|20|1806, .ctor|Void([MethodImplFinal]C)|20, Public SpecialName RTSpecialName Managed None
+   - f|Void()|20|46, f|Void([MethodImplFinal]C)|20, Public Virtual Managed None
+
+[class [MethodImplFinal]D] Public AutoLayout AnsiClass 
+ - Instantiated
+ - Base: [MethodImplFinal]C
+ - Methods:
+   - .ctor|Void()|20|1806, .ctor|Void([MethodImplFinal]D)|20, Public SpecialName RTSpecialName Managed None
+   - f|Void()|20|46, f|Void([MethodImplFinal]D)|20, Public Virtual Managed None
+
+[class [MethodImplFinal]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - WriteLine|Void(String)|0|96, WriteLine|Void(String)|0, Public Static HideBySig Managed None
+

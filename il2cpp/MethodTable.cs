@@ -479,7 +479,7 @@ namespace il2cpp
 					if (targetTable.Def.IsInterface)
 					{
 						// 接口方法显式重写
-						ExplicitOverride(targetEntry, metNameKey);
+						ExplicitOverride(targetEntry, metNameKey, true);
 					}
 					else
 					{
@@ -487,7 +487,7 @@ namespace il2cpp
 						if (targetTable == this)
 							SameTypeReplaceMap[targetDef] = new TypeMethodPair(this, implDef);
 						else
-							ExplicitOverride(targetEntry, metNameKey);
+							ExplicitOverride(targetEntry, metNameKey, false);
 					}
 				}
 			}
@@ -670,6 +670,10 @@ namespace il2cpp
 					metDef.IsNewSlot = true;
 				else
 				{
+					// 隐式重写前, 先清除其他槽位的相同入口
+					foreach (var removeEntry in vslot.Entries)
+						RemoveSlotEntry(removeEntry);
+
 					vslot = new VirtualSlot(vslot, impl);
 					vslot.Entries.Add(entry);
 					vslot.Implemented = impl;
@@ -686,9 +690,10 @@ namespace il2cpp
 			return vslot;
 		}
 
-		private void ExplicitOverride(TypeMethodPair targetEntry, string overriddenMet)
+		private void ExplicitOverride(TypeMethodPair targetEntry, string overriddenMet, bool isRemove)
 		{
-			RemoveSlotEntry(targetEntry);
+			if (isRemove)
+				RemoveSlotEntry(targetEntry);
 			var vslot = SlotMap[overriddenMet];
 			Debug.Assert(vslot != null);
 			vslot.Entries.Add(targetEntry);
