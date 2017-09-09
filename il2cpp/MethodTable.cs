@@ -49,23 +49,6 @@ namespace il2cpp
 		}
 	}
 
-	// 入口合并器
-	internal class EntryMerger
-	{
-		private readonly Dictionary<TypeMethodPair, TypeMethodPair> EntryMap;
-
-		public EntryMerger(Dictionary<TypeMethodPair, TypeMethodPair> entryMap)
-		{
-			EntryMap = entryMap;
-		}
-
-		public void Add(TypeMethodPair key, TypeMethodPair val)
-		{
-			if (!EntryMap.ContainsKey(key))
-				EntryMap[key] = val;
-		}
-	}
-
 	// 展开的虚表
 	internal class VirtualTable
 	{
@@ -274,14 +257,15 @@ namespace il2cpp
 					expMetTable.SlotMap[metNameKey] = vslot;
 			}
 
-			EntryMerger merger = new EntryMerger(expMetTable.EntryMap);
+			var expEntryMap = expMetTable.EntryMap;
 			foreach (var kv in EntryMap)
 			{
-				merger.Add(
-					ExpandMethodPair(kv.Key, expMetTable, replacer),
-					ExpandMethodPair(kv.Value, expMetTable, replacer));
+				var key = ExpandMethodPair(kv.Key, expMetTable, replacer);
+				var value = ExpandMethodPair(kv.Value, expMetTable, replacer);
+
+				if (!expEntryMap.ContainsKey(key))
+					expEntryMap.Add(key, value);
 			}
-			merger = null;
 
 			foreach (var kv in SameTypeReplaceMap)
 				expMetTable.SameTypeReplaceMap[kv.Key] = ExpandMethodPair(kv.Value, expMetTable, replacer);
