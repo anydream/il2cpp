@@ -52,7 +52,12 @@ namespace il2cpp
 	// 入口合并器
 	internal class EntryMerger
 	{
-		public readonly Dictionary<TypeMethodPair, TypeMethodPair> EntryMap = new Dictionary<TypeMethodPair, TypeMethodPair>();
+		private readonly Dictionary<TypeMethodPair, TypeMethodPair> EntryMap;
+
+		public EntryMerger(Dictionary<TypeMethodPair, TypeMethodPair> entryMap)
+		{
+			EntryMap = entryMap;
+		}
 
 		public void Add(TypeMethodPair key, TypeMethodPair val)
 		{
@@ -279,14 +284,13 @@ namespace il2cpp
 					expMetTable.SlotMap[metNameKey] = vslot;
 			}
 
-			EntryMerger merger = new EntryMerger();
+			EntryMerger merger = new EntryMerger(expMetTable.EntryMap);
 			foreach (var kv in EntryMap)
 			{
 				merger.Add(
 					ExpandMethodPair(kv.Key, expMetTable, replacer),
 					ExpandMethodPair(kv.Value, expMetTable, replacer));
 			}
-			expMetTable.EntryMap = merger.EntryMap;
 			merger = null;
 
 			foreach (var kv in ReplaceMap)
