@@ -171,21 +171,6 @@ namespace il2cpp
 								(inst.OpCode.Code == Code.Callvirt ||
 								 inst.OpCode.Code == Code.Ldvirtftn))
 						{
-							// 处理非入口虚调用重定向
-							/*if (!resMetX.Def.IsNewSlot)
-							{
-								if (GetNewSlotMethodChecked(resMetX.DeclType, resMetX.Def, out var slotTypeName, out var slotMetDef))
-								{
-									resMetX.IsSkipProcessing = true;
-
-									TypeX slotTyX = GetTypeByName(slotTypeName);
-									Debug.Assert(slotTyX != null);
-
-									MethodX slotMetX = MakeMethodX(slotTyX, slotMetDef, resMetX.GenArgs);
-
-									resMetX = slotMetX;
-								}
-							}*/
 							AddVCallEntry(resMetX);
 						}
 						else if (resMetX.IsVirtual &&
@@ -523,7 +508,7 @@ namespace il2cpp
 				return otyX;
 			TypeMap.Add(nameKey, tyX);
 
-			// 展开方法
+			// 展开类型
 			ExpandType(tyX);
 
 			return tyX;
@@ -647,19 +632,5 @@ namespace il2cpp
 				metX.GenArgs = new List<TypeSig>(genArgs);
 			return AddMethod(metX);
 		}
-
-		/*private static bool GetNewSlotMethodChecked(
-			TypeX declType,
-			MethodDef metDef,
-			out string slotTypeName,
-			out MethodDef slotMetDef)
-		{
-			Debug.Assert(!metDef.IsNewSlot);
-			bool status = declType.GetNewSlotMethod(metDef, out slotTypeName, out slotMetDef);
-			Debug.Assert(status);
-			Debug.Assert(slotTypeName != null);
-			Debug.Assert(slotMetDef != null);
-			return status && metDef != slotMetDef;
-		}*/
 	}
 }
