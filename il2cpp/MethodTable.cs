@@ -263,8 +263,7 @@ namespace il2cpp
 				var key = ExpandMethodPair(kv.Key, expMetTable, replacer);
 				var value = ExpandMethodPair(kv.Value, expMetTable, replacer);
 
-				if (!expEntryMap.ContainsKey(key))
-					expEntryMap.Add(key, value);
+				MergeExpandedEntry(expEntryMap, key, value);
 			}
 
 			foreach (var kv in SameTypeReplaceMap)
@@ -274,6 +273,37 @@ namespace il2cpp
 				expMetTable.NewSlotEntryMap[kv.Key] = ExpandMethodPair(kv.Value, expMetTable, replacer);
 
 			return expMetTable;
+		}
+
+		private void MergeExpandedEntry(
+			Dictionary<TypeMethodPair, TypeMethodPair> expEntryMap,
+			TypeMethodPair key,
+			TypeMethodPair value)
+		{
+			if (expEntryMap.TryGetValue(key, out var oval))
+			{
+				// 不覆盖同一个类内的相同签名
+				if (oval.Item1.Equals(value.Item1))
+					return;
+
+				Debug.Assert(oval.Item2 != value.Item2);
+				// 对于不同的类则子类方法优先
+				if (IsBaseType(oval.Item2.DeclaringType, value.Item2.DeclaringType))
+					return;
+			}
+			expEntryMap[key] = value;
+		}
+
+		private static bool IsBaseType(TypeDef currType, TypeDef baseType)
+		{
+			TypeDef currBase = currType.BaseType?.ResolveTypeDef();
+			if (currBase != null)
+			{
+				if (currBase == baseType)
+					return true;
+				return IsBaseType(currBase, baseType);
+			}
+			return false;
 		}
 
 		private TypeMethodPair ExpandMethodPair(TypeMethodPair metPair, MethodTable expMetTable, IGenericReplacer replacer)
@@ -427,6 +457,78 @@ namespace il2cpp
 			conflictMap = null;
 			baseTable = null;
 
+			// 关联抽象基类未实现的接口
+			if (NotImplInterfaces.IsCollectionValid())
+			{
+				List<string> removedKeys = new List<string>();
+				foreach (var kv in NotImplInterfaces)
+				{
+					string metNameKey = kv.Key;
+					var notImplEntries = kv.Value;
+					if (SlotMap.TryGetValue(metNameKey, out var vslot))
+					{
+						vslot.Entries.UnionWith(notImplEntries);
+						removedKeys.Add(metNameKey);
+						ApplyVirtualSlot(vslot);
+					}
+				}
+				foreach (var key in removedKeys)
+					NotImplInterfaces.Remove(key);
+			}
+
+			// 关联接口
+			if (Def.HasInterfaces)
+			{
+				foreach (var inf in Def.Interfaces)
+				{
+					MethodTable infTable = Context.TypeMgr.ResolveMethodTable(inf.Interface);
+					foreach (var kv in infTable.SlotMap)
+					{
+						string metNameKey = kv.Key;
+						var infEntries = kv.Value.Entries;
+
+						if (thisIsInterface)
+						{
+							MergeInterfaces(metNameKey, infEntries);
+						}
+						else if (nameSet.Contains(metNameKey) &&
+								 SlotMap.TryGetValue(metNameKey, out var vslot))
+						{
+							// 关联当前类型内签名相同的方法
+							vslot.Entries.UnionWith(infEntries);
+							ApplyVirtualSlot(vslot);
+						}
+						else
+						{
+							foreach (var entry in infEntries)
+							{
+								if (!EntryMap.ContainsKey(entry))
+								{
+									if (SlotMap.TryGetValue(metNameKey, out vslot))
+									{
+										// 关联继承链上签名相同的方法
+										vslot.Entries.Add(entry);
+										ApplyVirtualSlot(vslot);
+									}
+									else if (thisIsAbstract)
+									{
+										AddNotImplInterface(metNameKey, entry);
+									}
+									else
+									{
+										/*throw new TypeLoadException(
+											string.Format("Interface method not implemented in type {0}: {1} -> {2}",
+												GetNameKey(),
+												entry.Item1.GetNameKey(),
+												entry.Item2.FullName));*/
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
 			// 记录显式重写目标以便查重
 			var expOverTargets = new HashSet<TypeMethodPair>();
 
@@ -479,7 +581,7 @@ namespace il2cpp
 					if (targetTable.Def.IsInterface)
 					{
 						// 接口方法显式重写
-						ExplicitOverride(targetEntry, metNameKey, true);
+						ExplicitOverride(targetEntry, metNameKey);
 					}
 					else
 					{
@@ -487,97 +589,29 @@ namespace il2cpp
 						if (targetTable == this)
 							SameTypeReplaceMap[targetDef] = new TypeMethodPair(this, implDef);
 						else
-							ExplicitOverride(targetEntry, metNameKey, false);
+						{
+							var vslot = SlotMap[metNameKey];
+							Debug.Assert(vslot != null);
+							EntryMap[targetEntry] = vslot.Implemented;
+						}
 					}
 				}
 			}
 			expOverTargets = null;
 
-			// 关联抽象基类未实现的接口
-			if (NotImplInterfaces.IsCollectionValid())
-			{
-				List<string> removedKeys = new List<string>();
-				foreach (var kv in NotImplInterfaces)
-				{
-					string metNameKey = kv.Key;
-					var notImplEntries = kv.Value;
-					if (SlotMap.TryGetValue(metNameKey, out var vslot))
-					{
-						vslot.Entries.UnionWith(notImplEntries);
-						removedKeys.Add(metNameKey);
-					}
-				}
-				foreach (var key in removedKeys)
-					NotImplInterfaces.Remove(key);
-			}
-
-			// 关联接口
-			if (Def.HasInterfaces)
-			{
-				foreach (var inf in Def.Interfaces)
-				{
-					MethodTable infTable = Context.TypeMgr.ResolveMethodTable(inf.Interface);
-					foreach (var kv in infTable.SlotMap)
-					{
-						string metNameKey = kv.Key;
-						var infEntries = kv.Value.Entries;
-
-						if (thisIsInterface)
-						{
-							MergeInterfaces(metNameKey, infEntries);
-						}
-						else if (nameSet.Contains(metNameKey) &&
-								 SlotMap.TryGetValue(metNameKey, out var vslot))
-						{
-							// 关联当前类型内签名相同的方法
-							vslot.Entries.UnionWith(infEntries);
-						}
-						else
-						{
-							foreach (var entry in infEntries)
-							{
-								if (!EntryMap.ContainsKey(entry))
-								{
-									if (SlotMap.TryGetValue(metNameKey, out vslot))
-									{
-										// 关联继承链上签名相同的方法
-										vslot.Entries.Add(entry);
-									}
-									else if (thisIsAbstract)
-									{
-										AddNotImplInterface(metNameKey, entry);
-									}
-									else
-									{
-										throw new TypeLoadException(
-											string.Format("Interface method not implemented in type {0}: {1} -> {2}",
-												GetNameKey(),
-												entry.Item1.GetNameKey(),
-												entry.Item2.FullName));
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-
 			// 接口不需要展开入口
 			if (thisIsInterface)
 				return;
 
-			// 展开入口映射
+			// 展开新建槽位映射
 			foreach (var kv in SlotMap)
 			{
-				TypeMethodPair impl = kv.Value.Implemented;
 				var entries = kv.Value.Entries;
 				var newSlotEntry = kv.Value.NewSlotEntry;
 				Debug.Assert(newSlotEntry.Item2.IsNewSlot);
 
 				foreach (TypeMethodPair entry in entries)
 				{
-					EntryMap[entry] = impl;
-
 					var entryDef = entry.Item2;
 					if (entryDef.IsReuseSlot && entryDef != newSlotEntry.Item2)
 						NewSlotEntryMap[entryDef] = newSlotEntry;
@@ -670,14 +704,11 @@ namespace il2cpp
 					metDef.IsNewSlot = true;
 				else
 				{
-					// 隐式重写前, 先清除其他槽位的相同入口
-					foreach (var removeEntry in vslot.Entries)
-						RemoveSlotEntry(removeEntry);
-
 					vslot = new VirtualSlot(vslot, impl);
 					vslot.Entries.Add(entry);
 					vslot.Implemented = impl;
 					SlotMap[metNameKey] = vslot;
+					ApplyVirtualSlot(vslot);
 					return vslot;
 				}
 			}
@@ -687,13 +718,13 @@ namespace il2cpp
 			vslot.Entries.Add(entry);
 			vslot.Implemented = impl;
 			SlotMap[metNameKey] = vslot;
+			ApplyVirtualSlot(vslot);
 			return vslot;
 		}
 
-		private void ExplicitOverride(TypeMethodPair targetEntry, string overriddenMet, bool isRemove)
+		private void ExplicitOverride(TypeMethodPair targetEntry, string overriddenMet)
 		{
-			if (isRemove)
-				RemoveSlotEntry(targetEntry);
+			RemoveSlotEntry(targetEntry);
 			var vslot = SlotMap[overriddenMet];
 			Debug.Assert(vslot != null);
 			vslot.Entries.Add(targetEntry);
