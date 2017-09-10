@@ -516,11 +516,8 @@ namespace il2cpp
 									}
 									else
 									{
-										/*throw new TypeLoadException(
-											string.Format("Interface method not implemented in type {0}: {1} -> {2}",
-												GetNameKey(),
-												entry.Item1.GetNameKey(),
-												entry.Item2.FullName));*/
+										// 暂时未实现的接口入口
+										EntryMap[entry] = null;
 									}
 								}
 							}
@@ -626,7 +623,7 @@ namespace il2cpp
 					if (kv.Value == null)
 					{
 						throw new TypeLoadException(
-							string.Format("Abstract method not implemented in type {0}: {1} -> {2}",
+							string.Format("Interface/abstract method not implemented in type {0}: {1} -> {2}",
 								GetNameKey(),
 								kv.Key.Item1.GetNameKey(),
 								kv.Key.Item2.FullName));
