@@ -1,0 +1,39 @@
+* Types:
+[class [testcase]testcase.OverlappedInterface1] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.OverlappedInterface1
+   - [testcase]group12.Cls
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]group12.Cls] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - [testcase]group12.InfB
+   - [testcase]group12.InfA
+ - Fields:
+   - fld1|Int32|1, fld1|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]group12.Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - group12.InfB.Foo|Void()|20|1E1, group12.InfB.Foo|Void([testcase]group12.Cls)|20, Private Final Virtual HideBySig NewSlot Managed None
+
+[class [testcase]group12.InfB] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - [testcase]group12.InfA
+ - DerivedTypes:
+   - [testcase]group12.Cls
+ - Methods:
+   - Foo|Void()|20|5C6, Foo|Void([testcase]group12.InfB)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]group12.Cls -> group12.InfB.Foo|Void()|20|1E1, group12.InfB.Foo|Void([testcase]group12.Cls)|20
+
+[class [testcase]group12.InfA] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - [testcase]group12.InfB
+   - [testcase]group12.Cls
+

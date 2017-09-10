@@ -482,6 +482,34 @@ namespace group11
 	}
 }
 
+namespace group12
+{
+	interface InfA
+	{
+		void Foo();
+	}
+
+	interface InfB : InfA
+	{
+		void Foo();
+	}
+
+	class Cls : InfB
+	{
+		int fld1;
+		int fld2;
+
+		void InfB.Foo()
+		{
+			fld1 = 0;
+		}
+		void InfA.Foo()
+		{
+			fld2 = 0;
+		}
+	}
+}
+
 namespace testcase
 {
 	class TestAttribute : Attribute
@@ -1982,6 +2010,26 @@ namespace testcase
 			var c = new Cls<int, int>();
 			Inf<int, int> i = c;
 			i.Foo(c);
+		}
+	}
+
+	[Test]
+	static class OverlappedInterface1
+	{
+		public static void Entry()
+		{
+			group12.InfB b = new group12.Cls();
+			b.Foo();
+		}
+	}
+
+	[Test]
+	static class OverlappedInterface2
+	{
+		public static void Entry()
+		{
+			group12.InfA a = new group12.Cls();
+			a.Foo();
 		}
 	}
 
