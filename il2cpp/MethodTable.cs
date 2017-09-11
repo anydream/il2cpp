@@ -129,12 +129,12 @@ namespace il2cpp
 			TypeNameMethodPair entryPair,
 			out TypeNameMethodPair implPair)
 		{
-			// 尝试重定向入口到新建槽方法
-			if (NewSlotEntryMap.TryGetValue(entryPair.Item2, out var newSlotPair))
-				entryPair = newSlotPair;
-
 			for (; ; )
 			{
+				// 尝试重定向入口到新建槽方法
+				if (NewSlotEntryMap.TryGetValue(entryPair.Item2, out var newSlotPair))
+					entryPair = newSlotPair;
+
 				if (!EntryMap.TryGetValue(
 					entryPair,
 					out implPair))
