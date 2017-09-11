@@ -2033,6 +2033,93 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class Contravariance
+	{
+		interface I<out T>
+		{
+			T A();
+		}
+
+		class X<T> : I<T> where T : class
+		{
+			T I<T>.A()
+			{
+				return (T)(object)"X";
+			}
+		}
+
+		static object F(I<object> i)
+		{
+			return i.A();
+		}
+
+		public static int Entry()
+		{
+			object j = F(new X<string>());
+			if (j is string)
+			{
+				return 1;
+			}
+			return -1;
+		}
+	}
+
+	[Test]
+	static class Covariance
+	{
+		interface I<in T>
+		{
+			int A(T t);
+		}
+
+		class X<T> : I<T>
+		{
+			int c = 0;
+			int I<T>.A(T t)
+			{
+				return ++c;
+			}
+		}
+
+		static int F(I<string> i)
+		{
+			return i.A("A");
+		}
+
+		public static int Entry()
+		{
+			int j = F(new X<object>());
+			return j + 99;
+		}
+	}
+
+	[Test]
+	static class Variance
+	{
+		interface Inf<out T>
+		{
+			T Foo();
+		}
+		class Cls<T> : Inf<T>
+		{
+			public T fld;
+			public T Foo()
+			{
+				return fld;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf<object> i = new Cls<string>();
+			Inf<Inf<object>> ii = new Cls<Cls<string>>();
+
+			i.Foo();
+			ii.Foo();
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()

@@ -11,6 +11,15 @@ namespace il2cpp
 		public bool HasGenArgs => GenArgs.IsCollectionValid();
 	}
 
+	internal enum VarianceType
+	{
+		NonVariant,
+		// 协变
+		Covariant,
+		// 逆变
+		Contravariant
+	}
+
 	internal class TypeX : GenericArgs
 	{
 		// 当前环境
@@ -31,6 +40,12 @@ namespace il2cpp
 
 		// 继承类型集合
 		public readonly HashSet<TypeX> DerivedTypes = new HashSet<TypeX>();
+		// 协逆变关联类型集合
+		public HashSet<TypeX> VarianceDerivedTypes;
+
+		// 泛型参数协逆变
+		public List<VarianceType> Variances;
+		public bool HasVariances => Variances.IsCollectionValid();
 
 		// 方法映射
 		public readonly Dictionary<string, MethodX> MethodMap = new Dictionary<string, MethodX>();

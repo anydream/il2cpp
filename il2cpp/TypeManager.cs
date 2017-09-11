@@ -21,6 +21,13 @@ namespace il2cpp
 		public readonly HashSet<MethodX> VCallEntries = new HashSet<MethodX>();
 		// 方法待处理队列
 		private readonly Queue<MethodX> PendingMethods = new Queue<MethodX>();
+		// 协逆变映射
+		private class VarianceGroup
+		{
+			public bool IsProcessed = false;
+			public HashSet<TypeX> TypeGroup = new HashSet<TypeX>();
+		}
+		private readonly Dictionary<TypeDef, VarianceGroup> VarianceMap = new Dictionary<TypeDef, VarianceGroup>();
 
 		// 对象终结器虚调用是否已经生成
 		private bool IsVCallFinalizerGenerated;
@@ -64,7 +71,8 @@ namespace il2cpp
 
 				// 解析虚调用
 				ResolveVCalls();
-				//! 解析协变
+				// 解析协逆变
+				ResolveVariances();
 			}
 		}
 
@@ -488,8 +496,138 @@ namespace il2cpp
 				}
 			}
 
+			// 解析协逆变
+			if (tyX.Def.HasGenericParameters)
+			{
+				Debug.Assert(tyX.Variances == null);
+				var vaList = new List<VarianceType>();
+				bool hasVariance = false;
+				foreach (var arg in tyX.Def.GenericParameters)
+				{
+					if (arg.IsCovariant)
+					{
+						hasVariance = true;
+						vaList.Add(VarianceType.Covariant);
+					}
+					else if (arg.IsContravariant)
+					{
+						hasVariance = true;
+						vaList.Add(VarianceType.Contravariant);
+					}
+					else
+					{
+						Debug.Assert(arg.IsNonVariant);
+						vaList.Add(VarianceType.NonVariant);
+					}
+				}
+
+				if (hasVariance)
+				{
+					tyX.Variances = vaList;
+					AddVariance(tyX);
+				}
+			}
+
 			// 更新子类集合
 			tyX.UpdateDerivedTypes();
+		}
+
+		private void AddVariance(TypeX tyX)
+		{
+			Debug.Assert(tyX.HasVariances);
+			if (!VarianceMap.TryGetValue(tyX.Def, out var vgroup))
+			{
+				vgroup = new VarianceGroup();
+				VarianceMap.Add(tyX.Def, vgroup);
+			}
+			if (vgroup.TypeGroup.Add(tyX))
+				vgroup.IsProcessed = false;
+		}
+
+		private void ResolveVariances()
+		{
+			foreach (var vgroup in VarianceMap.Values)
+			{
+				if (vgroup.IsProcessed)
+					continue;
+				vgroup.IsProcessed = true;
+
+				if (vgroup.TypeGroup.Count == 1)
+					continue;
+
+				var vlist = vgroup.TypeGroup.ToList();
+				int len = vlist.Count;
+				Debug.Assert(len > 1);
+
+				for (int i = 0; i < len - 1; ++i)
+				{
+					for (int j = i + 1; j < len; ++j)
+					{
+						if (!TryLinkVariance(vlist[i], vlist[j]))
+							TryLinkVariance(vlist[j], vlist[i]);
+					}
+				}
+			}
+		}
+
+		private bool TryLinkVariance(TypeX baseTyX, TypeX derivedTyX)
+		{
+			Debug.Assert(baseTyX.Variances.SequenceEqual(derivedTyX.Variances));
+			Debug.Assert(baseTyX.GenArgs.Count == derivedTyX.GenArgs.Count && baseTyX.GenArgs.Count == derivedTyX.Variances.Count);
+
+			int len = baseTyX.Variances.Count;
+			for (int i = 0; i < len; ++i)
+			{
+				VarianceType vaType = baseTyX.Variances[i];
+				TypeSig baseSig = baseTyX.GenArgs[i];
+				TypeSig derivedSig = derivedTyX.GenArgs[i];
+
+				bool isEquals = TypeEqualityComparer.Instance.Equals(baseSig, derivedSig);
+				if (vaType == VarianceType.NonVariant)
+				{
+					// 无协逆变的参数类型不一致, 表示两个类型无关联性
+					if (!isEquals)
+						return true;
+				}
+				else if (vaType == VarianceType.Covariant)
+				{
+					if (isEquals)
+						continue;
+					if (!IsDerivedType(baseSig, derivedSig))
+						return false;
+				}
+				else if (vaType == VarianceType.Contravariant)
+				{
+					if (isEquals)
+						continue;
+					if (!IsDerivedType(derivedSig, baseSig))
+						return false;
+				}
+			}
+
+			if (baseTyX.VarianceDerivedTypes == null)
+				baseTyX.VarianceDerivedTypes = new HashSet<TypeX>();
+			baseTyX.VarianceDerivedTypes.Add(derivedTyX);
+
+			return true;
+		}
+
+		private bool IsDerivedType(TypeSig baseSig, TypeSig derivedSig)
+		{
+			if (baseSig.ElementType == ElementType.Object)
+			{
+				if (!derivedSig.IsValueType)
+					return true;
+			}
+			else if (baseSig.IsValueType)
+			{
+				return false;
+			}
+			else
+			{
+				return false;
+			}
+			return false;
 		}
 
 		// 解析类型并添加到映射
