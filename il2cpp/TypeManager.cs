@@ -178,13 +178,11 @@ namespace il2cpp
 								 inst.OpCode.Code == Code.Ldftn))
 						{
 							// 处理方法替换
-							if (resMetX.DeclType.QueryCallReplace(resMetX.Def, out var implTypeName, out var implDef))
+							if (resMetX.DeclType.QueryCallReplace(resMetX.Def, out TypeX implTyX, out var implDef))
 							{
 								resMetX.IsSkipProcessing = true;
 
-								TypeX implTyX = GetTypeByName(implTypeName);
 								Debug.Assert(implTyX != null);
-
 								MethodX implMetX = MakeMethodX(implTyX, implDef, resMetX.GenArgs);
 
 								resMetX = implMetX;
@@ -302,23 +300,23 @@ namespace il2cpp
 		{
 			foreach (MethodX virtMetX in VCallEntries)
 			{
-				string entryType = virtMetX.DeclType.GetNameKey();
+				TypeX entryTyX = virtMetX.DeclType;
 				MethodDef entryDef = virtMetX.Def;
 
 				// 在虚入口所在类型内解析虚方法
 				if (virtMetX.DeclType.IsInstantiated)
-					ResolveVMethod(virtMetX, virtMetX.DeclType, entryType, entryDef);
+					ResolveVMethod(virtMetX, virtMetX.DeclType, entryTyX, entryDef);
 
 				// 在继承类型内解析虚方法
 				foreach (TypeX derivedTyX in virtMetX.DeclType.DerivedTypes)
-					ResolveVMethod(virtMetX, derivedTyX, entryType, entryDef);
+					ResolveVMethod(virtMetX, derivedTyX, entryTyX, entryDef);
 			}
 		}
 
 		private void ResolveVMethod(
 			MethodX virtMetX,
 			TypeX derivedTyX,
-			string entryTypeName,
+			TypeX entryTyX,
 			MethodDef entryDef)
 		{
 			// 跳过没有实例化的类型
@@ -326,12 +324,10 @@ namespace il2cpp
 				return;
 
 			// 查询虚方法绑定
-			derivedTyX.QueryCallVirt(entryTypeName, entryDef, out var implTypeName, out var implDef);
+			derivedTyX.QueryCallVirt(entryTyX, entryDef, out TypeX implTyX, out var implDef);
 
 			// 构造实现方法
-			TypeX implTyX = GetTypeByName(implTypeName);
 			Debug.Assert(implTyX != null);
-
 			MethodX implMetX = MakeMethodX(implTyX, implDef, virtMetX.GenArgs);
 
 			// 关联实现方法到虚方法

@@ -154,21 +154,21 @@ namespace il2cpp
 
 		public bool QueryCallReplace(
 			MethodDef entryDef,
-			out string implTypeName,
+			out TypeX implTyX,
 			out MethodDef implDef)
 		{
 			ResolveVTable();
-			return VTable.QueryCallReplace(entryDef, out implTypeName, out implDef);
+			return VTable.QueryCallReplace(entryDef, out implTyX, out implDef);
 		}
 
 		public void QueryCallVirt(
-			string entryTypeName,
+			TypeX entryTyX,
 			MethodDef entryDef,
-			out string implTypeName,
+			out TypeX implTyX,
 			out MethodDef implDef)
 		{
 			ResolveVTable();
-			VTable.QueryCallVirt(entryTypeName, entryDef, out implTypeName, out implDef);
+			VTable.QueryCallVirt(entryTyX, entryDef, out implTyX, out implDef);
 		}
 
 		public TypeX FindBaseType(TypeDef tyDef)

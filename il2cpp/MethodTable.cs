@@ -9,8 +9,8 @@ namespace il2cpp
 {
 	// 类型方法编组
 	using TypeMethodPair = Tuple<MethodTable, MethodDef>;
-	// 类型名称方法编组
-	using TypeNameMethodPair = Tuple<string, MethodDef>;
+	// 类型引用方法编组
+	using TypeXMethodPair = Tuple<TypeX, MethodDef>;
 
 	// 虚槽数据
 	internal class VirtualSlot
@@ -54,18 +54,18 @@ namespace il2cpp
 	{
 		private readonly string Name;
 		// 入口实现映射
-		private readonly Dictionary<TypeNameMethodPair, TypeNameMethodPair> EntryMap =
-			new Dictionary<TypeNameMethodPair, TypeNameMethodPair>();
+		private readonly Dictionary<TypeXMethodPair, TypeXMethodPair> EntryMap =
+			new Dictionary<TypeXMethodPair, TypeXMethodPair>();
 		// 同类内的方法替换映射
-		private readonly Dictionary<MethodDef, TypeNameMethodPair> SameTypeReplaceMap =
-			new Dictionary<MethodDef, TypeNameMethodPair>();
+		private readonly Dictionary<MethodDef, TypeXMethodPair> SameTypeReplaceMap =
+			new Dictionary<MethodDef, TypeXMethodPair>();
 		// 方法新建槽映射
-		private readonly Dictionary<MethodDef, TypeNameMethodPair> NewSlotEntryMap =
-			new Dictionary<MethodDef, TypeNameMethodPair>();
+		private readonly Dictionary<MethodDef, TypeXMethodPair> NewSlotEntryMap =
+			new Dictionary<MethodDef, TypeXMethodPair>();
 
 		// 虚方法关联缓存
-		private readonly Dictionary<TypeNameMethodPair, TypeNameMethodPair> CachedMap =
-			new Dictionary<TypeNameMethodPair, TypeNameMethodPair>();
+		private readonly Dictionary<TypeXMethodPair, TypeXMethodPair> CachedMap =
+			new Dictionary<TypeXMethodPair, TypeXMethodPair>();
 
 		public VirtualTable(MethodTable mtable)
 		{
@@ -74,60 +74,60 @@ namespace il2cpp
 			foreach (var kv in mtable.EntryMap)
 			{
 				EntryMap.Add(
-					new TypeNameMethodPair(kv.Key.Item1.GetNameKey(), kv.Key.Item2),
-					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
+					new TypeXMethodPair(kv.Key.Item1.GetTypeX(), kv.Key.Item2),
+					new TypeXMethodPair(kv.Value.Item1.GetTypeX(), kv.Value.Item2));
 			}
 
 			foreach (var kv in mtable.SameTypeReplaceMap)
 			{
 				SameTypeReplaceMap.Add(
 					kv.Key,
-					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
+					new TypeXMethodPair(kv.Value.Item1.GetTypeX(), kv.Value.Item2));
 			}
 
 			foreach (var kv in mtable.NewSlotEntryMap)
 			{
 				NewSlotEntryMap.Add(
 					kv.Key,
-					new TypeNameMethodPair(kv.Value.Item1.GetNameKey(), kv.Value.Item2));
+					new TypeXMethodPair(kv.Value.Item1.GetTypeX(), kv.Value.Item2));
 			}
 		}
 
 		public bool QueryCallReplace(
 			MethodDef entryDef,
-			out string implTypeName,
+			out TypeX implTyX,
 			out MethodDef implDef)
 		{
 			if (SameTypeReplaceMap.TryGetValue(entryDef, out var implPair))
 			{
-				implTypeName = implPair.Item1;
+				implTyX = implPair.Item1;
 				implDef = implPair.Item2;
 				return true;
 			}
-			implTypeName = null;
+			implTyX = null;
 			implDef = null;
 			return false;
 		}
 
 		public void QueryCallVirt(
-			string entryTypeName,
+			TypeX entryTyX,
 			MethodDef entryDef,
-			out string implTypeName,
+			out TypeX implTyX,
 			out MethodDef implDef)
 		{
-			var entryPair = new TypeNameMethodPair(entryTypeName, entryDef);
+			var entryPair = new TypeXMethodPair(entryTyX, entryDef);
 			if (!CachedMap.TryGetValue(entryPair, out var implPair))
 			{
 				QueryCallVirtImpl(entryPair, out implPair);
 				CachedMap[entryPair] = implPair;
 			}
-			implTypeName = implPair.Item1;
+			implTyX = implPair.Item1;
 			implDef = implPair.Item2;
 		}
 
 		private void QueryCallVirtImpl(
-			TypeNameMethodPair entryPair,
-			out TypeNameMethodPair implPair)
+			TypeXMethodPair entryPair,
+			out TypeXMethodPair implPair)
 		{
 			for (; ; )
 			{
@@ -193,6 +193,13 @@ namespace il2cpp
 		public override string ToString()
 		{
 			return NameKey;
+		}
+
+		public TypeX GetTypeX()
+		{
+			TypeX tyX = Context.TypeMgr.GetTypeByName(GetNameKey());
+			Debug.Assert(tyX != null);
+			return tyX;
 		}
 
 		public string GetNameKey()
