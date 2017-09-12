@@ -605,7 +605,7 @@ namespace il2cpp
 		{
 			Debug.Assert(baseTyX.Variances == derivedTyX.Variances);
 
-			if (baseTyX.VarianceDerivedTypes?.Contains(derivedTyX) ?? false)
+			if (baseTyX.DerivedTypes.Contains(derivedTyX))
 				return true;
 
 			int len = baseTyX.Variances.Count;
@@ -633,41 +633,9 @@ namespace il2cpp
 				}
 			}
 
-			if (baseTyX.VarianceDerivedTypes == null)
-				baseTyX.VarianceDerivedTypes = new HashSet<TypeX>();
-			baseTyX.VarianceDerivedTypes.Add(derivedTyX);
+			derivedTyX.AddVarianceBaseType(baseTyX);
 
 			return true;
-		}
-
-		private bool IsDerivedType(TypeX baseTyX, TypeX derivedTyX)
-		{
-			// 检查是否为直接继承类型
-			if (baseTyX.DerivedTypes.Contains(derivedTyX))
-				return true;
-
-			// 尝试构建协逆变关联
-			if (baseTyX.Def == derivedTyX.Def && baseTyX.HasVariances)
-			{
-				TryLinkVariance(baseTyX, derivedTyX);
-			}
-
-			// 检查协逆变继承类型
-			var vaDerivedTypes = baseTyX.VarianceDerivedTypes;
-			if (vaDerivedTypes != null)
-			{
-				if (vaDerivedTypes.Contains(derivedTyX))
-					return true;
-
-				// 递归检查协逆变继承类型
-				foreach (var vaDerivedTyX in vaDerivedTypes)
-				{
-					if (IsDerivedType(vaDerivedTyX, derivedTyX))
-						return true;
-				}
-			}
-
-			return false;
 		}
 
 		private bool IsDerivedType(TypeSig baseSig, TypeSig derivedSig)
@@ -702,7 +670,7 @@ namespace il2cpp
 			var baseTyX = ResolveTypeDefOrRef(baseSig.ToTypeDefOrRef(), null);
 			var derivedTyX = ResolveTypeDefOrRef(derivedSig.ToTypeDefOrRef(), null);
 
-			return IsDerivedType(baseTyX, derivedTyX);
+			return baseTyX.DerivedTypes.Contains(derivedTyX);
 		}
 
 		// 解析类型并添加到映射

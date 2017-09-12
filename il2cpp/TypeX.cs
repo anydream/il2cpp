@@ -40,8 +40,10 @@ namespace il2cpp
 
 		// 继承类型集合
 		public readonly HashSet<TypeX> DerivedTypes = new HashSet<TypeX>();
-		// 协逆变关联类型集合
-		public HashSet<TypeX> VarianceDerivedTypes;
+
+		// 协逆变关联基类型集合
+		public HashSet<TypeX> VarianceBaseTypes;
+		public bool HasVarianceBaseTypes => VarianceBaseTypes.IsCollectionValid();
 
 		// 泛型参数协逆变
 		public List<VarianceType> Variances;
@@ -131,6 +133,41 @@ namespace il2cpp
 			BaseType?.AddDerivedTypeRecursive(tyX);
 			foreach (var inf in Interfaces)
 				inf.AddDerivedTypeRecursive(tyX);
+
+			if (HasVarianceBaseTypes)
+			{
+				foreach (var va in VarianceBaseTypes)
+					va.AddDerivedTypeRecursive(tyX);
+			}
+		}
+
+		private void AddDerivedTypeRecursive(HashSet<TypeX> tySet)
+		{
+			DerivedTypes.UnionWith(tySet);
+
+			// 递归添加
+			BaseType?.AddDerivedTypeRecursive(tySet);
+			foreach (var inf in Interfaces)
+				inf.AddDerivedTypeRecursive(tySet);
+
+			if (HasVarianceBaseTypes)
+			{
+				foreach (var va in VarianceBaseTypes)
+					va.AddDerivedTypeRecursive(tySet);
+			}
+		}
+
+		public void AddVarianceBaseType(TypeX vaBaseType)
+		{
+			if (VarianceBaseTypes == null)
+				VarianceBaseTypes = new HashSet<TypeX>();
+
+			if (VarianceBaseTypes.Add(vaBaseType))
+			{
+				var tySet = new HashSet<TypeX>(DerivedTypes);
+				tySet.Add(this);
+				vaBaseType.AddDerivedTypeRecursive(tySet);
+			}
 		}
 
 		public bool GetMethod(string key, out MethodX metX)
