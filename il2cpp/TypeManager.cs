@@ -26,6 +26,7 @@ namespace il2cpp
 		{
 			public bool IsProcessed = false;
 			public HashSet<TypeX> TypeGroup = new HashSet<TypeX>();
+			public List<VarianceType> VarianceTypes;
 		}
 		private readonly Dictionary<TypeDef, VarianceGroup> VarianceMap = new Dictionary<TypeDef, VarianceGroup>();
 
@@ -497,9 +498,31 @@ namespace il2cpp
 			}
 
 			// 解析协逆变
-			if (tyX.Def.HasGenericParameters)
+			TryAddVariance(tyX);
+
+			// 更新子类集合
+			tyX.UpdateDerivedTypes();
+		}
+
+		private void TryAddVariance(TypeX tyX)
+		{
+			if (!tyX.Def.HasGenericParameters)
+				return;
+
+			if (tyX.Variances != null)
+				return;
+
+			if (VarianceMap.TryGetValue(tyX.Def, out var vgroup))
 			{
-				Debug.Assert(tyX.Variances == null);
+				if (vgroup != null)
+				{
+					tyX.Variances = vgroup.VarianceTypes;
+					if (vgroup.TypeGroup.Add(tyX))
+						vgroup.IsProcessed = false;
+				}
+			}
+			else
+			{
 				var vaList = new List<VarianceType>();
 				bool hasVariance = false;
 				foreach (var arg in tyX.Def.GenericParameters)
@@ -523,32 +546,21 @@ namespace il2cpp
 
 				if (hasVariance)
 				{
+					vgroup = new VarianceGroup();
+					vgroup.VarianceTypes = vaList;
 					tyX.Variances = vaList;
-					AddVariance(tyX);
+					VarianceMap.Add(tyX.Def, vgroup);
 				}
+				else
+					VarianceMap.Add(tyX.Def, null);
 			}
-
-			// 更新子类集合
-			tyX.UpdateDerivedTypes();
-		}
-
-		private void AddVariance(TypeX tyX)
-		{
-			Debug.Assert(tyX.HasVariances);
-			if (!VarianceMap.TryGetValue(tyX.Def, out var vgroup))
-			{
-				vgroup = new VarianceGroup();
-				VarianceMap.Add(tyX.Def, vgroup);
-			}
-			if (vgroup.TypeGroup.Add(tyX))
-				vgroup.IsProcessed = false;
 		}
 
 		private void ResolveVariances()
 		{
 			foreach (var vgroup in VarianceMap.Values)
 			{
-				if (vgroup.IsProcessed)
+				if (vgroup == null || vgroup.IsProcessed)
 					continue;
 				vgroup.IsProcessed = true;
 
@@ -612,22 +624,61 @@ namespace il2cpp
 			return true;
 		}
 
+		private bool IsDerivedType(TypeX baseTyX, TypeX derivedTyX)
+		{
+			// 检查是否为直接继承类型
+			if (baseTyX.DerivedTypes.Contains(derivedTyX))
+				return true;
+
+			// 检查协逆变继承类型
+			var vaDerivedTypes = baseTyX.VarianceDerivedTypes;
+			if (vaDerivedTypes != null)
+			{
+				if (vaDerivedTypes.Contains(derivedTyX))
+					return true;
+
+				// 递归检查协逆变继承类型
+				foreach (var vaDerivedTyX in vaDerivedTypes)
+				{
+					if (IsDerivedType(vaDerivedTyX, derivedTyX))
+						return true;
+				}
+			}
+
+			//! TODO
+
+			return false;
+		}
+
 		private bool IsDerivedType(TypeSig baseSig, TypeSig derivedSig)
 		{
-			if (baseSig.ElementType == ElementType.Object)
+			var baseElemType = baseSig.ElementType;
+			var derivedElemType = derivedSig.ElementType;
+
+			// 子类是 object, 不存在转换
+			if (derivedElemType == ElementType.Object)
+				return false;
+
+			// 基类是 object
+			if (baseElemType == ElementType.Object)
 			{
+				// 子类非值类型即可转换
 				if (!derivedSig.IsValueType)
 					return true;
-			}
-			else if (baseSig.IsValueType)
-			{
 				return false;
 			}
-			else
-			{
+
+			// 基类是值类型, 不存在转换
+			if (baseSig.IsValueType)
 				return false;
-			}
-			return false;
+
+			//! 数组类型
+
+			// 其他情况
+			var baseTyX = ResolveTypeDefOrRef(baseSig.ToTypeDefOrRef(), null);
+			var derivedTyX = ResolveTypeDefOrRef(derivedSig.ToTypeDefOrRef(), null);
+
+			return IsDerivedType(baseTyX, derivedTyX);
 		}
 
 		// 解析类型并添加到映射
