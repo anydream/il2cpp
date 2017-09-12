@@ -1,0 +1,37 @@
+* Types:
+[class [testcase]testcase.Contravariance] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Int32()|0|96, Entry|Int32()|0, Public Static HideBySig Managed None
+   - F|Object([testcase]testcase.Contravariance/I`1<Object>)|0|91, F|Object([testcase]testcase.Contravariance/I`1<Object>)|0, Private Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.Contravariance
+   - [testcase]testcase.Contravariance/X`1<String>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.Contravariance/X`1<String>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - [testcase]testcase.Contravariance/I`1<String>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Contravariance/X`1<String>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.Contravariance/I`1<String>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Variances: Covariant 
+ - VarianceBaseTypes:
+   - [testcase]testcase.Contravariance/I`1<Object>
+ - DerivedTypes:
+   - [testcase]testcase.Contravariance/X`1<String>
+
+[class [testcase]testcase.Contravariance/I`1<Object>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Variances: Covariant 
+ - DerivedTypes:
+   - [testcase]testcase.Contravariance/X`1<String>
+   - [testcase]testcase.Contravariance/I`1<String>
+ - Methods:
+   - A|!0()|20|5C6, A|Object([testcase]testcase.Contravariance/I`1<Object>)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+

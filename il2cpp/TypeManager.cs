@@ -569,6 +569,7 @@ namespace il2cpp
 					if (vgroup == null || vgroup.IsProcessed)
 						continue;
 					vgroup.IsProcessed = true;
+					isLoop = true;
 
 					if (vgroup.TypeGroup.Count == 1)
 						continue;
@@ -584,15 +585,6 @@ namespace il2cpp
 							if (!TryLinkVariance(vlist[i], vlist[j]))
 								TryLinkVariance(vlist[j], vlist[i]);
 						}
-					}
-				}
-
-				foreach (var vgroup in VarianceMap.Values)
-				{
-					if (vgroup != null && !vgroup.IsProcessed)
-					{
-						isLoop = true;
-						break;
 					}
 				}
 

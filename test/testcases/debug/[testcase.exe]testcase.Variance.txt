@@ -1,0 +1,111 @@
+* Types:
+[class [testcase]testcase.Variance] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.Variance
+   - [testcase]testcase.Variance/Cls`1<String>
+   - [testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>
+   - String
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.Variance/Cls`1<String>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - [testcase]testcase.Variance/Inf`1<String>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Variance/Cls`1<String>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.Variance/Inf`1<String>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Variances: Covariant 
+ - VarianceBaseTypes:
+   - [testcase]testcase.Variance/Inf`1<Object>
+ - DerivedTypes:
+   - [testcase]testcase.Variance/Cls`1<String>
+
+[class [testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Cls`1<String>>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Cls`1<String>>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Variances: Covariant 
+ - VarianceBaseTypes:
+   - [testcase]testcase.Variance/Inf`1<Object>
+   - [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Inf`1<Object>>
+ - DerivedTypes:
+   - [testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>
+
+[class [testcase]testcase.Variance/Inf`1<Object>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Variances: Covariant 
+ - DerivedTypes:
+   - [testcase]testcase.Variance/Cls`1<String>
+   - [testcase]testcase.Variance/Inf`1<String>
+   - [testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>
+   - [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Cls`1<String>>
+   - [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Inf`1<Object>>
+ - Methods:
+   - Foo|!0()|20|5C6, Foo|Object([testcase]testcase.Variance/Inf`1<Object>)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+
+[class [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Inf`1<Object>>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Variances: Covariant 
+ - VarianceBaseTypes:
+   - [testcase]testcase.Variance/Inf`1<Object>
+ - DerivedTypes:
+   - [testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>
+   - [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Cls`1<String>>
+ - Methods:
+   - Foo|!0()|20|5C6, Foo|[testcase]testcase.Variance/Inf`1<Object>([testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Inf`1<Object>>)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+
+[class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - System.IComparable
+   - System.ICloneable
+   - System.IConvertible
+   - System.Collections.IEnumerable
+   - System.IComparable`1<String>
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - System.IEquatable`1<String>
+
+[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - String
+
+[class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - System.Collections.IEnumerable
+ - Variances: Covariant 
+ - DerivedTypes:
+   - String
+
+[class System.IEquatable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+

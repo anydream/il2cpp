@@ -71,6 +71,19 @@ namespace il2cpp
 					foreach (TypeX infTyX in tyX.Interfaces)
 						sb.AppendFormat("   - {0}\n", infTyX);
 				}
+				if (tyX.HasVariances)
+				{
+					sb.Append(" - Variances: ");
+					foreach (var vt in tyX.Variances)
+						sb.AppendFormat("{0} ", vt);
+					sb.Append('\n');
+				}
+				if (tyX.HasVarianceBaseTypes)
+				{
+					sb.Append(" - VarianceBaseTypes:\n");
+					foreach (TypeX vaTyX in tyX.VarianceBaseTypes)
+						sb.AppendFormat("   - {0}\n", vaTyX);
+				}
 				if (tyX.DerivedTypes.IsCollectionValid())
 				{
 					sb.Append(" - DerivedTypes:\n");
