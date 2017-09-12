@@ -99,12 +99,14 @@
    - String
 
 [class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
  - DerivedTypes:
    - String
 
 [class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
  - Interfaces:
    - System.Collections.IEnumerable
+ - Variances: Covariant 
  - DerivedTypes:
    - String
 
