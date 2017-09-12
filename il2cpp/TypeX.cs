@@ -118,6 +118,11 @@ namespace il2cpp
 			return thisSig;
 		}
 
+		public bool IsDerivedType(TypeX tyX)
+		{
+			return DerivedTypes.Contains(tyX);
+		}
+
 		public void UpdateDerivedTypes()
 		{
 			BaseType?.AddDerivedTypeRecursive(this);

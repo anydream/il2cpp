@@ -2120,6 +2120,196 @@ namespace testcase
 		}
 	}
 
+	[Test]
+	static class Variance2
+	{
+		interface Inf<out T>
+		{
+			T Foo();
+		}
+		class Cls : Inf<object>, Inf<string>
+		{
+			int fld1;
+			int fld2;
+			object Inf<object>.Foo()
+			{
+				fld1 = 0;
+				return null;
+			}
+			string Inf<string>.Foo()
+			{
+				fld2 = 0;
+				return null;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf<object> i = new Cls();
+			i.Foo();
+		}
+	}
+
+	[Test]
+	static class Variance3
+	{
+		interface Inf<out T>
+		{
+			T Foo();
+		}
+		class Cls : Inf<string>, Inf<object>
+		{
+			int fld1;
+			int fld2;
+			object Inf<object>.Foo()
+			{
+				fld1 = 0;
+				return null;
+			}
+			string Inf<string>.Foo()
+			{
+				fld2 = 0;
+				return null;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf<object> i = new Cls();
+			i.Foo();
+		}
+	}
+
+	[Test]
+	static class Variance4
+	{
+		interface Inf<out T>
+		{
+			T Foo();
+		}
+		class Cls : Inf<object>, Inf<string>
+		{
+			int fld1;
+			int fld2;
+			string Inf<string>.Foo()
+			{
+				fld2 = 0;
+				return null;
+			}
+			object Inf<object>.Foo()
+			{
+				fld1 = 0;
+				return null;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf<object> i = new Cls();
+			i.Foo();
+		}
+	}
+
+	[Test]
+	static class Variance5
+	{
+		interface Inf<out T>
+		{
+			T Foo();
+		}
+		class Cls : Inf<string>, Inf<object>
+		{
+			int fld1;
+			int fld2;
+			string Inf<string>.Foo()
+			{
+				fld2 = 0;
+				return null;
+			}
+			object Inf<object>.Foo()
+			{
+				fld1 = 0;
+				return null;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf<object> i = new Cls();
+			i.Foo();
+		}
+	}
+
+	[Test]
+	static class Variance6
+	{
+		interface Inf<out T>
+		{
+			T Foo();
+		}
+
+		class A { }
+		class B { }
+
+		class Cls : Inf<A>, Inf<B>
+		{
+			int fld1;
+			int fld2;
+
+			A Inf<A>.Foo()
+			{
+				fld1 = 0;
+				return null;
+			}
+			B Inf<B>.Foo()
+			{
+				fld2 = 0;
+				return null;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf<object> i = new Cls();
+			i.Foo();
+		}
+	}
+
+	[Test]
+	static class Variance7
+	{
+		interface Inf<out T>
+		{
+			T Foo();
+		}
+
+		class A { }
+		class B { }
+
+		class Cls : Inf<B>, Inf<A>
+		{
+			int fld1;
+			int fld2;
+
+			A Inf<A>.Foo()
+			{
+				fld1 = 0;
+				return null;
+			}
+			B Inf<B>.Foo()
+			{
+				fld2 = 0;
+				return null;
+			}
+		}
+
+		public static void Entry()
+		{
+			Inf<object> i = new Cls();
+			i.Foo();
+		}
+	}
+
 	internal class Program
 	{
 		private static void Main()

@@ -70,10 +70,10 @@ namespace il2cpp
 				}
 				while (PendingMethods.Count > 0);
 
-				// 解析虚调用
-				ResolveVCalls();
 				// 解析协逆变
 				ResolveVariances();
+				// 解析虚调用
+				ResolveVCalls();
 			}
 		}
 
@@ -597,7 +597,7 @@ namespace il2cpp
 		{
 			Debug.Assert(baseTyX.Variances == derivedTyX.Variances);
 
-			if (baseTyX.DerivedTypes.Contains(derivedTyX))
+			if (baseTyX.IsDerivedType(derivedTyX))
 				return true;
 
 			int len = baseTyX.Variances.Count;
@@ -662,7 +662,7 @@ namespace il2cpp
 			var baseTyX = ResolveTypeDefOrRef(baseSig.ToTypeDefOrRef(), null);
 			var derivedTyX = ResolveTypeDefOrRef(derivedSig.ToTypeDefOrRef(), null);
 
-			return baseTyX.DerivedTypes.Contains(derivedTyX);
+			return baseTyX.IsDerivedType(derivedTyX);
 		}
 
 		// 解析类型并添加到映射

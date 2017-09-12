@@ -135,16 +135,7 @@ namespace il2cpp
 				if (NewSlotEntryMap.TryGetValue(entryPair.Item2, out var newSlotPair))
 					entryPair = newSlotPair;
 
-				if (!EntryMap.TryGetValue(
-					entryPair,
-					out implPair))
-				{
-					throw new TypeLoadException(
-						string.Format("Virtual method can't resolve in type {0}: {1} -> {2}",
-							Name,
-							entryPair.Item1,
-							entryPair.Item2.FullName));
-				}
+				QueryEntryMap(entryPair, out implPair);
 
 				if (NewSlotEntryMap.TryGetValue(implPair.Item2, out newSlotPair) &&
 					!entryPair.Equals(newSlotPair))
@@ -160,6 +151,38 @@ namespace il2cpp
 				else
 					break;
 			}
+		}
+
+		private void QueryEntryMap(
+			TypeMethodPair entryPair,
+			out TypeMethodPair implPair)
+		{
+			// 查询直接绑定
+			if (EntryMap.TryGetValue(entryPair, out implPair))
+				return;
+
+			// 遍历查询协逆变绑定
+			TypeX entryTyX = entryPair.Item1;
+			if (entryTyX.HasVariances)
+			{
+				foreach (var kv in EntryMap)
+				{
+					TypeX keyTyX = kv.Key.Item1;
+
+					if (keyTyX.HasVariances &&
+						entryTyX.IsDerivedType(keyTyX))
+					{
+						implPair = kv.Value;
+						return;
+					}
+				}
+			}
+
+			throw new TypeLoadException(
+				string.Format("Virtual method can't resolve in type {0}: {1} -> {2}",
+					Name,
+					entryPair.Item1,
+					entryPair.Item2.FullName));
 		}
 	}
 
