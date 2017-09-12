@@ -1,0 +1,144 @@
+* Types:
+[class [HelloWorld]HelloWorld] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Main|Int32()|0|91, Main|Int32()|0, Private Static HideBySig Managed None
+   - StepAB|String()|0|96, StepAB|String()|0, Public Static HideBySig Managed None
+   - StepBA|String()|0|96, StepBA|String()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [HelloWorld]HelloWorld
+   - [HelloWorld]Logger
+   - String
+   - [HelloWorld]XAB
+   - [HelloWorld]A
+   - [HelloWorld]B
+   - [HelloWorld]C
+   - [HelloWorld]XBA
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [HelloWorld]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
+
+[class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Interfaces:
+   - System.IComparable
+   - System.ICloneable
+   - System.IConvertible
+   - System.Collections.IEnumerable
+   - System.IComparable`1<String>
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - System.IEquatable`1<String>
+ - Fields:
+   - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
+ - Methods:
+   - op_Equality|Boolean(String,String)|0|896, op_Equality|Boolean(String,String)|0, Public Static HideBySig SpecialName Managed None
+   - Equals|Boolean(String,String)|0|96, Equals|Boolean(String,String)|0, Public Static HideBySig Managed None
+   - get_Length|Int32()|20|886, get_Length|Int32(String)|20, Public HideBySig SpecialName IL, InternalCall Getter
+   - EqualsHelper|Boolean(String,String)|0|91, EqualsHelper|Boolean(String,String)|0, Private Static HideBySig Managed None
+
+[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - String
+
+[class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - System.Collections.IEnumerable
+ - Variances: Covariant 
+ - DerivedTypes:
+   - String
+
+[class System.IEquatable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class [HelloWorld]XAB] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - [HelloWorld]I`1<[HelloWorld]A>
+   - [HelloWorld]I`1<[HelloWorld]B>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XAB)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [HelloWorld]I`1<[HelloWorld]A>] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - VarianceBaseTypes:
+   - [HelloWorld]I`1<[HelloWorld]B>
+   - [HelloWorld]I`1<[HelloWorld]C>
+ - DerivedTypes:
+   - [HelloWorld]XAB
+   - [HelloWorld]XBA
+
+[class [HelloWorld]I`1<[HelloWorld]B>] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - VarianceBaseTypes:
+   - [HelloWorld]I`1<[HelloWorld]C>
+ - DerivedTypes:
+   - [HelloWorld]XAB
+   - [HelloWorld]XBA
+   - [HelloWorld]I`1<[HelloWorld]A>
+
+[class [HelloWorld]C] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: [HelloWorld]B
+ - Methods:
+   - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]C,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [HelloWorld]B] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: [HelloWorld]A
+ - DerivedTypes:
+   - [HelloWorld]C
+ - Methods:
+   - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]B,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [HelloWorld]A] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - [HelloWorld]B
+   - [HelloWorld]C
+ - Methods:
+   - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]A,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [HelloWorld]I`1<[HelloWorld]C>] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - [HelloWorld]XAB
+   - [HelloWorld]XBA
+   - [HelloWorld]I`1<[HelloWorld]A>
+   - [HelloWorld]I`1<[HelloWorld]B>
+ - Methods:
+   - Print|String(!0)|20|5C6, Print|String([HelloWorld]I`1<[HelloWorld]C>,[HelloWorld]C)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+
+[class [HelloWorld]XBA] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - [HelloWorld]I`1<[HelloWorld]A>
+   - [HelloWorld]I`1<[HelloWorld]B>
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XBA)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
