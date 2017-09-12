@@ -1,0 +1,41 @@
+* Types:
+[class [testcase]testcase.Variance2] NotPublic AutoLayout Abstract Sealed AnsiClass BeforeFieldInit 
+ - Base: Object
+ - Methods:
+   - Entry|Void()|0|96, Entry|Void()|0, Public Static HideBySig Managed None
+
+[class Object] Public AutoLayout Serializable AnsiClass BeforeFieldInit 
+ - DerivedTypes:
+   - [testcase]testcase.Variance2
+   - [testcase]testcase.Variance2/Cls
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
+
+[class [testcase]testcase.Variance2/Cls] NestedPrivate AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - [testcase]testcase.Variance2/Inf`1<Object>
+   - [testcase]testcase.Variance2/Inf`1<String>
+ - Fields:
+   - fld1|Int32|1, fld1|Int32, Private 
+ - Methods:
+   - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Variance2/Cls)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - testcase.Variance2.Inf\u003CSystem.Object\u003E.Foo|Object()|20|1E1, testcase.Variance2.Inf\u003CSystem.Object\u003E.Foo|Object([testcase]testcase.Variance2/Cls)|20, Private Final Virtual HideBySig NewSlot Managed None
+
+[class [testcase]testcase.Variance2/Inf`1<Object>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Variances: Covariant 
+ - DerivedTypes:
+   - [testcase]testcase.Variance2/Cls
+   - [testcase]testcase.Variance2/Inf`1<String>
+ - Methods:
+   - Foo|!0()|20|5C6, Foo|Object([testcase]testcase.Variance2/Inf`1<Object>)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.Variance2/Cls -> testcase.Variance2.Inf\u003CSystem.Object\u003E.Foo|Object()|20|1E1, testcase.Variance2.Inf\u003CSystem.Object\u003E.Foo|Object([testcase]testcase.Variance2/Cls)|20
+
+[class [testcase]testcase.Variance2/Inf`1<String>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
+ - Variances: Covariant 
+ - VarianceBaseTypes:
+   - [testcase]testcase.Variance2/Inf`1<Object>
+ - DerivedTypes:
+   - [testcase]testcase.Variance2/Cls
+

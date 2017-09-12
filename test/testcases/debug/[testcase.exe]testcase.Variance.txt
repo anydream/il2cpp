@@ -18,8 +18,11 @@
  - Base: Object
  - Interfaces:
    - [testcase]testcase.Variance/Inf`1<String>
+ - Fields:
+   - fld|!0|6, fld|String, Public 
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Variance/Cls`1<String>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|!0()|20|1E6, Foo|String([testcase]testcase.Variance/Cls`1<String>)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [testcase]testcase.Variance/Inf`1<String>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - Variances: Covariant 
@@ -33,8 +36,11 @@
  - Base: Object
  - Interfaces:
    - [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Cls`1<String>>
+ - Fields:
+   - fld|!0|6, fld|[testcase]testcase.Variance/Cls`1<String>, Public 
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Foo|!0()|20|1E6, Foo|[testcase]testcase.Variance/Cls`1<String>([testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Cls`1<String>>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - Variances: Covariant 
@@ -54,6 +60,8 @@
    - [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Inf`1<Object>>
  - Methods:
    - Foo|!0()|20|5C6, Foo|Object([testcase]testcase.Variance/Inf`1<Object>)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.Variance/Cls`1<String> -> Foo|!0()|20|1E6, Foo|String([testcase]testcase.Variance/Cls`1<String>)|20
+     - [testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>> -> Foo|!0()|20|1E6, Foo|[testcase]testcase.Variance/Cls`1<String>([testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>)|20
 
 [class [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Inf`1<Object>>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - Variances: Covariant 
@@ -64,6 +72,7 @@
    - [testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Cls`1<String>>
  - Methods:
    - Foo|!0()|20|5C6, Foo|[testcase]testcase.Variance/Inf`1<Object>([testcase]testcase.Variance/Inf`1<[testcase]testcase.Variance/Inf`1<Object>>)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>> -> Foo|!0()|20|1E6, Foo|[testcase]testcase.Variance/Cls`1<String>([testcase]testcase.Variance/Cls`1<[testcase]testcase.Variance/Cls`1<String>>)|20
 
 [class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
  - Base: Object
