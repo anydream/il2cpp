@@ -54,8 +54,8 @@ namespace il2cpp
 	{
 		private readonly string Name;
 		// 入口实现映射
-		private readonly Dictionary<TypeMethodPair, TypeMethodPair> EntryMap =
-			new Dictionary<TypeMethodPair, TypeMethodPair>();
+		private readonly Dictionary<TypeMethodPair, Tuple<TypeMethodPair, uint>> EntryMap =
+			new Dictionary<TypeMethodPair, Tuple<TypeMethodPair, uint>>();
 		// 同类内的方法替换映射
 		private readonly Dictionary<MethodDef, TypeMethodPair> SameTypeReplaceMap =
 			new Dictionary<MethodDef, TypeMethodPair>();
@@ -75,7 +75,9 @@ namespace il2cpp
 			{
 				EntryMap.Add(
 					new TypeMethodPair(kv.Key.Item1.GetTypeX(), kv.Key.Item2),
-					new TypeMethodPair(kv.Value.Item1.GetTypeX(), kv.Value.Item2));
+					new Tuple<TypeMethodPair, uint>(
+						new TypeMethodPair(kv.Value.Item1.Item1.GetTypeX(), kv.Value.Item1.Item2),
+						kv.Value.Item2));
 			}
 
 			foreach (var kv in mtable.SameTypeReplaceMap)
@@ -158,8 +160,11 @@ namespace il2cpp
 			out TypeMethodPair implPair)
 		{
 			// 查询直接绑定
-			if (EntryMap.TryGetValue(entryPair, out implPair))
+			if (EntryMap.TryGetValue(entryPair, out var impl))
+			{
+				implPair = impl.Item1;
 				return;
+			}
 
 			// 遍历查询协逆变绑定
 			TypeX entryTyX = entryPair.Item1;
@@ -172,7 +177,7 @@ namespace il2cpp
 					if (keyTyX.HasVariances &&
 						entryTyX.IsDerivedType(keyTyX))
 					{
-						implPair = kv.Value;
+						implPair = kv.Value.Item1;
 						return;
 					}
 				}
@@ -195,10 +200,13 @@ namespace il2cpp
 		private string NameKey;
 		private IList<TypeSig> InstGenArgs;
 
+		// 继承级别
+		private uint DerivedLevel = 0;
+
 		// 槽位映射
 		private readonly Dictionary<string, VirtualSlot> SlotMap = new Dictionary<string, VirtualSlot>();
 		// 入口实现映射
-		public Dictionary<TableMethodPair, TableMethodPair> EntryMap = new Dictionary<TableMethodPair, TableMethodPair>();
+		public Dictionary<TableMethodPair, Tuple<TableMethodPair, uint>> EntryMap = new Dictionary<TableMethodPair, Tuple<TableMethodPair, uint>>();
 		// 同类内的方法替换映射
 		public readonly Dictionary<MethodDef, TableMethodPair> SameTypeReplaceMap = new Dictionary<MethodDef, TableMethodPair>();
 		// 方法新建槽映射
@@ -290,10 +298,10 @@ namespace il2cpp
 			var expEntryMap = expMetTable.EntryMap;
 			foreach (var kv in EntryMap)
 			{
-				var key = ExpandMethodPair(kv.Key, expMetTable, replacer);
-				var value = ExpandMethodPair(kv.Value, expMetTable, replacer);
+				var entry = ExpandMethodPair(kv.Key, expMetTable, replacer);
+				var impl = ExpandMethodPair(kv.Value.Item1, expMetTable, replacer);
 
-				MergeExpandedEntry(expEntryMap, key, value);
+				MergeExpandedEntry(expEntryMap, entry, impl, kv.Value.Item2);
 			}
 
 			foreach (var kv in SameTypeReplaceMap)
@@ -306,22 +314,23 @@ namespace il2cpp
 		}
 
 		private void MergeExpandedEntry(
-			Dictionary<TableMethodPair, TableMethodPair> expEntryMap,
-			TableMethodPair key,
-			TableMethodPair value)
+			Dictionary<TableMethodPair, Tuple<TableMethodPair, uint>> expEntryMap,
+			TableMethodPair entry,
+			TableMethodPair impl,
+			uint level)
 		{
-			if (expEntryMap.TryGetValue(key, out var oval))
+			if (expEntryMap.TryGetValue(entry, out var oval))
 			{
 				// 不覆盖同一个类内的相同签名
-				if (oval.Item1.Equals(value.Item1))
+				if (oval.Item1.Item1.Equals(impl.Item1))
 					return;
 
-				Debug.Assert(oval.Item2 != value.Item2);
+				Debug.Assert(oval.Item1.Item2 != impl.Item2);
 				// 对于不同的类则子类方法优先
-				if (IsBaseType(oval.Item2.DeclaringType, value.Item2.DeclaringType))
+				if (IsBaseType(oval.Item1.Item2.DeclaringType, impl.Item2.DeclaringType))
 					return;
 			}
-			expEntryMap[key] = value;
+			expEntryMap[entry] = new Tuple<TableMethodPair, uint>(impl, level);
 		}
 
 		private static bool IsBaseType(TypeDef currType, TypeDef baseType)
@@ -547,7 +556,7 @@ namespace il2cpp
 									else
 									{
 										// 暂时未实现的接口入口
-										EntryMap[entry] = null;
+										SetEntryMap(entry, null);
 									}
 								}
 							}
@@ -619,7 +628,7 @@ namespace il2cpp
 						{
 							var vslot = SlotMap[metNameKey];
 							Debug.Assert(vslot != null);
-							EntryMap[targetEntry] = vslot.Implemented;
+							SetEntryMap(targetEntry, vslot.Implemented);
 						}
 					}
 				}
@@ -664,6 +673,8 @@ namespace il2cpp
 
 		private void DerivedTable(MethodTable baseTable)
 		{
+			DerivedLevel = baseTable.DerivedLevel + 1;
+
 			foreach (var kv in baseTable.SlotMap)
 				SlotMap.Add(kv.Key, new VirtualSlot(kv.Value, null));
 
@@ -758,6 +769,14 @@ namespace il2cpp
 			ApplyVirtualSlot(vslot);
 		}
 
+		private void SetEntryMap(TableMethodPair entry, TableMethodPair impl)
+		{
+			if (impl != null)
+				EntryMap[entry] = new Tuple<TableMethodPair, uint>(impl, DerivedLevel);
+			else
+				EntryMap[entry] = null;
+		}
+
 		private void ApplyVirtualSlot(VirtualSlot vslot)
 		{
 			Debug.Assert(vslot != null);
@@ -765,7 +784,7 @@ namespace il2cpp
 			var impl = vslot.Implemented;
 			foreach (TableMethodPair entry in vslot.Entries)
 			{
-				EntryMap[entry] = impl;
+				SetEntryMap(entry, impl);
 			}
 		}
 
