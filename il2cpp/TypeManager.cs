@@ -548,6 +548,7 @@ namespace il2cpp
 				{
 					vgroup = new VarianceGroup();
 					vgroup.VarianceTypes = vaList;
+					vgroup.TypeGroup.Add(tyX);
 					tyX.Variances = vaList;
 					VarianceMap.Add(tyX.Def, vgroup);
 				}
@@ -558,34 +559,54 @@ namespace il2cpp
 
 		private void ResolveVariances()
 		{
-			foreach (var vgroup in VarianceMap.Values)
+			for (; ; )
 			{
-				if (vgroup == null || vgroup.IsProcessed)
-					continue;
-				vgroup.IsProcessed = true;
+				bool isLoop = false;
 
-				if (vgroup.TypeGroup.Count == 1)
-					continue;
-
-				var vlist = vgroup.TypeGroup.ToList();
-				int len = vlist.Count;
-				Debug.Assert(len > 1);
-
-				for (int i = 0; i < len - 1; ++i)
+				var vgList = VarianceMap.Values.ToList();
+				foreach (var vgroup in vgList)
 				{
-					for (int j = i + 1; j < len; ++j)
+					if (vgroup == null || vgroup.IsProcessed)
+						continue;
+					vgroup.IsProcessed = true;
+
+					if (vgroup.TypeGroup.Count == 1)
+						continue;
+
+					var vlist = vgroup.TypeGroup.ToList();
+					int len = vlist.Count;
+					Debug.Assert(len > 1);
+
+					for (int i = 0; i < len - 1; ++i)
 					{
-						if (!TryLinkVariance(vlist[i], vlist[j]))
-							TryLinkVariance(vlist[j], vlist[i]);
+						for (int j = i + 1; j < len; ++j)
+						{
+							if (!TryLinkVariance(vlist[i], vlist[j]))
+								TryLinkVariance(vlist[j], vlist[i]);
+						}
 					}
 				}
+
+				foreach (var vgroup in VarianceMap.Values)
+				{
+					if (vgroup != null && !vgroup.IsProcessed)
+					{
+						isLoop = true;
+						break;
+					}
+				}
+
+				if (!isLoop)
+					break;
 			}
 		}
 
 		private bool TryLinkVariance(TypeX baseTyX, TypeX derivedTyX)
 		{
-			Debug.Assert(baseTyX.Variances.SequenceEqual(derivedTyX.Variances));
-			Debug.Assert(baseTyX.GenArgs.Count == derivedTyX.GenArgs.Count && baseTyX.GenArgs.Count == derivedTyX.Variances.Count);
+			Debug.Assert(baseTyX.Variances == derivedTyX.Variances);
+
+			if (baseTyX.VarianceDerivedTypes?.Contains(derivedTyX) ?? false)
+				return true;
 
 			int len = baseTyX.Variances.Count;
 			for (int i = 0; i < len; ++i)
@@ -594,24 +615,19 @@ namespace il2cpp
 				TypeSig baseSig = baseTyX.GenArgs[i];
 				TypeSig derivedSig = derivedTyX.GenArgs[i];
 
-				bool isEquals = TypeEqualityComparer.Instance.Equals(baseSig, derivedSig);
 				if (vaType == VarianceType.NonVariant)
 				{
 					// 无协逆变的参数类型不一致, 表示两个类型无关联性
-					if (!isEquals)
+					if (!TypeEqualityComparer.Instance.Equals(baseSig, derivedSig))
 						return true;
 				}
 				else if (vaType == VarianceType.Covariant)
 				{
-					if (isEquals)
-						continue;
 					if (!IsDerivedType(baseSig, derivedSig))
 						return false;
 				}
 				else if (vaType == VarianceType.Contravariant)
 				{
-					if (isEquals)
-						continue;
 					if (!IsDerivedType(derivedSig, baseSig))
 						return false;
 				}
@@ -630,6 +646,12 @@ namespace il2cpp
 			if (baseTyX.DerivedTypes.Contains(derivedTyX))
 				return true;
 
+			// 尝试构建协逆变关联
+			if (baseTyX.Def == derivedTyX.Def && baseTyX.HasVariances)
+			{
+				TryLinkVariance(baseTyX, derivedTyX);
+			}
+
 			// 检查协逆变继承类型
 			var vaDerivedTypes = baseTyX.VarianceDerivedTypes;
 			if (vaDerivedTypes != null)
@@ -645,13 +667,15 @@ namespace il2cpp
 				}
 			}
 
-			//! TODO
-
 			return false;
 		}
 
 		private bool IsDerivedType(TypeSig baseSig, TypeSig derivedSig)
 		{
+			// 类型相同则允许转换
+			if (TypeEqualityComparer.Instance.Equals(baseSig, derivedSig))
+				return true;
+
 			var baseElemType = baseSig.ElementType;
 			var derivedElemType = derivedSig.ElementType;
 
@@ -674,7 +698,7 @@ namespace il2cpp
 
 			//! 数组类型
 
-			// 其他情况
+			// 解析并判断其他类型
 			var baseTyX = ResolveTypeDefOrRef(baseSig.ToTypeDefOrRef(), null);
 			var derivedTyX = ResolveTypeDefOrRef(derivedSig.ToTypeDefOrRef(), null);
 
