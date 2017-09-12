@@ -273,6 +273,7 @@ namespace il2cpp
 			bool isInterface = Def.IsInterface;
 
 			MethodTable expMetTable = new MethodTable(Context, Def);
+			expMetTable.DerivedLevel = DerivedLevel;
 			expMetTable.InstGenArgs = genArgs;
 			expMetTable.GetNameKey();
 
@@ -321,13 +322,8 @@ namespace il2cpp
 		{
 			if (expEntryMap.TryGetValue(entry, out var oval))
 			{
-				// 不覆盖同一个类内的相同签名
-				if (oval.Item1.Item1.Equals(impl.Item1))
-					return;
-
-				Debug.Assert(oval.Item1.Item2 != impl.Item2);
-				// 对于不同的类则子类方法优先
-				if (IsBaseType(oval.Item1.Item2.DeclaringType, impl.Item2.DeclaringType))
+				// 不覆盖同一个类内的相同签名, 对于不同的类则子类方法优先
+				if (oval.Item2 >= level)
 					return;
 			}
 			expEntryMap[entry] = new Tuple<TableMethodPair, uint>(impl, level);
