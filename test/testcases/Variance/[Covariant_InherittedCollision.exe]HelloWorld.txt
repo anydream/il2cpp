@@ -88,6 +88,7 @@
    - [HelloWorld]XIAB_2
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XIAB_1)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XIAB_1,[HelloWorld]A)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]I`1<[HelloWorld]A>] NotPublic AutoLayout Interface Abstract AnsiClass 
  - Variances: Contravariant 
@@ -131,6 +132,10 @@
    - [HelloWorld]I`1<[HelloWorld]B>
  - Methods:
    - Print|String(!0)|20|5C6, Print|String([HelloWorld]I`1<[HelloWorld]C>,[HelloWorld]C)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [HelloWorld]XIAB_1 -> Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XIAB_1,[HelloWorld]A)|20
+     - [HelloWorld]XIAB_2 -> Print|String([HelloWorld]B)|20|1E6, Print|String([HelloWorld]XIAB_2,[HelloWorld]B)|20
+     - [HelloWorld]XIBA_2 -> Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XIBA_2,[HelloWorld]A)|20
+     - [HelloWorld]XIBA_1 -> Print|String([HelloWorld]B)|20|1E6, Print|String([HelloWorld]XIBA_1,[HelloWorld]B)|20
 
 [class [HelloWorld]XIAB_2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
@@ -139,6 +144,7 @@
    - [HelloWorld]I`1<[HelloWorld]B>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XIAB_2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|String([HelloWorld]B)|20|1E6, Print|String([HelloWorld]XIAB_2,[HelloWorld]B)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]I`1<[HelloWorld]B>] NotPublic AutoLayout Interface Abstract AnsiClass 
  - Variances: Contravariant 
@@ -160,6 +166,7 @@
    - [HelloWorld]XIBA_2
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XIBA_1)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|String([HelloWorld]B)|20|1E6, Print|String([HelloWorld]XIBA_1,[HelloWorld]B)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]XIBA_2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
@@ -168,4 +175,5 @@
    - [HelloWorld]I`1<[HelloWorld]A>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XIBA_2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XIBA_2,[HelloWorld]A)|20, Public Final Virtual HideBySig NewSlot Managed None
 

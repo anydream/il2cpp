@@ -83,6 +83,7 @@
    - [HelloWorld]I`1<[HelloWorld]C>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XBC)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XBC,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]I`1<[HelloWorld]B>] NotPublic AutoLayout Interface Abstract AnsiClass 
  - Variances: Covariant 
@@ -110,6 +111,8 @@
    - [HelloWorld]I`1<[HelloWorld]B>
  - Methods:
    - Print|!0(Int32)|20|5C6, Print|[HelloWorld]A([HelloWorld]I`1<[HelloWorld]A>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [HelloWorld]XBC -> Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XBC,Int32)|20
+     - [HelloWorld]XCB -> Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XCB,Int32)|20
 
 [class [HelloWorld]A] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -120,6 +123,7 @@
    - value|String|4, value|String, Family 
  - Methods:
    - get_Value|String()|20|886, get_Value|String([HelloWorld]A)|20, Public HideBySig SpecialName Managed Getter
+   - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]A,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
 [class [HelloWorld]XCB] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
@@ -129,11 +133,15 @@
    - [HelloWorld]I`1<[HelloWorld]C>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XCB)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XCB,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]B] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
  - Base: [HelloWorld]A
  - DerivedTypes:
    - [HelloWorld]C
+ - Methods:
+   - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]B,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
 [class [HelloWorld]C] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: [HelloWorld]B

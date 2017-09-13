@@ -88,6 +88,7 @@
    - [HelloWorld]XIBC_2
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XIBC_1)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XIBC_1,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]I`1<[HelloWorld]B>] NotPublic AutoLayout Interface Abstract AnsiClass 
  - Variances: Covariant 
@@ -111,6 +112,10 @@
    - [HelloWorld]I`1<[HelloWorld]C>
  - Methods:
    - Print|!0(Int32)|20|5C6, Print|[HelloWorld]A([HelloWorld]I`1<[HelloWorld]A>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [HelloWorld]XIBC_1 -> Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XIBC_1,Int32)|20
+     - [HelloWorld]XIBC_2 -> Print|[HelloWorld]C(Int32)|20|1E6, Print|[HelloWorld]C([HelloWorld]XIBC_2,Int32)|20
+     - [HelloWorld]XICB_2 -> Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XICB_2,Int32)|20
+     - [HelloWorld]XICB_1 -> Print|[HelloWorld]C(Int32)|20|1E6, Print|[HelloWorld]C([HelloWorld]XICB_1,Int32)|20
 
 [class [HelloWorld]A] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -121,6 +126,7 @@
    - value|String|4, value|String, Family 
  - Methods:
    - get_Value|String()|20|886, get_Value|String([HelloWorld]A)|20, Public HideBySig SpecialName Managed Getter
+   - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]A,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
 [class [HelloWorld]XIBC_2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
@@ -129,6 +135,7 @@
    - [HelloWorld]I`1<[HelloWorld]C>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XIBC_2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|[HelloWorld]C(Int32)|20|1E6, Print|[HelloWorld]C([HelloWorld]XIBC_2,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]I`1<[HelloWorld]C>] NotPublic AutoLayout Interface Abstract AnsiClass 
  - Variances: Covariant 
@@ -148,6 +155,7 @@
    - [HelloWorld]XICB_2
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XICB_1)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|[HelloWorld]C(Int32)|20|1E6, Print|[HelloWorld]C([HelloWorld]XICB_1,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]XICB_2] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
@@ -156,12 +164,19 @@
    - [HelloWorld]I`1<[HelloWorld]B>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XICB_2)|20, Public HideBySig SpecialName RTSpecialName Managed None
+   - Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XICB_2,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]B] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
  - Base: [HelloWorld]A
  - DerivedTypes:
    - [HelloWorld]C
+ - Methods:
+   - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]B,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
 [class [HelloWorld]C] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
  - Base: [HelloWorld]B
+ - Methods:
+   - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]C,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
 

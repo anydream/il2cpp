@@ -19,6 +19,7 @@
    - [dev10_468712]ConsoleApplicationVB.ICovariant`1<String>
  - Methods:
    - .ctor|Void()|20|1806, .ctor|Void([dev10_468712]ConsoleApplicationVB.C`1<String>)|20, Public SpecialName RTSpecialName Managed None
+   - f|Void<System.Exception>()|30|366, f|Void<System.Exception>([dev10_468712]ConsoleApplicationVB.C`1<String>)|30, Public Final Virtual NewSlot CheckAccessOnOverride Managed None
 
 [class [dev10_468712]ConsoleApplicationVB.ICovariant`1<String>] NotPublic AutoLayout Interface Abstract AnsiClass 
  - Variances: Covariant 
@@ -34,6 +35,7 @@
    - [dev10_468712]ConsoleApplicationVB.ICovariant`1<String>
  - Methods:
    - f|Void<System.Exception>()|30|746, f|Void<System.Exception>([dev10_468712]ConsoleApplicationVB.ICovariant`1<Object>)|30 = 0, Public Virtual NewSlot CheckAccessOnOverride Abstract Managed None
+     - [dev10_468712]ConsoleApplicationVB.C`1<String> -> f|Void<System.Exception>()|30|366, f|Void<System.Exception>([dev10_468712]ConsoleApplicationVB.C`1<String>)|30
 
 [class [dev10_468712]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
