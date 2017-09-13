@@ -170,16 +170,35 @@ namespace il2cpp
 			TypeX entryTyX = entryPair.Item1;
 			if (entryTyX.HasVariances)
 			{
+				MethodDef entryMetDef = entryPair.Item2;
+
+				TypeMethodPair lastImpl = null;
+				uint lastLevel = 0;
+
 				foreach (var kv in EntryMap)
 				{
 					TypeX keyTyX = kv.Key.Item1;
+					MethodDef keyMetDef = kv.Key.Item2;
 
-					if (keyTyX.HasVariances &&
+					if (keyMetDef == entryMetDef &&
+						keyTyX.HasVariances &&
 						entryTyX.IsDerivedType(keyTyX))
 					{
-						implPair = kv.Value.Item1;
-						return;
+						TypeMethodPair currImpl = kv.Value.Item1;
+						uint currLevel = kv.Value.Item2;
+
+						if (lastImpl == null || lastLevel < currLevel)
+						{
+							lastImpl = currImpl;
+							lastLevel = currLevel;
+						}
 					}
+				}
+
+				if (lastImpl != null)
+				{
+					implPair = lastImpl;
+					return;
 				}
 			}
 
