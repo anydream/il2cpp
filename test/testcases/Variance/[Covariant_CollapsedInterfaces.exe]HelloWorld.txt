@@ -121,6 +121,8 @@
  - DerivedTypes:
    - [HelloWorld]B
    - [HelloWorld]C
+ - Fields:
+   - value|String|4, value|String, Family 
  - Methods:
    - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]A,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
@@ -134,15 +136,15 @@
  - Methods:
    - Print|String(!0)|20|5C6, Print|String([HelloWorld]I`1<[HelloWorld]C>,[HelloWorld]C)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
      - [HelloWorld]XAB -> Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XAB,[HelloWorld]A)|20
-     - [HelloWorld]XBA -> Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XBA,[HelloWorld]A)|20
+     - [HelloWorld]XBA -> Print|String([HelloWorld]B)|20|1E6, Print|String([HelloWorld]XBA,[HelloWorld]B)|20
 
 [class [HelloWorld]XBA] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
  - Base: Object
  - Interfaces:
-   - [HelloWorld]I`1<[HelloWorld]A>
    - [HelloWorld]I`1<[HelloWorld]B>
+   - [HelloWorld]I`1<[HelloWorld]A>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XBA)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XBA,[HelloWorld]A)|20, Public Final Virtual HideBySig NewSlot Managed None
+   - Print|String([HelloWorld]B)|20|1E6, Print|String([HelloWorld]XBA,[HelloWorld]B)|20, Public Final Virtual HideBySig NewSlot Managed None
 
