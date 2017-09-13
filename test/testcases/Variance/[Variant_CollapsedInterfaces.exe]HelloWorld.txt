@@ -23,6 +23,7 @@
  - Base: Object
  - Methods:
    - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
+   - WriteLine|Void(String,Object,Object)|0|16, WriteLine|Void(String,Object,Object)|0, Public Static Managed None
 
 [class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
  - Base: Object
@@ -112,7 +113,7 @@
  - Methods:
    - Print|!0(Int32)|20|5C6, Print|[HelloWorld]A([HelloWorld]I`1<[HelloWorld]A>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
      - [HelloWorld]XBC -> Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XBC,Int32)|20
-     - [HelloWorld]XCB -> Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XCB,Int32)|20
+     - [HelloWorld]XCB -> Print|[HelloWorld]C(Int32)|20|1E6, Print|[HelloWorld]C([HelloWorld]XCB,Int32)|20
 
 [class [HelloWorld]A] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object
@@ -129,11 +130,11 @@
  - Instantiated
  - Base: Object
  - Interfaces:
-   - [HelloWorld]I`1<[HelloWorld]B>
    - [HelloWorld]I`1<[HelloWorld]C>
+   - [HelloWorld]I`1<[HelloWorld]B>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XCB)|20, Public HideBySig SpecialName RTSpecialName Managed None
-   - Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XCB,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
+   - Print|[HelloWorld]C(Int32)|20|1E6, Print|[HelloWorld]C([HelloWorld]XCB,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
 
 [class [HelloWorld]B] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
@@ -144,5 +145,8 @@
    - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]B,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
 [class [HelloWorld]C] NotPublic AutoLayout AnsiClass BeforeFieldInit 
+ - Instantiated
  - Base: [HelloWorld]B
+ - Methods:
+   - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]C,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
