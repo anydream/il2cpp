@@ -27,6 +27,7 @@
  - Base: Object
  - Methods:
    - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
+   - WriteLine|Void(String,Object,Object)|0|16, WriteLine|Void(String,Object,Object)|0, Public Static Managed None
 
 [class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
  - Base: Object
