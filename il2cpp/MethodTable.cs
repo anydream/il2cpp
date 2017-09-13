@@ -12,6 +12,30 @@ namespace il2cpp
 	// 类型与方法编组
 	using TypeMethodPair = Tuple<TypeX, MethodDef>;
 
+	internal class TableMethodImpl
+	{
+		public readonly TableMethodPair MethodPair;
+		public readonly uint Level;
+
+		public TableMethodImpl(TableMethodPair methodPair, uint level)
+		{
+			MethodPair = methodPair;
+			Level = level;
+		}
+	}
+
+	internal class TypeMethodImpl
+	{
+		public readonly TypeMethodPair MethodPair;
+		public readonly uint Level;
+
+		public TypeMethodImpl(TableMethodImpl tbImpl)
+		{
+			MethodPair = new TypeMethodPair(tbImpl.MethodPair.Item1.GetTypeX(), tbImpl.MethodPair.Item2);
+			Level = tbImpl.Level;
+		}
+	}
+
 	// 虚槽数据
 	internal class VirtualSlot
 	{
@@ -54,8 +78,8 @@ namespace il2cpp
 	{
 		private readonly string Name;
 		// 入口实现映射
-		private readonly Dictionary<TypeMethodPair, Tuple<TypeMethodPair, uint>> EntryMap =
-			new Dictionary<TypeMethodPair, Tuple<TypeMethodPair, uint>>();
+		private readonly Dictionary<TypeMethodPair, TypeMethodImpl> EntryMap =
+			new Dictionary<TypeMethodPair, TypeMethodImpl>();
 		// 同类内的方法替换映射
 		private readonly Dictionary<MethodDef, TypeMethodPair> SameTypeReplaceMap =
 			new Dictionary<MethodDef, TypeMethodPair>();
@@ -75,9 +99,7 @@ namespace il2cpp
 			{
 				EntryMap.Add(
 					new TypeMethodPair(kv.Key.Item1.GetTypeX(), kv.Key.Item2),
-					new Tuple<TypeMethodPair, uint>(
-						new TypeMethodPair(kv.Value.Item1.Item1.GetTypeX(), kv.Value.Item1.Item2),
-						kv.Value.Item2));
+					new TypeMethodImpl(kv.Value));
 			}
 
 			foreach (var kv in mtable.SameTypeReplaceMap)
@@ -162,7 +184,7 @@ namespace il2cpp
 			// 查询直接绑定
 			if (EntryMap.TryGetValue(entryPair, out var impl))
 			{
-				implPair = impl.Item1;
+				implPair = impl.MethodPair;
 				return;
 			}
 
@@ -184,8 +206,8 @@ namespace il2cpp
 						keyTyX.HasVariances &&
 						entryTyX.IsDerivedType(keyTyX))
 					{
-						TypeMethodPair currImpl = kv.Value.Item1;
-						uint currLevel = kv.Value.Item2;
+						TypeMethodPair currImpl = kv.Value.MethodPair;
+						uint currLevel = kv.Value.Level;
 
 						if (lastImpl == null || lastLevel < currLevel)
 						{
@@ -225,7 +247,7 @@ namespace il2cpp
 		// 槽位映射
 		private readonly Dictionary<string, VirtualSlot> SlotMap = new Dictionary<string, VirtualSlot>();
 		// 入口实现映射
-		public Dictionary<TableMethodPair, Tuple<TableMethodPair, uint>> EntryMap = new Dictionary<TableMethodPair, Tuple<TableMethodPair, uint>>();
+		public Dictionary<TableMethodPair, TableMethodImpl> EntryMap = new Dictionary<TableMethodPair, TableMethodImpl>();
 		// 同类内的方法替换映射
 		public readonly Dictionary<MethodDef, TableMethodPair> SameTypeReplaceMap = new Dictionary<MethodDef, TableMethodPair>();
 		// 方法新建槽映射
@@ -319,9 +341,9 @@ namespace il2cpp
 			foreach (var kv in EntryMap)
 			{
 				var entry = ExpandMethodPair(kv.Key, expMetTable, replacer);
-				var impl = ExpandMethodPair(kv.Value.Item1, expMetTable, replacer);
+				var impl = ExpandMethodPair(kv.Value.MethodPair, expMetTable, replacer);
 
-				MergeExpandedEntry(expEntryMap, entry, impl, kv.Value.Item2);
+				MergeExpandedEntry(expEntryMap, entry, impl, kv.Value.Level);
 			}
 
 			foreach (var kv in SameTypeReplaceMap)
@@ -334,7 +356,7 @@ namespace il2cpp
 		}
 
 		private void MergeExpandedEntry(
-			Dictionary<TableMethodPair, Tuple<TableMethodPair, uint>> expEntryMap,
+			Dictionary<TableMethodPair, TableMethodImpl> expEntryMap,
 			TableMethodPair entry,
 			TableMethodPair impl,
 			uint level)
@@ -342,10 +364,10 @@ namespace il2cpp
 			if (expEntryMap.TryGetValue(entry, out var oval))
 			{
 				// 不覆盖同一个类内的相同签名, 对于不同的类则子类方法优先
-				if (oval.Item2 >= level)
+				if (oval.Level >= level)
 					return;
 			}
-			expEntryMap[entry] = new Tuple<TableMethodPair, uint>(impl, level);
+			expEntryMap[entry] = new TableMethodImpl(impl, level);
 		}
 
 		private static bool IsBaseType(TypeDef currType, TypeDef baseType)
@@ -787,7 +809,7 @@ namespace il2cpp
 		private void SetEntryMap(TableMethodPair entry, TableMethodPair impl)
 		{
 			if (impl != null)
-				EntryMap[entry] = new Tuple<TableMethodPair, uint>(impl, DerivedLevel);
+				EntryMap[entry] = new TableMethodImpl(impl, DerivedLevel);
 			else
 				EntryMap[entry] = null;
 		}
