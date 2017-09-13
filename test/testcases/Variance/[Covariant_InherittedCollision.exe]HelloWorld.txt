@@ -118,6 +118,8 @@
  - DerivedTypes:
    - [HelloWorld]B
    - [HelloWorld]C
+ - Fields:
+   - value|String|4, value|String, Family 
  - Methods:
    - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]A,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
