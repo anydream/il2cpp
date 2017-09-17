@@ -22,9 +22,6 @@ namespace il2cpp
 
 	internal class TypeX : GenericArgs
 	{
-		// 当前环境
-		private readonly Il2cppContext Context;
-
 		// 类型定义
 		public readonly TypeDef Def;
 		// 是否为值类型
@@ -75,9 +72,8 @@ namespace il2cpp
 		public string GenTypeName;
 		public uint GenTypeID;
 
-		public TypeX(Il2cppContext context, TypeDef tyDef)
+		public TypeX(TypeDef tyDef)
 		{
-			Context = context;
 			Def = tyDef;
 		}
 
@@ -200,36 +196,38 @@ namespace il2cpp
 			FieldMap.Add(key, fldX);
 		}
 
-		public void ResolveVTable()
+		private void ResolveVTable(TypeManager typeMgr)
 		{
 			if (VTable != null)
 				return;
 
 			MethodTable mtable;
 			if (HasGenArgs)
-				mtable = Context.TypeMgr.ResolveMethodTableSpec(Def, GenArgs);
+				mtable = typeMgr.ResolveMethodTableSpec(Def, GenArgs);
 			else
-				mtable = Context.TypeMgr.ResolveMethodTableDefRef(Def);
+				mtable = typeMgr.ResolveMethodTableDefRef(Def);
 
 			VTable = new VirtualTable(mtable);
 		}
 
 		public bool QueryCallReplace(
+			TypeManager typeMgr,
 			MethodDef entryDef,
 			out TypeX implTyX,
 			out MethodDef implDef)
 		{
-			ResolveVTable();
+			ResolveVTable(typeMgr);
 			return VTable.QueryCallReplace(entryDef, out implTyX, out implDef);
 		}
 
 		public void QueryCallVirt(
+			TypeManager typeMgr,
 			TypeX entryTyX,
 			MethodDef entryDef,
 			out TypeX implTyX,
 			out MethodDef implDef)
 		{
-			ResolveVTable();
+			ResolveVTable(typeMgr);
 			VTable.QueryCallVirt(entryTyX, entryDef, out implTyX, out implDef);
 		}
 

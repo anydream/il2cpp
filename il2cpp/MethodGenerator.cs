@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
 namespace il2cpp
@@ -90,7 +91,7 @@ namespace il2cpp
 	// 方法生成器
 	internal class MethodGenerator
 	{
-		private readonly Il2cppContext Context;
+		private readonly NameGenerator NameGen;
 		private readonly MethodX CurrMethod;
 
 		// 类型栈
@@ -101,9 +102,9 @@ namespace il2cpp
 		private int PushCount = 0;
 		private int PopCount = 0;
 
-		public MethodGenerator(Il2cppContext context, MethodX metX)
+		public MethodGenerator(NameGenerator nameGen, MethodX metX)
 		{
-			Context = context;
+			NameGen = nameGen;
 			CurrMethod = metX;
 		}
 
@@ -241,7 +242,27 @@ namespace il2cpp
 				case Code.Dup:
 					GenDup(inst);
 					return;
+
+				case Code.Ldarg_0:
+				case Code.Ldarg_1:
+				case Code.Ldarg_2:
+				case Code.Ldarg_3:
+					return;
+
+				case Code.Ldarg:
+				case Code.Ldarg_S:
+					return;
+
+				case Code.Ldarga:
+				case Code.Ldarga_S:
+					return;
+
+				case Code.Starg:
+				case Code.Starg_S:
+					return;
 			}
+
+			throw new NotImplementedException();
 		}
 
 		private void GenDup(InstInfo inst)
@@ -249,6 +270,53 @@ namespace il2cpp
 			var slotTop = Peek();
 			var slotPush = Push(slotTop.SlotType);
 			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop));
+		}
+
+		private void GenLdarg(InstInfo inst, int argID, bool isAddr)
+		{
+			Debug.Assert(argID < CurrMethod.ParamTypes.Count);
+			var argType = CurrMethod.ParamTypes[argID];
+			var slotPush = Push(ToSlotType(argType));
+			inst.InstCode = GenAssign(TempName(slotPush), ArgName(argID));
+		}
+
+		private StackType ToSlotType(TypeSig tySig)
+		{
+			switch (tySig.ElementType)
+			{
+				case ElementType.I1:
+				case ElementType.I2:
+				case ElementType.I4:
+				case ElementType.U1:
+				case ElementType.U2:
+				case ElementType.U4:
+				case ElementType.Boolean:
+				case ElementType.Char:
+					return new StackType(StackTypeKind.I4);
+
+				case ElementType.I8:
+				case ElementType.U8:
+					return new StackType(StackTypeKind.I8);
+
+				case ElementType.R4:
+					return new StackType(StackTypeKind.R4);
+
+				case ElementType.R8:
+					return new StackType(StackTypeKind.R8);
+
+				case ElementType.I:
+				case ElementType.U:
+				case ElementType.Ptr:
+					return new StackType(StackTypeKind.Ptr);
+
+				case ElementType.ByRef:
+					return new StackType(StackTypeKind.Ref);
+			}
+
+			if (tySig.IsValueType)
+				return new StackType(NameGen.GetTypeName(tySig));
+
+			return new StackType(StackTypeKind.Obj);
 		}
 
 		private static string GenAssign(string lhs, string rhs)

@@ -54,13 +54,15 @@ namespace il2cpp
 			if (TypeMgr == null)
 				return;
 
-			var types = TypeMgr.Types;
-			TypeMgr = null;
+			TypeMgr.ClearForGenerator();
+
+			var nameGen = new NameGenerator(TypeMgr);
 
 			var units = new Dictionary<string, CompileUnit>();
+			var types = TypeMgr.Types;
 			foreach (TypeX tyX in types)
 			{
-				CompileUnit unit = new TypeGenerator(this, tyX).Generate();
+				CompileUnit unit = new TypeGenerator(nameGen, tyX).Generate();
 				units.Add(unit.Name, unit);
 			}
 		}

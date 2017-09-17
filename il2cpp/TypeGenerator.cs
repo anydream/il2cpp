@@ -13,12 +13,12 @@ namespace il2cpp
 
 	internal class TypeGenerator
 	{
-		private readonly Il2cppContext Context;
+		private readonly NameGenerator NameGen;
 		private readonly TypeX CurrType;
 
-		public TypeGenerator(Il2cppContext context, TypeX tyX)
+		public TypeGenerator(NameGenerator nameGen, TypeX tyX)
 		{
-			Context = context;
+			NameGen = nameGen;
 			CurrType = tyX;
 		}
 
@@ -28,7 +28,7 @@ namespace il2cpp
 
 			foreach (MethodX metX in CurrType.Methods)
 			{
-				var metGen = new MethodGenerator(Context, metX);
+				var metGen = new MethodGenerator(NameGen, metX);
 			}
 
 			return unit;

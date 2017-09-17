@@ -39,6 +39,13 @@ namespace il2cpp
 			Context = context;
 		}
 
+		public void ClearForGenerator()
+		{
+			MethodTableMap.Clear();
+			VCallEntries.Clear();
+			PendingMethods.Clear();
+		}
+
 		public TypeX GetTypeByName(string name)
 		{
 			if (TypeMap.TryGetValue(name, out var tyX))
@@ -173,9 +180,6 @@ namespace il2cpp
 							// 生成静态构造和终结器
 							GenStaticCctor(resMetX.DeclType);
 							GenFinalizer(resMetX.DeclType);
-
-							// 解析虚表
-							resMetX.DeclType.ResolveVTable();
 						}
 						else if (resMetX.IsVirtual &&
 								(inst.OpCode.Code == Code.Callvirt ||
@@ -188,7 +192,7 @@ namespace il2cpp
 								 inst.OpCode.Code == Code.Ldftn))
 						{
 							// 处理方法替换
-							if (resMetX.DeclType.QueryCallReplace(resMetX.Def, out TypeX implTyX, out var implDef))
+							if (resMetX.DeclType.QueryCallReplace(this, resMetX.Def, out TypeX implTyX, out var implDef))
 							{
 								resMetX.IsSkipProcessing = true;
 
@@ -334,7 +338,7 @@ namespace il2cpp
 				return;
 
 			// 查询虚方法绑定
-			derivedTyX.QueryCallVirt(entryTyX, entryDef, out TypeX implTyX, out var implDef);
+			derivedTyX.QueryCallVirt(this, entryTyX, entryDef, out TypeX implTyX, out var implDef);
 
 			// 构造实现方法
 			Debug.Assert(implTyX != null);
@@ -690,13 +694,13 @@ namespace il2cpp
 			switch (tyDefRef)
 			{
 				case TypeDef tyDef:
-					return new TypeX(Context, tyDef);
+					return new TypeX(tyDef);
 
 				case TypeRef tyRef:
 					{
 						TypeDef tyDef = tyRef.Resolve();
 						if (tyDef != null)
-							return new TypeX(Context, tyDef);
+							return new TypeX(tyDef);
 
 						throw new NotSupportedException();
 					}
