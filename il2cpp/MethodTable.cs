@@ -235,7 +235,7 @@ namespace il2cpp
 	// 方法表
 	internal class MethodTable
 	{
-		public readonly Il2cppContext Context;
+		public readonly TypeManager TypeMgr;
 		public readonly TypeDef Def;
 
 		private string NameKey;
@@ -256,9 +256,9 @@ namespace il2cpp
 		// 未实现的接口映射
 		private Dictionary<string, HashSet<TableMethodPair>> NotImplInterfaces;
 
-		public MethodTable(Il2cppContext context, TypeDef tyDef)
+		public MethodTable(TypeManager typeMgr, TypeDef tyDef)
 		{
-			Context = context;
+			TypeMgr = typeMgr;
 			Def = tyDef;
 		}
 
@@ -269,7 +269,7 @@ namespace il2cpp
 
 		public TypeX GetTypeX()
 		{
-			TypeX tyX = Context.TypeMgr.GetTypeByName(GetNameKey());
+			TypeX tyX = TypeMgr.GetTypeByName(GetNameKey());
 			Debug.Assert(tyX != null);
 			return tyX;
 		}
@@ -313,7 +313,7 @@ namespace il2cpp
 
 			bool isInterface = Def.IsInterface;
 
-			MethodTable expMetTable = new MethodTable(Context, Def);
+			MethodTable expMetTable = new MethodTable(TypeMgr, Def);
 			expMetTable.DerivedLevel = DerivedLevel;
 			expMetTable.InstGenArgs = genArgs;
 			expMetTable.GetNameKey();
@@ -394,7 +394,7 @@ namespace il2cpp
 			if (mtable.InstGenArgs.IsCollectionValid())
 			{
 				var genArgs = Helper.ReplaceGenericSigList(mtable.InstGenArgs, replacer);
-				mtable = Context.TypeMgr.ResolveMethodTableSpec(mtable.Def, genArgs);
+				mtable = TypeMgr.ResolveMethodTableSpec(mtable.Def, genArgs);
 
 				Debug.Assert(mtable != this);
 				return new TableMethodPair(mtable, metPair.Item2);
@@ -489,7 +489,7 @@ namespace il2cpp
 			MethodTable baseTable = null;
 			if (Def.BaseType != null)
 			{
-				baseTable = Context.TypeMgr.ResolveMethodTable(Def.BaseType);
+				baseTable = TypeMgr.ResolveMethodTable(Def.BaseType);
 
 				// 继承基类数据
 				DerivedTable(baseTable);
@@ -557,7 +557,7 @@ namespace il2cpp
 			{
 				foreach (var inf in Def.Interfaces)
 				{
-					MethodTable infTable = Context.TypeMgr.ResolveMethodTable(inf.Interface);
+					MethodTable infTable = TypeMgr.ResolveMethodTable(inf.Interface);
 					foreach (var kv in infTable.SlotMap)
 					{
 						string metNameKey = kv.Key;
@@ -616,7 +616,7 @@ namespace il2cpp
 					var overTarget = metOver.MethodDeclaration;
 					var overImpl = metOver.MethodBody;
 
-					MethodTable targetTable = Context.TypeMgr.ResolveMethodTable(overTarget.DeclaringType);
+					MethodTable targetTable = TypeMgr.ResolveMethodTable(overTarget.DeclaringType);
 					MethodDef targetDef = overTarget.ResolveMethodDef();
 
 					// 验证显式重写目标的正确性

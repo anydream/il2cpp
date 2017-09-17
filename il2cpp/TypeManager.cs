@@ -746,13 +746,13 @@ namespace il2cpp
 			MethodTable mtable = null;
 			if (tyDefRef is TypeDef tyDef)
 			{
-				mtable = new MethodTable(Context, tyDef);
+				mtable = new MethodTable(this, tyDef);
 			}
 			else if (tyDefRef is TypeRef tyRef)
 			{
 				TypeDef def = tyRef.Resolve();
 				if (def != null)
-					mtable = new MethodTable(Context, def);
+					mtable = new MethodTable(this, def);
 				else
 					throw new NotSupportedException();
 			}
