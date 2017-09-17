@@ -26,9 +26,6 @@ namespace il2cpp
 		{
 			CompileUnit unit = new CompileUnit();
 
-			//var fldGen = new FieldGenerator(this);
-			//var metGen = new MethodGenerator(this);
-
 			foreach (MethodX metX in CurrType.Methods)
 			{
 				var metGen = new MethodGenerator(Context, metX);

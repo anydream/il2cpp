@@ -52,7 +52,6 @@
     <Compile Include="MethodGenerator.cs" />
     <Compile Include="MethodTable.cs" />
     <Compile Include="MethodX.cs" />
-    <Compile Include="NameManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeGenerator.cs" />
     <Compile Include="TypeManager.cs" />

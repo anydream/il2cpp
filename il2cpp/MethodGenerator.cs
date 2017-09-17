@@ -47,6 +47,31 @@ namespace il2cpp
 			TypeName = typeName;
 			Kind = StackTypeKind.ValueType;
 		}
+
+		public override string ToString()
+		{
+			switch (Kind)
+			{
+				case StackTypeKind.I4:
+					return "i4";
+				case StackTypeKind.I8:
+					return "i8";
+				case StackTypeKind.R4:
+					return "r4";
+				case StackTypeKind.R8:
+					return "r8";
+				case StackTypeKind.Ptr:
+					return "ptr";
+				case StackTypeKind.Ref:
+					return "ref";
+				case StackTypeKind.Obj:
+					return "obj";
+				case StackTypeKind.ValueType:
+					return TypeName;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
 	}
 
 	// 栈槽
@@ -73,6 +98,9 @@ namespace il2cpp
 		// 分支队列
 		private readonly Queue<Tuple<Stack<StackType>, int>> Branches = new Queue<Tuple<Stack<StackType>, int>>();
 
+		private int PushCount = 0;
+		private int PopCount = 0;
+
 		public MethodGenerator(Il2cppContext context, MethodX metX)
 		{
 			Context = context;
@@ -83,6 +111,7 @@ namespace il2cpp
 		{
 			SlotInfo slot = new SlotInfo(stype, TypeStack.Count);
 			TypeStack.Push(stype);
+			++PushCount;
 			return slot;
 		}
 
@@ -90,6 +119,7 @@ namespace il2cpp
 		{
 			Debug.Assert(TypeStack.Count > 0);
 			StackType stype = TypeStack.Pop();
+			++PopCount;
 			return new SlotInfo(stype, TypeStack.Count);
 		}
 
@@ -99,6 +129,12 @@ namespace il2cpp
 			for (int i = num - 1; i >= 0; --i)
 				slots[i] = Pop();
 			return slots;
+		}
+
+		private SlotInfo Peek()
+		{
+			Debug.Assert(TypeStack.Count > 0);
+			return new SlotInfo(TypeStack.Peek(), TypeStack.Count - 1);
 		}
 
 		private void AddBranch(int target)
@@ -141,6 +177,14 @@ namespace il2cpp
 
 			var opCode = inst.OpCode;
 			var operand = inst.Operand;
+
+			switch (opCode.StackBehaviourPop)
+			{ }
+
+			switch (opCode.StackBehaviourPush)
+			{ }
+
+			PushCount = PopCount = 0;
 
 			switch (opCode.FlowControl)
 			{
@@ -195,8 +239,36 @@ namespace il2cpp
 					return;
 
 				case Code.Dup:
+					GenDup(inst);
 					return;
 			}
+		}
+
+		private void GenDup(InstInfo inst)
+		{
+			var slotTop = Peek();
+			var slotPush = Push(slotTop.SlotType);
+			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop));
+		}
+
+		private static string GenAssign(string lhs, string rhs)
+		{
+			return lhs + " = " + rhs + ';';
+		}
+
+		private static string ArgName(int argID)
+		{
+			return "arg_" + argID;
+		}
+
+		private static string LocalName(int locID)
+		{
+			return "loc_" + locID;
+		}
+
+		private static string TempName(SlotInfo slot)
+		{
+			return "tmp_" + slot.SlotIndex + '_' + slot.SlotType;
 		}
 	}
 }
