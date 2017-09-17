@@ -36,6 +36,14 @@ namespace il2cpp
 		public readonly string TypeName;
 		public readonly StackTypeKind Kind;
 
+		public static StackType I4 = new StackType(StackTypeKind.I4);
+		public static StackType I8 = new StackType(StackTypeKind.I8);
+		public static StackType R4 = new StackType(StackTypeKind.R4);
+		public static StackType R8 = new StackType(StackTypeKind.R8);
+		public static StackType Ptr = new StackType(StackTypeKind.Ptr);
+		public static StackType Ref = new StackType(StackTypeKind.Ref);
+		public static StackType Obj = new StackType(StackTypeKind.Obj);
+
 		public StackType(StackTypeKind kind)
 		{
 			Debug.Assert(kind != StackTypeKind.ValueType);
@@ -244,17 +252,26 @@ namespace il2cpp
 					return;
 
 				case Code.Ldarg_0:
+					GenLdarg(inst, 0);
+					return;
 				case Code.Ldarg_1:
+					GenLdarg(inst, 1);
+					return;
 				case Code.Ldarg_2:
+					GenLdarg(inst, 2);
+					return;
 				case Code.Ldarg_3:
+					GenLdarg(inst, 3);
 					return;
 
 				case Code.Ldarg:
 				case Code.Ldarg_S:
+					GenLdarg(inst, ((Parameter)operand).Index);
 					return;
 
 				case Code.Ldarga:
 				case Code.Ldarga_S:
+					GenLdarg(inst, ((Parameter)operand).Index, true);
 					return;
 
 				case Code.Starg:
@@ -272,12 +289,12 @@ namespace il2cpp
 			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop));
 		}
 
-		private void GenLdarg(InstInfo inst, int argID, bool isAddr)
+		private void GenLdarg(InstInfo inst, int argID, bool isAddr = false)
 		{
 			Debug.Assert(argID < CurrMethod.ParamTypes.Count);
 			var argType = CurrMethod.ParamTypes[argID];
-			var slotPush = Push(ToSlotType(argType));
-			inst.InstCode = GenAssign(TempName(slotPush), ArgName(argID));
+			var slotPush = isAddr ? Push(StackType.Ptr) : Push(ToSlotType(argType));
+			inst.InstCode = GenAssign(TempName(slotPush), (isAddr ? "&" : "") + ArgName(argID));
 		}
 
 		private StackType ToSlotType(TypeSig tySig)
@@ -292,31 +309,31 @@ namespace il2cpp
 				case ElementType.U4:
 				case ElementType.Boolean:
 				case ElementType.Char:
-					return new StackType(StackTypeKind.I4);
+					return StackType.I4;
 
 				case ElementType.I8:
 				case ElementType.U8:
-					return new StackType(StackTypeKind.I8);
+					return StackType.I8;
 
 				case ElementType.R4:
-					return new StackType(StackTypeKind.R4);
+					return StackType.R4;
 
 				case ElementType.R8:
-					return new StackType(StackTypeKind.R8);
+					return StackType.R8;
 
 				case ElementType.I:
 				case ElementType.U:
 				case ElementType.Ptr:
-					return new StackType(StackTypeKind.Ptr);
+					return StackType.Ptr;
 
 				case ElementType.ByRef:
-					return new StackType(StackTypeKind.Ref);
+					return StackType.Ref;
 			}
 
 			if (tySig.IsValueType)
 				return new StackType(NameGen.GetTypeName(tySig));
 
-			return new StackType(StackTypeKind.Obj);
+			return StackType.Obj;
 		}
 
 		private static string GenAssign(string lhs, string rhs)
