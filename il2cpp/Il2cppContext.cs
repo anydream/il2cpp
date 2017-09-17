@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using dnlib.DotNet;
 
 namespace il2cpp
@@ -9,7 +10,6 @@ namespace il2cpp
 		public readonly string RuntimeVersion;
 
 		internal TypeManager TypeMgr;
-		internal NameManager NameMgr;
 
 		public Il2cppContext(string imagePath)
 		{
@@ -37,17 +37,32 @@ namespace il2cpp
 		{
 			// 初始化管理器
 			TypeMgr = new TypeManager(this);
-			NameMgr = new NameManager(this);
 		}
 
 		public void AddEntry(MethodDef metDef)
 		{
-			TypeMgr.ResolveMethodDef(metDef);
+			TypeMgr?.ResolveMethodDef(metDef);
 		}
 
-		public void Process()
+		public void Resolve()
 		{
-			TypeMgr.ResolveAll();
+			TypeMgr?.ResolveAll();
+		}
+
+		public void Generate()
+		{
+			if (TypeMgr == null)
+				return;
+
+			var types = TypeMgr.Types;
+			TypeMgr = null;
+
+			var units = new Dictionary<string, CompileUnit>();
+			foreach (TypeX tyX in types)
+			{
+				CompileUnit unit = new TypeGenerator(this, tyX).Generate();
+				units.Add(unit.Name, unit);
+			}
 		}
 	}
 }

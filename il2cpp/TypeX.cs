@@ -23,7 +23,7 @@ namespace il2cpp
 	internal class TypeX : GenericArgs
 	{
 		// 当前环境
-		public readonly Il2cppContext Context;
+		private readonly Il2cppContext Context;
 
 		// 类型定义
 		public readonly TypeDef Def;
@@ -50,9 +50,11 @@ namespace il2cpp
 		public bool HasVariances => Variances.IsCollectionValid();
 
 		// 方法映射
-		public readonly Dictionary<string, MethodX> MethodMap = new Dictionary<string, MethodX>();
+		private readonly Dictionary<string, MethodX> MethodMap = new Dictionary<string, MethodX>();
+		public Dictionary<string, MethodX>.ValueCollection Methods => MethodMap.Values;
 		// 字段映射
-		public readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
+		private readonly Dictionary<string, FieldX> FieldMap = new Dictionary<string, FieldX>();
+		public Dictionary<string, FieldX>.ValueCollection Fields => FieldMap.Values;
 
 		// 方法表
 		private VirtualTable VTable;
@@ -69,6 +71,9 @@ namespace il2cpp
 		public bool IsCctorGenerated;
 		// 是否已生成终结器
 		public bool IsFinalizerGenerated;
+
+		public string GenTypeName;
+		public uint GenTypeID;
 
 		public TypeX(Il2cppContext context, TypeDef tyDef)
 		{

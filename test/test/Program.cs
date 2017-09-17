@@ -112,7 +112,7 @@ namespace test
 			string exceptionMsg = null;
 			try
 			{
-				context.Process();
+				context.Resolve();
 			}
 			catch (TypeLoadException ex)
 			{

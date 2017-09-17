@@ -52,12 +52,11 @@ namespace il2cpp
 
 		public void DumpTypes(StringBuilder sb)
 		{
-			foreach (var kv in Context.TypeMgr.TypeMap)
+			foreach (TypeX tyX in Context.TypeMgr.Types)
 			{
-				TypeX tyX = kv.Value;
 				sb.AppendFormat("[{0} {1}] {2}\n",
 					tyX.IsValueType ? "struct" : "class",
-					kv.Key,
+					tyX.GetNameKey(),
 					TypeAttrToString(tyX.Def.Attributes));
 
 				if (tyX.IsInstantiated)
@@ -91,10 +90,10 @@ namespace il2cpp
 						sb.AppendFormat("   - {0}\n", derivedTyX);
 				}
 
-				if (tyX.FieldMap.IsCollectionValid())
+				if (tyX.Fields.IsCollectionValid())
 				{
 					sb.Append(" - Fields:\n");
-					foreach (FieldX fldX in tyX.FieldMap.Values)
+					foreach (FieldX fldX in tyX.Fields)
 					{
 						sb.AppendFormat("   - {0}, {1}, {2}\n",
 							fldX.GetNameKey(),
@@ -103,10 +102,10 @@ namespace il2cpp
 					}
 				}
 
-				if (tyX.MethodMap.IsCollectionValid())
+				if (tyX.Methods.IsCollectionValid())
 				{
 					sb.Append(" - Methods:\n");
-					foreach (MethodX metX in tyX.MethodMap.Values)
+					foreach (MethodX metX in tyX.Methods)
 					{
 						sb.AppendFormat("   - {0}, {1}{2}, {3}{4} {5}\n",
 							metX.GetNameKey(),

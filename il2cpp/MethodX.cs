@@ -2,21 +2,9 @@
 using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
-using dnlib.DotNet.Emit;
 
 namespace il2cpp
 {
-	// 指令
-	internal class InstInfo
-	{
-		public OpCode OpCode;
-		public object Operand;
-		public int Offset;
-
-		public bool IsBrTarget;
-		public bool IsProcessed;
-	}
-
 	internal class MethodX : GenericArgs
 	{
 		// 所属类型

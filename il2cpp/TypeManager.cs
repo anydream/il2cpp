@@ -14,11 +14,12 @@ namespace il2cpp
 		private readonly Il2cppContext Context;
 
 		// 实例类型映射
-		public readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
+		private readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
+		public Dictionary<string, TypeX>.ValueCollection Types => TypeMap.Values;
 		// 方法表映射
-		public readonly Dictionary<string, MethodTable> MethodTableMap = new Dictionary<string, MethodTable>();
+		private readonly Dictionary<string, MethodTable> MethodTableMap = new Dictionary<string, MethodTable>();
 		// 虚调用方法集合
-		public readonly HashSet<MethodX> VCallEntries = new HashSet<MethodX>();
+		private readonly HashSet<MethodX> VCallEntries = new HashSet<MethodX>();
 		// 方法待处理队列
 		private readonly Queue<MethodX> PendingMethods = new Queue<MethodX>();
 		// 协逆变映射
