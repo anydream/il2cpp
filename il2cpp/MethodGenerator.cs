@@ -57,7 +57,7 @@ namespace il2cpp
 			Kind = StackTypeKind.ValueType;
 		}
 
-		public override string ToString()
+		public string GetPostfix()
 		{
 			switch (Kind)
 			{
@@ -75,6 +75,31 @@ namespace il2cpp
 					return "ref";
 				case StackTypeKind.Obj:
 					return "obj";
+				case StackTypeKind.ValueType:
+					return TypeName;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		public string GetTypeName()
+		{
+			switch (Kind)
+			{
+				case StackTypeKind.I4:
+					return "int32_t";
+				case StackTypeKind.I8:
+					return "int64_t";
+				case StackTypeKind.R4:
+					return "float";
+				case StackTypeKind.R8:
+					return "double";
+				case StackTypeKind.Ptr:
+					return "void*";
+				case StackTypeKind.Ref:
+					return "void*";
+				case StackTypeKind.Obj:
+					return "cls_Object*";
 				case StackTypeKind.ValueType:
 					return TypeName;
 				default:
@@ -276,6 +301,7 @@ namespace il2cpp
 
 				case Code.Starg:
 				case Code.Starg_S:
+					GenStarg(inst, ((Parameter)operand).Index);
 					return;
 			}
 
@@ -286,18 +312,26 @@ namespace il2cpp
 		{
 			var slotTop = Peek();
 			var slotPush = Push(slotTop.SlotType);
-			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop));
+			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop), null);
 		}
 
 		private void GenLdarg(InstInfo inst, int argID, bool isAddr = false)
 		{
 			Debug.Assert(argID < CurrMethod.ParamTypes.Count);
 			var argType = CurrMethod.ParamTypes[argID];
-			var slotPush = isAddr ? Push(StackType.Ptr) : Push(ToSlotType(argType));
-			inst.InstCode = GenAssign(TempName(slotPush), (isAddr ? "&" : "") + ArgName(argID));
+			var slotPush = isAddr ? Push(StackType.Ptr) : Push(ToStackType(argType));
+			inst.InstCode = GenAssign(TempName(slotPush), (isAddr ? "&" : null) + ArgName(argID), slotPush.SlotType);
 		}
 
-		private StackType ToSlotType(TypeSig tySig)
+		private void GenStarg(InstInfo inst, int argID)
+		{
+			Debug.Assert(argID < CurrMethod.ParamTypes.Count);
+			var argType = CurrMethod.ParamTypes[argID];
+			var slotPop = Pop();
+			inst.InstCode = GenAssign(ArgName(argID), TempName(slotPop), ToStackType(argType));
+		}
+
+		private StackType ToStackType(TypeSig tySig)
 		{
 			switch (tySig.ElementType)
 			{
@@ -336,9 +370,9 @@ namespace il2cpp
 			return StackType.Obj;
 		}
 
-		private static string GenAssign(string lhs, string rhs)
+		private static string GenAssign(string lhs, string rhs, StackType? stype)
 		{
-			return lhs + " = " + rhs + ';';
+			return lhs + " = " + (stype != null ? '(' + stype.Value.GetTypeName() + ')' : null) + rhs + ';';
 		}
 
 		private static string ArgName(int argID)
@@ -353,7 +387,7 @@ namespace il2cpp
 
 		private static string TempName(SlotInfo slot)
 		{
-			return "tmp_" + slot.SlotIndex + '_' + slot.SlotType;
+			return "tmp_" + slot.SlotIndex + '_' + slot.SlotType.GetPostfix();
 		}
 	}
 }

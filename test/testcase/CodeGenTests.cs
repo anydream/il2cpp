@@ -8,6 +8,15 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static class HelloWorld
+	{
+		public static int Entry()
+		{
+			return 42;
+		}
+	}
+
+	[CodeGen]
 	static class Fibonacci
 	{
 		static long Fib(int n)
