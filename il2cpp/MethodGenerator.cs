@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
@@ -374,6 +375,10 @@ namespace il2cpp
 					GenReturn(inst);
 					return;
 
+				case Code.Call:
+					GenCall(inst, (MethodX)operand);
+					return;
+
 				case Code.Ldc_I4_M1:
 					GenLdc(inst, StackType.I4, "-1");
 					return;
@@ -613,18 +618,6 @@ namespace il2cpp
 			inst.InstCode = "if (" + cond + ") " + GenGoto(labelID);
 		}
 
-		private void GenReturn(InstInfo inst)
-		{
-			if (TypeStack.Count > 0)
-			{
-				Debug.Assert(TypeStack.Count == 1);
-				var slotPop = Pop();
-				inst.InstCode = "return " + CastType(CurrMethod.ReturnType) + TempName(slotPop) + ';';
-			}
-			else
-				inst.InstCode = "return;";
-		}
-
 		private void GenConv(InstInfo inst, StackType stype, string cast)
 		{
 			var slotPop = Pop();
@@ -641,16 +634,58 @@ namespace il2cpp
 
 		private void GenBinOp(InstInfo inst, string op)
 		{
-			var operands = Pop(2);
+			var slotPops = Pop(2);
 
-			if (!IsBinaryOpValid(operands[0].SlotType.Kind, operands[1].SlotType.Kind, out var retType, inst.OpCode.Code))
+			if (!IsBinaryOpValid(slotPops[0].SlotType.Kind, slotPops[1].SlotType.Kind, out var retType, inst.OpCode.Code))
 				throw new InvalidOperationException();
 
 			var slotPush = Push(new StackType(retType));
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				TempName(operands[0]) + op + TempName(operands[1]),
+				TempName(slotPops[0]) + op + TempName(slotPops[1]),
 				slotPush.SlotType);
+		}
+
+		private void GenReturn(InstInfo inst)
+		{
+			if (TypeStack.Count > 0)
+			{
+				Debug.Assert(TypeStack.Count == 1);
+				var slotPop = Pop();
+				inst.InstCode = "return " + CastType(CurrMethod.ReturnType) + TempName(slotPop) + ';';
+			}
+			else
+				inst.InstCode = "return;";
+		}
+
+		private void GenCall(InstInfo inst, MethodX metX)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append(GenContext.GetMethodName(metX, PrefixMet));
+			sb.Append('(');
+
+			int numArgs = metX.ParamTypes.Count;
+
+			var slotPops = Pop(numArgs);
+			for (int i = 0; i < numArgs; ++i)
+			{
+				if (i != 0)
+					sb.Append(", ");
+
+				var argType = metX.ParamTypes[i];
+				sb.AppendFormat("{0}{1}",
+					CastType(argType),
+					TempName(slotPops[i]));
+			}
+			sb.Append(')');
+
+			if (metX.ReturnType.ElementType != ElementType.Void)
+			{
+				var slotPush = Push(ToStackType(metX.ReturnType));
+				inst.InstCode = GenAssign(TempName(slotPush), sb.ToString(), slotPush.SlotType);
+			}
+			else
+				inst.InstCode = sb.ToString() + ';';
 		}
 
 		private StackType ToStackType(TypeSig tySig)
