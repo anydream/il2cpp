@@ -15,8 +15,7 @@ namespace testcase
 			return 42;
 		}
 	}
-
-	[CodeGen]
+	
 	static class Fibonacci
 	{
 		static long Fib(int n)

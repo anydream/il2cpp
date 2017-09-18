@@ -131,14 +131,18 @@ namespace il2cpp
 			{
 				if (inst.Operand is Instruction defInst)
 				{
-					inst.Operand = offsetMap[defInst.Offset];
+					int target;
+					inst.Operand = target = offsetMap[defInst.Offset];
+					instList[target].IsBrTarget = true;
 				}
 				else if (inst.Operand is Instruction[] defInsts)
 				{
 					int[] insts = new int[defInsts.Length];
 					for (int i = 0; i < defInsts.Length; ++i)
 					{
-						insts[i] = offsetMap[defInsts[i].Offset];
+						int target;
+						insts[i] = target = offsetMap[defInsts[i].Offset];
+						instList[target].IsBrTarget = true;
 					}
 					inst.Operand = insts;
 				}

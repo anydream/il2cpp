@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodePrinter.cs" />
     <Compile Include="FieldX.cs" />
     <Compile Include="GeneratorContext.cs" />
     <Compile Include="Helper.cs" />

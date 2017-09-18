@@ -16,6 +16,12 @@ namespace il2cpp
 		public bool IsBrTarget;
 		public bool IsGenerated;
 		public string InstCode;
+
+		public override string ToString()
+		{
+			return (IsBrTarget ? Offset + ": " : null) +
+				OpCode + ' ' + Operand;
+		}
 	}
 
 	internal enum StackTypeKind
@@ -132,6 +138,11 @@ namespace il2cpp
 		// 分支队列
 		private readonly Queue<Tuple<Stack<StackType>, int>> Branches = new Queue<Tuple<Stack<StackType>, int>>();
 
+		public readonly HashSet<string> DeclDepends = new HashSet<string>();
+		public readonly HashSet<string> ImplDepends = new HashSet<string>();
+		public string DeclCode;
+		public string ImplCode;
+
 		private int PushCount = 0;
 		private int PopCount = 0;
 
@@ -180,6 +191,7 @@ namespace il2cpp
 
 		public void Generate()
 		{
+			// 生成指令代码
 			var instList = CurrMethod.InstList;
 			if (instList != null)
 			{
@@ -198,6 +210,22 @@ namespace il2cpp
 							break;
 					}
 				}
+
+				// 代码合并
+				CodePrinter prt = new CodePrinter();
+				foreach (var inst in instList)
+				{
+					if (inst.IsBrTarget)
+					{
+						--prt.Indents;
+						prt.AppendLine(LabelName(inst.Offset) + ':');
+						++prt.Indents;
+					}
+
+					if (inst.InstCode != null)
+						prt.AppendLine(inst.InstCode);
+				}
+				ImplCode = prt.ToString();
 			}
 		}
 
@@ -276,6 +304,55 @@ namespace il2cpp
 					GenDup(inst);
 					return;
 
+				case Code.Ret:
+					GenReturn(inst);
+					return;
+
+				case Code.Ldc_I4_M1:
+					GenLdc(inst, StackType.I4, "-1");
+					return;
+				case Code.Ldc_I4_0:
+					GenLdc(inst, StackType.I4, "0");
+					return;
+				case Code.Ldc_I4_1:
+					GenLdc(inst, StackType.I4, "1");
+					return;
+				case Code.Ldc_I4_2:
+					GenLdc(inst, StackType.I4, "2");
+					return;
+				case Code.Ldc_I4_3:
+					GenLdc(inst, StackType.I4, "3");
+					return;
+				case Code.Ldc_I4_4:
+					GenLdc(inst, StackType.I4, "4");
+					return;
+				case Code.Ldc_I4_5:
+					GenLdc(inst, StackType.I4, "5");
+					return;
+				case Code.Ldc_I4_6:
+					GenLdc(inst, StackType.I4, "6");
+					return;
+				case Code.Ldc_I4_7:
+					GenLdc(inst, StackType.I4, "7");
+					return;
+				case Code.Ldc_I4_8:
+					GenLdc(inst, StackType.I4, "8");
+					return;
+
+				case Code.Ldc_I4_S:
+				case Code.Ldc_I4:
+					GenLdc(inst, StackType.I4, operand.ToString());
+					return;
+				case Code.Ldc_I8:
+					GenLdc(inst, StackType.I8, operand.ToString());
+					return;
+				case Code.Ldc_R4:
+					GenLdc(inst, StackType.R4, operand.ToString());
+					return;
+				case Code.Ldc_R8:
+					GenLdc(inst, StackType.R8, operand.ToString());
+					return;
+
 				case Code.Ldarg_0:
 					GenLdarg(inst, 0);
 					return;
@@ -303,6 +380,62 @@ namespace il2cpp
 				case Code.Starg_S:
 					GenStarg(inst, ((Parameter)operand).Index);
 					return;
+
+				case Code.Ldloc_0:
+					GenLdloc(inst, 0);
+					return;
+				case Code.Ldloc_1:
+					GenLdloc(inst, 1);
+					return;
+				case Code.Ldloc_2:
+					GenLdloc(inst, 2);
+					return;
+				case Code.Ldloc_3:
+					GenLdloc(inst, 3);
+					return;
+
+				case Code.Ldloc:
+				case Code.Ldloc_S:
+					GenLdloc(inst, ((Local)operand).Index);
+					return;
+
+				case Code.Ldloca:
+				case Code.Ldloca_S:
+					GenLdloc(inst, ((Local)operand).Index, true);
+					return;
+
+				case Code.Stloc_0:
+					GenStloc(inst, 0);
+					return;
+				case Code.Stloc_1:
+					GenStloc(inst, 1);
+					return;
+				case Code.Stloc_2:
+					GenStloc(inst, 2);
+					return;
+				case Code.Stloc_3:
+					GenStloc(inst, 3);
+					return;
+
+				case Code.Stloc:
+				case Code.Stloc_S:
+					GenStloc(inst, ((Local)operand).Index);
+					return;
+
+				case Code.Br:
+				case Code.Br_S:
+					inst.InstCode = GenGoto((int)operand);
+					return;
+
+				case Code.Brfalse:
+				case Code.Brfalse_S:
+					GenBrCond(inst, (int)operand, TempName(Pop()) + " == 0");
+					return;
+
+				case Code.Brtrue:
+				case Code.Brtrue_S:
+					GenBrCond(inst, (int)operand, TempName(Pop()) + " != 0");
+					return;
 			}
 
 			throw new NotImplementedException();
@@ -313,6 +446,12 @@ namespace il2cpp
 			var slotTop = Peek();
 			var slotPush = Push(slotTop.SlotType);
 			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop), null);
+		}
+
+		private void GenLdc(InstInfo inst, StackType stype, string val)
+		{
+			var slotPush = Push(stype);
+			inst.InstCode = GenAssign(TempName(slotPush), val, stype);
 		}
 
 		private void GenLdarg(InstInfo inst, int argID, bool isAddr = false)
@@ -329,6 +468,39 @@ namespace il2cpp
 			var argType = CurrMethod.ParamTypes[argID];
 			var slotPop = Pop();
 			inst.InstCode = GenAssign(ArgName(argID), TempName(slotPop), ToStackType(argType));
+		}
+
+		private void GenLdloc(InstInfo inst, int locID, bool isAddr = false)
+		{
+			Debug.Assert(locID < CurrMethod.LocalTypes.Count);
+			var locType = CurrMethod.LocalTypes[locID];
+			var slotPush = isAddr ? Push(StackType.Ptr) : Push(ToStackType(locType));
+			inst.InstCode = GenAssign(TempName(slotPush), (isAddr ? "&" : null) + LocalName(locID), slotPush.SlotType);
+		}
+
+		private void GenStloc(InstInfo inst, int locID)
+		{
+			Debug.Assert(locID < CurrMethod.LocalTypes.Count);
+			var locType = CurrMethod.LocalTypes[locID];
+			var slotPop = Pop();
+			inst.InstCode = GenAssign(LocalName(locID), TempName(slotPop), ToStackType(locType));
+		}
+
+		private void GenBrCond(InstInfo inst, int labelID, string cond)
+		{
+			inst.InstCode = "if (" + cond + ") " + GenGoto(labelID);
+		}
+
+		private void GenReturn(InstInfo inst)
+		{
+			if (TypeStack.Count > 0)
+			{
+				Debug.Assert(TypeStack.Count == 1);
+				var slotPop = Pop();
+				inst.InstCode = "return " + CastType(ToStackType(CurrMethod.ReturnType)) + TempName(slotPop);
+			}
+			else
+				inst.InstCode = "return;";
 		}
 
 		private StackType ToStackType(TypeSig tySig)
@@ -370,9 +542,22 @@ namespace il2cpp
 			return StackType.Obj;
 		}
 
+		private static string CastType(StackType stype)
+		{
+			if (stype.Kind == StackTypeKind.ValueType)
+				return "*(" + stype.GetTypeName() + "*)&";
+			else
+				return '(' + stype.GetTypeName() + ')';
+		}
+
 		private static string GenAssign(string lhs, string rhs, StackType? stype)
 		{
-			return lhs + " = " + (stype != null ? '(' + stype.Value.GetTypeName() + ')' : null) + rhs + ';';
+			return lhs + " = " + (stype != null ? CastType(stype.Value) : null) + rhs + ';';
+		}
+
+		private static string GenGoto(int labelID)
+		{
+			return "goto " + LabelName(labelID) + ';';
 		}
 
 		private static string ArgName(int argID)
@@ -388,6 +573,11 @@ namespace il2cpp
 		private static string TempName(SlotInfo slot)
 		{
 			return "tmp_" + slot.SlotIndex + '_' + slot.SlotType.GetPostfix();
+		}
+
+		private static string LabelName(int labelID)
+		{
+			return "LB_" + labelID;
 		}
 	}
 }
