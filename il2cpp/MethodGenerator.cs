@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
@@ -137,6 +138,7 @@ namespace il2cpp
 		private Stack<StackType> TypeStack = new Stack<StackType>();
 		// 分支队列
 		private readonly Queue<Tuple<Stack<StackType>, int>> Branches = new Queue<Tuple<Stack<StackType>, int>>();
+		private readonly Dictionary<int, HashSet<StackType>> SlotMap = new Dictionary<int, HashSet<StackType>>();
 
 		public readonly HashSet<string> DeclDepends = new HashSet<string>();
 		public readonly HashSet<string> ImplDepends = new HashSet<string>();
@@ -157,6 +159,7 @@ namespace il2cpp
 			SlotInfo slot = new SlotInfo(stype, TypeStack.Count);
 			TypeStack.Push(stype);
 			++PushCount;
+			AddSlotMap(slot);
 			return slot;
 		}
 
@@ -189,6 +192,16 @@ namespace il2cpp
 				target));
 		}
 
+		private void AddSlotMap(SlotInfo slot)
+		{
+			if (!SlotMap.TryGetValue(slot.SlotIndex, out var tset))
+			{
+				tset = new HashSet<StackType>();
+				SlotMap.Add(slot.SlotIndex, tset);
+			}
+			tset.Add(slot.SlotType);
+		}
+
 		public void Generate()
 		{
 			// 生成指令代码
@@ -213,6 +226,32 @@ namespace il2cpp
 
 				// 代码合并
 				CodePrinter prt = new CodePrinter();
+
+				// 局部变量
+				prt.AppendLine("// locals");
+				for (int i = 0, sz = CurrMethod.LocalTypes.Count; i < sz; ++i)
+				{
+					var locType = CurrMethod.LocalTypes[i];
+					prt.AppendFormatLine("{0} {1};",
+						ToStackType(locType).GetTypeName(),
+						LocalName(i));
+				}
+
+				// 临时变量
+				prt.AppendLine("// temps");
+				foreach (var kv in SlotMap)
+				{
+					foreach (var stype in kv.Value)
+					{
+						prt.AppendFormatLine(
+							"{0} {1}",
+							stype.GetTypeName(),
+							TempName(kv.Key, stype));
+					}
+				}
+				prt.AppendLine();
+
+				// 代码体
 				foreach (var inst in instList)
 				{
 					if (inst.IsBrTarget)
@@ -225,6 +264,7 @@ namespace il2cpp
 					if (inst.InstCode != null)
 						prt.AppendLine(inst.InstCode);
 				}
+
 				ImplCode = prt.ToString();
 			}
 		}
@@ -570,9 +610,14 @@ namespace il2cpp
 			return "loc_" + locID;
 		}
 
+		private static string TempName(int idx, StackType stype)
+		{
+			return "tmp_" + idx + '_' + stype.GetPostfix();
+		}
+
 		private static string TempName(SlotInfo slot)
 		{
-			return "tmp_" + slot.SlotIndex + '_' + slot.SlotType.GetPostfix();
+			return TempName(slot.SlotIndex, slot.SlotType);
 		}
 
 		private static string LabelName(int labelID)
