@@ -245,7 +245,7 @@ namespace il2cpp
 
 				prt.Append(")");
 
-				string strDecl = prt.ToString();
+				DeclCode = prt.ToString() + ';';
 
 				prt.AppendLine("\n{");
 				++prt.Indents;
@@ -267,7 +267,7 @@ namespace il2cpp
 					foreach (var stype in kv.Value)
 					{
 						prt.AppendFormatLine(
-							"{0} {1}",
+							"{0} {1};",
 							stype.GetTypeName(),
 							TempName(kv.Key, stype));
 					}
@@ -563,7 +563,7 @@ namespace il2cpp
 			{
 				Debug.Assert(TypeStack.Count == 1);
 				var slotPop = Pop();
-				inst.InstCode = "return " + CastType(CurrMethod.ReturnType) + TempName(slotPop);
+				inst.InstCode = "return " + CastType(CurrMethod.ReturnType) + TempName(slotPop) + ';';
 			}
 			else
 				inst.InstCode = "return;";

@@ -20,6 +20,9 @@ namespace il2cpp
 
 		public bool IsStatic => Def.IsStatic;
 
+		// 生成的字段名称
+		public string GenFieldName;
+
 		public FieldX(TypeX declType, FieldDef fldDef)
 		{
 			Debug.Assert(declType != null);

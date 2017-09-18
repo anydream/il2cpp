@@ -13,6 +13,44 @@ namespace il2cpp
 			TypeMgr = typeMgr;
 		}
 
+		public int GetTypeLayoutOrder(TypeSig tySig)
+		{
+			switch (tySig.ElementType)
+			{
+				case ElementType.I1:
+				case ElementType.U1:
+				case ElementType.Boolean:
+					return 1;
+				case ElementType.I2:
+				case ElementType.U2:
+				case ElementType.Char:
+					return 2;
+				case ElementType.I4:
+				case ElementType.U4:
+				case ElementType.R4:
+					return 4;
+				case ElementType.I8:
+				case ElementType.U8:
+				case ElementType.R8:
+					return 8;
+
+				case ElementType.I:
+				case ElementType.U:
+				case ElementType.Ptr:
+				case ElementType.ByRef:
+				case ElementType.Object:
+				case ElementType.Class:
+					return 10;
+
+				case ElementType.ValueType:
+				case ElementType.GenericInst:
+					return tySig.IsValueType ? 12 : 10;
+
+				default:
+					throw new NotImplementedException();
+			}
+		}
+
 		public string GetTypeName(TypeSig tySig)
 		{
 			switch (tySig.ElementType)
@@ -56,7 +94,12 @@ namespace il2cpp
 				case ElementType.Class:
 				case ElementType.ValueType:
 				case ElementType.GenericInst:
-					return GetTypeName(FindType(tySig)) + (tySig.IsValueType ? null : "*");
+					{
+						bool isValueType = tySig.IsValueType;
+						return (isValueType ? null : "struct ") +
+							GetTypeName(FindType(tySig)) +
+							(isValueType ? null : "*");
+					}
 
 				default:
 					throw new NotImplementedException();
@@ -110,6 +153,19 @@ namespace il2cpp
 				metX.GenMethodName = strName;
 			}
 			return prefix + strName;
+		}
+
+		public string GetFieldName(FieldX fldX)
+		{
+			string strName = fldX.GenFieldName;
+			if (strName == null)
+			{
+				if (fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
+					strName = "fld_" + EscapeName(fldX.Def.Name);
+				else
+					strName = "fld_" + NameHash((int)fldX.Def.Rid) + '_' + EscapeName(fldX.Def.Name);
+			}
+			return strName;
 		}
 
 		private static string EscapeName(string fullName)
