@@ -41,14 +41,22 @@ namespace il2cpp
 					return "float";
 				case ElementType.R8:
 					return "double";
-
 				case ElementType.I:
 					return "intptr_t";
 				case ElementType.U:
 					return "uintptr_t";
+
 				case ElementType.Ptr:
 				case ElementType.ByRef:
-					return "void*";
+					return GetTypeName(tySig.Next) + '*';
+
+				case ElementType.Object:
+					return "cls_Object*";
+
+				case ElementType.Class:
+				case ElementType.ValueType:
+				case ElementType.GenericInst:
+					return GetTypeName(FindType(tySig)) + (tySig.IsValueType ? null : "*");
 
 				default:
 					throw new NotImplementedException();
@@ -69,10 +77,39 @@ namespace il2cpp
 			if (tyX.Def.DefinitionAssembly.IsCorLib())
 				strName += EscapeName(nameKey);
 			else
-				strName += NameHash(nameKey) + '_' + EscapeName(nameKey);
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.Append(tyX.Def.Name);
+				var genArgs = tyX.GenArgs;
+				if (genArgs.IsCollectionValid())
+				{
+					sb.Append('_');
+					Helper.TypeSigListName(sb, genArgs, false);
+				};
+				strName += NameHash(nameKey.GetHashCode()) + '_' + EscapeName(sb.ToString());
+			}
 
 			tyX.GenTypeName = strName;
 			return strName;
+		}
+
+		private TypeX FindType(TypeSig tySig)
+		{
+			StringBuilder sb = new StringBuilder();
+			Helper.TypeSigName(sb, tySig, false);
+			return TypeMgr.GetTypeByName(sb.ToString());
+		}
+
+		public string GetMethodName(MethodX metX, string prefix)
+		{
+			string strName = metX.GenMethodName;
+			if (strName == null)
+			{
+				int hashCode = metX.GetNameKey().GetHashCode() ^ metX.DeclType.GetNameKey().GetHashCode();
+				strName = NameHash(hashCode) + '_' + EscapeName(metX.DeclType.Def.Name) + "__" + EscapeName(metX.Def.Name);
+				metX.GenMethodName = strName;
+			}
+			return prefix + strName;
 		}
 
 		private static string EscapeName(string fullName)
@@ -100,9 +137,9 @@ namespace il2cpp
 				   ch == '_';
 		}
 
-		private static string NameHash(string fullName)
+		private static string NameHash(int hashCode)
 		{
-			return ToRadix((uint)fullName.GetHashCode(), (uint)DigMap.Length);
+			return ToRadix((uint)hashCode, (uint)DigMap.Length);
 		}
 
 		private const string DigMap = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

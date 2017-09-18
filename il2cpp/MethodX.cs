@@ -42,6 +42,9 @@ namespace il2cpp
 		// 是否跳过处理
 		public bool IsSkipProcessing;
 
+		// 生成的方法名称
+		public string GenMethodName;
+
 		public MethodX(TypeX declType, MethodDef metDef)
 		{
 			Debug.Assert(declType != null);

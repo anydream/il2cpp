@@ -228,6 +228,27 @@ namespace il2cpp
 				CodePrinter prt = new CodePrinter();
 
 				//! 函数签名
+				prt.AppendFormat("{0} {1}(",
+					GenContext.GetTypeName(CurrMethod.ReturnType),
+					GenContext.GetMethodName(CurrMethod, PrefixMet));
+
+				for (int i = 0, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+				{
+					if (i != 0)
+						prt.Append(", ");
+
+					var argType = CurrMethod.ParamTypes[i];
+					prt.AppendFormat("{0} {1}",
+						GenContext.GetTypeName(argType),
+						ArgName(i));
+				}
+
+				prt.Append(")");
+
+				string strDecl = prt.ToString();
+
+				prt.AppendLine("\n{");
+				++prt.Indents;
 
 				// 局部变量
 				prt.AppendLine("// locals");
@@ -235,7 +256,7 @@ namespace il2cpp
 				{
 					var locType = CurrMethod.LocalTypes[i];
 					prt.AppendFormatLine("{0} {1};",
-						ToStackType(locType).GetTypeName(),
+						GenContext.GetTypeName(locType),
 						LocalName(i));
 				}
 
@@ -266,6 +287,9 @@ namespace il2cpp
 					if (inst.InstCode != null)
 						prt.AppendLine(inst.InstCode);
 				}
+
+				--prt.Indents;
+				prt.AppendLine("}");
 
 				ImplCode = prt.ToString();
 			}
@@ -539,20 +563,10 @@ namespace il2cpp
 			{
 				Debug.Assert(TypeStack.Count == 1);
 				var slotPop = Pop();
-				inst.InstCode = "return " + CastType(ToStackType(CurrMethod.ReturnType)) + TempName(slotPop);
+				inst.InstCode = "return " + CastType(CurrMethod.ReturnType) + TempName(slotPop);
 			}
 			else
 				inst.InstCode = "return;";
-		}
-
-		private string GetTypeName(TypeSig tySig)
-		{
-			return GenContext.GetTypeName(tySig);
-		}
-
-		private string GetTypeName(TypeX tyX)
-		{
-			return GenContext.GetTypeName(tyX);
 		}
 
 		private StackType ToStackType(TypeSig tySig)
@@ -589,7 +603,7 @@ namespace il2cpp
 			}
 
 			if (tySig.IsValueType)
-				return new StackType(GetTypeName(tySig));
+				return new StackType(GenContext.GetTypeName(tySig));
 
 			return StackType.Obj;
 		}
@@ -600,6 +614,15 @@ namespace il2cpp
 				return "*(" + stype.GetTypeName() + "*)&";
 			else
 				return '(' + stype.GetTypeName() + ')';
+		}
+
+		private string CastType(TypeSig tySig)
+		{
+			if (tySig.ElementType == ElementType.ValueType ||
+				tySig.ElementType == ElementType.GenericInst && tySig.IsValueType)
+				return "*(" + GenContext.GetTypeName(tySig) + "*)&";
+			else
+				return '(' + GenContext.GetTypeName(tySig) + ')';
 		}
 
 		private static string GenAssign(string lhs, string rhs, StackType? stype)
@@ -636,5 +659,9 @@ namespace il2cpp
 		{
 			return "LB_" + labelID;
 		}
+
+		private const string PrefixMet = "met_";
+		private const string PrefixVMet = "vmet_";
+		private const string PrefixVftn = "vftn_";
 	}
 }

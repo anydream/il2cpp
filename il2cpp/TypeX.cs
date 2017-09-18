@@ -69,7 +69,9 @@ namespace il2cpp
 		// 是否已生成终结器
 		public bool IsFinalizerGenerated;
 
+		// 生成的类型名称
 		public string GenTypeName;
+		// 生成的类型索引
 		public uint GenTypeID;
 
 		public TypeX(TypeDef tyDef)
