@@ -206,7 +206,7 @@ namespace il2cpp
 		{
 			// 生成指令代码
 			var instList = CurrMethod.InstList;
-			if (instList != null)
+			if (!CurrMethod.IsSkipProcessing && instList != null)
 			{
 				int currIP = 0;
 				for (; ; )
@@ -226,6 +226,8 @@ namespace il2cpp
 
 				// 代码合并
 				CodePrinter prt = new CodePrinter();
+
+				//! 函数签名
 
 				// 局部变量
 				prt.AppendLine("// locals");
@@ -543,6 +545,16 @@ namespace il2cpp
 				inst.InstCode = "return;";
 		}
 
+		private string GetTypeName(TypeSig tySig)
+		{
+			return GenContext.GetTypeName(tySig);
+		}
+
+		private string GetTypeName(TypeX tyX)
+		{
+			return GenContext.GetTypeName(tyX);
+		}
+
 		private StackType ToStackType(TypeSig tySig)
 		{
 			switch (tySig.ElementType)
@@ -577,7 +589,7 @@ namespace il2cpp
 			}
 
 			if (tySig.IsValueType)
-				return new StackType(GenContext.GetTypeName(tySig));
+				return new StackType(GetTypeName(tySig));
 
 			return StackType.Obj;
 		}
