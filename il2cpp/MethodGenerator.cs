@@ -413,7 +413,7 @@ namespace il2cpp
 					GenLdc(inst, StackType.I8, operand.ToString());
 					return;
 				case Code.Ldc_R4:
-					GenLdc(inst, StackType.R4, operand.ToString());
+					GenLdc(inst, StackType.R4, operand.ToString() + 'f');
 					return;
 				case Code.Ldc_R8:
 					GenLdc(inst, StackType.R8, operand.ToString());
@@ -502,9 +502,49 @@ namespace il2cpp
 				case Code.Brtrue_S:
 					GenBrCond(inst, (int)operand, TempName(Pop()) + " != 0");
 					return;
+
+				case Code.Conv_I1:
+					GenConv(inst, StackType.I4, "int8_t");
+					return;
+				case Code.Conv_I2:
+					GenConv(inst, StackType.I4, "int16_t");
+					return;
+				case Code.Conv_I4:
+					GenConv(inst, StackType.I4, "int32_t");
+					return;
+				case Code.Conv_I8:
+					GenConv(inst, StackType.I8, "int64_t");
+					return;
+				case Code.Conv_U1:
+					GenConv(inst, StackType.I4, "uint8_t");
+					return;
+				case Code.Conv_U2:
+					GenConv(inst, StackType.I4, "uint16_t");
+					return;
+				case Code.Conv_U4:
+					GenConv(inst, StackType.I4, "uint32_t");
+					return;
+				case Code.Conv_U8:
+					GenConv(inst, StackType.I8, "uint64_t");
+					return;
+				case Code.Conv_R4:
+					GenConv(inst, StackType.R4, "float");
+					return;
+				case Code.Conv_R8:
+					GenConv(inst, StackType.R8, "double");
+					return;
+				case Code.Conv_R_Un:
+					GenConv(inst, StackType.R8, "uintptr_t");
+					return;
+				case Code.Conv_I:
+					GenConv(inst, StackType.Ptr, "intptr_t");
+					return;
+				case Code.Conv_U:
+					GenConv(inst, StackType.Ptr, "uintptr_t");
+					return;
 			}
 
-			throw new NotImplementedException();
+			throw new NotImplementedException(inst.ToString());
 		}
 
 		private void GenDup(InstInfo inst)
@@ -567,6 +607,20 @@ namespace il2cpp
 			}
 			else
 				inst.InstCode = "return;";
+		}
+
+		private void GenConv(InstInfo inst, StackType stype, string cast)
+		{
+			var slotPop = Pop();
+			var slotPush = Push(stype);
+
+			if (cast == stype.GetTypeName())
+				cast = null;
+
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				(cast != null ? '(' + cast + ')' : null) + TempName(slotPop),
+				stype);
 		}
 
 		private StackType ToStackType(TypeSig tySig)
