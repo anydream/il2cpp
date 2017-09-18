@@ -542,6 +542,22 @@ namespace il2cpp
 				case Code.Conv_U:
 					GenConv(inst, StackType.Ptr, "uintptr_t");
 					return;
+
+				case Code.Add:
+					GenBinOp(inst, " + ");
+					return;
+				case Code.Sub:
+					GenBinOp(inst, " - ");
+					return;
+				case Code.Mul:
+					GenBinOp(inst, " * ");
+					return;
+				case Code.Div:
+					GenBinOp(inst, " / ");
+					return;
+				case Code.Rem:
+					GenBinOp(inst, " % ");
+					return;
 			}
 
 			throw new NotImplementedException(inst.ToString());
@@ -621,6 +637,20 @@ namespace il2cpp
 				TempName(slotPush),
 				(cast != null ? '(' + cast + ')' : null) + TempName(slotPop),
 				stype);
+		}
+
+		private void GenBinOp(InstInfo inst, string op)
+		{
+			var operands = Pop(2);
+
+			if (!IsBinaryOpValid(operands[0].SlotType.Kind, operands[1].SlotType.Kind, out var retType, inst.OpCode.Code))
+				throw new InvalidOperationException();
+
+			var slotPush = Push(new StackType(retType));
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				TempName(operands[0]) + op + TempName(operands[1]),
+				slotPush.SlotType);
 		}
 
 		private StackType ToStackType(TypeSig tySig)
@@ -717,5 +747,108 @@ namespace il2cpp
 		private const string PrefixMet = "met_";
 		private const string PrefixVMet = "vmet_";
 		private const string PrefixVftn = "vftn_";
+
+		private static bool IsBinaryOpValid(StackTypeKind op1, StackTypeKind op2, out StackTypeKind retType, Code code)
+		{
+			retType = StackTypeKind.I4;
+			switch (op1)
+			{
+				case StackTypeKind.I4:
+					switch (op2)
+					{
+						case StackTypeKind.I4:
+							retType = StackTypeKind.I4;
+							return true;
+
+						case StackTypeKind.Ptr:
+							retType = StackTypeKind.Ptr;
+							return true;
+
+						case StackTypeKind.Ref:
+							if (code == Code.Add)
+							{
+								retType = StackTypeKind.Ref;
+								return true;
+							}
+							break;
+					}
+					return false;
+
+				case StackTypeKind.I8:
+					if (op2 == StackTypeKind.I8)
+					{
+						retType = StackTypeKind.I8;
+						return true;
+					}
+					return false;
+
+				case StackTypeKind.R4:
+					if (op2 == StackTypeKind.R4)
+					{
+						retType = StackTypeKind.R4;
+						return true;
+					}
+					if (op2 == StackTypeKind.R8)
+					{
+						retType = StackTypeKind.R8;
+						return true;
+					}
+					return false;
+
+				case StackTypeKind.R8:
+					if (op2 == StackTypeKind.R4 || op2 == StackTypeKind.R8)
+					{
+						retType = StackTypeKind.R8;
+						return true;
+					}
+					return false;
+
+				case StackTypeKind.Ptr:
+					switch (op2)
+					{
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							retType = StackTypeKind.Ptr;
+							return true;
+
+						case StackTypeKind.Ref:
+							if (code == Code.Add)
+							{
+								retType = StackTypeKind.Ref;
+								return true;
+							}
+							break;
+					}
+					return false;
+
+				case StackTypeKind.Ref:
+					switch (op2)
+					{
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							if (code == Code.Add || code == Code.Sub)
+							{
+								retType = StackTypeKind.Ref;
+								return true;
+							}
+							break;
+
+						case StackTypeKind.Ref:
+							if (code == Code.Sub)
+							{
+								retType = StackTypeKind.Ptr;
+								return true;
+							}
+							break;
+					}
+					return false;
+
+				case StackTypeKind.Obj:
+					return false;
+
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
 	}
 }
