@@ -29,6 +29,7 @@ namespace il2cpp
 			foreach (MethodX metX in CurrType.Methods)
 			{
 				var metGen = new MethodGenerator(NameGen, metX);
+				metGen.Generate();
 			}
 
 			return unit;
