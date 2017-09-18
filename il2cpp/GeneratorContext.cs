@@ -2,11 +2,11 @@
 
 namespace il2cpp
 {
-	internal class NameGenerator
+	internal class GeneratorContext
 	{
 		private readonly TypeManager TypeMgr;
 
-		public NameGenerator(TypeManager typeMgr)
+		public GeneratorContext(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
 		}

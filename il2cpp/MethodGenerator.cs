@@ -124,7 +124,7 @@ namespace il2cpp
 	// 方法生成器
 	internal class MethodGenerator
 	{
-		private readonly NameGenerator NameGen;
+		private readonly GeneratorContext GenContext;
 		private readonly MethodX CurrMethod;
 
 		// 类型栈
@@ -135,9 +135,9 @@ namespace il2cpp
 		private int PushCount = 0;
 		private int PopCount = 0;
 
-		public MethodGenerator(NameGenerator nameGen, MethodX metX)
+		public MethodGenerator(GeneratorContext genContext, MethodX metX)
 		{
-			NameGen = nameGen;
+			GenContext = genContext;
 			CurrMethod = metX;
 		}
 
@@ -365,7 +365,7 @@ namespace il2cpp
 			}
 
 			if (tySig.IsValueType)
-				return new StackType(NameGen.GetTypeName(tySig));
+				return new StackType(GenContext.GetTypeName(tySig));
 
 			return StackType.Obj;
 		}

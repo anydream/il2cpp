@@ -56,13 +56,13 @@ namespace il2cpp
 
 			TypeMgr.ClearForGenerator();
 
-			var nameGen = new NameGenerator(TypeMgr);
+			var genContext = new GeneratorContext(TypeMgr);
 
 			var units = new Dictionary<string, CompileUnit>();
 			var types = TypeMgr.Types;
 			foreach (TypeX tyX in types)
 			{
-				CompileUnit unit = new TypeGenerator(nameGen, tyX).Generate();
+				CompileUnit unit = new TypeGenerator(genContext, tyX).Generate();
 				units.Add(unit.Name, unit);
 			}
 		}
