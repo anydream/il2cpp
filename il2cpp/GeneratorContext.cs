@@ -1,10 +1,142 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 
 namespace il2cpp
 {
+	internal class CompileUnit
+	{
+		public string Name;
+		public string DeclCode;
+		public string ImplCode;
+		public HashSet<string> DeclDepends = new HashSet<string>();
+		public HashSet<string> ImplDepends = new HashSet<string>();
+		public uint DependOrder;
+
+		public void Optimize()
+		{
+			ImplDepends.ExceptWith(DeclDepends);
+			ImplDepends.Remove(Name);
+			DeclDepends.Remove(Name);
+		}
+
+		public void Append(CompileUnit unit)
+		{
+			DeclCode += unit.DeclCode;
+			DeclDepends.UnionWith(unit.DeclDepends);
+			ImplCode += unit.ImplCode;
+			ImplDepends.UnionWith(unit.ImplDepends);
+		}
+
+		public bool IsEmpty()
+		{
+			return DeclCode.Length == 0 &&
+				   ImplCode.Length == 0;
+		}
+	}
+
+	internal class CompileUnitMerger
+	{
+		private uint UnitCounter;
+		public readonly Dictionary<string, CompileUnit> UnitMap;
+		private static readonly HashSet<string> BridgeTypes = new HashSet<string>
+		{
+			"cls_Object"
+		};
+
+		public CompileUnitMerger(Dictionary<string, CompileUnit> units)
+		{
+			UnitMap = units;
+		}
+
+		public void Merge()
+		{
+			// 排序编译单元
+			var sortedUnits = UnitMap.Values.ToList();
+			sortedUnits.Sort((lhs, rhs) =>
+			{
+				uint l = GetDependOrder(lhs);
+				uint r = GetDependOrder(rhs);
+				if (l < r)
+					return -1;
+				else if (l > r)
+					return 1;
+				return 0;
+			});
+
+			// 合并编译单元
+			UnitMap.Clear();
+			var transMap = new Dictionary<string, string>();
+
+			CompileUnit bridgeUnit = new CompileUnit();
+			bridgeUnit.Name = "il2cppBridge";
+			UnitMap.Add(bridgeUnit.Name, bridgeUnit);
+
+			CompileUnit currUnit = NewUnit();
+
+			foreach (var unit in sortedUnits)
+			{
+				if (BridgeTypes.Contains(unit.Name))
+				{
+					bridgeUnit.Append(unit);
+					transMap[unit.Name] = bridgeUnit.Name;
+				}
+				else
+				{
+					currUnit.Append(unit);
+					transMap[unit.Name] = currUnit.Name;
+					if (IsUnitFull(currUnit))
+						currUnit = NewUnit();
+				}
+			}
+
+			foreach (var unit in UnitMap.Values)
+			{
+				var declDeps = new HashSet<string>();
+				foreach (string dep in unit.DeclDepends)
+					declDeps.Add(transMap[dep]);
+				unit.DeclDepends = declDeps;
+
+				var implDeps = new HashSet<string>();
+				foreach (string dep in unit.ImplDepends)
+					implDeps.Add(transMap[dep]);
+				unit.ImplDepends = implDeps;
+
+				unit.Optimize();
+			}
+		}
+
+		private CompileUnit NewUnit()
+		{
+			var unit = new CompileUnit();
+			unit.Name = "il2cppUnit_" + ++UnitCounter;
+			UnitMap.Add(unit.Name, unit);
+			return unit;
+		}
+
+		private bool IsUnitFull(CompileUnit unit)
+		{
+			return unit.DeclCode.Length > 30000 ||
+				   unit.ImplCode.Length > 100000;
+		}
+
+		private uint GetDependOrder(CompileUnit unit)
+		{
+			uint depOrder = unit.DependOrder;
+			if (depOrder != 0)
+				return depOrder;
+
+			foreach (string dep in unit.DeclDepends)
+				depOrder += GetDependOrder(UnitMap[dep]);
+
+			++depOrder;
+			unit.DependOrder = depOrder;
+			return depOrder;
+		}
+	}
+
 	internal class GeneratorContext
 	{
 		private readonly TypeManager TypeMgr;
@@ -18,6 +150,7 @@ namespace il2cpp
 		{
 			var units = new Dictionary<string, CompileUnit>();
 
+			// 生成类型代码
 			var types = TypeMgr.Types;
 			foreach (TypeX tyX in types)
 			{
@@ -25,7 +158,10 @@ namespace il2cpp
 				units.Add(unit.Name, unit);
 			}
 
-			return units;
+			var merger = new CompileUnitMerger(units);
+			merger.Merge();
+
+			return merger.UnitMap;
 		}
 
 		public int GetTypeLayoutOrder(TypeSig tySig)

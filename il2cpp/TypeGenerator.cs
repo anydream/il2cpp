@@ -3,22 +3,6 @@ using System.Linq;
 
 namespace il2cpp
 {
-	internal class CompileUnit
-	{
-		public string Name;
-		public string DeclCode;
-		public string ImplCode;
-		public readonly HashSet<string> DeclDepends = new HashSet<string>();
-		public readonly HashSet<string> ImplDepends = new HashSet<string>();
-
-		public void Optimize()
-		{
-			ImplDepends.ExceptWith(DeclDepends);
-			ImplDepends.Remove(Name);
-			DeclDepends.Remove(Name);
-		}
-	}
-
 	internal class TypeGenerator
 	{
 		private readonly GeneratorContext GenContext;
