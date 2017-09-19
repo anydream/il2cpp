@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
@@ -500,12 +499,43 @@ namespace il2cpp
 
 				case Code.Brfalse:
 				case Code.Brfalse_S:
-					GenBrCond(inst, (int)operand, TempName(Pop()) + " == 0");
+					GenBrCond(inst, (int)operand, GenBoolCond(false));
 					return;
 
 				case Code.Brtrue:
 				case Code.Brtrue_S:
-					GenBrCond(inst, (int)operand, TempName(Pop()) + " != 0");
+					GenBrCond(inst, (int)operand, GenBoolCond(true));
+					return;
+
+				case Code.Beq:
+				case Code.Beq_S:
+				case Code.Bge:
+				case Code.Bge_S:
+				case Code.Bgt:
+				case Code.Bgt_S:
+				case Code.Ble:
+				case Code.Ble_S:
+				case Code.Blt:
+				case Code.Blt_S:
+				case Code.Bne_Un:
+				case Code.Bne_Un_S:
+				case Code.Bge_Un:
+				case Code.Bge_Un_S:
+				case Code.Bgt_Un:
+				case Code.Bgt_Un_S:
+				case Code.Ble_Un:
+				case Code.Ble_Un_S:
+				case Code.Blt_Un:
+				case Code.Blt_Un_S:
+					GenBrCond(inst, (int)operand, GenCompareCond(inst.OpCode));
+					return;
+
+				case Code.Ceq:
+				case Code.Cgt:
+				case Code.Cgt_Un:
+				case Code.Clt:
+				case Code.Clt_Un:
+					GenLdc(inst, StackType.I4, '(' + GenCompareCond(inst.OpCode) + ')');
 					return;
 
 				case Code.Conv_I1:
@@ -630,6 +660,132 @@ namespace il2cpp
 				TempName(slotPush),
 				(cast != null ? '(' + cast + ')' : null) + TempName(slotPop),
 				stype);
+		}
+
+		enum CompareKind
+		{
+			Eq,
+			Ne,
+			Ge,
+			Gt,
+			Le,
+			Lt
+		}
+
+		private string GenCompareCond(OpCode opCode)
+		{
+			var slotPops = Pop(2);
+
+			if (!IsBinaryCompareValid(slotPops[0].SlotType.Kind, slotPops[1].SlotType.Kind, opCode.Code))
+				throw new InvalidOperationException();
+
+			string lhs = TempName(slotPops[0]);
+			string rhs = TempName(slotPops[1]);
+
+			CompareKind cmp;
+			bool isUn = false;
+
+			switch (opCode.Code)
+			{
+				case Code.Beq:
+				case Code.Beq_S:
+				case Code.Ceq:
+					cmp = CompareKind.Eq;
+					break;
+				case Code.Bge:
+				case Code.Bge_S:
+					cmp = CompareKind.Ge;
+					break;
+				case Code.Bgt:
+				case Code.Bgt_S:
+				case Code.Cgt:
+					cmp = CompareKind.Gt;
+					break;
+				case Code.Ble:
+				case Code.Ble_S:
+					cmp = CompareKind.Le;
+					break;
+				case Code.Blt:
+				case Code.Blt_S:
+				case Code.Clt:
+					cmp = CompareKind.Lt;
+					break;
+				case Code.Bne_Un:
+				case Code.Bne_Un_S:
+					cmp = CompareKind.Ne;
+					break;
+				case Code.Bge_Un:
+				case Code.Bge_Un_S:
+					cmp = CompareKind.Ge;
+					isUn = true;
+					break;
+				case Code.Bgt_Un:
+				case Code.Bgt_Un_S:
+				case Code.Cgt_Un:
+					cmp = CompareKind.Gt;
+					isUn = true;
+					break;
+				case Code.Ble_Un:
+				case Code.Ble_Un_S:
+					cmp = CompareKind.Le;
+					isUn = true;
+					break;
+				case Code.Blt_Un:
+				case Code.Blt_Un_S:
+				case Code.Clt_Un:
+					cmp = CompareKind.Lt;
+					isUn = true;
+					break;
+
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			switch (cmp)
+			{
+				case CompareKind.Eq:
+					return lhs + " == " + rhs;
+				case CompareKind.Ne:
+					return lhs + " != " + rhs;
+				case CompareKind.Ge:
+					{
+						if (isUn)
+							return '!' + (lhs + " < " + rhs);
+						else
+							return lhs + " >= " + rhs;
+					}
+				case CompareKind.Gt:
+					{
+						if (isUn)
+							return '!' + (lhs + " <= " + rhs);
+						else
+							return lhs + " > " + rhs;
+					}
+				case CompareKind.Le:
+					{
+						if (isUn)
+							return '!' + (lhs + " > " + rhs);
+						else
+							return lhs + " <= " + rhs;
+					}
+				case CompareKind.Lt:
+					{
+						if (isUn)
+							return '!' + (lhs + " >= " + rhs);
+						else
+							return lhs + " < " + rhs;
+					}
+				default:
+					throw new ArgumentOutOfRangeException(nameof(cmp), cmp, null);
+			}
+		}
+
+		private string GenBoolCond(bool b)
+		{
+			if (b)
+				return TempName(Pop()) + " != 0";
+			else
+				return TempName(Pop()) + " == 0";
 		}
 
 		private void GenBinOp(InstInfo inst, string op)
@@ -882,7 +1038,92 @@ namespace il2cpp
 					return false;
 
 				default:
-					throw new ArgumentOutOfRangeException();
+					throw new ArgumentOutOfRangeException(nameof(op1), op1, null);
+			}
+		}
+
+		private static bool IsBinaryCompareValid(StackTypeKind op1, StackTypeKind op2, Code code)
+		{
+			switch (op1)
+			{
+				case StackTypeKind.I4:
+					switch (op2)
+					{
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							return true;
+					}
+					return false;
+
+				case StackTypeKind.I8:
+					if (op2 == StackTypeKind.I8)
+						return true;
+					return false;
+
+				case StackTypeKind.R4:
+				case StackTypeKind.R8:
+					return op2 == StackTypeKind.R4 || op2 == StackTypeKind.R8;
+
+				case StackTypeKind.Ptr:
+					switch (op2)
+					{
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							return true;
+						case StackTypeKind.Ref:
+							{
+								switch (code)
+								{
+									case Code.Beq:
+									case Code.Beq_S:
+									case Code.Bne_Un:
+									case Code.Bne_Un_S:
+									case Code.Ceq:
+										return true;
+								}
+							}
+							break;
+					}
+					return false;
+
+				case StackTypeKind.Ref:
+					switch (op2)
+					{
+						case StackTypeKind.Ref:
+							return true;
+						case StackTypeKind.Ptr:
+							{
+								switch (code)
+								{
+									case Code.Beq:
+									case Code.Beq_S:
+									case Code.Bne_Un:
+									case Code.Bne_Un_S:
+									case Code.Ceq:
+										return true;
+								}
+							}
+							break;
+					}
+					return false;
+
+				case StackTypeKind.Obj:
+					if (op2 == StackTypeKind.Obj)
+					{
+						switch (code)
+						{
+							case Code.Beq:
+							case Code.Beq_S:
+							case Code.Bne_Un:
+							case Code.Bne_Un_S:
+							case Code.Ceq:
+								return true;
+						}
+					}
+					return false;
+
+				default:
+					throw new ArgumentOutOfRangeException(nameof(op1), op1, null);
 			}
 		}
 	}
