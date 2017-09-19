@@ -193,10 +193,15 @@ namespace test
 			Console.Write("Resolve: {0}ms, ", elapsedMS);
 
 			sw.Restart();
-			context.Generate();
+			var units = context.Generate();
 			sw.Stop();
 			elapsedMS = sw.ElapsedMilliseconds;
 			Console.Write("Generate: {0}ms, ", elapsedMS);
+
+			string validatedName = ValidatePath(testName);
+			Il2cppContext.SaveToFolder(
+				Path.Combine(imageDir, "gen", validatedName),
+				units);
 
 			Console.WriteLine();
 		}

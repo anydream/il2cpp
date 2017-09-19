@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
 using dnlib.DotNet;
 
 namespace il2cpp
@@ -49,14 +51,26 @@ namespace il2cpp
 			TypeMgr?.ResolveAll();
 		}
 
-		public void Generate()
+		public List<CompileUnit> Generate()
 		{
 			if (TypeMgr == null)
-				return;
+				return null;
 
 			TypeMgr.ClearForGenerator();
+			return new GeneratorContext(TypeMgr).Generate();
+		}
 
-			var units = new GeneratorContext(TypeMgr).Generate();
+		public static void SaveToFolder(string folder, List<CompileUnit> units)
+		{
+			Directory.CreateDirectory(folder);
+			foreach (var unit in units)
+			{
+				string path = Path.Combine(folder, unit.Name + ".h");
+				File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.DeclCode));
+
+				path = Path.Combine(folder, unit.Name + ".cpp");
+				File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.ImplCode));
+			}
 		}
 	}
 }

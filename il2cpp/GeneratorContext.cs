@@ -6,7 +6,7 @@ using dnlib.DotNet;
 
 namespace il2cpp
 {
-	internal class CompileUnit
+	public class CompileUnit
 	{
 		public string Name;
 		public string DeclCode;
@@ -92,6 +92,9 @@ namespace il2cpp
 				}
 			}
 
+			if (currUnit.IsEmpty())
+				UnitMap.Remove(currUnit.Name);
+
 			foreach (var unit in UnitMap.Values)
 			{
 				var declDeps = new HashSet<string>();
@@ -146,7 +149,7 @@ namespace il2cpp
 			TypeMgr = typeMgr;
 		}
 
-		public Dictionary<string, CompileUnit> Generate()
+		public List<CompileUnit> Generate()
 		{
 			var units = new Dictionary<string, CompileUnit>();
 
@@ -161,7 +164,26 @@ namespace il2cpp
 			var merger = new CompileUnitMerger(units);
 			merger.Merge();
 
-			return merger.UnitMap;
+			StringBuilder sb = new StringBuilder();
+			var unitList = merger.UnitMap.Values.ToList();
+			foreach (var unit in unitList)
+			{
+				sb.Append("#pragma once\n");
+				sb.Append("#include \"il2cpp.h\"\n");
+				foreach (var dep in unit.DeclDepends)
+					sb.AppendFormat("#include \"{0}.h\"\n", dep);
+				sb.Append(unit.DeclCode);
+				unit.DeclCode = sb.ToString();
+				sb.Clear();
+
+				sb.AppendFormat("#include \"{0}.h\"\n", unit.Name);
+				foreach (var dep in unit.ImplDepends)
+					sb.AppendFormat("#include \"{0}.h\"\n", dep);
+				sb.Append(unit.ImplCode);
+				unit.ImplCode = sb.ToString();
+				sb.Clear();
+			}
+			return unitList;
 		}
 
 		public int GetTypeLayoutOrder(TypeSig tySig)
