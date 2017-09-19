@@ -28,7 +28,7 @@ namespace testcase
 
 		public static long Entry()
 		{
-			return Fib(50);
+			return Fib(40);
 		}
 	}
 }
