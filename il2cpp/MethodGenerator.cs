@@ -227,10 +227,11 @@ namespace il2cpp
 				// 代码合并
 				CodePrinter prt = new CodePrinter();
 
-				//! 函数签名
+				// 函数签名
 				prt.AppendFormat("{0} {1}(",
 					GenContext.GetTypeName(CurrMethod.ReturnType),
 					GenContext.GetMethodName(CurrMethod, PrefixMet));
+				RefValueTypeDecl(CurrMethod.ReturnType);
 
 				for (int i = 0, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
 				{
@@ -238,6 +239,7 @@ namespace il2cpp
 						prt.Append(", ");
 
 					var argType = CurrMethod.ParamTypes[i];
+					RefValueTypeDecl(argType);
 					prt.AppendFormat("{0} {1}",
 						GenContext.GetTypeName(argType),
 						ArgName(i));
@@ -615,6 +617,7 @@ namespace il2cpp
 		{
 			Debug.Assert(argID < CurrMethod.ParamTypes.Count);
 			var argType = CurrMethod.ParamTypes[argID];
+			RefValueTypeImpl(argType);
 			var slotPush = isAddr ? Push(StackType.Ptr) : Push(ToStackType(argType));
 			inst.InstCode = GenAssign(TempName(slotPush), (isAddr ? "&" : null) + ArgName(argID), slotPush.SlotType);
 		}
@@ -623,6 +626,7 @@ namespace il2cpp
 		{
 			Debug.Assert(argID < CurrMethod.ParamTypes.Count);
 			var argType = CurrMethod.ParamTypes[argID];
+			RefValueTypeImpl(argType);
 			var slotPop = Pop();
 			inst.InstCode = GenAssign(ArgName(argID), TempName(slotPop), argType);
 		}
@@ -631,6 +635,7 @@ namespace il2cpp
 		{
 			Debug.Assert(locID < CurrMethod.LocalTypes.Count);
 			var locType = CurrMethod.LocalTypes[locID];
+			RefValueTypeImpl(locType);
 			var slotPush = isAddr ? Push(StackType.Ptr) : Push(ToStackType(locType));
 			inst.InstCode = GenAssign(TempName(slotPush), (isAddr ? "&" : null) + LocalName(locID), slotPush.SlotType);
 		}
@@ -639,6 +644,7 @@ namespace il2cpp
 		{
 			Debug.Assert(locID < CurrMethod.LocalTypes.Count);
 			var locType = CurrMethod.LocalTypes[locID];
+			RefValueTypeImpl(locType);
 			var slotPop = Pop();
 			inst.InstCode = GenAssign(LocalName(locID), TempName(slotPop), locType);
 		}
@@ -816,6 +822,8 @@ namespace il2cpp
 
 		private void GenCall(InstInfo inst, MethodX metX)
 		{
+			RefTypeImpl(metX.DeclType);
+
 			StringBuilder sb = new StringBuilder();
 			sb.Append(GenContext.GetMethodName(metX, PrefixMet));
 			sb.Append('(');
@@ -893,11 +901,37 @@ namespace il2cpp
 
 		private string CastType(TypeSig tySig)
 		{
-			if (tySig.ElementType == ElementType.ValueType ||
-				tySig.ElementType == ElementType.GenericInst && tySig.IsValueType)
+			if (Helper.IsValueType(tySig))
 				return "*(" + GenContext.GetTypeName(tySig) + "*)&";
 			else
 				return '(' + GenContext.GetTypeName(tySig) + ')';
+		}
+
+		private void RefTypeDecl(TypeSig tySig)
+		{
+			DeclDepends.Add(GenContext.GetTypeName(tySig));
+		}
+
+		private void RefValueTypeDecl(TypeSig tySig)
+		{
+			if (Helper.IsValueType(tySig))
+				RefTypeDecl(tySig);
+		}
+
+		private void RefTypeImpl(TypeSig tySig)
+		{
+			ImplDepends.Add(GenContext.GetTypeName(tySig));
+		}
+
+		private void RefTypeImpl(TypeX tyX)
+		{
+			ImplDepends.Add(GenContext.GetTypeName(tyX));
+		}
+
+		private void RefValueTypeImpl(TypeSig tySig)
+		{
+			if (Helper.IsValueType(tySig))
+				RefTypeImpl(tySig);
 		}
 
 		private static string GenAssign(string lhs, string rhs, StackType? stype)

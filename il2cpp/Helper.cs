@@ -201,6 +201,12 @@ namespace il2cpp
 			return false;
 		}
 
+		public static bool IsValueType(TypeSig tySig)
+		{
+			return tySig.ElementType == ElementType.ValueType ||
+				   tySig.ElementType == ElementType.GenericInst && tySig.IsValueType;
+		}
+
 		public static void TypeNameKey(
 			StringBuilder sb,
 			TypeDef tyDef,

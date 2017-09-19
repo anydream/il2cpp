@@ -10,6 +10,13 @@ namespace il2cpp
 		public string ImplCode;
 		public readonly HashSet<string> DeclDepends = new HashSet<string>();
 		public readonly HashSet<string> ImplDepends = new HashSet<string>();
+
+		public void Optimize()
+		{
+			ImplDepends.ExceptWith(DeclDepends);
+			ImplDepends.Remove(Name);
+			DeclDepends.Remove(Name);
+		}
 	}
 
 	internal class TypeGenerator
@@ -34,9 +41,12 @@ namespace il2cpp
 			prtDecl.AppendFormatLine("// {0}", CurrType.GetNameKey());
 			if (CurrType.BaseType != null)
 			{
+				string strBaseTypeName = GenContext.GetTypeName(CurrType.BaseType);
+				unit.DeclDepends.Add(strBaseTypeName);
+
 				prtDecl.AppendFormatLine("struct {0} : {1}",
 					GenContext.GetTypeName(CurrType),
-					GenContext.GetTypeName(CurrType.BaseType));
+					strBaseTypeName);
 			}
 			else
 			{
@@ -52,8 +62,12 @@ namespace il2cpp
 			// 生成字段
 			foreach (var fldX in fields)
 			{
+				string strFldTypeName = GenContext.GetTypeName(fldX.FieldType);
+				if (Helper.IsValueType(fldX.FieldType))
+					unit.DeclDepends.Add(strFldTypeName);
+
 				prtDecl.AppendFormatLine("{0} {1};",
-					GenContext.GetTypeName(fldX.FieldType),
+					strFldTypeName,
 					GenContext.GetFieldName(fldX));
 			}
 
@@ -78,6 +92,8 @@ namespace il2cpp
 
 			unit.DeclCode = prtDecl.ToString();
 			unit.ImplCode = prtImpl.ToString();
+
+			unit.Optimize();
 
 			return unit;
 		}

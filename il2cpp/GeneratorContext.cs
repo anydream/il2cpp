@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using dnlib.DotNet;
 
@@ -11,6 +12,20 @@ namespace il2cpp
 		public GeneratorContext(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
+		}
+
+		public Dictionary<string, CompileUnit> Generate()
+		{
+			var units = new Dictionary<string, CompileUnit>();
+
+			var types = TypeMgr.Types;
+			foreach (TypeX tyX in types)
+			{
+				CompileUnit unit = new TypeGenerator(this, tyX).Generate();
+				units.Add(unit.Name, unit);
+			}
+
+			return units;
 		}
 
 		public int GetTypeLayoutOrder(TypeSig tySig)
