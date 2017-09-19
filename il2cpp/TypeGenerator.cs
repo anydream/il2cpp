@@ -31,6 +31,7 @@ namespace il2cpp
 			// 生成类结构
 			CodePrinter prtDecl = new CodePrinter();
 
+			prtDecl.AppendFormatLine("// {0}", CurrType.GetNameKey());
 			if (CurrType.BaseType != null)
 			{
 				prtDecl.AppendFormatLine("struct {0} : {1}",
@@ -67,6 +68,7 @@ namespace il2cpp
 				var metGen = new MethodGenerator(GenContext, metX);
 				metGen.Generate();
 
+				prtDecl.AppendFormatLine("// {0}", metX.GetNameKey());
 				prtDecl.AppendLine(metGen.DeclCode);
 				unit.DeclDepends.UnionWith(metGen.DeclDepends);
 

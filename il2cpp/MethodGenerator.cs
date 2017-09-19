@@ -602,7 +602,7 @@ namespace il2cpp
 		{
 			var slotTop = Peek();
 			var slotPush = Push(slotTop.SlotType);
-			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop), null);
+			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop), (TypeSig)null);
 		}
 
 		private void GenLdc(InstInfo inst, StackType stype, string val)
@@ -624,7 +624,7 @@ namespace il2cpp
 			Debug.Assert(argID < CurrMethod.ParamTypes.Count);
 			var argType = CurrMethod.ParamTypes[argID];
 			var slotPop = Pop();
-			inst.InstCode = GenAssign(ArgName(argID), TempName(slotPop), ToStackType(argType));
+			inst.InstCode = GenAssign(ArgName(argID), TempName(slotPop), argType);
 		}
 
 		private void GenLdloc(InstInfo inst, int locID, bool isAddr = false)
@@ -640,7 +640,7 @@ namespace il2cpp
 			Debug.Assert(locID < CurrMethod.LocalTypes.Count);
 			var locType = CurrMethod.LocalTypes[locID];
 			var slotPop = Pop();
-			inst.InstCode = GenAssign(LocalName(locID), TempName(slotPop), ToStackType(locType));
+			inst.InstCode = GenAssign(LocalName(locID), TempName(slotPop), locType);
 		}
 
 		private void GenBrCond(InstInfo inst, int labelID, string cond)
@@ -798,7 +798,7 @@ namespace il2cpp
 			var slotPush = Push(new StackType(retType));
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				TempName(slotPops[0]) + op + TempName(slotPops[1]),
+				'(' + TempName(slotPops[0]) + op + TempName(slotPops[1]) + ')',
 				slotPush.SlotType);
 		}
 
@@ -903,6 +903,11 @@ namespace il2cpp
 		private static string GenAssign(string lhs, string rhs, StackType? stype)
 		{
 			return lhs + " = " + (stype != null ? CastType(stype.Value) : null) + rhs + ';';
+		}
+
+		private string GenAssign(string lhs, string rhs, TypeSig tySig)
+		{
+			return lhs + " = " + (tySig != null ? CastType(tySig) : null) + rhs + ';';
 		}
 
 		private static string GenGoto(int labelID)
