@@ -305,7 +305,7 @@ namespace il2cpp
 				return;
 			IsVCallFinalizerGenerated = true;
 
-			MethodDef fin = Context.Module.CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("Finalize");
+			MethodDef fin = Context.CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("Finalize");
 			MethodX vmetFinalizer = ResolveMethodDef(fin);
 
 			AddVCallEntry(vmetFinalizer);
@@ -863,7 +863,7 @@ namespace il2cpp
 			TypeDefUser tyDef = new TypeDefUser(
 				"il2cpprt",
 				"SZArray`1",
-				Context.Module.CorLibTypes.GetTypeRef("System", "Array"));
+				Context.CorLibTypes.GetTypeRef("System", "Array"));
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);
 			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "IList`1", genArgT));
@@ -871,12 +871,12 @@ namespace il2cpp
 			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "IEnumerable`1", genArgT));
 			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "IReadOnlyList`1", genArgT));
 			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "IReadOnlyCollection`1", genArgT));
-			Context.Module.Types.Add(tyDef);
+			Context.CorLibModule.Types.Add(tyDef);
 
 			// .ctor(int)
 			MethodDefUser metDef = new MethodDefUser(
 				".ctor",
-				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, Context.Module.CorLibTypes.Int32),
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32),
 				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
@@ -884,7 +884,7 @@ namespace il2cpp
 			// T Get(int)
 			metDef = new MethodDefUser(
 				"Get",
-				MethodSig.CreateInstance(genArgT, Context.Module.CorLibTypes.Int32),
+				MethodSig.CreateInstance(genArgT, Context.CorLibTypes.Int32),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
@@ -892,7 +892,7 @@ namespace il2cpp
 			// void Set(int,T)
 			metDef = new MethodDefUser(
 				"Set",
-				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, Context.Module.CorLibTypes.Int32, genArgT),
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, genArgT),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
@@ -900,7 +900,7 @@ namespace il2cpp
 			// T& Address(int)
 			metDef = new MethodDefUser(
 				"Address",
-				MethodSig.CreateInstance(new ByRefSig(genArgT), Context.Module.CorLibTypes.Int32),
+				MethodSig.CreateInstance(new ByRefSig(genArgT), Context.CorLibTypes.Int32),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
@@ -913,36 +913,36 @@ namespace il2cpp
 			TypeDefUser tyDef = new TypeDefUser(
 				"il2cpprt",
 				"MDArray" + rank + "`1",
-				Context.Module.CorLibTypes.GetTypeRef("System", "Array"));
+				Context.CorLibTypes.GetTypeRef("System", "Array"));
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);
-			Context.Module.Types.Add(tyDef);
+			Context.CorLibModule.Types.Add(tyDef);
 
 			// .ctor(int,int)
 			TypeSig[] argSigs = new TypeSig[rank];
-			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
 
 			MethodDefUser metDef = new MethodDefUser(
 				".ctor",
-				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, argSigs),
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, argSigs),
 				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
 
 			// .ctor(int,int,int,int)
 			argSigs = new TypeSig[rank * 2];
-			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
 
 			metDef = new MethodDefUser(
 				".ctor",
-				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, argSigs),
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, argSigs),
 				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
 
 			// T Get(int,int)
 			argSigs = new TypeSig[rank];
-			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
 
 			metDef = new MethodDefUser(
 				"Get",
@@ -953,19 +953,19 @@ namespace il2cpp
 
 			// void Set(int,int,T)
 			argSigs = new TypeSig[rank + 1];
-			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
 			argSigs[argSigs.Length - 1] = genArgT;
 
 			metDef = new MethodDefUser(
 				"Set",
-				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, argSigs),
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, argSigs),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
 
 			// T& Address(int,int)
 			argSigs = new TypeSig[rank];
-			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
 
 			metDef = new MethodDefUser(
 				"Address",
@@ -981,7 +981,7 @@ namespace il2cpp
 		{
 			return new InterfaceImplUser(
 				new TypeSpecUser(
-					new GenericInstSig(Context.Module.CorLibTypes.GetTypeRef(ns, name).TryGetClassOrValueTypeSig(), genArg)));
+					new GenericInstSig(Context.CorLibTypes.GetTypeRef(ns, name).TryGetClassOrValueTypeSig(), genArg)));
 		}
 
 		private static void SetAllTypeSig(TypeSig[] sigList, TypeSig sig)

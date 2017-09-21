@@ -9,6 +9,8 @@ namespace il2cpp
 	public class Il2cppContext
 	{
 		public readonly ModuleDefMD Module;
+		public readonly ICorLibTypes CorLibTypes;
+		public readonly ModuleDef CorLibModule;
 		public readonly string RuntimeVersion;
 
 		internal TypeManager TypeMgr;
@@ -30,6 +32,8 @@ namespace il2cpp
 			Module.Context = modCtx;
 			Module.Context.AssemblyResolver.AddToCache(Module);
 
+			CorLibTypes = Module.CorLibTypes;
+			CorLibModule = CorLibTypes.Object.TypeRef.Resolve().Module;
 			RuntimeVersion = Module.RuntimeVersion;
 
 			Reset();
