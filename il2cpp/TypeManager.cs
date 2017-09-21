@@ -26,10 +26,15 @@ namespace il2cpp
 		private class VarianceGroup
 		{
 			public bool IsProcessed = false;
-			public HashSet<TypeX> TypeGroup = new HashSet<TypeX>();
+			public readonly HashSet<TypeX> TypeGroup = new HashSet<TypeX>();
 			public List<VarianceType> VarianceTypes;
 		}
 		private readonly Dictionary<TypeDef, VarianceGroup> VarianceMap = new Dictionary<TypeDef, VarianceGroup>();
+
+		// 运行时一维数组原型
+		private TypeDef SZArrayPrototype;
+		// 运行时多维数组原型映射
+		private readonly Dictionary<uint, TypeDef> MDArrayProtoMap = new Dictionary<uint, TypeDef>();
 
 		// 对象终结器虚调用是否已经生成
 		private bool IsVCallFinalizerGenerated;
@@ -401,29 +406,25 @@ namespace il2cpp
 		{
 			Debug.Assert(memRef.IsMethodRef);
 
-			var elemType = memRef.DeclaringType.ToTypeSig().ElementType;
-			if (elemType == ElementType.SZArray)
-			{
-				throw new NotImplementedException();
-			}
-			else if (elemType == ElementType.Array)
-			{
-				throw new NotImplementedException();
-			}
-			else
-			{
-				TypeX declType = ResolveTypeDefOrRef(memRef.DeclaringType, replacer);
-				MethodDef metDef = memRef.ResolveMethod();
-				if (metDef.DeclaringType != declType.Def)
-				{
-					// 处理引用类型不包含该方法的情况
-					declType = declType.FindBaseType(metDef.DeclaringType);
-					Debug.Assert(declType != null);
-				}
+			TypeX declType = ResolveTypeDefOrRef(memRef.DeclaringType, replacer);
+			MethodDef metDef = memRef.ResolveMethod();
 
-				MethodX metX = new MethodX(declType, metDef);
-				return AddMethod(metX);
+			if (metDef == null)
+				metDef = declType.Def.FindMethod(memRef.Name, memRef.MethodSig);
+			if (metDef == null)
+				metDef = declType.Def.FindMethod(memRef.Name);
+			if (metDef == null)
+				throw new NotImplementedException();
+
+			if (metDef.DeclaringType != declType.Def)
+			{
+				// 处理引用类型不包含该方法的情况
+				declType = declType.FindBaseType(metDef.DeclaringType);
+				Debug.Assert(declType != null);
 			}
+
+			MethodX metX = new MethodX(declType, metDef);
+			return AddMethod(metX);
 		}
 
 		// 解析泛型方法并添加
@@ -732,6 +733,12 @@ namespace il2cpp
 						return genType;
 					}
 
+				case SZArraySig szArySig:
+					return ResolveSZArrayType(szArySig, replacer);
+
+				case ArraySig arySig:
+					return ResolveArrayType(arySig, replacer);
+
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
@@ -809,6 +816,121 @@ namespace il2cpp
 			if (genArgs.IsCollectionValid())
 				metX.GenArgs = new List<TypeSig>(genArgs);
 			return AddMethod(metX);
+		}
+
+		private TypeX ResolveSZArrayType(SZArraySig szArySig, IGenericReplacer replacer)
+		{
+			TypeSig elemType = szArySig.Next;
+
+			TypeX tyX = new TypeX(GetSZArrayPrototype(szArySig));
+			tyX.GenArgs = new List<TypeSig>() { Helper.ReplaceGenericSig(elemType, replacer) };
+			return tyX;
+		}
+
+		private TypeX ResolveArrayType(ArraySig arySig, IGenericReplacer replacer)
+		{
+			TypeSig elemType = arySig.Next;
+
+			TypeX tyX = new TypeX(GetMDArrayPrototype(arySig));
+			tyX.GenArgs = new List<TypeSig>() { Helper.ReplaceGenericSig(elemType, replacer) };
+			return tyX;
+		}
+
+		private TypeDef GetSZArrayPrototype(SZArraySig szArySig)
+		{
+			if (SZArrayPrototype != null)
+				return SZArrayPrototype;
+
+			//var runtimeMod = ModuleDefMD.Load("il2cpprt.dll");
+			//SZArrayPrototype = runtimeMod.Find("il2cpprt.SZArray`1", false);
+			return SZArrayPrototype;
+		}
+
+		private TypeDef GetMDArrayPrototype(ArraySig arySig)
+		{
+			uint rank = arySig.Rank;
+
+			if (!MDArrayProtoMap.TryGetValue(rank, out TypeDef mdArrayDef))
+			{
+				mdArrayDef = MakeMDArrayDef(rank);
+				MDArrayProtoMap.Add(rank, mdArrayDef);
+			}
+
+			return mdArrayDef;
+		}
+
+		private TypeDef MakeMDArrayDef(uint rank)
+		{
+			TypeDefUser tyDef = new TypeDefUser(
+				"il2cpprt",
+				"MDArray" + rank + "`1",
+				Context.Module.CorLibTypes.GetTypeRef("System", "Array"));
+			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
+			Context.Module.Types.Add(tyDef);
+
+			// .ctor(int,int)
+			TypeSig[] argSigs = new TypeSig[rank];
+			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+
+			MethodDefUser metDef = new MethodDefUser(
+				".ctor",
+				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, argSigs),
+				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
+			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			// .ctor(int,int,int,int)
+			argSigs = new TypeSig[rank * 2];
+			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+
+			metDef = new MethodDefUser(
+				".ctor",
+				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, argSigs),
+				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
+			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			// T Get(int,int)
+			argSigs = new TypeSig[rank];
+			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+
+			metDef = new MethodDefUser(
+				"Get",
+				MethodSig.CreateInstance(new GenericVar(0, tyDef), argSigs),
+				MethodAttributes.Public | MethodAttributes.HideBySig);
+			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			// void Set(int,int,T)
+			argSigs = new TypeSig[rank + 1];
+			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+			argSigs[argSigs.Length - 1] = new GenericVar(0, tyDef);
+
+			metDef = new MethodDefUser(
+				"Set",
+				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, argSigs),
+				MethodAttributes.Public | MethodAttributes.HideBySig);
+			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			// T& Address(int,int)
+			argSigs = new TypeSig[rank];
+			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
+
+			metDef = new MethodDefUser(
+				"Address",
+				MethodSig.CreateInstance(new ByRefSig(new GenericVar(0, tyDef)), argSigs),
+				MethodAttributes.Public | MethodAttributes.HideBySig);
+			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			return tyDef;
+		}
+
+		private static void SetAllTypeSig(TypeSig[] sigList, TypeSig sig)
+		{
+			for (int i = 0; i < sigList.Length; i++)
+				sigList[i] = sig;
 		}
 	}
 }

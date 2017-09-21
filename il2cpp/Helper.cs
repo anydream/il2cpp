@@ -367,35 +367,7 @@ namespace il2cpp
 					{
 						TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 						ArraySig arySig = (ArraySig)tySig;
-						sb.Append('[');
-						uint rank = arySig.Rank;
-						if (rank == 0)
-							throw new NotSupportedException();
-						else if (rank == 1)
-							sb.Append('*');
-						else
-						{
-							for (int i = 0; i < (int)rank; i++)
-							{
-								if (i != 0)
-									sb.Append(',');
-
-								const int NO_LOWER = int.MinValue;
-								const uint NO_SIZE = uint.MaxValue;
-								int lower = arySig.LowerBounds.Get(i, NO_LOWER);
-								uint size = arySig.Sizes.Get(i, NO_SIZE);
-								if (lower != NO_LOWER)
-								{
-									sb.Append(lower);
-									sb.Append("..");
-									if (size != NO_SIZE)
-										sb.Append(lower + (int)size - 1);
-									else
-										sb.Append('.');
-								}
-							}
-						}
-						sb.Append(']');
+						GetArraySigPostfix(sb, arySig);
 						return;
 					}
 
@@ -454,6 +426,39 @@ namespace il2cpp
 
 					throw new ArgumentOutOfRangeException();
 			}
+		}
+
+		public static void GetArraySigPostfix(StringBuilder sb, ArraySig arySig)
+		{
+			sb.Append('[');
+			uint rank = arySig.Rank;
+			if (rank == 0)
+				throw new NotSupportedException();
+			else if (rank == 1)
+				sb.Append('*');
+			else
+			{
+				for (int i = 0; i < (int)rank; i++)
+				{
+					if (i != 0)
+						sb.Append(',');
+
+					const int NO_LOWER = int.MinValue;
+					const uint NO_SIZE = uint.MaxValue;
+					int lower = arySig.LowerBounds.Get(i, NO_LOWER);
+					uint size = arySig.Sizes.Get(i, NO_SIZE);
+					if (lower != NO_LOWER)
+					{
+						sb.Append(lower);
+						sb.Append("..");
+						if (size != NO_SIZE)
+							sb.Append(lower + (int)size - 1);
+						else
+							sb.Append('.');
+					}
+				}
+			}
+			sb.Append(']');
 		}
 
 		private static void ClassSigName(StringBuilder sb, TypeSig tySig)
