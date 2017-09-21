@@ -158,6 +158,162 @@ namespace il2cpp
 
 		private void ResolveOperand(InstInfo inst, IGenericReplacer replacer)
 		{
+			// 重定向数组指令
+			switch (inst.OpCode.Code)
+			{
+				case Code.Newarr:
+					{
+						// newobj T[]::.ctor(int)
+						TypeSig elemSig = ((ITypeDefOrRef)inst.Operand).ToTypeSig();
+						inst.OpCode = OpCodes.Newobj;
+						inst.Operand = new MemberRefUser(
+							Context.CorLibModule,
+							".ctor",
+							MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32),
+							new TypeSpecUser(new SZArraySig(elemSig)));
+						break;
+					}
+
+				case Code.Ldlen:
+					{
+						// call long Array::get_LongLength()
+						inst.OpCode = OpCodes.Call;
+						inst.Operand = new MemberRefUser(
+							Context.CorLibModule,
+							"get_LongLength",
+							MethodSig.CreateInstance(Context.CorLibTypes.Int64),
+							Context.CorLibTypes.GetTypeRef("System", "Array"));
+						break;
+					}
+
+				case Code.Ldelema:
+					{
+						// call T& T[]::Address(int)
+						TypeSig elemSig = ((ITypeDefOrRef)inst.Operand).ToTypeSig();
+						inst.OpCode = OpCodes.Call;
+						inst.Operand = new MemberRefUser(
+							Context.CorLibModule,
+							"Address",
+							MethodSig.CreateInstance(new ByRefSig(elemSig), Context.CorLibTypes.Int32),
+							new TypeSpecUser(new SZArraySig(elemSig)));
+						break;
+					}
+
+				case Code.Ldelem_I1:
+				case Code.Ldelem_U1:
+				case Code.Ldelem_I2:
+				case Code.Ldelem_U2:
+				case Code.Ldelem_I4:
+				case Code.Ldelem_U4:
+				case Code.Ldelem_I8:
+				case Code.Ldelem_I:
+				case Code.Ldelem_R4:
+				case Code.Ldelem_R8:
+				case Code.Ldelem_Ref:
+				case Code.Ldelem:
+					{
+						TypeSig elemSig = null;
+						switch (inst.OpCode.Code)
+						{
+							case Code.Ldelem_I1:
+								elemSig = Context.CorLibTypes.SByte;
+								break;
+							case Code.Ldelem_U1:
+								elemSig = Context.CorLibTypes.Byte;
+								break;
+							case Code.Ldelem_I2:
+								elemSig = Context.CorLibTypes.Int16;
+								break;
+							case Code.Ldelem_U2:
+								elemSig = Context.CorLibTypes.UInt16;
+								break;
+							case Code.Ldelem_I4:
+								elemSig = Context.CorLibTypes.Int32;
+								break;
+							case Code.Ldelem_U4:
+								elemSig = Context.CorLibTypes.UInt32;
+								break;
+							case Code.Ldelem_I8:
+								elemSig = Context.CorLibTypes.Int64;
+								break;
+							case Code.Ldelem_I:
+								elemSig = Context.CorLibTypes.IntPtr;
+								break;
+							case Code.Ldelem_R4:
+								elemSig = Context.CorLibTypes.Single;
+								break;
+							case Code.Ldelem_R8:
+								elemSig = Context.CorLibTypes.Double;
+								break;
+							case Code.Ldelem_Ref:
+								elemSig = Context.CorLibTypes.Object;
+								break;
+							case Code.Ldelem:
+								elemSig = ((ITypeDefOrRef)inst.Operand).ToTypeSig();
+								break;
+						}
+						// call T T[]::Get(int)
+						inst.OpCode = OpCodes.Call;
+						inst.Operand = new MemberRefUser(
+							Context.CorLibModule,
+							"Get",
+							MethodSig.CreateInstance(elemSig, Context.CorLibTypes.Int32),
+							new TypeSpecUser(new SZArraySig(elemSig)));
+						break;
+					}
+
+				case Code.Stelem_I1:
+				case Code.Stelem_I2:
+				case Code.Stelem_I4:
+				case Code.Stelem_I8:
+				case Code.Stelem_I:
+				case Code.Stelem_R4:
+				case Code.Stelem_R8:
+				case Code.Stelem_Ref:
+				case Code.Stelem:
+					{
+						TypeSig elemSig = null;
+						switch (inst.OpCode.Code)
+						{
+							case Code.Stelem_I1:
+								elemSig = Context.CorLibTypes.SByte;
+								break;
+							case Code.Stelem_I2:
+								elemSig = Context.CorLibTypes.Int16;
+								break;
+							case Code.Stelem_I4:
+								elemSig = Context.CorLibTypes.Int32;
+								break;
+							case Code.Stelem_I8:
+								elemSig = Context.CorLibTypes.Int64;
+								break;
+							case Code.Stelem_I:
+								elemSig = Context.CorLibTypes.IntPtr;
+								break;
+							case Code.Stelem_R4:
+								elemSig = Context.CorLibTypes.Single;
+								break;
+							case Code.Stelem_R8:
+								elemSig = Context.CorLibTypes.Double;
+								break;
+							case Code.Stelem_Ref:
+								elemSig = Context.CorLibTypes.Object;
+								break;
+							case Code.Stelem:
+								elemSig = ((ITypeDefOrRef)inst.Operand).ToTypeSig();
+								break;
+						}
+						// call void T[]::Set(int,T)
+						inst.OpCode = OpCodes.Call;
+						inst.Operand = new MemberRefUser(
+							Context.CorLibModule,
+							"Set",
+							MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, elemSig),
+							new TypeSpecUser(new SZArraySig(elemSig)));
+						break;
+					}
+			}
+
 			switch (inst.OpCode.OperandType)
 			{
 				case OperandType.InlineMethod:
@@ -981,7 +1137,7 @@ namespace il2cpp
 		{
 			return new InterfaceImplUser(
 				new TypeSpecUser(
-					new GenericInstSig(Context.CorLibTypes.GetTypeRef(ns, name).TryGetClassOrValueTypeSig(), genArg)));
+					new GenericInstSig((ClassOrValueTypeSig)Context.CorLibTypes.GetTypeRef(ns, name).ToTypeSig(), genArg)));
 		}
 
 		private static void SetAllTypeSig(TypeSig[] sigList, TypeSig sig)

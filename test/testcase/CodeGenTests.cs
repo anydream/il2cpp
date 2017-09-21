@@ -31,4 +31,18 @@ namespace testcase
 			return Fib(40);
 		}
 	}
+
+	[CodeGen]
+	static class TestSZArray
+	{
+		public static long Entry()
+		{
+			ushort[] ary = new ushort[10];
+			ary[0] = 123;
+			ary[9] = 456;
+			int len = ary.Length;
+			long llen = ary.LongLength;
+			return len + llen + ary[0] + ary[9];
+		}
+	}
 }
