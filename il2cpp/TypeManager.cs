@@ -841,8 +841,7 @@ namespace il2cpp
 			if (SZArrayPrototype != null)
 				return SZArrayPrototype;
 
-			//var runtimeMod = ModuleDefMD.Load("il2cpprt.dll");
-			//SZArrayPrototype = runtimeMod.Find("il2cpprt.SZArray`1", false);
+			SZArrayPrototype = MakeSZArrayDef();
 			return SZArrayPrototype;
 		}
 
@@ -859,6 +858,56 @@ namespace il2cpp
 			return mdArrayDef;
 		}
 
+		private TypeDef MakeSZArrayDef()
+		{
+			TypeDefUser tyDef = new TypeDefUser(
+				"il2cpprt",
+				"SZArray`1",
+				Context.Module.CorLibTypes.GetTypeRef("System", "Array"));
+			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
+			var genArgT = new GenericVar(0, tyDef);
+			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "IList`1", genArgT));
+			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "ICollection`1", genArgT));
+			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "IEnumerable`1", genArgT));
+			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "IReadOnlyList`1", genArgT));
+			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "IReadOnlyCollection`1", genArgT));
+			Context.Module.Types.Add(tyDef);
+
+			// .ctor(int)
+			MethodDefUser metDef = new MethodDefUser(
+				".ctor",
+				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, Context.Module.CorLibTypes.Int32),
+				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
+			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			// T Get(int)
+			metDef = new MethodDefUser(
+				"Get",
+				MethodSig.CreateInstance(genArgT, Context.Module.CorLibTypes.Int32),
+				MethodAttributes.Public | MethodAttributes.HideBySig);
+			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			// void Set(int,T)
+			metDef = new MethodDefUser(
+				"Set",
+				MethodSig.CreateInstance(Context.Module.CorLibTypes.Void, Context.Module.CorLibTypes.Int32, genArgT),
+				MethodAttributes.Public | MethodAttributes.HideBySig);
+			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			// T& Address(int)
+			metDef = new MethodDefUser(
+				"Address",
+				MethodSig.CreateInstance(new ByRefSig(genArgT), Context.Module.CorLibTypes.Int32),
+				MethodAttributes.Public | MethodAttributes.HideBySig);
+			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			return tyDef;
+		}
+
 		private TypeDef MakeMDArrayDef(uint rank)
 		{
 			TypeDefUser tyDef = new TypeDefUser(
@@ -866,6 +915,7 @@ namespace il2cpp
 				"MDArray" + rank + "`1",
 				Context.Module.CorLibTypes.GetTypeRef("System", "Array"));
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
+			var genArgT = new GenericVar(0, tyDef);
 			Context.Module.Types.Add(tyDef);
 
 			// .ctor(int,int)
@@ -896,7 +946,7 @@ namespace il2cpp
 
 			metDef = new MethodDefUser(
 				"Get",
-				MethodSig.CreateInstance(new GenericVar(0, tyDef), argSigs),
+				MethodSig.CreateInstance(genArgT, argSigs),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
@@ -904,7 +954,7 @@ namespace il2cpp
 			// void Set(int,int,T)
 			argSigs = new TypeSig[rank + 1];
 			SetAllTypeSig(argSigs, Context.Module.CorLibTypes.Int32);
-			argSigs[argSigs.Length - 1] = new GenericVar(0, tyDef);
+			argSigs[argSigs.Length - 1] = genArgT;
 
 			metDef = new MethodDefUser(
 				"Set",
@@ -919,12 +969,19 @@ namespace il2cpp
 
 			metDef = new MethodDefUser(
 				"Address",
-				MethodSig.CreateInstance(new ByRefSig(new GenericVar(0, tyDef)), argSigs),
+				MethodSig.CreateInstance(new ByRefSig(genArgT), argSigs),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
 
 			return tyDef;
+		}
+
+		private InterfaceImpl MakeInterfaceImpl(string ns, string name, TypeSig genArg)
+		{
+			return new InterfaceImplUser(
+				new TypeSpecUser(
+					new GenericInstSig(Context.Module.CorLibTypes.GetTypeRef(ns, name).TryGetClassOrValueTypeSig(), genArg)));
 		}
 
 		private static void SetAllTypeSig(TypeSig[] sigList, TypeSig sig)
