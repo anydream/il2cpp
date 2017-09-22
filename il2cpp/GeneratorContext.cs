@@ -281,6 +281,9 @@ namespace il2cpp
 		{
 			switch (tySig.ElementType)
 			{
+				case ElementType.Void:
+					return "void";
+
 				case ElementType.I1:
 					return "int8_t";
 				case ElementType.I2:
@@ -393,7 +396,7 @@ namespace il2cpp
 				if (!fldX.DeclType.IsArrayType && fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
 					strName = "fld_" + fldX.Def.Name;
 				else
-					strName = "fld_" + NameHash((int)fldX.Def.Rid) + '__' + fldX.Def.Name;
+					strName = "fld_" + NameHash((int)fldX.Def.Rid) + "__" + fldX.Def.Name;
 
 				fldX.GenFieldName = strName = EscapeName(strName);
 			}

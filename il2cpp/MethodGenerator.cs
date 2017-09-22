@@ -205,6 +205,29 @@ namespace il2cpp
 
 		public void Generate()
 		{
+			CodePrinter prt = new CodePrinter();
+
+			// 函数签名
+			prt.AppendFormat("{0} {1}(",
+				GenContext.GetTypeName(CurrMethod.ReturnType),
+				GenContext.GetMethodName(CurrMethod, PrefixMet));
+			RefValueTypeDecl(CurrMethod.ReturnType);
+
+			for (int i = 0, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+			{
+				if (i != 0)
+					prt.Append(", ");
+
+				var argType = CurrMethod.ParamTypes[i];
+				RefValueTypeDecl(argType);
+				prt.AppendFormat("{0} {1}",
+					GenContext.GetTypeName(argType),
+					ArgName(i));
+			}
+
+			prt.Append(")");
+			DeclCode = prt.ToString() + ';';
+
 			// 生成指令代码
 			var instList = CurrMethod.InstList;
 			if (!CurrMethod.IsSkipProcessing && instList != null)
@@ -225,31 +248,7 @@ namespace il2cpp
 					}
 				}
 
-				// 代码合并
-				CodePrinter prt = new CodePrinter();
-
-				// 函数签名
-				prt.AppendFormat("{0} {1}(",
-					GenContext.GetTypeName(CurrMethod.ReturnType),
-					GenContext.GetMethodName(CurrMethod, PrefixMet));
-				RefValueTypeDecl(CurrMethod.ReturnType);
-
-				for (int i = 0, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
-				{
-					if (i != 0)
-						prt.Append(", ");
-
-					var argType = CurrMethod.ParamTypes[i];
-					RefValueTypeDecl(argType);
-					prt.AppendFormat("{0} {1}",
-						GenContext.GetTypeName(argType),
-						ArgName(i));
-				}
-
-				prt.Append(")");
-
-				DeclCode = prt.ToString() + ';';
-
+				// 生成函数体
 				prt.AppendLine("\n{");
 				++prt.Indents;
 

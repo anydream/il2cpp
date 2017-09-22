@@ -15,7 +15,7 @@ namespace testcase
 		}
 	}
 
-	[CodeGen]
+	//[CodeGen]
 	static class Fibonacci
 	{
 		static long Fib(int n)
@@ -35,14 +35,24 @@ namespace testcase
 	[CodeGen]
 	static class TestSZArray
 	{
-		public static long Entry()
+		public static float Entry()
 		{
-			ushort[] ary = new ushort[10];
-			ary[0] = 123;
-			ary[9] = 456;
-			int len = ary.Length;
-			long llen = ary.LongLength;
-			return len + llen + ary[0] + ary[9];
+			float[] fary = new float[10];
+			fary[0] = 1;
+			fary[3] = 3;
+			fary[5] = 5;
+
+			float sum = 0;
+			foreach (float n in fary)
+				sum += n;
+
+			ushort[] usary = new ushort[5];
+			usary[1] = 42;
+			usary[3] = 0xFFFF;
+			foreach (ushort n in usary)
+				sum += n;
+
+			return sum - usary[3];
 		}
 	}
 }
