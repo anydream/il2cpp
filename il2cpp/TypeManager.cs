@@ -25,7 +25,7 @@ namespace il2cpp
 		// 协逆变映射
 		private class VarianceGroup
 		{
-			public bool IsProcessed = false;
+			public bool IsProcessed;
 			public readonly HashSet<TypeX> TypeGroup = new HashSet<TypeX>();
 			public List<VarianceType> VarianceTypes;
 		}
@@ -58,7 +58,8 @@ namespace il2cpp
 		{
 			if (TypeMap.TryGetValue(name, out var tyX))
 				return tyX;
-			return null;
+			// 找不到的类型一律返回 object
+			return TypeMap["Object"];
 		}
 
 		// 解析所有引用

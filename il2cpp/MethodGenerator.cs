@@ -377,7 +377,7 @@ namespace il2cpp
 					return;
 
 				case Code.Call:
-					GenCall(inst, (MethodX)operand);
+					inst.InstCode = GenCall((MethodX)operand);
 					return;
 
 				case Code.Ldc_I4_M1:
@@ -595,6 +595,36 @@ namespace il2cpp
 				case Code.Rem:
 					GenBinOp(inst, " % ");
 					return;
+
+				case Code.Newobj:
+					GenNewObj(inst, (MethodX)operand);
+					return;
+
+				case Code.Newarr:
+				case Code.Ldlen:
+				case Code.Ldelema:
+				case Code.Ldelem_I1:
+				case Code.Ldelem_U1:
+				case Code.Ldelem_I2:
+				case Code.Ldelem_U2:
+				case Code.Ldelem_I4:
+				case Code.Ldelem_U4:
+				case Code.Ldelem_I8:
+				case Code.Ldelem_I:
+				case Code.Ldelem_R4:
+				case Code.Ldelem_R8:
+				case Code.Ldelem_Ref:
+				case Code.Ldelem:
+				case Code.Stelem_I1:
+				case Code.Stelem_I2:
+				case Code.Stelem_I4:
+				case Code.Stelem_I8:
+				case Code.Stelem_I:
+				case Code.Stelem_R4:
+				case Code.Stelem_R8:
+				case Code.Stelem_Ref:
+				case Code.Stelem:
+					throw new ArgumentOutOfRangeException();
 			}
 
 			throw new NotImplementedException(inst.ToString());
@@ -820,7 +850,7 @@ namespace il2cpp
 				inst.InstCode = "return;";
 		}
 
-		private void GenCall(InstInfo inst, MethodX metX)
+		private string GenCall(MethodX metX)
 		{
 			RefTypeImpl(metX.DeclType);
 
@@ -846,10 +876,36 @@ namespace il2cpp
 			if (metX.ReturnType.ElementType != ElementType.Void)
 			{
 				var slotPush = Push(ToStackType(metX.ReturnType));
-				inst.InstCode = GenAssign(TempName(slotPush), sb.ToString(), slotPush.SlotType);
+				return GenAssign(TempName(slotPush), sb.ToString(), slotPush.SlotType);
 			}
 			else
-				inst.InstCode = sb.ToString() + ';';
+				return sb.ToString() + ';';
+		}
+
+		private void GenNewObj(InstInfo inst, MethodX metX)
+		{
+			TypeX tyX = metX.DeclType;
+			if (tyX.IsValueType)
+				throw new InvalidOperationException("newobj can't create value type");
+
+			var slotPush = Push(StackType.Obj);
+
+			if (tyX.IsArrayType)
+			{
+				//!	
+			}
+
+			string strCode = GenAssign(
+				TempName(slotPush),
+				string.Format("IL2CPP_NEW(sizeof({0}), {1}, {2})",
+					GenContext.GetTypeName(tyX),
+					GenContext.GetTypeID(tyX),
+					GenContext.IsNoRefType(tyX) ? "1" : "0"),
+				slotPush.SlotType);
+
+			strCode += GenCall(metX);
+
+			inst.InstCode = strCode;
 		}
 
 		private StackType ToStackType(TypeSig tySig)

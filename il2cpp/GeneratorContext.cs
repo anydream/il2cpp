@@ -135,6 +135,7 @@ namespace il2cpp
 	internal class GeneratorContext
 	{
 		private readonly TypeManager TypeMgr;
+		private uint TypeIDCounter;
 
 		public GeneratorContext(TypeManager typeMgr)
 		{
@@ -361,10 +362,19 @@ namespace il2cpp
 			return strName;
 		}
 
+		public uint GetTypeID(TypeX tyX)
+		{
+			if (tyX.GenTypeID != 0)
+				return tyX.GenTypeID;
+
+			tyX.GenTypeID = ++TypeIDCounter;
+			return tyX.GenTypeID;
+		}
+
 		private TypeX GetTypeBySig(TypeSig tySig)
 		{
 			StringBuilder sb = new StringBuilder();
-			Helper.TypeSigName(sb, tySig, false);
+			Helper.TypeSigName(sb, tySig, true);
 			return TypeMgr.GetTypeByName(sb.ToString());
 		}
 
