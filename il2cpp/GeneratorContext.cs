@@ -134,7 +134,7 @@ namespace il2cpp
 
 	internal class GeneratorContext
 	{
-		private readonly TypeManager TypeMgr;
+		public readonly TypeManager TypeMgr;
 		private uint TypeIDCounter;
 
 		public GeneratorContext(TypeManager typeMgr)

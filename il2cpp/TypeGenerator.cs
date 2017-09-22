@@ -26,9 +26,15 @@ namespace il2cpp
 			CodePrinter prtDecl = new CodePrinter();
 
 			prtDecl.AppendFormatLine("// {0}", CurrType.GetNameKey());
-			if (CurrType.BaseType != null)
+			var baseType = CurrType.BaseType;
+
+			// 接口类型继承 object
+			if (baseType == null && CurrType.Def.IsInterface)
+				baseType = GenContext.TypeMgr.GetTypeByName("Object");
+
+			if (baseType != null)
 			{
-				string strBaseTypeName = GenContext.GetTypeName(CurrType.BaseType);
+				string strBaseTypeName = GenContext.GetTypeName(baseType);
 				unit.DeclDepends.Add(strBaseTypeName);
 
 				prtDecl.AppendFormatLine("struct {0} : {1}",
@@ -43,6 +49,12 @@ namespace il2cpp
 
 			prtDecl.AppendLine("{");
 			++prtDecl.Indents;
+
+			// 生成对象内置字段
+			if (CurrType.GetNameKey() == "Object")
+			{
+				prtDecl.AppendLine("uint32_t TypeID;");
+			}
 
 			// 重排字段
 			var fields = LayoutFields();

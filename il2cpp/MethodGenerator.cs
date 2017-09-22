@@ -894,15 +894,33 @@ namespace il2cpp
 			var ctorArgs = Pop(metX.ParamTypes.Count - 1);
 			var newSlot = Push(StackType.Obj);
 
+			string strAddSize = null;
 			if (tyX.IsArrayType)
 			{
-				//!	
+				strAddSize = string.Format(" + sizeof({0})", GenContext.GetTypeName(tyX.GenArgs[0]));
+
+				uint rank = tyX.ArrayInfo.Rank;
+				if (rank == 1)
+					strAddSize += " * " + TempName(ctorArgs[0]);
+				else if (ctorArgs.Length == rank)
+				{
+					for (int i = 0; i < rank; ++i)
+						strAddSize += " * " + TempName(ctorArgs[i]);
+				}
+				else if (ctorArgs.Length == rank * 2)
+				{
+					for (int i = 0; i < rank; ++i)
+						strAddSize += " * " + TempName(ctorArgs[i * 2 + 1]);
+				}
+				else
+					throw new ArgumentOutOfRangeException();
 			}
 
 			string strCode = GenAssign(
 				TempName(newSlot),
-				string.Format("IL2CPP_NEW(sizeof({0}), {1}, {2})",
+				string.Format("IL2CPP_NEW(sizeof({0}){1}, {2}, {3})",
 					GenContext.GetTypeName(tyX),
+					strAddSize,
 					GenContext.GetTypeID(tyX),
 					GenContext.IsNoRefType(tyX) ? "1" : "0"),
 				newSlot.SlotType);
