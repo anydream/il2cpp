@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
@@ -850,7 +851,7 @@ namespace il2cpp
 				inst.InstCode = "return;";
 		}
 
-		private string GenCall(MethodX metX)
+		private string GenCall(MethodX metX, List<SlotInfo> slotArgs = null)
 		{
 			RefTypeImpl(metX.DeclType);
 
@@ -858,10 +859,13 @@ namespace il2cpp
 			sb.Append(GenContext.GetMethodName(metX, PrefixMet));
 			sb.Append('(');
 
-			int numArgs = metX.ParamTypes.Count;
+			if (slotArgs == null)
+			{
+				int numArgs = metX.ParamTypes.Count;
+				slotArgs = Pop(numArgs).ToList();
+			}
 
-			var slotPops = Pop(numArgs);
-			for (int i = 0; i < numArgs; ++i)
+			for (int i = 0, sz = slotArgs.Count; i < sz; ++i)
 			{
 				if (i != 0)
 					sb.Append(", ");
@@ -869,7 +873,7 @@ namespace il2cpp
 				var argType = metX.ParamTypes[i];
 				sb.AppendFormat("{0}{1}",
 					CastType(argType),
-					TempName(slotPops[i]));
+					TempName(slotArgs[i]));
 			}
 			sb.Append(')');
 
@@ -888,7 +892,8 @@ namespace il2cpp
 			if (tyX.IsValueType)
 				throw new InvalidOperationException("newobj can't create value type");
 
-			var slotPush = Push(StackType.Obj);
+			var ctorArgs = Pop(metX.ParamTypes.Count - 1);
+			var newSlot = Push(StackType.Obj);
 
 			if (tyX.IsArrayType)
 			{
@@ -896,14 +901,17 @@ namespace il2cpp
 			}
 
 			string strCode = GenAssign(
-				TempName(slotPush),
+				TempName(newSlot),
 				string.Format("IL2CPP_NEW(sizeof({0}), {1}, {2})",
 					GenContext.GetTypeName(tyX),
 					GenContext.GetTypeID(tyX),
 					GenContext.IsNoRefType(tyX) ? "1" : "0"),
-				slotPush.SlotType);
+				newSlot.SlotType);
 
-			strCode += GenCall(metX);
+			var ctorList = new List<SlotInfo>();
+			ctorList.Add(newSlot);
+			ctorList.AddRange(ctorArgs);
+			strCode += '\n' + GenCall(metX, ctorList);
 
 			inst.InstCode = strCode;
 		}

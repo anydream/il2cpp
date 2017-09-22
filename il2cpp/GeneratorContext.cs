@@ -320,6 +320,8 @@ namespace il2cpp
 				case ElementType.Class:
 				case ElementType.ValueType:
 				case ElementType.GenericInst:
+				case ElementType.SZArray:
+				case ElementType.Array:
 					{
 						bool isValueType = tySig.IsValueType;
 						return (isValueType ? null : "struct ") +
@@ -328,7 +330,7 @@ namespace il2cpp
 					}
 
 				default:
-					throw new NotImplementedException();
+					throw new NotImplementedException(tySig.ElementType.ToString());
 			}
 
 			return null;
@@ -337,28 +339,18 @@ namespace il2cpp
 		public string GetTypeName(TypeX tyX)
 		{
 			string strName = tyX.GenTypeName;
-			if (strName != null)
-				return strName;
-
-			strName = tyX.Def.IsValueType ? "stru_" : "cls_";
-
-			string nameKey = tyX.GetNameKey();
-			if (tyX.Def.DefinitionAssembly.IsCorLib())
-				strName += EscapeName(nameKey);
-			else
+			if (strName == null)
 			{
-				StringBuilder sb = new StringBuilder();
-				sb.Append(tyX.Def.Name);
-				var genArgs = tyX.GenArgs;
-				if (genArgs.IsCollectionValid())
-				{
-					sb.Append('_');
-					Helper.TypeSigListName(sb, genArgs, false);
-				};
-				strName += NameHash(nameKey.GetHashCode()) + '_' + EscapeName(sb.ToString());
-			}
+				strName = tyX.IsValueType ? "stru_" : "cls_";
 
-			tyX.GenTypeName = strName;
+				string nameKey = tyX.GetNameKey();
+				if (!tyX.IsArrayType && tyX.Def.DefinitionAssembly.IsCorLib())
+					strName += nameKey;
+				else
+					strName += NameHash(nameKey.GetHashCode()) + '_' + GetNameWithGen(tyX.Def.Name, tyX.GenArgs);
+
+				tyX.GenTypeName = strName = EscapeName(strName);
+			}
 			return strName;
 		}
 
@@ -384,8 +376,11 @@ namespace il2cpp
 			if (strName == null)
 			{
 				int hashCode = metX.GetNameKey().GetHashCode() ^ metX.DeclType.GetNameKey().GetHashCode();
-				strName = NameHash(hashCode) + '_' + EscapeName(metX.DeclType.Def.Name) + "__" + EscapeName(metX.Def.Name);
-				metX.GenMethodName = strName;
+				strName = NameHash(hashCode) + '_' +
+					GetNameWithGen(metX.DeclType.Def.Name, metX.DeclType.GenArgs) + "__" +
+					GetNameWithGen(metX.Def.Name, metX.GenArgs);
+
+				metX.GenMethodName = strName = EscapeName(strName);
 			}
 			return prefix + strName;
 		}
@@ -395,12 +390,27 @@ namespace il2cpp
 			string strName = fldX.GenFieldName;
 			if (strName == null)
 			{
-				if (fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
-					strName = "fld_" + EscapeName(fldX.Def.Name);
+				if (!fldX.DeclType.IsArrayType && fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
+					strName = "fld_" + fldX.Def.Name;
 				else
-					strName = "fld_" + NameHash((int)fldX.Def.Rid) + '_' + EscapeName(fldX.Def.Name);
+					strName = "fld_" + NameHash((int)fldX.Def.Rid) + '__' + fldX.Def.Name;
+
+				fldX.GenFieldName = strName = EscapeName(strName);
 			}
 			return strName;
+		}
+
+		private static string GetNameWithGen(string name, IList<TypeSig> genArgs)
+		{
+			if (genArgs.IsCollectionValid())
+			{
+				foreach (var arg in genArgs)
+				{
+					name += '_';
+					name += arg.GetName();
+				}
+			}
+			return name;
 		}
 
 		private static string EscapeName(string fullName)
