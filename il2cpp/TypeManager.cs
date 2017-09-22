@@ -179,12 +179,12 @@ namespace il2cpp
 
 				case Code.Ldlen:
 					{
-						// call long Array::get_LongLength()
+						// call int Array::get_Length()
 						inst.OpCode = OpCodes.Call;
 						inst.Operand = new MemberRefUser(
 							Context.CorLibModule,
-							"get_LongLength",
-							MethodSig.CreateInstance(Context.CorLibTypes.Int64),
+							"get_Length",
+							MethodSig.CreateInstance(Context.CorLibTypes.Int32),
 							Context.CorLibTypes.GetTypeRef("System", "Array"));
 						break;
 					}

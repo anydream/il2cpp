@@ -56,16 +56,7 @@ namespace il2cpp
 		{
 			// 排序编译单元
 			var sortedUnits = UnitMap.Values.ToList();
-			sortedUnits.Sort((lhs, rhs) =>
-			{
-				uint l = GetDependOrder(lhs);
-				uint r = GetDependOrder(rhs);
-				if (l < r)
-					return -1;
-				else if (l > r)
-					return 1;
-				return 0;
-			});
+			sortedUnits.Sort((lhs, rhs) => GetDependOrder(lhs).CompareTo(GetDependOrder(rhs)));
 
 			// 合并编译单元
 			UnitMap.Clear();

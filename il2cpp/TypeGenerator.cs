@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using dnlib.DotNet;
 
 namespace il2cpp
 {
@@ -85,8 +88,25 @@ namespace il2cpp
 		private List<FieldX> LayoutFields()
 		{
 			var fields = CurrType.Fields.ToList();
-			fields.Sort((lhs, rhs) =>
-				GenContext.GetTypeLayoutOrder(lhs.FieldType) - GenContext.GetTypeLayoutOrder(rhs.FieldType));
+
+			var layoutType = CurrType.Def.Layout;
+
+			if (layoutType == TypeAttributes.AutoLayout)
+			{
+				fields.Sort((lhs, rhs) =>
+					GenContext.GetTypeLayoutOrder(lhs.FieldType).CompareTo(GenContext.GetTypeLayoutOrder(rhs.FieldType)));
+			}
+			else if (layoutType == TypeAttributes.SequentialLayout)
+			{
+				for (int i = 0; i < fields.Count - 1; ++i)
+					Debug.Assert(fields[i].Def.Rid < fields[i + 1].Def.Rid);
+				//fields.Sort((lhs, rhs) => lhs.Def.Rid.CompareTo(rhs.Def.Rid));
+			}
+			else if (layoutType == TypeAttributes.ExplicitLayout)
+			{
+				throw new NotImplementedException();
+			}
+
 			return fields;
 		}
 	}
