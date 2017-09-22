@@ -419,7 +419,7 @@ namespace il2cpp
 					GenLdc(inst, StackType.I8, operand.ToString());
 					return;
 				case Code.Ldc_R4:
-					GenLdc(inst, StackType.R4, operand.ToString() + 'f');
+					GenLdc(inst, StackType.R4, AddFloatPostfix(operand.ToString()));
 					return;
 				case Code.Ldc_R8:
 					GenLdc(inst, StackType.R8, operand.ToString());
@@ -1035,6 +1035,14 @@ namespace il2cpp
 		private static string LabelName(int labelID)
 		{
 			return "LB_" + labelID;
+		}
+
+		private static string AddFloatPostfix(string str)
+		{
+			if (str.IndexOf(".", StringComparison.Ordinal) != -1)
+				return str + 'f';
+			else
+				return str + ".0f";
 		}
 
 		private const string PrefixMet = "met_";

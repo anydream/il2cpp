@@ -69,7 +69,7 @@ namespace il2cpp
 				var metGen = new MethodGenerator(GenContext, metX);
 				metGen.Generate();
 
-				prtDecl.AppendFormatLine("// {0} -> {1}", metX.DeclType.GetNameKey(), metX.GetNameKey());
+				prtDecl.AppendFormatLine("// {0} -> {1}", metX.DeclType.GetNameKey(), metX.GetReplacedNameKey());
 				prtDecl.AppendLine(metGen.DeclCode);
 				unit.DeclDepends.UnionWith(metGen.DeclDepends);
 

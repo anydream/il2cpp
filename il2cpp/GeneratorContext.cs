@@ -378,7 +378,11 @@ namespace il2cpp
 			string strName = metX.GenMethodName;
 			if (strName == null)
 			{
-				int hashCode = metX.GetNameKey().GetHashCode() ^ metX.DeclType.GetNameKey().GetHashCode();
+				int hashCode =
+					metX.GetNameKey().GetHashCode() ^
+					metX.GetReplacedNameKey().GetHashCode() ^
+					metX.DeclType.GetNameKey().GetHashCode();
+
 				strName = NameHash(hashCode) + '_' +
 					GetNameWithGen(metX.DeclType.Def.Name, metX.DeclType.GenArgs) + "__" +
 					GetNameWithGen(metX.Def.Name, metX.GenArgs);
