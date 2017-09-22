@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using dnlib.DotNet;
@@ -224,6 +225,66 @@ namespace il2cpp
 			}
 		}
 
+		public bool IsNoRefType(TypeX tyX)
+		{
+			if (tyX.NoRefFlag == 0)
+			{
+				if (tyX.IsArrayType)
+				{
+					// 数组取决于其元素类型的属性
+					Debug.Assert(tyX.HasGenArgs && tyX.GenArgs.Count == 1);
+					var elemType = GetTypeBySig(tyX.GenArgs[0]);
+					tyX.NoRefFlag = (byte)(IsNoRefType(elemType) ? 1 : 2);
+				}
+				else
+				{
+					var elemType = tyX.Def.ToTypeSig().ElementType;
+					switch (elemType)
+					{
+						case ElementType.Boolean:
+						case ElementType.Char:
+						case ElementType.I1:
+						case ElementType.U1:
+						case ElementType.I2:
+						case ElementType.U2:
+						case ElementType.I4:
+						case ElementType.U4:
+						case ElementType.I8:
+						case ElementType.U8:
+						case ElementType.I:
+						case ElementType.U:
+						case ElementType.R4:
+						case ElementType.R8:
+						case ElementType.String:
+							// 内置值类型不包含引用
+							tyX.NoRefFlag = 1;
+							break;
+
+						default:
+							{
+								tyX.NoRefFlag = 1;
+								// 检查对象的字段
+								foreach (var fldX in tyX.Fields)
+								{
+									if (fldX.IsStatic)
+										continue;
+
+									if (!IsNoRefType(GetTypeBySig(fldX.FieldType)))
+									{
+										// 存在包含引用的字段
+										tyX.NoRefFlag = 2;
+										break;
+									}
+								}
+								break;
+							}
+					}
+				}
+
+			}
+			return tyX.NoRefFlag == 1;
+		}
+
 		public string GetTypeName(TypeSig tySig)
 		{
 			switch (tySig.ElementType)
@@ -270,7 +331,7 @@ namespace il2cpp
 					{
 						bool isValueType = tySig.IsValueType;
 						return (isValueType ? null : "struct ") +
-							GetTypeName(FindType(tySig)) +
+							GetTypeName(GetTypeBySig(tySig)) +
 							(isValueType ? null : "*");
 					}
 
@@ -309,7 +370,7 @@ namespace il2cpp
 			return strName;
 		}
 
-		private TypeX FindType(TypeSig tySig)
+		private TypeX GetTypeBySig(TypeSig tySig)
 		{
 			StringBuilder sb = new StringBuilder();
 			Helper.TypeSigName(sb, tySig, false);

@@ -20,6 +20,13 @@ namespace il2cpp
 		Contravariant
 	}
 
+	internal class ArrayProperty
+	{
+		public uint Rank;
+		public IList<uint> Sizes;
+		public IList<int> LowerBounds;
+	}
+
 	internal class TypeX : GenericArgs
 	{
 		// 类型定义
@@ -61,6 +68,10 @@ namespace il2cpp
 		// 终结器方法
 		public MethodX FinalizerMethod;
 
+		public ArrayProperty ArrayInfo;
+		// 是否为数组类型
+		public bool IsArrayType => ArrayInfo != null;
+
 		// 是否实例化过
 		public bool IsInstantiated;
 
@@ -73,6 +84,8 @@ namespace il2cpp
 		public string GenTypeName;
 		// 生成的类型索引
 		public uint GenTypeID;
+		// 无引用标记. 1=true, 2=false
+		public byte NoRefFlag;
 
 		public TypeX(TypeDef tyDef)
 		{
@@ -91,7 +104,12 @@ namespace il2cpp
 			{
 				// Name<GenArgs>
 				StringBuilder sb = new StringBuilder();
-				Helper.TypeNameKey(sb, Def, GenArgs);
+
+				if (IsArrayType)
+					Helper.TypeSigName(sb, GetTypeSig(), true);
+				else
+					Helper.TypeNameKey(sb, Def, GenArgs);
+
 				NameKey = sb.ToString();
 			}
 			return NameKey;
@@ -99,7 +117,16 @@ namespace il2cpp
 
 		public TypeSig GetTypeSig()
 		{
+			if (IsArrayType)
+			{
+				if (ArrayInfo.Rank == 1)
+					return new SZArraySig(GenArgs[0]);
+
+				return new ArraySig(GenArgs[0], ArrayInfo.Rank, ArrayInfo.Sizes, ArrayInfo.LowerBounds);
+			}
+
 			ClassOrValueTypeSig tySig;
+
 			if (IsValueType)
 				tySig = new ValueTypeSig(Def);
 			else

@@ -49,6 +49,9 @@ namespace il2cpp
 			MethodTableMap.Clear();
 			VCallEntries.Clear();
 			PendingMethods.Clear();
+			VarianceMap.Clear();
+			SZArrayPrototype = null;
+			MDArrayProtoMap.Clear();
 		}
 
 		public TypeX GetTypeByName(string name)
@@ -980,6 +983,7 @@ namespace il2cpp
 
 			TypeX tyX = new TypeX(GetSZArrayPrototype(szArySig));
 			tyX.GenArgs = new List<TypeSig>() { Helper.ReplaceGenericSig(elemType, replacer) };
+			tyX.ArrayInfo = new ArrayProperty() { Rank = 1, Sizes = null, LowerBounds = null };
 			return tyX;
 		}
 
@@ -989,6 +993,7 @@ namespace il2cpp
 
 			TypeX tyX = new TypeX(GetMDArrayPrototype(arySig));
 			tyX.GenArgs = new List<TypeSig>() { Helper.ReplaceGenericSig(elemType, replacer) };
+			tyX.ArrayInfo = new ArrayProperty() { Rank = arySig.Rank, Sizes = arySig.Sizes, LowerBounds = arySig.LowerBounds };
 			return tyX;
 		}
 
