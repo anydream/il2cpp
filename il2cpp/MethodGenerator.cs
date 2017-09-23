@@ -354,25 +354,28 @@ namespace il2cpp
 			++prt.Indents;
 
 			HashSet<MethodX> implSet = CurrMethod.OverrideImpls;
-			if (!implSet.IsCollectionValid())
+			if (!implSet.IsCollectionValid() && !CurrMethod.IsSkipProcessing)
 				implSet = new HashSet<MethodX>() { CurrMethod };
 
-			prt.AppendLine("switch (typeID)\n{");
-			++prt.Indents;
-
-			foreach (MethodX implMetX in implSet)
+			if (implSet.IsCollectionValid())
 			{
-				RefTypeImpl(implMetX.DeclType);
+				prt.AppendLine("switch (typeID)\n{");
+				++prt.Indents;
 
-				prt.AppendFormatLine("// {0}",
-					implMetX.GetReplacedNameKey());
-				prt.AppendFormatLine("case {0}: return (void*)&{1};",
-					GenContext.GetTypeID(implMetX.DeclType),
-					GenContext.GetMethodName(implMetX, PrefixMet));
+				foreach (MethodX implMetX in implSet)
+				{
+					RefTypeImpl(implMetX.DeclType);
+
+					prt.AppendFormatLine("// {0}",
+						implMetX.GetReplacedNameKey());
+					prt.AppendFormatLine("case {0}: return (void*)&{1};",
+						GenContext.GetTypeID(implMetX.DeclType),
+						GenContext.GetMethodName(implMetX, PrefixMet));
+				}
+
+				--prt.Indents;
+				prt.AppendLine("}");
 			}
-
-			--prt.Indents;
-			prt.AppendLine("}");
 
 			prt.AppendLine("abort();\nreturn 0;");
 
@@ -392,7 +395,7 @@ namespace il2cpp
 			prt.AppendLine("\n{");
 			++prt.Indents;
 
-			prt.AppendFormatLine("void* pftn = {0}(((cls_Object*){1})->TypeID);\nIL2CPP_ASSERT(pftn);",
+			prt.AppendFormatLine("void* pftn = {0}(((cls_Object*){1})->TypeID);",
 				GenContext.GetMethodName(CurrMethod, PrefixVFtn),
 				ArgName(0));
 
@@ -504,6 +507,9 @@ namespace il2cpp
 					inst.InstCode = GenCall((MethodX)operand, PrefixVMet);
 					return;
 
+				case Code.Ldnull:
+					GenLdc(inst, StackType.Obj, "0");
+					return;
 				case Code.Ldc_I4_M1:
 					GenLdc(inst, StackType.I4, "-1");
 					return;
