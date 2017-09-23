@@ -75,6 +75,25 @@ namespace il2cpp
 				path = Path.Combine(folder, unit.Name + ".cpp");
 				File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.ImplCode));
 			}
+
+			StringBuilder sb = new StringBuilder();
+			sb.Append("clang -O3 -S -emit-llvm main.cpp il2cpp.cpp");
+			foreach (var unit in units)
+				sb.AppendFormat(" {0}.cpp", unit.Name);
+			sb.AppendLine();
+
+			sb.Append("llvm-link -S -o link.ll main.ll il2cpp.ll");
+			foreach (var unit in units)
+				sb.AppendFormat(" {0}.ll", unit.Name);
+			sb.AppendLine();
+
+			sb.AppendLine("opt -O3 -S -o opt.ll link.ll");
+
+			sb.AppendLine("clang -O3 -o final.exe opt.ll");
+
+			sb.AppendLine("pause");
+
+			File.WriteAllText(Path.Combine(folder, "build.cmd"), sb.ToString());
 		}
 	}
 }
