@@ -300,21 +300,25 @@ namespace il2cpp
 						GenContext.GetTypeName(locType),
 						LocalName(i));
 				}
+				prt.AppendLine();
 			}
 
 			// 临时变量
-			prt.AppendLine("// temps");
-			foreach (var kv in SlotMap)
+			if (SlotMap.Count > 0)
 			{
-				foreach (var stype in kv.Value)
+				prt.AppendLine("// temps");
+				foreach (var kv in SlotMap)
 				{
-					prt.AppendFormatLine(
-						"{0} {1};",
-						stype.GetTypeName(),
-						TempName(kv.Key, stype));
+					foreach (var stype in kv.Value)
+					{
+						prt.AppendFormatLine(
+							"{0} {1};",
+							stype.GetTypeName(),
+							TempName(kv.Key, stype));
+					}
 				}
+				prt.AppendLine();
 			}
-			prt.AppendLine();
 
 			// 代码体
 			foreach (var inst in instList)
