@@ -392,7 +392,7 @@ namespace il2cpp
 			prt.AppendLine("\n{");
 			++prt.Indents;
 
-			prt.AppendFormatLine("void* pftn = {0}(((cls_Object*){1})->TypeID);\nassert(pftn);",
+			prt.AppendFormatLine("void* pftn = {0}(((cls_Object*){1})->TypeID);\nIL2CPP_ASSERT(pftn);",
 				GenContext.GetMethodName(CurrMethod, PrefixVFtn),
 				ArgName(0));
 
