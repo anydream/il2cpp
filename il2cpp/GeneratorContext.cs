@@ -33,8 +33,8 @@ namespace il2cpp
 
 		public bool IsEmpty()
 		{
-			return DeclCode.Length == 0 &&
-				   ImplCode.Length == 0;
+			return DeclCode == null && ImplCode == null ||
+				   DeclCode?.Length == 0 && ImplCode?.Length == 0;
 		}
 	}
 
@@ -113,8 +113,9 @@ namespace il2cpp
 
 		private bool IsUnitFull(CompileUnit unit)
 		{
-			return unit.DeclCode.Length > 30000 ||
-				   unit.ImplCode.Length > 100000;
+			return !unit.IsEmpty();
+			//return unit.DeclCode.Length > 30000 ||
+			//	   unit.ImplCode.Length > 100000;
 		}
 
 		private uint GetDependOrder(CompileUnit unit)
