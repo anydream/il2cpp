@@ -203,14 +203,12 @@ namespace il2cpp
 			tset.Add(slot.SlotType);
 		}
 
-		public void Generate()
+		private void GenFuncDef(CodePrinter prt, string prefix)
 		{
-			CodePrinter prt = new CodePrinter();
-
 			// 函数签名
 			prt.AppendFormat("{0} {1}(",
 				GenContext.GetTypeName(CurrMethod.ReturnType),
-				GenContext.GetMethodName(CurrMethod, PrefixMet));
+				GenContext.GetMethodName(CurrMethod, prefix));
 			RefValueTypeDecl(CurrMethod.ReturnType);
 
 			for (int i = 0, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
@@ -226,33 +224,74 @@ namespace il2cpp
 			}
 
 			prt.Append(")");
-			DeclCode = prt.ToString() + ';';
+		}
+
+		private void GenFuncType(CodePrinter prt)
+		{
+			prt.AppendFormat("{0}(*)(",
+				GenContext.GetTypeName(CurrMethod.ReturnType));
+
+			for (int i = 0, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+			{
+				if (i != 0)
+					prt.Append(",");
+
+				var argType = CurrMethod.ParamTypes[i];
+				prt.Append(GenContext.GetTypeName(argType));
+			}
+
+			prt.Append(")");
+		}
+
+		public void Generate()
+		{
+			if (!CurrMethod.IsSkipProcessing)
+			{
+				GenerateMet();
+			}
+
+			if (CurrMethod.IsVirtual)
+			{
+				GenerateVFtn();
+				GenerateVMet();
+			}
+		}
+
+		private void GenerateMet()
+		{
+			CodePrinter prt = new CodePrinter();
+
+			GenFuncDef(prt, PrefixMet);
+			DeclCode += prt + ";\n";
 
 			// 生成指令代码
 			var instList = CurrMethod.InstList;
-			if (!CurrMethod.IsSkipProcessing && instList != null)
+			if (instList == null)
+				return;
+
+			int currIP = 0;
+			for (; ; )
 			{
-				int currIP = 0;
-				for (; ; )
+				if (!GenerateInst(instList[currIP], ref currIP))
 				{
-					if (!GenerateInst(instList[currIP], ref currIP))
+					if (Branches.Count > 0)
 					{
-						if (Branches.Count > 0)
-						{
-							var branch = Branches.Dequeue();
-							TypeStack = branch.Item1;
-							currIP = branch.Item2;
-						}
-						else
-							break;
+						var branch = Branches.Dequeue();
+						TypeStack = branch.Item1;
+						currIP = branch.Item2;
 					}
+					else
+						break;
 				}
+			}
 
-				// 生成函数体
-				prt.AppendLine("\n{");
-				++prt.Indents;
+			// 生成函数体
+			prt.AppendLine("\n{");
+			++prt.Indents;
 
-				// 局部变量
+			// 局部变量
+			if (CurrMethod.LocalTypes.IsCollectionValid())
+			{
 				prt.AppendLine("// locals");
 				for (int i = 0, sz = CurrMethod.LocalTypes.Count; i < sz; ++i)
 				{
@@ -261,40 +300,118 @@ namespace il2cpp
 						GenContext.GetTypeName(locType),
 						LocalName(i));
 				}
-
-				// 临时变量
-				prt.AppendLine("// temps");
-				foreach (var kv in SlotMap)
-				{
-					foreach (var stype in kv.Value)
-					{
-						prt.AppendFormatLine(
-							"{0} {1};",
-							stype.GetTypeName(),
-							TempName(kv.Key, stype));
-					}
-				}
-				prt.AppendLine();
-
-				// 代码体
-				foreach (var inst in instList)
-				{
-					if (inst.IsBrTarget)
-					{
-						--prt.Indents;
-						prt.AppendLine(LabelName(inst.Offset) + ':');
-						++prt.Indents;
-					}
-
-					if (inst.InstCode != null)
-						prt.AppendLine(inst.InstCode);
-				}
-
-				--prt.Indents;
-				prt.AppendLine("}");
-
-				ImplCode = prt.ToString();
 			}
+
+			// 临时变量
+			prt.AppendLine("// temps");
+			foreach (var kv in SlotMap)
+			{
+				foreach (var stype in kv.Value)
+				{
+					prt.AppendFormatLine(
+						"{0} {1};",
+						stype.GetTypeName(),
+						TempName(kv.Key, stype));
+				}
+			}
+			prt.AppendLine();
+
+			// 代码体
+			foreach (var inst in instList)
+			{
+				if (inst.IsBrTarget)
+				{
+					--prt.Indents;
+					prt.AppendLine(LabelName(inst.Offset) + ':');
+					++prt.Indents;
+				}
+
+				if (inst.InstCode != null)
+					prt.AppendLine(inst.InstCode);
+			}
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			ImplCode += prt;
+		}
+
+		private void GenerateVFtn()
+		{
+			CodePrinter prt = new CodePrinter();
+
+			// 函数签名
+			prt.AppendFormat("void* {0}(uint32_t typeID)",
+				GenContext.GetMethodName(CurrMethod, PrefixVFtn));
+
+			DeclCode += prt + ";\n";
+
+			prt.AppendLine("\n{");
+			++prt.Indents;
+
+			HashSet<MethodX> implSet = CurrMethod.OverrideImpls;
+			if (!implSet.IsCollectionValid())
+				implSet = new HashSet<MethodX>() { CurrMethod };
+
+			prt.AppendLine("switch (typeID)\n{");
+			++prt.Indents;
+
+			foreach (MethodX implMetX in implSet)
+			{
+				RefTypeImpl(implMetX.DeclType);
+
+				prt.AppendFormatLine("// {0}",
+					implMetX.GetReplacedNameKey());
+				prt.AppendFormatLine("case {0}: return (void*)&{1};",
+					GenContext.GetTypeID(implMetX.DeclType),
+					GenContext.GetMethodName(implMetX, PrefixMet));
+			}
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			prt.AppendLine("abort();\nreturn 0;");
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			ImplCode += prt;
+		}
+
+		private void GenerateVMet()
+		{
+			CodePrinter prt = new CodePrinter();
+
+			GenFuncDef(prt, PrefixVMet);
+			DeclCode += prt + ";\n";
+
+			prt.AppendLine("\n{");
+			++prt.Indents;
+
+			prt.AppendFormatLine("void* pftn = {0}(((cls_Object*){1})->TypeID);\nassert(pftn);",
+				GenContext.GetMethodName(CurrMethod, PrefixVFtn),
+				ArgName(0));
+
+			if (CurrMethod.ReturnType.ElementType != ElementType.Void)
+				prt.Append("return ");
+
+			prt.Append("((");
+			GenFuncType(prt);
+			prt.Append(")pftn)(");
+
+			for (int i = 0, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+			{
+				if (i != 0)
+					prt.Append(", ");
+				prt.Append(ArgName(i));
+			}
+
+			prt.AppendLine(");");
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			ImplCode += prt;
 		}
 
 		private bool GenerateInst(InstInfo inst, ref int currIP)
@@ -378,6 +495,9 @@ namespace il2cpp
 
 				case Code.Call:
 					inst.InstCode = GenCall((MethodX)operand);
+					return;
+				case Code.Callvirt:
+					inst.InstCode = GenCall((MethodX)operand, PrefixVMet);
 					return;
 
 				case Code.Ldc_I4_M1:
@@ -850,12 +970,12 @@ namespace il2cpp
 				inst.InstCode = "return;";
 		}
 
-		private string GenCall(MethodX metX, List<SlotInfo> slotArgs = null)
+		private string GenCall(MethodX metX, string prefix = PrefixMet, List<SlotInfo> slotArgs = null)
 		{
 			RefTypeImpl(metX.DeclType);
 
 			StringBuilder sb = new StringBuilder();
-			sb.Append(GenContext.GetMethodName(metX, PrefixMet));
+			sb.Append(GenContext.GetMethodName(metX, prefix));
 			sb.Append('(');
 
 			if (slotArgs == null)
@@ -936,7 +1056,7 @@ namespace il2cpp
 			var ctorList = new List<SlotInfo>();
 			ctorList.Add(newSlot);
 			ctorList.AddRange(ctorArgs);
-			strCode += '\n' + GenCall(metX, ctorList);
+			strCode += '\n' + GenCall(metX, PrefixMet, ctorList);
 
 			inst.InstCode = strCode;
 		}
@@ -1073,7 +1193,7 @@ namespace il2cpp
 
 		private const string PrefixMet = "met_";
 		private const string PrefixVMet = "vmet_";
-		private const string PrefixVftn = "vftn_";
+		private const string PrefixVFtn = "vftn_";
 
 		private static bool IsBinaryOpValid(StackTypeKind op1, StackTypeKind op2, out StackTypeKind retType, Code code)
 		{
