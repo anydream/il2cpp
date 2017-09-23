@@ -38,9 +38,9 @@ namespace testcase
 		public static float Entry()
 		{
 			float[] fary = new float[10];
-			fary[0] = 1;
-			fary[3] = 3;
-			fary[5] = 5;
+			fary[0] = 1.1f;
+			fary[3] = 3.3f;
+			fary[5] = 5.5f;
 
 			float sum = 0;
 			foreach (float n in fary)
@@ -53,6 +53,24 @@ namespace testcase
 				sum += n;
 
 			return sum - usary[3];
+		}
+	}
+
+	[CodeGen]
+	static class TestMDArray
+	{
+		public static float Entry()
+		{
+			float[,] fary = new float[2, 3];
+			fary[0, 0] = 123.1f;
+			fary[1, 0] = 456.2f;
+			fary[1, 2] = 789.3f;
+
+			float sum = 0;
+			foreach (float n in fary)
+				sum += n;
+
+			return sum + fary[1, 2] + fary.LongLength + fary.Length + fary.GetUpperBound(1);
 		}
 	}
 }

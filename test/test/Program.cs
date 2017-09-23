@@ -28,10 +28,18 @@ namespace test
 			string imageName = Path.GetFileName(imagePath);
 			string subDir = GetRelativePath(imageDir, TestDir);
 
-			Il2cppContext context = new Il2cppContext(imagePath);
-			foreach (TypeDef typeDef in context.Module.Types)
+			try
 			{
-				OnType(context, typeDef, imageDir, imageName, subDir);
+				Il2cppContext context = new Il2cppContext(imagePath);
+
+				foreach (TypeDef typeDef in context.Module.Types)
+				{
+					OnType(context, typeDef, imageDir, imageName, subDir);
+				}
+			}
+			catch (BadImageFormatException)
+			{
+				Console.WriteLine("* Load Error: \"{0}{1}\" is not a .NET assembly.", subDir, imageName);
 			}
 		}
 

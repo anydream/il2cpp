@@ -341,7 +341,7 @@ namespace il2cpp
 
 		public string GetTypeName(TypeX tyX)
 		{
-			string strName = tyX.GenTypeName;
+			string strName = tyX.GeneratedTypeName;
 			if (strName == null)
 			{
 				strName = tyX.IsValueType ? "stru_" : "cls_";
@@ -352,18 +352,18 @@ namespace il2cpp
 				else
 					strName += NameHash(nameKey.GetHashCode()) + '_' + GetNameWithGen(tyX.Def.Name, tyX.GenArgs);
 
-				tyX.GenTypeName = strName = EscapeName(strName);
+				tyX.GeneratedTypeName = strName = EscapeName(strName);
 			}
 			return strName;
 		}
 
 		public uint GetTypeID(TypeX tyX)
 		{
-			if (tyX.GenTypeID != 0)
-				return tyX.GenTypeID;
+			if (tyX.GeneratedTypeID != 0)
+				return tyX.GeneratedTypeID;
 
-			tyX.GenTypeID = ++TypeIDCounter;
-			return tyX.GenTypeID;
+			tyX.GeneratedTypeID = ++TypeIDCounter;
+			return tyX.GeneratedTypeID;
 		}
 
 		private TypeX GetTypeBySig(TypeSig tySig)
@@ -375,7 +375,7 @@ namespace il2cpp
 
 		public string GetMethodName(MethodX metX, string prefix)
 		{
-			string strName = metX.GenMethodName;
+			string strName = metX.GeneratedMethodName;
 			if (strName == null)
 			{
 				int hashCode =
@@ -387,14 +387,14 @@ namespace il2cpp
 					GetNameWithGen(metX.DeclType.Def.Name, metX.DeclType.GenArgs) + "__" +
 					GetNameWithGen(metX.Def.Name, metX.GenArgs);
 
-				metX.GenMethodName = strName = EscapeName(strName);
+				metX.GeneratedMethodName = strName = EscapeName(strName);
 			}
 			return prefix + strName;
 		}
 
 		public string GetFieldName(FieldX fldX)
 		{
-			string strName = fldX.GenFieldName;
+			string strName = fldX.GeneratedFieldName;
 			if (strName == null)
 			{
 				if (!fldX.DeclType.IsArrayType && fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
@@ -402,7 +402,7 @@ namespace il2cpp
 				else
 					strName = "fld_" + NameHash((int)fldX.Def.Rid) + "__" + fldX.Def.Name;
 
-				fldX.GenFieldName = strName = EscapeName(strName);
+				fldX.GeneratedFieldName = strName = EscapeName(strName);
 			}
 			return strName;
 		}

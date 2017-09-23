@@ -43,7 +43,7 @@ namespace il2cpp
 		public bool IsSkipProcessing;
 
 		// 生成的方法名称
-		public string GenMethodName;
+		public string GeneratedMethodName;
 
 		public MethodX(TypeX declType, MethodDef metDef)
 		{

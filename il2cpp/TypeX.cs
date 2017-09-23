@@ -80,9 +80,9 @@ namespace il2cpp
 		public bool IsFinalizerGenerated;
 
 		// 生成的类型名称
-		public string GenTypeName;
+		public string GeneratedTypeName;
 		// 生成的类型索引
-		public uint GenTypeID;
+		public uint GeneratedTypeID;
 		// 无引用标记. 1=true, 2=false
 		public byte NoRefFlag;
 

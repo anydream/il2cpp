@@ -1024,7 +1024,7 @@ namespace il2cpp
 		{
 			TypeDefUser tyDef = new TypeDefUser(
 				"il2cpprt",
-				"SZArray`1",
+				"SZArray",
 				Context.CorLibTypes.GetTypeRef("System", "Array"));
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);
@@ -1074,7 +1074,7 @@ namespace il2cpp
 		{
 			TypeDefUser tyDef = new TypeDefUser(
 				"il2cpprt",
-				"MDArray" + rank + "`1",
+				"MDArray" + rank,
 				Context.CorLibTypes.GetTypeRef("System", "Array"));
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);

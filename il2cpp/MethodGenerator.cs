@@ -901,16 +901,24 @@ namespace il2cpp
 
 				uint rank = tyX.ArrayInfo.Rank;
 				if (rank == 1)
-					strAddSize += " * " + TempName(ctorArgs[0]);
+				{
+					strAddSize += " * " + TempName(ctorArgs[0]) +
+						// Length
+						" + sizeof(int)";
+				}
 				else if (ctorArgs.Length == rank)
 				{
 					for (int i = 0; i < rank; ++i)
 						strAddSize += " * " + TempName(ctorArgs[i]);
+					// LowerBound+Size
+					strAddSize += " + sizeof(int) * 2 * " + rank;
 				}
 				else if (ctorArgs.Length == rank * 2)
 				{
 					for (int i = 0; i < rank; ++i)
 						strAddSize += " * " + TempName(ctorArgs[i * 2 + 1]);
+					// LowerBound+Size
+					strAddSize += " + sizeof(int) * 2 * " + rank;
 				}
 				else
 					throw new ArgumentOutOfRangeException();

@@ -51,7 +51,11 @@ namespace il2cpp
 			++prtDecl.Indents;
 
 			// 生成对象内置字段
-			if (CurrType.GetNameKey() == "Object")
+			if (CurrType.IsArrayType)
+			{
+				prtDecl.AppendLine("int Rank;");
+			}
+			else if (CurrType.GetNameKey() == "Object")
 			{
 				prtDecl.AppendLine("uint32_t TypeID;");
 			}
