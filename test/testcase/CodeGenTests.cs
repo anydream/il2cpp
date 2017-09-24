@@ -143,7 +143,7 @@ namespace testcase
 			sum += sary3d.GetUpperBound(1) - sary3d.GetLowerBound(1);
 			sum += sary3d.GetUpperBound(2) - sary3d.GetLowerBound(2);
 
-			sum += sary3d[1, 2, 3] + sary2d.LongLength;
+			sum += sary3d[1, 2, 3] + sary3d.LongLength;
 
 			return sum;
 		}
