@@ -47,7 +47,7 @@ int32_t met_5SoFe3_Array__get_Length(struct cls_System_Array* ary)
 		return ((int32_t*)&ary[1])[0];
 	else
 	{
-		int32_t length = 0;
+		int32_t length = 1;
 		for (int32_t i = 0, sz = ary->Rank; i < sz; ++i)
 			length *= ((int32_t*)&ary[1])[i * 2 + 1];
 		return length;
@@ -60,7 +60,7 @@ int64_t met_afGVQ1_Array__get_LongLength(struct cls_System_Array* ary)
 		return ((int32_t*)&ary[1])[0];
 	else
 	{
-		int64_t length = 0;
+		int64_t length = 1;
 		for (int32_t i = 0, sz = ary->Rank; i < sz; ++i)
 			length *= ((int32_t*)&ary[1])[i * 2 + 1];
 		return length;
