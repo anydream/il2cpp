@@ -53,11 +53,26 @@ namespace il2cpp
 			// 生成对象内置字段
 			if (CurrType.IsArrayType)
 			{
-				prtDecl.AppendLine("int Rank;");
+				uint rank = CurrType.ArrayInfo.Rank;
+				if (rank == 1)
+					prtDecl.AppendLine("int Length;");
+				else
+				{
+					for (int i = 0; i < rank; ++i)
+						prtDecl.AppendFormatLine("int LowerBound{0};\nint Size{0};", i);
+				}
 			}
-			else if (CurrType.GetNameKey() == "Object")
+			else
 			{
-				prtDecl.AppendLine("uint32_t TypeID;");
+				string nameKey = CurrType.GetNameKey();
+				if (nameKey == "Object")
+				{
+					prtDecl.AppendLine("uint32_t TypeID;");
+				}
+				else if (nameKey == "System.Array")
+				{
+					prtDecl.AppendLine("int Rank;");
+				} 
 			}
 
 			// 重排字段
@@ -95,9 +110,7 @@ namespace il2cpp
 
 			unit.DeclCode = prtDecl.ToString();
 			unit.ImplCode = prtImpl.ToString();
-
-			unit.Optimize();
-
+			
 			return unit;
 		}
 

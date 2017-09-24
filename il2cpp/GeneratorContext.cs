@@ -16,11 +16,15 @@ namespace il2cpp
 		public HashSet<string> ImplDepends = new HashSet<string>();
 		public uint DependOrder;
 
-		public void Optimize()
+		public void Optimize(Dictionary<string, CompileUnit> unitMap)
 		{
 			ImplDepends.ExceptWith(DeclDepends);
-			ImplDepends.Remove(Name);
+
 			DeclDepends.Remove(Name);
+			ImplDepends.Remove(Name);
+
+			DeclDepends.RemoveWhere(item => !unitMap.ContainsKey(item));
+			ImplDepends.RemoveWhere(item => !unitMap.ContainsKey(item));
 		}
 
 		public void Append(CompileUnit unit)
@@ -99,7 +103,7 @@ namespace il2cpp
 					implDeps.Add(transMap[dep]);
 				unit.ImplDepends = implDeps;
 
-				unit.Optimize();
+				unit.Optimize(UnitMap);
 			}
 		}
 
@@ -113,9 +117,12 @@ namespace il2cpp
 
 		private bool IsUnitFull(CompileUnit unit)
 		{
+#if false
 			return !unit.IsEmpty();
-			//return unit.DeclCode.Length > 30000 ||
-			//	   unit.ImplCode.Length > 100000;
+#else
+			return unit.DeclCode.Length > 30000 ||
+				   unit.ImplCode.Length > 100000;
+#endif
 		}
 
 		private uint GetDependOrder(CompileUnit unit)
@@ -123,6 +130,8 @@ namespace il2cpp
 			uint depOrder = unit.DependOrder;
 			if (depOrder != 0)
 				return depOrder;
+
+			unit.Optimize(UnitMap);
 
 			foreach (string dep in unit.DeclDepends)
 				depOrder += GetDependOrder(UnitMap[dep]);

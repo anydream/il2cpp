@@ -1027,28 +1027,26 @@ namespace il2cpp
 			string strAddSize = null;
 			if (tyX.IsArrayType)
 			{
-				strAddSize = string.Format(" + sizeof({0})", GenContext.GetTypeName(tyX.GenArgs[0]));
+				var elemType = tyX.GenArgs[0];
+				RefTypeDecl(elemType);
+
+				strAddSize = string.Format(" + sizeof({0})",
+					GenContext.GetTypeName(elemType));
 
 				uint rank = tyX.ArrayInfo.Rank;
 				if (rank == 1)
 				{
-					strAddSize += " * " + TempName(ctorArgs[0]) +
-						// Length
-						" + sizeof(int)";
+					strAddSize += " * " + TempName(ctorArgs[0]);
 				}
 				else if (ctorArgs.Length == rank)
 				{
 					for (int i = 0; i < rank; ++i)
 						strAddSize += " * " + TempName(ctorArgs[i]);
-					// LowerBound+Size
-					strAddSize += " + sizeof(int) * 2 * " + rank;
 				}
 				else if (ctorArgs.Length == rank * 2)
 				{
 					for (int i = 0; i < rank; ++i)
 						strAddSize += " * " + TempName(ctorArgs[i * 2 + 1]);
-					// LowerBound+Size
-					strAddSize += " + sizeof(int) * 2 * " + rank;
 				}
 				else
 					throw new ArgumentOutOfRangeException();

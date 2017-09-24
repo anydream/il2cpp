@@ -212,6 +212,8 @@ namespace test
 				units);
 
 			Console.WriteLine();
+
+			context.Reset();
 		}
 
 		private static byte[] ReplaceNewLines(byte[] data)
