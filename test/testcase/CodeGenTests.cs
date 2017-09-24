@@ -104,6 +104,8 @@ namespace testcase
 			foreach (float n in fary)
 				sum += n;
 
+			sum += fary[1, 2] + fary.LongLength;
+
 			short[,,] sary3d = new short[2, 3, 4];
 			/*{
 				{
@@ -137,7 +139,13 @@ namespace testcase
 					return 0;
 			}
 
-			return sum + fary[1, 2] + fary.LongLength + fary.Length + fary.GetUpperBound(1);
+			sum += sary3d.GetUpperBound(0) - sary3d.GetLowerBound(0);
+			sum += sary3d.GetUpperBound(1) - sary3d.GetLowerBound(1);
+			sum += sary3d.GetUpperBound(2) - sary3d.GetLowerBound(2);
+
+			sum += sary3d[1, 2, 3] + sary2d.LongLength;
+
+			return sum;
 		}
 	}
 }

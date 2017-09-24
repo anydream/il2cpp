@@ -350,12 +350,17 @@ namespace il2cpp
 							GenStaticCctor(resMetX.DeclType);
 							GenFinalizer(resMetX.DeclType);
 						}
-						else if (resMetX.IsVirtual &&
-								(inst.OpCode.Code == Code.Callvirt ||
-								 inst.OpCode.Code == Code.Ldvirtftn))
+						else if (inst.OpCode.Code == Code.Callvirt ||
+								 inst.OpCode.Code == Code.Ldvirtftn)
 						{
-							Debug.Assert(resMetX.IsVirtual);
-							AddVCallEntry(resMetX);
+							if (resMetX.IsVirtual)
+								AddVCallEntry(resMetX);
+							else
+							{
+								// 非虚方法重定向指令
+								inst.OpCode = inst.OpCode.Code == Code.Callvirt ?
+									OpCodes.Call : OpCodes.Ldftn;
+							}
 						}
 						else if (resMetX.IsVirtual &&
 								(inst.OpCode.Code == Code.Call ||
