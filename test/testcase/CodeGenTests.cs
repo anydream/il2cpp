@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 
 namespace testcase
 {
@@ -15,7 +14,7 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class Fibonacci
 	{
 		static long Fib(int n)
@@ -29,6 +28,41 @@ namespace testcase
 		public static long Entry()
 		{
 			return Fib(40);
+		}
+	}
+
+	[CodeGen]
+	static class TestCallVirt
+	{
+		interface Inf
+		{
+			int Foo();
+		}
+
+		class ClsA : Inf
+		{
+			public int Foo()
+			{
+				return 123;
+			}
+		}
+
+		class ClsB : Inf
+		{
+			public int Foo()
+			{
+				return 456;
+			}
+		}
+
+		private static int Bla(Inf inf)
+		{
+			return inf.Foo();
+		}
+
+		public static int Entry()
+		{
+			return Bla(new ClsB()) - Bla(new ClsA());
 		}
 	}
 
@@ -56,7 +90,7 @@ namespace testcase
 		}
 	}
 
-	[CodeGen]
+	//[CodeGen]
 	static class TestMDArray
 	{
 		public static float Entry()
