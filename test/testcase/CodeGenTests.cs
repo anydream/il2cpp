@@ -14,7 +14,7 @@ namespace testcase
 		}
 	}
 
-	[CodeGen]
+	//[CodeGen]
 	static class Fibonacci
 	{
 		static long Fib(int n)
@@ -31,7 +31,7 @@ namespace testcase
 		}
 	}
 
-	[CodeGen]
+	//[CodeGen]
 	static class TestCallVirt
 	{
 		interface Inf
@@ -66,7 +66,7 @@ namespace testcase
 		}
 	}
 
-	[CodeGen]
+	//[CodeGen]
 	static class TestSZArray
 	{
 		public static float Entry()
@@ -90,7 +90,7 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestMDArray
 	{
 		public static float Entry()
@@ -103,6 +103,39 @@ namespace testcase
 			float sum = 0;
 			foreach (float n in fary)
 				sum += n;
+
+			short[,,] sary3d = new short[2, 3, 4];
+			/*{
+				{
+					{ 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12 }
+				},
+				{
+					{ 13, 14, 15, 16 }, { 17, 18, 19, 20 }, { 21, 22, 23, 24 }
+				}
+			};*/
+			short num = 0;
+			for (int x = 0; x < 2; ++x)
+			{
+				for (int y = 0; y < 3; ++y)
+				{
+					for (int z = 0; z < 4; ++z)
+					{
+						sary3d[x, y, z] = ++num;
+					}
+				}
+			}
+
+			short last = 0;
+			foreach (short n in sary3d)
+			{
+				if (n - last == 1)
+				{
+					sum += n;
+					last = n;
+				}
+				else
+					return 0;
+			}
 
 			return sum + fary[1, 2] + fary.LongLength + fary.Length + fary.GetUpperBound(1);
 		}

@@ -433,7 +433,7 @@ namespace il2cpp
 
 				TypeSig elemType = CurrMethod.DeclType.GenArgs[0];
 				string metName = CurrMethod.Def.Name;
-				int argCount = CurrMethod.ParamTypes.Count - 1;
+				int pCount = CurrMethod.ParamTypes.Count - 1;
 				var arrayInfo = CurrMethod.DeclType.ArrayInfo;
 				bool isSZArray = arrayInfo.IsSZArray;
 				uint rank = arrayInfo.Rank;
@@ -446,12 +446,32 @@ namespace il2cpp
 							ArgName(0),
 							ArgName(1));
 					}
-					else if (rank == argCount)
+					else if (rank == pCount)
 					{
+						prt.AppendFormatLine("{0}->Rank = {1};",
+							ArgName(0),
+							rank);
+						for (int i = 0; i < rank; ++i)
+						{
+							prt.AppendFormatLine("{0}->LowerBound{1} = 0;\n{0}->Size{1} = {2};",
+								ArgName(0),
+								i,
+								ArgName(i + 1));
+						}
 					}
-					else if (rank * 2 == argCount)
+					else if (rank * 2 == pCount)
 					{
-
+						prt.AppendFormatLine("{0}->Rank = {1};",
+							ArgName(0),
+							rank);
+						for (int i = 0; i < rank; ++i)
+						{
+							prt.AppendFormatLine("{0}->LowerBound{1} = {2};\n{0}->Size{1} = {3};",
+								ArgName(0),
+								i,
+								ArgName(i * 2 + 1),
+								ArgName(i * 2 + 2));
+						}
 					}
 					else
 						throw new ArgumentOutOfRangeException();
@@ -468,8 +488,12 @@ namespace il2cpp
 							ArgName(0),
 							ArgName(1));
 					}
-					else if (rank == argCount)
+					else if (rank == pCount)
 					{
+						GenerateMDArrayIndex(prt, rank);
+						prt.AppendFormatLine("return (({0}*)(&{1}[1]))[index];",
+							GenContext.GetTypeName(elemType),
+							ArgName(0));
 					}
 					else
 						throw new ArgumentOutOfRangeException();
@@ -487,8 +511,13 @@ namespace il2cpp
 							ArgName(1),
 							ArgName(2));
 					}
-					else if (rank == argCount)
+					else if (rank + 1 == pCount)
 					{
+						GenerateMDArrayIndex(prt, rank);
+						prt.AppendFormatLine("(({0}*)(&{1}[1]))[index] = {2};",
+							GenContext.GetTypeName(elemType),
+							ArgName(0),
+							ArgName(pCount));
 					}
 					else
 						throw new ArgumentOutOfRangeException();
@@ -505,8 +534,12 @@ namespace il2cpp
 							ArgName(0),
 							ArgName(1));
 					}
-					else if (rank == argCount)
+					else if (rank == pCount)
 					{
+						GenerateMDArrayIndex(prt, rank);
+						prt.AppendFormatLine("return &(({0}*)(&{1}[1]))[index];",
+							GenContext.GetTypeName(elemType),
+							ArgName(0));
 					}
 					else
 						throw new ArgumentOutOfRangeException();
@@ -517,6 +550,40 @@ namespace il2cpp
 
 				ImplCode += prt;
 			}
+		}
+
+		private void GenerateMDArrayIndex(CodePrinter prt, uint rank)
+		{
+			for (int i = 0; i < rank; ++i)
+			{
+				prt.AppendFormatLine("IL2CPP_CHECK_RANGE({0}->LowerBound{1}, {0}->Size{1}, {2});",
+					ArgName(0),
+					i,
+					ArgName(i + 1));
+			}
+
+			prt.AppendLine("uintptr_t index =");
+			++prt.Indents;
+			for (int i = 0; i < rank; ++i)
+			{
+				prt.AppendFormat("({0} - {1}->LowerBound{2})",
+					ArgName(i + 1),
+					ArgName(0),
+					i);
+
+				for (int j = i + 1; j < rank; ++j)
+				{
+					prt.AppendFormat(" * {0}->Size{1}",
+						ArgName(0),
+						j);
+				}
+
+				if (i == rank - 1)
+					prt.AppendLine(";");
+				else
+					prt.AppendLine(" +");
+			}
+			--prt.Indents;
 		}
 
 		private bool GenerateInst(InstInfo inst, ref int currIP)
@@ -1260,13 +1327,15 @@ namespace il2cpp
 			return "goto " + LabelName(labelID) + ';';
 		}
 
-		private static string ArgName(int argID)
+		private string ArgName(int argID)
 		{
+			Debug.Assert(argID < CurrMethod.ParamTypes.Count);
 			return "arg_" + argID;
 		}
 
-		private static string LocalName(int locID)
+		private string LocalName(int locID)
 		{
+			Debug.Assert(locID < CurrMethod.LocalTypes.Count);
 			return "loc_" + locID;
 		}
 
