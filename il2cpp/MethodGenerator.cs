@@ -267,7 +267,10 @@ namespace il2cpp
 			// 生成指令代码
 			var instList = CurrMethod.InstList;
 			if (instList == null)
+			{
+				GenerateRuntimeImpl(prt);
 				return;
+			}
 
 			int currIP = 0;
 			for (; ; )
@@ -419,6 +422,101 @@ namespace il2cpp
 			prt.AppendLine("}");
 
 			ImplCode += prt;
+		}
+
+		private void GenerateRuntimeImpl(CodePrinter prt)
+		{
+			if (CurrMethod.DeclType.IsArrayType)
+			{
+				prt.AppendLine("\n{");
+				++prt.Indents;
+
+				TypeSig elemType = CurrMethod.DeclType.GenArgs[0];
+				string metName = CurrMethod.Def.Name;
+				int argCount = CurrMethod.ParamTypes.Count - 1;
+				var arrayInfo = CurrMethod.DeclType.ArrayInfo;
+				bool isSZArray = arrayInfo.IsSZArray;
+				uint rank = arrayInfo.Rank;
+
+				if (metName == ".ctor")
+				{
+					if (isSZArray)
+					{
+						prt.AppendFormatLine("{0}->Rank = 0;\n{0}->Length = {1};",
+							ArgName(0),
+							ArgName(1));
+					}
+					else if (rank == argCount)
+					{
+					}
+					else if (rank * 2 == argCount)
+					{
+
+					}
+					else
+						throw new ArgumentOutOfRangeException();
+				}
+				else if (metName == "Get")
+				{
+					if (isSZArray)
+					{
+						prt.AppendFormatLine("IL2CPP_CHECK_RANGE(0, {0}->Length, {1});",
+							ArgName(0),
+							ArgName(1));
+						prt.AppendFormatLine("return (({0}*)(&{1}[1]))[{2}];",
+							GenContext.GetTypeName(elemType),
+							ArgName(0),
+							ArgName(1));
+					}
+					else if (rank == argCount)
+					{
+					}
+					else
+						throw new ArgumentOutOfRangeException();
+				}
+				else if (metName == "Set")
+				{
+					if (isSZArray)
+					{
+						prt.AppendFormatLine("IL2CPP_CHECK_RANGE(0, {0}->Length, {1});",
+							ArgName(0),
+							ArgName(1));
+						prt.AppendFormatLine("(({0}*)(&{1}[1]))[{2}] = {3};",
+							GenContext.GetTypeName(elemType),
+							ArgName(0),
+							ArgName(1),
+							ArgName(2));
+					}
+					else if (rank == argCount)
+					{
+					}
+					else
+						throw new ArgumentOutOfRangeException();
+				}
+				else if (metName == "Address")
+				{
+					if (isSZArray)
+					{
+						prt.AppendFormatLine("IL2CPP_CHECK_RANGE(0, {0}->Length, {1});",
+							ArgName(0),
+							ArgName(1));
+						prt.AppendFormatLine("return &(({0}*)(&{1}[1]))[{2}];",
+							GenContext.GetTypeName(elemType),
+							ArgName(0),
+							ArgName(1));
+					}
+					else if (rank == argCount)
+					{
+					}
+					else
+						throw new ArgumentOutOfRangeException();
+				}
+
+				--prt.Indents;
+				prt.AppendLine("}");
+
+				ImplCode += prt;
+			}
 		}
 
 		private bool GenerateInst(InstInfo inst, ref int currIP)
@@ -1034,16 +1132,12 @@ namespace il2cpp
 					GenContext.GetTypeName(elemType));
 
 				uint rank = tyX.ArrayInfo.Rank;
-				if (rank == 1)
-				{
-					strAddSize += " * " + TempName(ctorArgs[0]);
-				}
-				else if (ctorArgs.Length == rank)
+				if (rank == ctorArgs.Length)
 				{
 					for (int i = 0; i < rank; ++i)
 						strAddSize += " * " + TempName(ctorArgs[i]);
 				}
-				else if (ctorArgs.Length == rank * 2)
+				else if (rank * 2 == ctorArgs.Length)
 				{
 					for (int i = 0; i < rank; ++i)
 						strAddSize += " * " + TempName(ctorArgs[i * 2 + 1]);

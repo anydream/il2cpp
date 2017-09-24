@@ -21,6 +21,7 @@ namespace il2cpp
 
 	internal class ArrayProperty
 	{
+		public bool IsSZArray;
 		public uint Rank;
 		public IList<uint> Sizes;
 		public IList<int> LowerBounds;
@@ -118,7 +119,7 @@ namespace il2cpp
 		{
 			if (IsArrayType)
 			{
-				if (ArrayInfo.Rank == 1)
+				if (ArrayInfo.IsSZArray)
 					return new SZArraySig(GenArgs[0]);
 
 				return new ArraySig(GenArgs[0], ArrayInfo.Rank, ArrayInfo.Sizes, ArrayInfo.LowerBounds);

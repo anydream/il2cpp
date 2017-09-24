@@ -17,6 +17,12 @@ void* il2cpp_New(uint32_t sz, uint32_t typeID, int isNoRef)
 	return obj;
 }
 
+void il2cpp_CheckRange(int lowerBound, int length, int index)
+{
+	if (index < lowerBound || index >= lowerBound + length)
+		abort();
+}
+
 void il2cpp_Yield()
 {
 #if defined(_WIN32)
@@ -33,4 +39,17 @@ uintptr_t il2cpp_ThreadID()
 #else
 	return (uintptr_t)gettid();
 #endif
+}
+
+int32_t met_5SoFe3_Array__get_Length(struct cls_System_Array* ary)
+{
+	if (ary->Rank == 0)
+		return ((int*)&ary[1])[0];
+	else
+	{
+		int length = 0;
+		for (int i = 0, sz = ary->Rank; i < sz; ++i)
+			length += ((int*)&ary[1])[i * 2 + 1];
+		return length;
+	}
 }

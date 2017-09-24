@@ -19,8 +19,6 @@
 #define IL2CPP_UNLIKELY(x)					x
 #endif
 
-#define IL2CPP_ASSERT assert
-
 #define IL2CPP_CALL_ONCE(_flag, _locktid, _func) \
 		if (IL2CPP_UNLIKELY(_flag != -1)) \
 		{ \
@@ -37,8 +35,12 @@
 			} \
 		}
 
-#define IL2CPP_NEW	il2cpp_New
+#define IL2CPP_ASSERT		assert
+#define IL2CPP_NEW			il2cpp_New
+#define IL2CPP_CHECK_RANGE	il2cpp_CheckRange
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID, int isNoRef);
+void il2cpp_CheckRange(int lowerBound, int length, int index);
+
 void il2cpp_Yield();
 uintptr_t il2cpp_ThreadID();

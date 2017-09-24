@@ -48,7 +48,8 @@ namespace il2cpp
 		public readonly Dictionary<string, CompileUnit> UnitMap;
 		private static readonly HashSet<string> BridgeTypes = new HashSet<string>
 		{
-			"cls_Object"
+			"cls_Object",
+			"cls_System_Array"
 		};
 
 		public CompileUnitMerger(Dictionary<string, CompileUnit> units)

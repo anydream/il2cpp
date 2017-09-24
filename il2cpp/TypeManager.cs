@@ -354,6 +354,7 @@ namespace il2cpp
 								(inst.OpCode.Code == Code.Callvirt ||
 								 inst.OpCode.Code == Code.Ldvirtftn))
 						{
+							Debug.Assert(resMetX.IsVirtual);
 							AddVCallEntry(resMetX);
 						}
 						else if (resMetX.IsVirtual &&
@@ -984,7 +985,7 @@ namespace il2cpp
 
 			TypeX tyX = new TypeX(GetSZArrayPrototype(szArySig));
 			tyX.GenArgs = new List<TypeSig>() { Helper.ReplaceGenericSig(elemType, replacer) };
-			tyX.ArrayInfo = new ArrayProperty() { Rank = 1, Sizes = null, LowerBounds = null };
+			tyX.ArrayInfo = new ArrayProperty() { IsSZArray = true, Rank = 1, Sizes = null, LowerBounds = null };
 			return tyX;
 		}
 
@@ -994,7 +995,7 @@ namespace il2cpp
 
 			TypeX tyX = new TypeX(GetMDArrayPrototype(arySig));
 			tyX.GenArgs = new List<TypeSig>() { Helper.ReplaceGenericSig(elemType, replacer) };
-			tyX.ArrayInfo = new ArrayProperty() { Rank = arySig.Rank, Sizes = arySig.Sizes, LowerBounds = arySig.LowerBounds };
+			tyX.ArrayInfo = new ArrayProperty() { IsSZArray = false, Rank = arySig.Rank, Sizes = arySig.Sizes, LowerBounds = arySig.LowerBounds };
 			return tyX;
 		}
 

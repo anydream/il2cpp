@@ -53,11 +53,12 @@ namespace il2cpp
 			// 生成对象内置字段
 			if (CurrType.IsArrayType)
 			{
-				uint rank = CurrType.ArrayInfo.Rank;
-				if (rank == 1)
+				var arrayInfo = CurrType.ArrayInfo;
+				if (arrayInfo.IsSZArray)
 					prtDecl.AppendLine("int Length;");
 				else
 				{
+					uint rank = arrayInfo.Rank;
 					for (int i = 0; i < rank; ++i)
 						prtDecl.AppendFormatLine("int LowerBound{0};\nint Size{0};", i);
 				}
