@@ -49,7 +49,7 @@ int32_t met_5SoFe3_Array__get_Length(struct cls_System_Array* ary)
 	{
 		int32_t length = 0;
 		for (int32_t i = 0, sz = ary->Rank; i < sz; ++i)
-			length += ((int32_t*)&ary[1])[i * 2 + 1];
+			length *= ((int32_t*)&ary[1])[i * 2 + 1];
 		return length;
 	}
 }
@@ -62,7 +62,7 @@ int64_t met_afGVQ1_Array__get_LongLength(struct cls_System_Array* ary)
 	{
 		int64_t length = 0;
 		for (int32_t i = 0, sz = ary->Rank; i < sz; ++i)
-			length += ((int32_t*)&ary[1])[i * 2 + 1];
+			length *= ((int32_t*)&ary[1])[i * 2 + 1];
 		return length;
 	}
 }
@@ -78,7 +78,7 @@ int32_t met_y01YS2_Array__GetLowerBound(struct cls_System_Array* ary, int32_t di
 int32_t met_ivEBm1_Array__GetUpperBound(struct cls_System_Array* ary, int32_t dim)
 {
 	if (ary->Rank == 0)
-		return ((int32_t*)&ary[1])[0];
+		return ((int32_t*)&ary[1])[0] - 1;
 	else
 		return ((int32_t*)&ary[1])[dim * 2] + ((int32_t*)&ary[1])[dim * 2 + 1] - 1;
 }
