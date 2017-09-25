@@ -39,6 +39,8 @@
 #define IL2CPP_NEW			il2cpp_New
 #define IL2CPP_CHECK_RANGE	il2cpp_CheckRange
 
+void il2cpp_Init();
+
 void* il2cpp_New(uint32_t sz, uint32_t typeID, int32_t isNoRef);
 void il2cpp_CheckRange(int32_t lowerBound, int32_t length, int32_t index);
 

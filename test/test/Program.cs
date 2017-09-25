@@ -208,7 +208,7 @@ namespace test
 
 			string validatedName = ValidatePath(testName);
 			Il2cppContext.SaveToFolder(
-				Path.Combine(imageDir, "gen", validatedName),
+				Path.Combine(imageDir, "../../gen/", validatedName),
 				units);
 
 			Console.WriteLine();

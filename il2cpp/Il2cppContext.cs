@@ -83,7 +83,8 @@ namespace il2cpp
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("@echo off");
 
-			sb.Append("clang -O3 -S -emit-llvm -DIL2CPP_LLVM main.cpp il2cpp.cpp");
+			sb.AppendLine("clang -O3 -S -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -Ibdwgc/include bdwgc/extra/gc.c");
+			sb.Append("clang -O3 -S -emit-llvm -DIL2CPP_LLVM -Ibdwgc/include main.cpp il2cpp.cpp");
 			foreach (var unit in units)
 				sb.AppendFormat(" {0}.cpp", unit.Name);
 			sb.AppendLine();
@@ -94,7 +95,10 @@ namespace il2cpp
 			sb.AppendLine();
 
 			sb.AppendLine("opt -O3 -S -o opt.ll link.ll");
-			sb.AppendLine("clang -O3 -o final.exe opt.ll");
+			sb.AppendLine("IRPatcher opt.ll");
+			sb.AppendLine("llvm-link -S -o linkgc.ll opt.ll gc.ll");
+			sb.AppendLine("opt -O3 -S -o optgc.ll linkgc.ll");
+			sb.AppendLine("clang -O3 -o final.exe optgc.ll");
 			sb.AppendLine("pause");
 			File.WriteAllText(Path.Combine(folder, "build.cmd"), sb.ToString());
 
