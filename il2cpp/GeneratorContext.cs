@@ -217,6 +217,8 @@ namespace il2cpp
 				case ElementType.ByRef:
 				case ElementType.Object:
 				case ElementType.Class:
+				case ElementType.SZArray:
+				case ElementType.Array:
 					return 10;
 
 				case ElementType.ValueType:

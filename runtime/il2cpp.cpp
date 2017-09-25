@@ -43,6 +43,8 @@ uintptr_t il2cpp_ThreadID()
 
 int32_t met_WvfER_Array__get_Rank(struct cls_System_Array* ary)
 {
+	if (ary->Rank == 0)
+		return 1;
 	return ary->Rank;
 }
 

@@ -6,6 +6,17 @@ namespace testcase
 	{
 	}
 
+	static class Helper
+	{
+		public static bool IsEquals(this float lhs, float rhs, float prec = 0.00001f)
+		{
+			double abs = lhs - rhs;
+			if (abs < 0)
+				abs = -abs;
+			return abs < prec;
+		}
+	}
+
 	static class HelloWorld
 	{
 		public static int Entry()
@@ -69,7 +80,7 @@ namespace testcase
 	[CodeGen]
 	static class TestSZArray
 	{
-		public static bool Entry()
+		public static int Entry()
 		{
 			float[] fary = new float[10];
 
@@ -82,17 +93,17 @@ namespace testcase
 			var ub = fary.GetUpperBound(0);
 
 			if (rank != 1)
-				return false;
+				return 1;
 			if (len != len2)
-				return false;
+				return 2;
 			if (llen != llen2)
-				return false;
+				return 3;
 			if (len != llen)
-				return false;
+				return 4;
 			if (lb != 0)
-				return false;
+				return 5;
 			if (ub != 9)
-				return false;
+				return 6;
 
 			fary[0] = 1.1f;
 			fary[3] = 3.3f;
@@ -101,14 +112,14 @@ namespace testcase
 			if (fary[0] != 1.1f ||
 				fary[3] != 3.3f ||
 				fary[5] != 5.5f)
-				return false;
+				return 7;
 
 			float sum = 0;
 			foreach (float n in fary)
 				sum += n;
 
-			if (sum != 9.9f)
-				return false;
+			if (!sum.IsEquals(9.9f))
+				return 8;
 
 			ushort[] usary = new ushort[5];
 
@@ -121,32 +132,32 @@ namespace testcase
 			ub = usary.GetUpperBound(0);
 
 			if (rank != 1)
-				return false;
+				return 9;
 			if (len != len2)
-				return false;
+				return 10;
 			if (llen != llen2)
-				return false;
+				return 11;
 			if (len != llen)
-				return false;
+				return 12;
 			if (lb != 0)
-				return false;
+				return 13;
 			if (ub != 4)
-				return false;
+				return 14;
 
 			usary[1] = 42;
 			usary[3] = 0xFFFF;
 
 			if (usary[1] != 42 ||
 				usary[3] != 65535)
-				return false;
+				return 15;
 
 			foreach (ushort n in usary)
 				sum += n;
 
-			if (sum != 65586.9f)
-				return false;
+			if (!sum.IsEquals(65586.9f))
+				return 16;
 
-			return true;
+			return 0;
 		}
 	}
 

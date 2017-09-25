@@ -730,10 +730,10 @@ namespace il2cpp
 					GenLdc(inst, StackType.I8, operand.ToString());
 					return;
 				case Code.Ldc_R4:
-					GenLdc(inst, StackType.R4, AddFloatPostfix(operand.ToString()));
+					GenLdc(inst, StackType.R4, AddFloatPostfix(((float)operand).ToString("R")));
 					return;
 				case Code.Ldc_R8:
-					GenLdc(inst, StackType.R8, operand.ToString());
+					GenLdc(inst, StackType.R8, ((double)operand).ToString("R"));
 					return;
 
 				case Code.Ldarg_0:
@@ -905,6 +905,9 @@ namespace il2cpp
 					return;
 				case Code.Rem:
 					GenBinOp(inst, " % ");
+					return;
+				case Code.Neg:
+					GenUnaryOp(inst, "-");
 					return;
 
 				case Code.Newobj:
@@ -1170,6 +1173,16 @@ namespace il2cpp
 				slotPush.SlotType);
 		}
 
+		private void GenUnaryOp(InstInfo inst, string op)
+		{
+			var slotPop = Pop();
+			var slotPush = Push(slotPop.SlotType);
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				op + TempName(slotPop),
+				slotPush.SlotType);
+		}
+
 		private void GenReturn(InstInfo inst)
 		{
 			if (TypeStack.Count > 0)
@@ -1393,7 +1406,8 @@ namespace il2cpp
 
 		private static string AddFloatPostfix(string str)
 		{
-			if (str.IndexOf(".", StringComparison.Ordinal) != -1)
+			if (str.IndexOf(".", StringComparison.Ordinal) != -1 ||
+				str.IndexOf("E", StringComparison.Ordinal) != -1)
 				return str + 'f';
 			else
 				return str + ".0f";
