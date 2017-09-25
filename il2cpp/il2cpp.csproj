@@ -68,5 +68,9 @@
       <Name>dnlib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="runtime\il2cpp.cpp" />
+    <EmbeddedResource Include="runtime\il2cpp.h" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

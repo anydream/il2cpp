@@ -161,21 +161,65 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestMDArray
 	{
-		public static float Entry()
+		public static int Entry()
 		{
 			float[,] fary = new float[2, 3];
+
+			var rank = fary.Rank;
+			var len = fary.Length;
+			var llen = fary.LongLength;
+			var len0 = fary.GetLength(0);
+			var len1 = fary.GetLength(1);
+			var llen0 = fary.GetLongLength(0);
+			var llen1 = fary.GetLongLength(1);
+			var lb0 = fary.GetLowerBound(0);
+			var ub0 = fary.GetUpperBound(0);
+			var lb1 = fary.GetLowerBound(1);
+			var ub1 = fary.GetUpperBound(1);
+
+			if (rank != 2)
+				return 1;
+			if (len != llen)
+				return 2;
+			if (len0 != 2)
+				return 3;
+			if (len1 != 3)
+				return 4;
+			if (llen0 != 2)
+				return 5;
+			if (llen1 != 3)
+				return 6;
+			if (lb0 != 0)
+				return 7;
+			if (ub0 != 1)
+				return 8;
+			if (lb1 != 0)
+				return 9;
+			if (ub1 != 2)
+				return 10;
+			if (len != 6)
+				return 11;
+
 			fary[0, 0] = 123.1f;
 			fary[1, 0] = 456.2f;
 			fary[1, 2] = 789.3f;
+
+			if (fary[0, 0] != 123.1f)
+				return 12;
+			if (fary[1, 0] != 456.2f)
+				return 13;
+			if (fary[1, 2] != 789.3f)
+				return 14;
 
 			float sum = 0;
 			foreach (float n in fary)
 				sum += n;
 
-			sum += fary[1, 2] + fary.LongLength;
+			if (!sum.IsEquals(1368.6f))
+				return 15;
 
 			short[,,] sary3d = new short[2, 3, 4];
 			/*{
@@ -186,6 +230,54 @@ namespace testcase
 					{ 13, 14, 15, 16 }, { 17, 18, 19, 20 }, { 21, 22, 23, 24 }
 				}
 			};*/
+
+			rank = sary3d.Rank;
+			len = sary3d.Length;
+			llen = sary3d.LongLength;
+			len0 = sary3d.GetLength(0);
+			len1 = sary3d.GetLength(1);
+			var len2 = sary3d.GetLength(2);
+			llen0 = sary3d.GetLongLength(0);
+			llen1 = sary3d.GetLongLength(1);
+			var llen2 = sary3d.GetLongLength(2);
+			lb0 = sary3d.GetLowerBound(0);
+			ub0 = sary3d.GetUpperBound(0);
+			lb1 = sary3d.GetLowerBound(1);
+			ub1 = sary3d.GetUpperBound(1);
+			var lb2 = sary3d.GetLowerBound(2);
+			var ub2 = sary3d.GetUpperBound(2);
+
+			if (rank != 3)
+				return 16;
+			if (len != llen)
+				return 17;
+			if (len != 24)
+				return 18;
+			if (len0 != 2)
+				return 19;
+			if (len1 != 3)
+				return 20;
+			if (len2 != 4)
+				return 21;
+			if (llen0 != 2)
+				return 22;
+			if (llen1 != 3)
+				return 23;
+			if (llen2 != 4)
+				return 24;
+			if (lb0 != 0)
+				return 25;
+			if (ub0 != 1)
+				return 26;
+			if (lb1 != 0)
+				return 27;
+			if (ub1 != 2)
+				return 28;
+			if (lb2 != 0)
+				return 29;
+			if (ub2 != 3)
+				return 30;
+
 			short num = 0;
 			for (int x = 0; x < 2; ++x)
 			{
@@ -198,25 +290,14 @@ namespace testcase
 				}
 			}
 
-			short last = 0;
+			num = 0;
 			foreach (short n in sary3d)
 			{
-				if (n - last == 1)
-				{
-					sum += n;
-					last = n;
-				}
-				else
-					return 0;
+				if (n != ++num)
+					return 31;
 			}
 
-			sum += sary3d.GetUpperBound(0) - sary3d.GetLowerBound(0);
-			sum += sary3d.GetUpperBound(1) - sary3d.GetLowerBound(1);
-			sum += sary3d.GetUpperBound(2) - sary3d.GetLowerBound(2);
-
-			sum += sary3d[1, 2, 3] + sary3d.LongLength;
-
-			return sum;
+			return 0;
 		}
 	}
 }

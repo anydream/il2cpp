@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using dnlib.DotNet;
 
@@ -76,6 +78,7 @@ namespace il2cpp
 				File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.ImplCode));
 			}
 
+			// 生成编译脚本
 			StringBuilder sb = new StringBuilder();
 			sb.Append("clang -O3 -S -emit-llvm main.cpp il2cpp.cpp");
 			foreach (var unit in units)
@@ -88,12 +91,21 @@ namespace il2cpp
 			sb.AppendLine();
 
 			sb.AppendLine("opt -O3 -S -o opt.ll link.ll");
-
 			sb.AppendLine("clang -O3 -o final.exe opt.ll");
-
 			sb.AppendLine("pause");
-
 			File.WriteAllText(Path.Combine(folder, "build.cmd"), sb.ToString());
+
+			// 释放运行时代码
+			const string runtimePrefix = "il2cpp.runtime.";
+			var runtimeResNames = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(item => item.StartsWith(runtimePrefix));
+			foreach (string resName in runtimeResNames)
+			{
+				var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resName);
+				byte[] buf = new byte[stream.Length];
+				stream.Read(buf, 0, buf.Length);
+				string fileName = resName.Substring(runtimePrefix.Length);
+				File.WriteAllBytes(Path.Combine(folder, fileName), buf);
+			}
 		}
 	}
 }
