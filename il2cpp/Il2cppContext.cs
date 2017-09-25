@@ -88,42 +88,46 @@ namespace il2cpp
 			sb.AppendLine("@echo off");
 
 			sb.AppendLine("echo Stage 1: Compiling GC");
-			sb.AppendLine("clang -O3 -S -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -Ibdwgc/include bdwgc/extra/gc.c");
+			sb.AppendLine("clang -O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -Ibdwgc/include bdwgc/extra/gc.c");
 
 			sb.AppendLine("echo Stage 2: Compiling GC Helpers");
-			sb.AppendLine("clang -O3 -S -emit-llvm -Ibdwgc/include il2cppGC.cpp");
+			sb.AppendLine("clang -O3 -c -emit-llvm -Ibdwgc/include il2cppGC.cpp");
 
 			sb.AppendLine("echo Stage 3: Compiling Generated Codes");
-			sb.Append("clang -O3 -S -emit-llvm -DIL2CPP_LLVM il2cpp.cpp");
+			sb.Append("clang -O3 -c -emit-llvm -DIL2CPP_LLVM il2cpp.cpp");
 			foreach (var unit in units)
 				sb.AppendFormat(" {0}.cpp", unit.Name);
 			sb.AppendLine();
 
 			sb.AppendLine("echo Stage 4: Linking Codes");
-			sb.Append("llvm-link -S -o link.ll il2cpp.ll");
+			sb.Append("llvm-link -o link.bc il2cpp.bc");
 			foreach (var unit in units)
-				sb.AppendFormat(" {0}.ll", unit.Name);
+				sb.AppendFormat(" {0}.bc", unit.Name);
 			sb.AppendLine();
 
 			sb.AppendLine("echo Stage 5: Optimization Pass 1");
-			sb.AppendLine("clang -O3 -S -emit-llvm -o opt.ll link.ll");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o opt.bc link.bc");
 			sb.AppendLine("echo Stage 5: Optimization Pass 2");
-			sb.AppendLine("clang -O3 -S -emit-llvm -o opt2.ll opt.ll");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o opt2.bc opt.bc");
 			sb.AppendLine("echo Stage 5: Optimization Pass 3");
-			sb.AppendLine("clang -O3 -S -emit-llvm -o opt3.ll opt2.ll");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o opt3.bc opt2.bc");
 			sb.AppendLine("echo Stage 5: Optimization Pass 4");
-			sb.AppendLine("clang -O3 -S -emit-llvm -o opt4.ll opt3.ll");
-			sb.AppendLine("IRPatcher opt4.ll");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o opt4.bc opt3.bc");
+			sb.AppendLine("echo Stage 5: Optimization Pass 5");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o opt5.bc opt4.bc");
+			sb.AppendLine("echo Stage 5: Optimization Pass 6");
+			sb.AppendLine("clang -O3 -S -emit-llvm -o opt6.ll opt5.bc");
+			sb.AppendLine("IRPatcher opt6.ll");
 
 			sb.AppendLine("echo Stage 6: Linking GC");
-			sb.AppendLine("llvm-link -S -o linkgc.ll opt4.ll il2cppGC.ll gc.ll");
+			sb.AppendLine("llvm-link -o linkgc.bc opt6.ll il2cppGC.bc gc.bc");
 
 			sb.AppendLine("echo Stage 7: Final Optimization");
-			sb.AppendLine("clang -O3 -S -emit-llvm -o optgc.ll linkgc.ll");
-			sb.AppendLine("clang -O3 -S -emit-llvm -o optgc2.ll optgc.ll");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc.bc linkgc.bc");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc2.bc optgc.bc");
 
 			sb.AppendLine("echo Stage 8: Generating Executable File");
-			sb.AppendLine("clang -O3 -o final.exe optgc2.ll");
+			sb.AppendLine("clang -O3 -o final.exe optgc2.bc");
 
 			sb.AppendLine("echo Completed!");
 			sb.AppendLine("pause");
