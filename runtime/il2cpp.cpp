@@ -7,31 +7,19 @@
 #include <sched.h>
 #endif
 
+#if !defined(IL2CPP_LLVM)
 #include <gc.h>
+#endif
 
 #include "il2cpp.h"
 #include "il2cppBridge.h"
 
+void il2cpp_InitGC();
+
 void il2cpp_Init()
 {
-	GC_INIT();
+	il2cpp_InitGC();
 }
-
-#if defined(IL2CPP_LLVM)
-extern "C" void* _il2cpp_PatchCalloc(uintptr_t nelem, uintptr_t sz)
-{
-	if (nelem != 1 && sz == 1)
-	{
-		void* ptr = GC_MALLOC_ATOMIC(nelem);
-		memset(ptr, 0, nelem);
-		return ptr;
-	}
-	else if (nelem == 1 && sz != 1)
-		return GC_MALLOC(sz);
-	else
-		abort();
-}
-#endif
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID, int32_t isNoRef)
 {
