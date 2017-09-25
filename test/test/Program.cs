@@ -201,15 +201,37 @@ namespace test
 			Console.Write("Resolve: {0}ms, ", elapsedMS);
 
 			sw.Restart();
-			var units = context.Generate();
+			var genResult = context.Generate();
 			sw.Stop();
 			elapsedMS = sw.ElapsedMilliseconds;
 			Console.Write("Generate: {0}ms, ", elapsedMS);
 
+			var mainUnit = new CompileUnit();
+			genResult.UnitList.Add(mainUnit);
+			mainUnit.Name = "main";
+			string metName = genResult.GetMethodName(metDef, out var metUnitName);
+			mainUnit.ImplDepends.Add(metUnitName);
+			mainUnit.ImplCode =
+				"#include <stdio.h>\n" +
+				"#include <time.h>\n" +
+				"#include <string>\n\n" +
+				"int main()\n" +
+				"{\n" +
+				"	il2cpp_Init();\n" +
+				"	auto start = clock();\n" +
+				"	auto result = " + metName + "();\n" +
+				"	auto elapsed = clock() - start;\n" +
+				"	printf(\"Result: %s, Elapsed: %ldms\", std::to_string(result).c_str(), elapsed);\n" +
+				"	getchar();\n" +
+				"	return 0;\n" +
+				"}\n";
+
+			genResult.GenerateIncludes();
+
 			string validatedName = ValidatePath(testName);
 			Il2cppContext.SaveToFolder(
 				Path.Combine(imageDir, "../../gen/", validatedName),
-				units);
+				genResult.UnitList);
 
 			Console.WriteLine();
 

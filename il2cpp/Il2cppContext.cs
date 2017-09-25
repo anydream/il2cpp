@@ -58,7 +58,7 @@ namespace il2cpp
 			TypeMgr?.ResolveAll();
 		}
 
-		public List<CompileUnit> Generate()
+		public GenerateResult Generate()
 		{
 			if (TypeMgr == null)
 				return null;
@@ -72,8 +72,12 @@ namespace il2cpp
 			Directory.CreateDirectory(folder);
 			foreach (var unit in units)
 			{
-				string path = Path.Combine(folder, unit.Name + ".h");
-				File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.DeclCode));
+				string path;
+				if (!string.IsNullOrEmpty(unit.DeclCode))
+				{
+					path = Path.Combine(folder, unit.Name + ".h");
+					File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.DeclCode));
+				}
 
 				path = Path.Combine(folder, unit.Name + ".cpp");
 				File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.ImplCode));
@@ -83,22 +87,30 @@ namespace il2cpp
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("@echo off");
 
+			sb.AppendLine("echo Stage 1");
 			sb.AppendLine("clang -O3 -S -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -Ibdwgc/include bdwgc/extra/gc.c");
-			sb.Append("clang -O3 -S -emit-llvm -DIL2CPP_LLVM -Ibdwgc/include main.cpp il2cpp.cpp");
+			sb.AppendLine("echo Stage 2");
+			sb.Append("clang -O3 -S -emit-llvm -DIL2CPP_LLVM -Ibdwgc/include il2cpp.cpp");
 			foreach (var unit in units)
 				sb.AppendFormat(" {0}.cpp", unit.Name);
 			sb.AppendLine();
 
-			sb.Append("llvm-link -S -o link.ll main.ll il2cpp.ll");
+			sb.AppendLine("echo Stage 3");
+			sb.Append("llvm-link -S -o link.ll il2cpp.ll");
 			foreach (var unit in units)
 				sb.AppendFormat(" {0}.ll", unit.Name);
 			sb.AppendLine();
 
+			sb.AppendLine("echo Stage 4");
 			sb.AppendLine("opt -O3 -S -o opt.ll link.ll");
 			sb.AppendLine("IRPatcher opt.ll");
+			sb.AppendLine("echo Stage 5");
 			sb.AppendLine("llvm-link -S -o linkgc.ll opt.ll gc.ll");
+			sb.AppendLine("echo Stage 6");
 			sb.AppendLine("opt -O3 -S -o optgc.ll linkgc.ll");
+			sb.AppendLine("echo Stage 7");
 			sb.AppendLine("clang -O3 -o final.exe optgc.ll");
+			sb.AppendLine("echo Completed!");
 			sb.AppendLine("pause");
 			File.WriteAllText(Path.Combine(folder, "build.cmd"), sb.ToString());
 

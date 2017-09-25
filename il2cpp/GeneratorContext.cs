@@ -7,6 +7,55 @@ using dnlib.DotNet;
 
 namespace il2cpp
 {
+	public class GenerateResult
+	{
+		private readonly GeneratorContext GenContext;
+		public readonly List<CompileUnit> UnitList;
+		public readonly Dictionary<string, string> TransMap;
+
+		internal GenerateResult(GeneratorContext genContext, List<CompileUnit> unitList, Dictionary<string, string> transMap)
+		{
+			GenContext = genContext;
+			UnitList = unitList;
+			TransMap = transMap;
+		}
+
+		public void GenerateIncludes()
+		{
+			StringBuilder sb = new StringBuilder();
+			foreach (var unit in UnitList)
+			{
+				if (unit.DeclDepends.IsCollectionValid() ||
+					!string.IsNullOrEmpty(unit.DeclCode))
+				{
+					sb.Append("#pragma once\n");
+					sb.Append("#include \"il2cpp.h\"\n");
+					foreach (var dep in unit.DeclDepends)
+						sb.AppendFormat("#include \"{0}.h\"\n", dep);
+					sb.Append(unit.DeclCode);
+					unit.DeclCode = sb.ToString();
+					sb.Clear();
+
+					sb.AppendFormat("#include \"{0}.h\"\n", unit.Name);
+				}
+
+				foreach (var dep in unit.ImplDepends)
+					sb.AppendFormat("#include \"{0}.h\"\n", dep);
+				sb.Append(unit.ImplCode);
+				unit.ImplCode = sb.ToString();
+				sb.Clear();
+			}
+		}
+
+		public string GetMethodName(MethodDef metDef, out string unitName)
+		{
+			MethodX metX = GenContext.TypeMgr.ResolveMethodDef(metDef);
+			string typeName = GenContext.GetTypeName(metX.DeclType);
+			unitName = TransMap[typeName];
+			return GenContext.GetMethodName(metX, "met_");
+		}
+	}
+
 	public class CompileUnit
 	{
 		public string Name;
@@ -57,7 +106,7 @@ namespace il2cpp
 			UnitMap = units;
 		}
 
-		public void Merge()
+		public Dictionary<string, string> Merge()
 		{
 			// 排序编译单元
 			var sortedUnits = UnitMap.Values.ToList();
@@ -106,6 +155,8 @@ namespace il2cpp
 
 				unit.Optimize(UnitMap);
 			}
+
+			return transMap;
 		}
 
 		private CompileUnit NewUnit()
@@ -153,7 +204,7 @@ namespace il2cpp
 			TypeMgr = typeMgr;
 		}
 
-		public List<CompileUnit> Generate()
+		public GenerateResult Generate()
 		{
 			var units = new Dictionary<string, CompileUnit>();
 
@@ -166,28 +217,8 @@ namespace il2cpp
 			}
 
 			var merger = new CompileUnitMerger(units);
-			merger.Merge();
-
-			StringBuilder sb = new StringBuilder();
-			var unitList = merger.UnitMap.Values.ToList();
-			foreach (var unit in unitList)
-			{
-				sb.Append("#pragma once\n");
-				sb.Append("#include \"il2cpp.h\"\n");
-				foreach (var dep in unit.DeclDepends)
-					sb.AppendFormat("#include \"{0}.h\"\n", dep);
-				sb.Append(unit.DeclCode);
-				unit.DeclCode = sb.ToString();
-				sb.Clear();
-
-				sb.AppendFormat("#include \"{0}.h\"\n", unit.Name);
-				foreach (var dep in unit.ImplDepends)
-					sb.AppendFormat("#include \"{0}.h\"\n", dep);
-				sb.Append(unit.ImplCode);
-				unit.ImplCode = sb.ToString();
-				sb.Clear();
-			}
-			return unitList;
+			var transMap = merger.Merge();
+			return new GenerateResult(this, merger.UnitMap.Values.ToList(), transMap);
 		}
 
 		public int GetTypeLayoutOrder(TypeSig tySig)
