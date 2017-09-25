@@ -8,8 +8,6 @@ namespace ICSharpCode.SharpZipLib.Encryption
 	/// </summary>
 	internal class ZipAESTransform : ICryptoTransform
 	{
-
-#if NET45
 		class IncrementalHash : HMACSHA1
 		{
 			bool _finalised;
@@ -32,7 +30,6 @@ namespace ICSharpCode.SharpZipLib.Encryption
 		{
 			public static string SHA1 = null;
 		}
-#endif
 
 		private const int PWD_VER_LENGTH = 2;
 
