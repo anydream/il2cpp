@@ -1081,28 +1081,28 @@ namespace il2cpp
 				case CompareKind.Ge:
 					{
 						if (isUn)
-							return '!' + (lhs + " < " + rhs);
+							return "!(" + (lhs + " < " + rhs) + ')';
 						else
 							return lhs + " >= " + rhs;
 					}
 				case CompareKind.Gt:
 					{
 						if (isUn)
-							return '!' + (lhs + " <= " + rhs);
+							return "!(" + (lhs + " <= " + rhs) + ')';
 						else
 							return lhs + " > " + rhs;
 					}
 				case CompareKind.Le:
 					{
 						if (isUn)
-							return '!' + (lhs + " > " + rhs);
+							return "!(" + (lhs + " > " + rhs) + ')';
 						else
 							return lhs + " <= " + rhs;
 					}
 				case CompareKind.Lt:
 					{
 						if (isUn)
-							return '!' + (lhs + " >= " + rhs);
+							return "!(" + (lhs + " >= " + rhs) + ')';
 						else
 							return lhs + " < " + rhs;
 					}

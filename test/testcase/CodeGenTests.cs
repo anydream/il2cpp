@@ -66,31 +66,91 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestSZArray
 	{
-		public static float Entry()
+		public static bool Entry()
 		{
 			float[] fary = new float[10];
+
+			var rank = fary.Rank;
+			var len = fary.Length;
+			var llen = fary.LongLength;
+			var len2 = fary.GetLength(0);
+			var llen2 = fary.GetLongLength(0);
+			var lb = fary.GetLowerBound(0);
+			var ub = fary.GetUpperBound(0);
+
+			if (rank != 1)
+				return false;
+			if (len != len2)
+				return false;
+			if (llen != llen2)
+				return false;
+			if (len != llen)
+				return false;
+			if (lb != 0)
+				return false;
+			if (ub != 9)
+				return false;
+
 			fary[0] = 1.1f;
 			fary[3] = 3.3f;
 			fary[5] = 5.5f;
+
+			if (fary[0] != 1.1f ||
+				fary[3] != 3.3f ||
+				fary[5] != 5.5f)
+				return false;
 
 			float sum = 0;
 			foreach (float n in fary)
 				sum += n;
 
+			if (sum != 9.9f)
+				return false;
+
 			ushort[] usary = new ushort[5];
+
+			rank = usary.Rank;
+			len = usary.Length;
+			llen = usary.LongLength;
+			len2 = usary.GetLength(0);
+			llen2 = usary.GetLongLength(0);
+			lb = usary.GetLowerBound(0);
+			ub = usary.GetUpperBound(0);
+
+			if (rank != 1)
+				return false;
+			if (len != len2)
+				return false;
+			if (llen != llen2)
+				return false;
+			if (len != llen)
+				return false;
+			if (lb != 0)
+				return false;
+			if (ub != 4)
+				return false;
+
 			usary[1] = 42;
 			usary[3] = 0xFFFF;
+
+			if (usary[1] != 42 ||
+				usary[3] != 65535)
+				return false;
+
 			foreach (ushort n in usary)
 				sum += n;
 
-			return sum - usary[3];
+			if (sum != 65586.9f)
+				return false;
+
+			return true;
 		}
 	}
 
-	[CodeGen]
+	//[CodeGen]
 	static class TestMDArray
 	{
 		public static float Entry()
