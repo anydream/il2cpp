@@ -58,9 +58,51 @@
     <Compile Include="TypeGenerator.cs" />
     <Compile Include="TypeManager.cs" />
     <Compile Include="TypeX.cs" />
+    <Compile Include="zip\Adler32.cs" />
+    <Compile Include="zip\BZip2Crc.cs" />
+    <Compile Include="zip\Crc32.cs" />
+    <Compile Include="zip\Deflater.cs" />
+    <Compile Include="zip\DeflaterConstants.cs" />
+    <Compile Include="zip\DeflaterEngine.cs" />
+    <Compile Include="zip\DeflaterHuffman.cs" />
+    <Compile Include="zip\DeflaterOutputStream.cs" />
+    <Compile Include="zip\DeflaterPending.cs" />
+    <Compile Include="zip\FastZip.cs" />
+    <Compile Include="zip\FileSystemScanner.cs" />
+    <Compile Include="zip\IChecksum.cs" />
+    <Compile Include="zip\IEntryFactory.cs" />
+    <Compile Include="zip\INameTransform.cs" />
+    <Compile Include="zip\Inflater.cs" />
+    <Compile Include="zip\InflaterDynHeader.cs" />
+    <Compile Include="zip\InflaterHuffmanTree.cs" />
+    <Compile Include="zip\InflaterInputStream.cs" />
+    <Compile Include="zip\IScanFilter.cs" />
+    <Compile Include="zip\NameFilter.cs" />
+    <Compile Include="zip\OutputWindow.cs" />
+    <Compile Include="zip\PathFilter.cs" />
+    <Compile Include="zip\PendingBuffer.cs" />
+    <Compile Include="zip\PkzipClassic.cs" />
+    <Compile Include="zip\SharpZipBaseException.cs" />
+    <Compile Include="zip\StreamManipulator.cs" />
+    <Compile Include="zip\StreamUtils.cs" />
+    <Compile Include="zip\WindowsNameTransform.cs" />
+    <Compile Include="zip\WindowsPathUtils.cs" />
+    <Compile Include="zip\ZipAESStream.cs" />
+    <Compile Include="zip\ZipAESTransform.cs" />
+    <Compile Include="zip\ZipConstants.cs" />
+    <Compile Include="zip\ZipEntry.cs" />
+    <Compile Include="zip\ZipEntryFactory.cs" />
+    <Compile Include="zip\ZipException.cs" />
+    <Compile Include="zip\ZipExtraData.cs" />
+    <Compile Include="zip\ZipFile.cs" />
+    <Compile Include="zip\ZipHelperStream.cs" />
+    <Compile Include="zip\ZipInputStream.cs" />
+    <Compile Include="zip\ZipNameTransform.cs" />
+    <Compile Include="zip\ZipOutputStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <EmbeddedResource Include="runtime\runtime.zip" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dnlib\src\dnlib.csproj">
@@ -69,8 +111,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="runtime\il2cpp.cpp" />
-    <EmbeddedResource Include="runtime\il2cpp.h" />
+    <None Include="runtime\il2cpp.cpp" />
+    <None Include="runtime\il2cpp.h" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>..\..\..\tools\PackZip.exe ..\..\runtime.zip ..\..\..\runtime\</PreBuildEvent>
+  </PropertyGroup>
 </Project>

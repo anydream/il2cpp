@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using dnlib.DotNet;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace il2cpp
 {
@@ -80,7 +81,9 @@ namespace il2cpp
 
 			// 生成编译脚本
 			StringBuilder sb = new StringBuilder();
-			sb.Append("clang -O3 -S -emit-llvm main.cpp il2cpp.cpp");
+			sb.AppendLine("@echo off");
+
+			sb.Append("clang -O3 -S -emit-llvm -DIL2CPP_LLVM main.cpp il2cpp.cpp");
 			foreach (var unit in units)
 				sb.AppendFormat(" {0}.cpp", unit.Name);
 			sb.AppendLine();
@@ -96,16 +99,12 @@ namespace il2cpp
 			File.WriteAllText(Path.Combine(folder, "build.cmd"), sb.ToString());
 
 			// 释放运行时代码
-			const string runtimePrefix = "il2cpp.runtime.";
-			var runtimeResNames = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(item => item.StartsWith(runtimePrefix));
-			foreach (string resName in runtimeResNames)
-			{
-				var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resName);
-				byte[] buf = new byte[stream.Length];
-				stream.Read(buf, 0, buf.Length);
-				string fileName = resName.Substring(runtimePrefix.Length);
-				File.WriteAllBytes(Path.Combine(folder, fileName), buf);
-			}
+			string strRuntimePack = "il2cpp.runtime.runtime.zip";
+			var zip = new FastZip();
+			zip.ExtractZip(Assembly.GetExecutingAssembly().GetManifestResourceStream(strRuntimePack),
+				folder,
+				FastZip.Overwrite.Always,
+				null, null, null, false, true);
 		}
 	}
 }
