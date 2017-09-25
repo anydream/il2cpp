@@ -99,7 +99,7 @@ namespace il2cpp
 			File.WriteAllText(Path.Combine(folder, "build.cmd"), sb.ToString());
 
 			// 释放运行时代码
-			string strRuntimePack = "il2cpp.runtime.runtime.zip";
+			string strRuntimePack = "il2cpp.runtime.zip";
 			var zip = new FastZip();
 			zip.ExtractZip(Assembly.GetExecutingAssembly().GetManifestResourceStream(strRuntimePack),
 				folder,

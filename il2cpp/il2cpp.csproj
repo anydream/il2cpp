@@ -102,17 +102,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <EmbeddedResource Include="runtime\runtime.zip" />
+    <EmbeddedResource Include="runtime.zip" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dnlib\src\dnlib.csproj">
       <Project>{fdfc1237-143f-4919-8318-4926901f4639}</Project>
       <Name>dnlib</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="runtime\il2cpp.cpp" />
-    <None Include="runtime\il2cpp.h" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
