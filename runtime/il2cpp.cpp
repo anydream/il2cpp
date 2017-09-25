@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <thread>
-#include "il2cpp.h"
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -8,6 +7,7 @@
 #include <sys/types.h>
 #endif
 
+#include "il2cpp.h"
 #include "il2cppBridge.h"
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID, int32_t isNoRef)

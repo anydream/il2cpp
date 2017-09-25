@@ -114,6 +114,22 @@ namespace il2cpp
 					throw new ArgumentOutOfRangeException();
 			}
 		}
+
+		public string GetUnsignedTypeName()
+		{
+			switch (Kind)
+			{
+				case StackTypeKind.I4:
+					return "uint32_t";
+				case StackTypeKind.I8:
+					return "uint64_t";
+				case StackTypeKind.Ptr:
+				case StackTypeKind.Ref:
+				case StackTypeKind.Obj:
+					return "uintptr_t";
+			}
+			return null;
+		}
 	}
 
 	// 栈槽
@@ -1006,12 +1022,14 @@ namespace il2cpp
 		private string GenCompareCond(OpCode opCode)
 		{
 			var slotPops = Pop(2);
+			var slotLhs = slotPops[0];
+			var slotRhs = slotPops[1];
 
-			if (!IsBinaryCompareValid(slotPops[0].SlotType.Kind, slotPops[1].SlotType.Kind, opCode.Code))
+			if (!IsBinaryCompareValid(slotLhs.SlotType.Kind, slotRhs.SlotType.Kind, opCode.Code))
 				throw new InvalidOperationException();
 
-			string lhs = TempName(slotPops[0]);
-			string rhs = TempName(slotPops[1]);
+			string lhs = TempName(slotLhs);
+			string rhs = TempName(slotRhs);
 
 			CompareKind cmp;
 			bool isUn = false;
@@ -1072,43 +1090,62 @@ namespace il2cpp
 					throw new ArgumentOutOfRangeException();
 			}
 
+			string castType = null;
+			if (isUn)
+			{
+				string lhsUnTypeName = slotLhs.SlotType.GetUnsignedTypeName();
+				string rhsUnTypeName = slotRhs.SlotType.GetUnsignedTypeName();
+				Debug.Assert(lhsUnTypeName == rhsUnTypeName);
+				castType = lhsUnTypeName;
+			}
+
 			switch (cmp)
 			{
 				case CompareKind.Eq:
-					return lhs + " == " + rhs;
+					return GenCompare(false, lhs, "==", rhs, castType);
 				case CompareKind.Ne:
-					return lhs + " != " + rhs;
+					return GenCompare(false, lhs, "!=", rhs, castType);
 				case CompareKind.Ge:
 					{
 						if (isUn)
-							return "!(" + (lhs + " < " + rhs) + ')';
+							return GenCompare(true, lhs, "<", rhs, castType);
 						else
-							return lhs + " >= " + rhs;
+							return GenCompare(false, lhs, ">=", rhs, castType);
 					}
 				case CompareKind.Gt:
 					{
 						if (isUn)
-							return "!(" + (lhs + " <= " + rhs) + ')';
+							return GenCompare(true, lhs, "<=", rhs, castType);
 						else
-							return lhs + " > " + rhs;
+							return GenCompare(false, lhs, ">", rhs, castType);
 					}
 				case CompareKind.Le:
 					{
 						if (isUn)
-							return "!(" + (lhs + " > " + rhs) + ')';
+							return GenCompare(true, lhs, ">", rhs, castType);
 						else
-							return lhs + " <= " + rhs;
+							return GenCompare(false, lhs, "<=", rhs, castType);
 					}
 				case CompareKind.Lt:
 					{
 						if (isUn)
-							return "!(" + (lhs + " >= " + rhs) + ')';
+							return GenCompare(true, lhs, ">=", rhs, castType);
 						else
-							return lhs + " < " + rhs;
+							return GenCompare(false, lhs, "<", rhs, castType);
 					}
 				default:
 					throw new ArgumentOutOfRangeException(nameof(cmp), cmp, null);
 			}
+		}
+
+		private static string GenCompare(bool neg, string lhs, string op, string rhs, string cast)
+		{
+			string boolToInt = " ? 1 : 0";
+			if (cast != null)
+				cast = '(' + cast + ')';
+			if (neg)
+				return "!(" + cast + lhs + ' ' + op + ' ' + cast + rhs + ')' + boolToInt;
+			return cast + lhs + ' ' + op + ' ' + cast + rhs + boolToInt;
 		}
 
 		private string GenBoolCond(bool b)

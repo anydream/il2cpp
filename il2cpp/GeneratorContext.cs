@@ -346,8 +346,6 @@ namespace il2cpp
 				default:
 					throw new NotImplementedException(tySig.ElementType.ToString());
 			}
-
-			return null;
 		}
 
 		public string GetTypeName(TypeX tyX)
