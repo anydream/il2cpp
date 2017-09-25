@@ -1,10 +1,14 @@
 #include <stdlib.h>
-#include <thread>
 
 #if defined(_WIN32)
 #include <windows.h>
 #else
 #include <sys/types.h>
+#include <sched.h>
+#endif
+
+#if !defined(IL2CPP_LLVM)
+#include <gc.h>
 #endif
 
 #include "il2cpp.h"
@@ -12,7 +16,18 @@
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID, int32_t isNoRef)
 {
-	cls_Object* obj = (cls_Object*)calloc(1, sz);
+	cls_Object* obj;
+#if defined(IL2CPP_LLVM)
+	if (isNoRef)
+		obj = (cls_Object*)calloc(sz, 1);
+	else
+		obj = (cls_Object*)calloc(1, sz);
+#else
+	if (isNoRef)
+		obj = (cls_Object*)GC_MALLOC_ATOMIC(sz);
+	else
+		obj = (cls_Object*)GC_MALLOC(sz);
+#endif
 	obj->TypeID = typeID;
 	return obj;
 }
@@ -28,7 +43,7 @@ void il2cpp_Yield()
 #if defined(_WIN32)
 	Sleep(0);
 #else
-	std::this_thread::yield();
+	sched_yield();
 #endif
 }
 
