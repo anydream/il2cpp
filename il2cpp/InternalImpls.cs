@@ -27,7 +27,7 @@ namespace il2cpp
 				buf != null &&
 				buf.Length > 3 &&
 				buf[0] == 0xEF && buf[1] == 0xBB && buf[2] == 0xBF);
-			return Encoding.UTF8.GetString(buf);
+			return Encoding.UTF8.GetString(buf, 3, buf.Length - 3);
 		}
 	}
 }
