@@ -70,64 +70,68 @@ namespace il2cpp
 		public static void SaveToFolder(string folder, List<CompileUnit> units)
 		{
 			Directory.CreateDirectory(folder);
+			List<string> unitNames = new List<string>();
 			foreach (var unit in units)
 			{
-				string path;
 				if (!string.IsNullOrEmpty(unit.DeclCode))
 				{
-					path = Path.Combine(folder, unit.Name + ".h");
+					string path = Path.Combine(folder, unit.Name + ".h");
 					File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.DeclCode));
 				}
 
-				path = Path.Combine(folder, unit.Name + ".cpp");
-				File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.ImplCode));
+				if (!string.IsNullOrEmpty(unit.ImplCode))
+				{
+					unitNames.Add(unit.Name);
+					string path = Path.Combine(folder, unit.Name + ".cpp");
+					File.WriteAllBytes(path, Encoding.UTF8.GetBytes(unit.ImplCode));
+				}
 			}
 
 			// 生成编译脚本
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("@echo off");
 
-			sb.AppendLine("echo Stage 1: Compiling GC");
+			sb.AppendLine("echo Phase 1: Compiling GC");
 			sb.AppendLine("clang -O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -Ibdwgc/include bdwgc/extra/gc.c");
 
-			sb.AppendLine("echo Stage 2: Compiling GC Helpers");
+			sb.AppendLine("echo Phase 2: Compiling GC Helpers");
 			sb.AppendLine("clang -O3 -c -emit-llvm -DIL2CPP_PATCH_LLVM -Ibdwgc/include il2cppGC.cpp");
 
-			sb.AppendLine("echo Stage 3: Compiling Generated Codes");
+			sb.AppendLine("echo Phase 3: Compiling Generated Codes");
 			sb.Append("clang -O3 -c -emit-llvm -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM il2cpp.cpp");
-			foreach (var unit in units)
-				sb.AppendFormat(" {0}.cpp", unit.Name);
+			foreach (string unitName in unitNames)
+				sb.AppendFormat(" {0}.cpp", unitName);
 			sb.AppendLine();
 
-			sb.AppendLine("echo Stage 4: Linking Codes");
+			sb.AppendLine("echo Phase 4: Linking Codes");
 			sb.Append("llvm-link -o link.bc il2cpp.bc");
-			foreach (var unit in units)
-				sb.AppendFormat(" {0}.bc", unit.Name);
+			foreach (string unitName in unitNames)
+				sb.AppendFormat(" {0}.bc", unitName);
 			sb.AppendLine();
 
-			sb.AppendLine("echo Stage 5: Optimization Pass 1");
+			sb.AppendLine("echo Phase 5: Optimization Pass 1");
 			sb.AppendLine("clang -O3 -c -emit-llvm -o opt1.bc link.bc");
-			sb.AppendLine("echo Stage 5: Optimization Pass 2");
+			sb.AppendLine("echo Phase 5: Optimization Pass 2");
 			sb.AppendLine("clang -O3 -c -emit-llvm -o opt2.bc opt1.bc");
-			sb.AppendLine("echo Stage 5: Optimization Pass 3");
+			sb.AppendLine("echo Phase 5: Optimization Pass 3");
 			sb.AppendLine("clang -O3 -c -emit-llvm -o opt3.bc opt2.bc");
-			sb.AppendLine("echo Stage 5: Optimization Pass 4");
+			sb.AppendLine("echo Phase 5: Optimization Pass 4");
 			sb.AppendLine("clang -O3 -c -emit-llvm -o opt4.bc opt3.bc");
-			sb.AppendLine("echo Stage 5: Optimization Pass 5");
+			sb.AppendLine("echo Phase 5: Optimization Pass 5");
 			sb.AppendLine("clang -O3 -c -emit-llvm -o opt5.bc opt4.bc");
-			sb.AppendLine("echo Stage 5: Optimization Pass 6");
+			sb.AppendLine("echo Phase 5: Optimization Pass 6");
 			sb.AppendLine("clang -O3 -S -emit-llvm -o opt6.ll opt5.bc");
 			sb.AppendLine("IRPatcher opt6.ll");
 
-			sb.AppendLine("echo Stage 6: Linking GC");
+			sb.AppendLine("echo Phase 6: Linking GC");
 			sb.AppendLine("llvm-link -o linkgc.bc opt6.ll il2cppGC.bc gc.bc");
 
-			sb.AppendLine("echo Stage 7: Final Optimization Pass 1");
+			sb.AppendLine("echo Phase 7: Final Optimization Pass 1");
 			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc1.bc linkgc.bc");
-			sb.AppendLine("echo Stage 7: Final Optimization Pass 2");
+			sb.AppendLine("echo Phase 7: Final Optimization Pass 2");
 			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc2.bc optgc1.bc");
 
-			sb.AppendLine("echo Stage 8: Generating Executable File");
+			sb.AppendLine("echo Phase 8: Generating Executable File");
 			sb.AppendLine("clang -O3 -o final.exe optgc2.bc");
 
 			sb.AppendLine("echo Completed!");

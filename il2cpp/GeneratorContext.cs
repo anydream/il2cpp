@@ -39,10 +39,13 @@ namespace il2cpp
 					sb.AppendFormat("#include \"{0}.h\"\n", unit.Name);
 				}
 
-				foreach (var dep in unit.ImplDepends)
-					sb.AppendFormat("#include \"{0}.h\"\n", dep);
-				sb.Append(unit.ImplCode);
-				unit.ImplCode = sb.ToString();
+				if (!string.IsNullOrEmpty(unit.ImplCode))
+				{
+					foreach (var dep in unit.ImplDepends)
+						sb.AppendFormat("#include \"{0}.h\"\n", dep);
+					sb.Append(unit.ImplCode);
+					unit.ImplCode = sb.ToString();
+				}
 				sb.Clear();
 			}
 		}
@@ -169,7 +172,7 @@ namespace il2cpp
 
 		private bool IsUnitFull(CompileUnit unit)
 		{
-#if false
+#if true
 			return !unit.IsEmpty();
 #else
 			return unit.DeclCode.Length > 30000 ||
