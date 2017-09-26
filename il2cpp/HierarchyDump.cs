@@ -96,7 +96,7 @@ namespace il2cpp
 					foreach (FieldX fldX in tyX.Fields)
 					{
 						sb.AppendFormat("   - {0}, {1}, {2}\n",
-							fldX.GetNameKey(),
+							fldX.GetNameKey() + '|' + ((uint)fldX.Def.Attributes).ToString("X"),
 							fldX.GetReplacedNameKey(),
 							FieldAttrToString(fldX.Def.Attributes));
 					}
@@ -108,7 +108,7 @@ namespace il2cpp
 					foreach (MethodX metX in tyX.Methods)
 					{
 						sb.AppendFormat("   - {0}, {1}{2}, {3}{4} {5}\n",
-							metX.GetNameKey(),
+							metX.GetNameKey() + '|' + ((uint)metX.Def.Attributes).ToString("X"),
 							metX.GetReplacedNameKey(),
 							metX.IsProcessed ? "" : " = 0",
 							MethodAttrToString(metX.Def.Attributes),
@@ -120,7 +120,7 @@ namespace il2cpp
 							foreach (MethodX overMetX in metX.OverrideImpls)
 							{
 								sb.AppendFormat("     - {0}, {1}\n",
-									overMetX,
+									overMetX.ToString() + '|' + ((uint)overMetX.Def.Attributes).ToString("X"),
 									overMetX.GetReplacedNameKey());
 							}
 						}

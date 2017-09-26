@@ -40,11 +40,9 @@ namespace il2cpp
 		{
 			if (NameKey == null)
 			{
-				// Name|FieldType|Attr
+				// Name|FieldType
 				StringBuilder sb = new StringBuilder();
 				Helper.FieldNameKey(sb, Def.Name, Def.FieldType);
-				sb.Append('|');
-				sb.Append(((uint)Def.Attributes).ToString("X"));
 
 				NameKey = sb.ToString();
 			}

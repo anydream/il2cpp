@@ -289,17 +289,18 @@ namespace test
 
 		private static void Main(string[] args)
 		{
-#if false
+#if true
 			var testBinding = new Testbed();
 			testBinding.TestDir = "../../../testcases/";
 			testBinding.OnType = TestBinding;
 			testBinding.Start();
 			Console.WriteLine("\nTestBinding Passed: {0}/{1}", PassedTests, TotalTests);
-#endif
+#else
 			var testCodeGen = new Testbed();
 			testCodeGen.TestDir = "../../../testcases/";
 			testCodeGen.OnType = TestCodeGen;
 			testCodeGen.Start();
+#endif
 		}
 	}
 }

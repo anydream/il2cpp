@@ -77,11 +77,9 @@ namespace il2cpp
 		{
 			if (NameKey == null)
 			{
-				// Name|RetType<GenArgs>(DefArgList)|CC|Attr
+				// Name|RetType<GenArgs>(DefArgList)|CC
 				StringBuilder sb = new StringBuilder();
 				Helper.MethodNameKeyWithGen(sb, Def.Name, GenArgs, DefSig.RetType, DefSig.Params, DefSig.CallingConvention);
-				sb.Append('|');
-				sb.Append(((uint)Def.Attributes).ToString("X"));
 
 				NameKey = sb.ToString();
 			}
