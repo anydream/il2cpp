@@ -227,12 +227,12 @@ namespace il2cpp
 
 		private void AddSlotMap(SlotInfo slot)
 		{
-			if (!SlotMap.TryGetValue(slot.SlotIndex, out var tset))
+			if (!SlotMap.TryGetValue(slot.SlotIndex, out var stSet))
 			{
-				tset = new HashSet<StackType>();
-				SlotMap.Add(slot.SlotIndex, tset);
+				stSet = new HashSet<StackType>();
+				SlotMap.Add(slot.SlotIndex, stSet);
 			}
-			tset.Add(slot.SlotType);
+			stSet.Add(slot.SlotType);
 		}
 
 		private void GenFuncDef(CodePrinter prt, string prefix)
@@ -328,12 +328,15 @@ namespace il2cpp
 			if (CurrMethod.LocalTypes.IsCollectionValid())
 			{
 				prt.AppendLine("// locals");
+				bool isInitLocals = CurrMethod.Def.Body.InitLocals;
 				for (int i = 0, sz = CurrMethod.LocalTypes.Count; i < sz; ++i)
 				{
 					var locType = CurrMethod.LocalTypes[i];
-					prt.AppendFormatLine("{0} {1};",
-						GenContext.GetTypeName(locType),
-						LocalName(i));
+					string locTypeName = GenContext.GetTypeName(locType);
+					prt.AppendFormatLine("{0} {1}{2};",
+						locTypeName,
+						LocalName(i),
+						isInitLocals ? " = " + GetTypeDefaultValue(locType, locTypeName) : null);
 				}
 				prt.AppendLine();
 			}
@@ -705,7 +708,7 @@ namespace il2cpp
 					return;
 
 				case Code.Ldnull:
-					GenLdc(inst, StackType.Obj, "0");
+					GenLdc(inst, StackType.Obj, "nullptr");
 					return;
 				case Code.Ldc_I4_M1:
 					GenLdc(inst, StackType.I4, "-1");
@@ -1332,6 +1335,37 @@ namespace il2cpp
 				return new StackType(GenContext.GetTypeName(tySig));
 
 			return StackType.Obj;
+		}
+
+		private static string GetTypeDefaultValue(TypeSig tySig, string locTypeName)
+		{
+			switch (tySig.ElementType)
+			{
+				case ElementType.I1:
+				case ElementType.I2:
+				case ElementType.I4:
+				case ElementType.U1:
+				case ElementType.U2:
+				case ElementType.U4:
+				case ElementType.Boolean:
+				case ElementType.Char:
+				case ElementType.I8:
+				case ElementType.U8:
+				case ElementType.R4:
+				case ElementType.R8:
+				case ElementType.I:
+				case ElementType.U:
+					return "0";
+
+				case ElementType.Ptr:
+				case ElementType.ByRef:
+					return "nullptr";
+			}
+
+			if (tySig.IsValueType)
+				return locTypeName + "()";
+
+			return "nullptr";
 		}
 
 		private static string CastType(StackType stype)
