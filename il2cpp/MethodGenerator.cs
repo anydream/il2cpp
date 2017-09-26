@@ -115,6 +115,22 @@ namespace il2cpp
 			}
 		}
 
+		public string GetSignedTypeName()
+		{
+			switch (Kind)
+			{
+				case StackTypeKind.I4:
+					return "int32_t";
+				case StackTypeKind.I8:
+					return "int64_t";
+				case StackTypeKind.Ptr:
+				case StackTypeKind.Ref:
+				case StackTypeKind.Obj:
+					return "intptr_t";
+			}
+			return null;
+		}
+
 		public string GetUnsignedTypeName()
 		{
 			switch (Kind)
@@ -1093,13 +1109,12 @@ namespace il2cpp
 					throw new ArgumentOutOfRangeException();
 			}
 
-			string castType = null;
+			string castType = slotLhs.SlotType.GetSignedTypeName();
+			Debug.Assert(castType == slotRhs.SlotType.GetSignedTypeName());
 			if (isUn)
 			{
-				string lhsUnTypeName = slotLhs.SlotType.GetUnsignedTypeName();
-				string rhsUnTypeName = slotRhs.SlotType.GetUnsignedTypeName();
-				Debug.Assert(lhsUnTypeName == rhsUnTypeName);
-				castType = lhsUnTypeName;
+				castType = slotLhs.SlotType.GetUnsignedTypeName();
+				Debug.Assert(castType == slotRhs.SlotType.GetUnsignedTypeName());
 			}
 
 			switch (cmp)
