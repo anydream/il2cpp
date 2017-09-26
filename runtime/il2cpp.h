@@ -9,6 +9,8 @@
 #elif defined(_MSC_VER)
 #include <intrin.h>
 #define MSVC_LIKE
+#else
+#error "Cannot detect your compiler family"
 #endif
 
 #ifdef GNU_LIKE

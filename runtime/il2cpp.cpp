@@ -1,24 +1,17 @@
-﻿#include <stdlib.h>
-
-#if defined(_WIN32)
+﻿#if defined(_WIN32)
 #include <windows.h>
 #else
 #include <sys/types.h>
 #include <sched.h>
 #endif
 
-#if !defined(IL2CPP_PATCH_LLVM)
-#include <gc.h>
-#endif
-
 #include "il2cpp.h"
+#include "il2cppGC.h"
 #include "il2cppBridge.h"
-
-void il2cpp_InitGC();
 
 void il2cpp_Init()
 {
-	il2cpp_InitGC();
+	il2cpp_GC_Init();
 }
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID, int32_t isNoRef)
@@ -34,9 +27,9 @@ void* il2cpp_New(uint32_t sz, uint32_t typeID, int32_t isNoRef)
 		obj = (cls_Object*)calloc(1, sz);
 #else
 	if (isNoRef)
-		obj = (cls_Object*)GC_MALLOC_ATOMIC(sz);
+		obj = (cls_Object*)il2cpp_GC_AllocAtomic(sz);
 	else
-		obj = (cls_Object*)GC_MALLOC(sz);
+		obj = (cls_Object*)il2cpp_GC_Alloc(sz);
 #endif
 	obj->TypeID = typeID;
 	return obj;
