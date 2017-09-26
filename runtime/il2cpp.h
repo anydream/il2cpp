@@ -10,7 +10,7 @@
 #include <intrin.h>
 #define MSVC_LIKE
 #else
-#error "Cannot detect your compiler family"
+#error Cannot detect your compiler environment!
 #endif
 
 #ifdef GNU_LIKE
