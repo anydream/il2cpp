@@ -272,7 +272,7 @@ namespace il2cpp
 				{
 					// 数组取决于其元素类型的属性
 					Debug.Assert(tyX.HasGenArgs && tyX.GenArgs.Count == 1);
-					var elemType = GetTypeBySig(tyX.GenArgs[0]);
+					TypeX elemType = GetTypeBySig(tyX.GenArgs[0]);
 					tyX.NoRefFlag = (byte)(IsNoRefType(elemType) ? 1 : 2);
 				}
 				else
@@ -283,12 +283,12 @@ namespace il2cpp
 						case ElementType.Boolean:
 						case ElementType.Char:
 						case ElementType.I1:
-						case ElementType.U1:
 						case ElementType.I2:
-						case ElementType.U2:
 						case ElementType.I4:
-						case ElementType.U4:
 						case ElementType.I8:
+						case ElementType.U1:
+						case ElementType.U2:
+						case ElementType.U4:
 						case ElementType.U8:
 						case ElementType.I:
 						case ElementType.U:
@@ -319,7 +319,6 @@ namespace il2cpp
 							}
 					}
 				}
-
 			}
 			return tyX.NoRefFlag == 1;
 		}
@@ -331,6 +330,10 @@ namespace il2cpp
 				case ElementType.Void:
 					return "void";
 
+				case ElementType.Boolean:
+					return "uint8_t";
+				case ElementType.Char:
+					return "uint16_t";
 				case ElementType.I1:
 					return "int8_t";
 				case ElementType.I2:
@@ -347,10 +350,6 @@ namespace il2cpp
 					return "uint32_t";
 				case ElementType.U8:
 					return "uint64_t";
-				case ElementType.Boolean:
-					return "uint8_t";
-				case ElementType.Char:
-					return "uint16_t";
 				case ElementType.R4:
 					return "float";
 				case ElementType.R8:

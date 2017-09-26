@@ -43,7 +43,7 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestCallVirt
 	{
 		interface Inf

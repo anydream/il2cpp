@@ -103,7 +103,6 @@ namespace il2cpp
 				case StackTypeKind.R8:
 					return "double";
 				case StackTypeKind.Ptr:
-					return "void*";
 				case StackTypeKind.Ref:
 					return "void*";
 				case StackTypeKind.Obj:
@@ -415,7 +414,7 @@ namespace il2cpp
 				prt.AppendLine("}");
 			}
 
-			prt.AppendLine("abort();\nreturn 0;");
+			prt.AppendLine("abort();\nreturn nullptr;");
 
 			--prt.Indents;
 			prt.AppendLine("}");
@@ -1341,15 +1340,15 @@ namespace il2cpp
 		{
 			switch (tySig.ElementType)
 			{
+				case ElementType.Boolean:
+				case ElementType.Char:
 				case ElementType.I1:
 				case ElementType.I2:
 				case ElementType.I4:
+				case ElementType.I8:
 				case ElementType.U1:
 				case ElementType.U2:
 				case ElementType.U4:
-				case ElementType.Boolean:
-				case ElementType.Char:
-				case ElementType.I8:
 				case ElementType.U8:
 				case ElementType.R4:
 				case ElementType.R8:
@@ -1359,6 +1358,7 @@ namespace il2cpp
 
 				case ElementType.Ptr:
 				case ElementType.ByRef:
+				case ElementType.Object:
 					return "nullptr";
 			}
 
