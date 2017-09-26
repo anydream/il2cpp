@@ -73,7 +73,7 @@ namespace il2cpp
 				else if (nameKey == "System.Array")
 				{
 					prtDecl.AppendLine("int32_t Rank;");
-				} 
+				}
 			}
 
 			// 重排字段
@@ -109,9 +109,12 @@ namespace il2cpp
 				unit.ImplDepends.UnionWith(metGen.ImplDepends);
 			}
 
+			// 尝试生成内部实现代码
+			TryGenerateInternalImpls(prtDecl, prtImpl);
+
 			unit.DeclCode = prtDecl.ToString();
 			unit.ImplCode = prtImpl.ToString();
-			
+
 			return unit;
 		}
 
@@ -138,6 +141,15 @@ namespace il2cpp
 			}
 
 			return fields;
+		}
+
+		private void TryGenerateInternalImpls(CodePrinter prtDecl, CodePrinter prtImpl)
+		{
+			string nameKey = CurrType.GetNameKey();
+			if (nameKey == "System.Array")
+			{
+				prtImpl.AppendLine(InternalImpls.SystemArrayImpl);
+			}
 		}
 	}
 }

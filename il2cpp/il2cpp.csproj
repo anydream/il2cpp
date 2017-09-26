@@ -51,6 +51,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="HierarchyDump.cs" />
     <Compile Include="Il2cppContext.cs" />
+    <Compile Include="InternalImpls.cs" />
     <Compile Include="MethodGenerator.cs" />
     <Compile Include="MethodTable.cs" />
     <Compile Include="MethodX.cs" />
@@ -109,6 +110,10 @@
       <Project>{fdfc1237-143f-4919-8318-4926901f4639}</Project>
       <Name>dnlib</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="InternalImpls\SystemArray.cpp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
