@@ -155,7 +155,7 @@ namespace testcase
 			foreach (ushort n in usary)
 				sum += n;
 
-			if (!sum.IsEquals(65586.8f))
+			if (!sum.IsEquals(65586.9f))
 				return 16;
 
 			return 0;
@@ -296,7 +296,7 @@ namespace testcase
 			{
 				for (int y = 0; y < 3; ++y)
 				{
-					for (int z = 0; z < 3; ++z)
+					for (int z = 0; z < 4; ++z)
 					{
 						sary3d[x, y, z] = ++num;
 					}
