@@ -632,10 +632,66 @@ namespace il2cpp
 			var operand = inst.Operand;
 
 			switch (opCode.StackBehaviourPop)
-			{ }
+			{
+				case StackBehaviour.Pop0:
+					Debug.Assert(PopCount == 0);
+					break;
+				case StackBehaviour.Pop1:
+				case StackBehaviour.Popi:
+				case StackBehaviour.Popref:
+					Debug.Assert(PopCount == 1);
+					break;
+				case StackBehaviour.Pop1_pop1:
+				case StackBehaviour.Popi_pop1:
+				case StackBehaviour.Popi_popi:
+				case StackBehaviour.Popi_popi8:
+				case StackBehaviour.Popi_popr4:
+				case StackBehaviour.Popi_popr8:
+				case StackBehaviour.Popref_pop1:
+				case StackBehaviour.Popref_popi:
+					Debug.Assert(PopCount == 2);
+					break;
+				case StackBehaviour.Popi_popi_popi:
+				case StackBehaviour.Popref_popi_popi:
+				case StackBehaviour.Popref_popi_popi8:
+				case StackBehaviour.Popref_popi_popr4:
+				case StackBehaviour.Popref_popi_popr8:
+				case StackBehaviour.Popref_popi_popref:
+				case StackBehaviour.Popref_popi_pop1:
+					Debug.Assert(PopCount == 3);
+					break;
+				case StackBehaviour.PopAll:
+					Debug.Assert(TypeStack.Count == 0);
+					break;
+				case StackBehaviour.Varpop:
+					break;
+
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
 
 			switch (opCode.StackBehaviourPush)
-			{ }
+			{
+				case StackBehaviour.Push0:
+					Debug.Assert(PushCount == 0);
+					break;
+				case StackBehaviour.Push1:
+				case StackBehaviour.Pushi:
+				case StackBehaviour.Pushi8:
+				case StackBehaviour.Pushr4:
+				case StackBehaviour.Pushr8:
+				case StackBehaviour.Pushref:
+					Debug.Assert(PushCount == 1);
+					break;
+				case StackBehaviour.Push1_push1:
+					Debug.Assert(PushCount == 2);
+					break;
+				case StackBehaviour.Varpush:
+					break;
+
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
 
 			PushCount = PopCount = 0;
 
@@ -967,6 +1023,8 @@ namespace il2cpp
 			var slotTop = Peek();
 			var slotPush = Push(slotTop.SlotType);
 			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop), (TypeSig)null);
+			++PopCount;
+			++PushCount;
 		}
 
 		private void GenLdc(InstInfo inst, StackType stype, string val)
