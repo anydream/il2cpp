@@ -94,10 +94,10 @@ namespace il2cpp
 			sb.AppendLine("clang -O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -Ibdwgc/include bdwgc/extra/gc.c");
 
 			sb.AppendLine("echo Phase 2: Compiling GC Helpers");
-			sb.AppendLine("clang -O3 -c -emit-llvm -DIL2CPP_PATCH_LLVM -Ibdwgc/include il2cppGC.cpp");
+			sb.AppendLine("clang -O3 -c -emit-llvm -Wall -DIL2CPP_PATCH_LLVM -Ibdwgc/include il2cppGC.cpp");
 
 			sb.AppendLine("echo Phase 3: Compiling Generated Codes");
-			sb.Append("clang -O3 -c -emit-llvm -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM il2cpp.cpp");
+			sb.Append("clang -O3 -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM il2cpp.cpp");
 			foreach (string unitName in unitNames)
 				sb.AppendFormat(" {0}.cpp", unitName);
 			sb.AppendLine();
