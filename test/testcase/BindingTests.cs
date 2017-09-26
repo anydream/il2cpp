@@ -2309,11 +2309,4 @@ namespace testcase
 			i.Foo();
 		}
 	}
-
-	internal class Program
-	{
-		private static void Main()
-		{
-		}
-	}
 }

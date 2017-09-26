@@ -7,7 +7,7 @@
 #include <sched.h>
 #endif
 
-#if !defined(IL2CPP_LLVM)
+#if !defined(IL2CPP_PATCH_LLVM)
 #include <gc.h>
 #endif
 
@@ -27,7 +27,7 @@ void* il2cpp_New(uint32_t sz, uint32_t typeID, int32_t isNoRef)
 		sz = 4;
 
 	cls_Object* obj;
-#if defined(IL2CPP_LLVM)
+#if defined(IL2CPP_PATCH_LLVM)
 	if (isNoRef)
 		obj = (cls_Object*)calloc(sz, 1);
 	else

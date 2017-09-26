@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace testcase
 {
@@ -154,10 +155,22 @@ namespace testcase
 			foreach (ushort n in usary)
 				sum += n;
 
-			if (!sum.IsEquals(65586.9f))
+			if (!sum.IsEquals(65586.8f))
 				return 16;
 
 			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestSZArrayPerf
+	{
+		public static long Entry(int times)
+		{
+			long sum = 0;
+			for (int i = 0; i < times; ++i)
+				sum += TestSZArray.Entry();
+			return sum;
 		}
 	}
 
@@ -283,7 +296,7 @@ namespace testcase
 			{
 				for (int y = 0; y < 3; ++y)
 				{
-					for (int z = 0; z < 4; ++z)
+					for (int z = 0; z < 3; ++z)
 					{
 						sary3d[x, y, z] = ++num;
 					}
@@ -298,6 +311,34 @@ namespace testcase
 			}
 
 			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestMDArrayPerf
+	{
+		public static long Entry(int times)
+		{
+			long sum = 0;
+			for (int i = 0; i < times; ++i)
+				sum += TestMDArray.Entry();
+			return sum;
+		}
+	}
+
+	internal class Program
+	{
+		private static void Main()
+		{
+			Console.Write("Input Times: ");
+			int times = int.Parse(Console.ReadLine());
+			Console.WriteLine("Times: {0}", times);
+			var sw = new Stopwatch();
+			sw.Start();
+			long res = TestMDArrayPerf.Entry(times);
+			sw.Stop();
+
+			Console.WriteLine("Result: {0}, Elapsed: {1}ms", res, sw.ElapsedMilliseconds);
 		}
 	}
 }

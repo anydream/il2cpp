@@ -8,6 +8,7 @@ void il2cpp_InitGC()
 	GC_INIT();
 }
 
+#if defined(IL2CPP_PATCH_LLVM)
 extern "C" void* _il2cpp_PatchCalloc(uintptr_t nelem, uintptr_t sz)
 {
 	if (nelem != 1 && sz == 1)
@@ -21,3 +22,4 @@ extern "C" void* _il2cpp_PatchCalloc(uintptr_t nelem, uintptr_t sz)
 	else
 		abort();
 }
+#endif

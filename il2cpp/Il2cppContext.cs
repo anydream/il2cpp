@@ -91,10 +91,10 @@ namespace il2cpp
 			sb.AppendLine("clang -O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -Ibdwgc/include bdwgc/extra/gc.c");
 
 			sb.AppendLine("echo Stage 2: Compiling GC Helpers");
-			sb.AppendLine("clang -O3 -c -emit-llvm -Ibdwgc/include il2cppGC.cpp");
+			sb.AppendLine("clang -O3 -c -emit-llvm -DIL2CPP_PATCH_LLVM -Ibdwgc/include il2cppGC.cpp");
 
 			sb.AppendLine("echo Stage 3: Compiling Generated Codes");
-			sb.Append("clang -O3 -c -emit-llvm -DIL2CPP_LLVM il2cpp.cpp");
+			sb.Append("clang -O3 -c -emit-llvm -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM il2cpp.cpp");
 			foreach (var unit in units)
 				sb.AppendFormat(" {0}.cpp", unit.Name);
 			sb.AppendLine();
@@ -106,9 +106,9 @@ namespace il2cpp
 			sb.AppendLine();
 
 			sb.AppendLine("echo Stage 5: Optimization Pass 1");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o opt.bc link.bc");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o opt1.bc link.bc");
 			sb.AppendLine("echo Stage 5: Optimization Pass 2");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o opt2.bc opt.bc");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o opt2.bc opt1.bc");
 			sb.AppendLine("echo Stage 5: Optimization Pass 3");
 			sb.AppendLine("clang -O3 -c -emit-llvm -o opt3.bc opt2.bc");
 			sb.AppendLine("echo Stage 5: Optimization Pass 4");
@@ -122,14 +122,16 @@ namespace il2cpp
 			sb.AppendLine("echo Stage 6: Linking GC");
 			sb.AppendLine("llvm-link -o linkgc.bc opt6.ll il2cppGC.bc gc.bc");
 
-			sb.AppendLine("echo Stage 7: Final Optimization");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc.bc linkgc.bc");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc2.bc optgc.bc");
+			sb.AppendLine("echo Stage 7: Final Optimization Pass 1");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc1.bc linkgc.bc");
+			sb.AppendLine("echo Stage 7: Final Optimization Pass 2");
+			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc2.bc optgc1.bc");
 
 			sb.AppendLine("echo Stage 8: Generating Executable File");
 			sb.AppendLine("clang -O3 -o final.exe optgc2.bc");
 
 			sb.AppendLine("echo Completed!");
+			sb.AppendLine("del *.bc *.ll");
 			sb.AppendLine("pause");
 
 			File.WriteAllText(Path.Combine(folder, "build.cmd"), sb.ToString());
