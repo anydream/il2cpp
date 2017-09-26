@@ -14,7 +14,7 @@ void il2cpp_Init()
 	il2cpp_GC_Init();
 }
 
-void* il2cpp_New(uint32_t sz, uint32_t typeID, int32_t isNoRef)
+void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef)
 {
 	if (sz < 4)
 		sz = 4;
