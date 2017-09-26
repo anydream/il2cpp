@@ -26,7 +26,7 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class Fibonacci
 	{
 		static long Fib(int n)
@@ -39,7 +39,7 @@ namespace testcase
 
 		public static long Entry()
 		{
-			return Fib(40);
+			return Fib(43);
 		}
 	}
 
@@ -330,15 +330,15 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			Console.Write("Input Times: ");
-			int times = int.Parse(Console.ReadLine());
-			Console.WriteLine("Times: {0}", times);
-			var sw = new Stopwatch();
+			//Console.Write("Input Times: ");
+			//int times = int.Parse(Console.ReadLine());
+			//Console.WriteLine("Times: {0}", times);
+			/*var sw = new Stopwatch();
 			sw.Start();
-			long res = TestMDArrayPerf.Entry(times);
+			long res = Fibonacci.Entry();
 			sw.Stop();
 
-			Console.WriteLine("Result: {0}, Elapsed: {1}ms", res, sw.ElapsedMilliseconds);
+			Console.WriteLine("Result: {0}, Elapsed: {1}ms", res, sw.ElapsedMilliseconds);*/
 		}
 	}
 }

@@ -1,11 +1,10 @@
-﻿int32_t met_WvfER_Array__get_Rank(struct cls_System_Array* ary)
+﻿int32_t met_lPpD91_Array__get_Rank(struct cls_System_Array* ary)
 {
 	if (ary->Rank == 0)
 		return 1;
 	return ary->Rank;
 }
-
-int32_t met_5SoFe3_Array__get_Length(struct cls_System_Array* ary)
+int32_t met_K3nLe2_Array__get_Length(struct cls_System_Array* ary)
 {
 	if (ary->Rank == 0)
 		return ((int32_t*)&ary[1])[0];
@@ -17,8 +16,7 @@ int32_t met_5SoFe3_Array__get_Length(struct cls_System_Array* ary)
 		return length;
 	}
 }
-
-int64_t met_afGVQ1_Array__get_LongLength(struct cls_System_Array* ary)
+int64_t met_1VfpJ1_Array__get_LongLength(struct cls_System_Array* ary)
 {
 	if (ary->Rank == 0)
 		return ((int32_t*)&ary[1])[0];
@@ -30,8 +28,7 @@ int64_t met_afGVQ1_Array__get_LongLength(struct cls_System_Array* ary)
 		return length;
 	}
 }
-
-int32_t met_5o7RW3_Array__GetLength(struct cls_System_Array* ary, int32_t dim)
+int32_t met_atlU34_Array__GetLength(struct cls_System_Array* ary, int32_t dim)
 {
 	if (ary->Rank == 0)
 	{
@@ -44,8 +41,7 @@ int32_t met_5o7RW3_Array__GetLength(struct cls_System_Array* ary, int32_t dim)
 		return ((int32_t*)&ary[1])[dim * 2 + 1];
 	}
 }
-
-int32_t met_y01YS2_Array__GetLowerBound(struct cls_System_Array* ary, int32_t dim)
+int32_t met_Lg9HN_Array__GetLowerBound(struct cls_System_Array* ary, int32_t dim)
 {
 	if (ary->Rank == 0)
 	{
@@ -58,8 +54,7 @@ int32_t met_y01YS2_Array__GetLowerBound(struct cls_System_Array* ary, int32_t di
 		return ((int32_t*)&ary[1])[dim * 2];
 	}
 }
-
-int32_t met_ivEBm1_Array__GetUpperBound(struct cls_System_Array* ary, int32_t dim)
+int32_t met_76bue2_Array__GetUpperBound(struct cls_System_Array* ary, int32_t dim)
 {
 	if (ary->Rank == 0)
 	{
