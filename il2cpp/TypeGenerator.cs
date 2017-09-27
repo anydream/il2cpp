@@ -129,9 +129,6 @@ namespace il2cpp
 				unit.ImplDepends.UnionWith(metGen.ImplDepends);
 			}
 
-			// 尝试生成内部实现代码
-			TryGenerateInternalImpls(prtDecl, prtImpl);
-
 			unit.DeclCode = prtDecl.ToString();
 			unit.ImplCode = prtImpl.ToString();
 
@@ -170,15 +167,6 @@ namespace il2cpp
 			}
 
 			return fields;
-		}
-
-		private void TryGenerateInternalImpls(CodePrinter prtDecl, CodePrinter prtImpl)
-		{
-			string nameKey = CurrType.GetNameKey();
-			if (nameKey == "System.Array")
-			{
-				prtImpl.AppendLine(InternalImpls.SystemArrayImpl);
-			}
 		}
 	}
 }

@@ -51,7 +51,6 @@
     <Compile Include="Helper.cs" />
     <Compile Include="HierarchyDump.cs" />
     <Compile Include="Il2cppContext.cs" />
-    <Compile Include="InternalImpls.cs" />
     <Compile Include="MethodGenerator.cs" />
     <Compile Include="MethodTable.cs" />
     <Compile Include="MethodX.cs" />
@@ -112,9 +111,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <EmbeddedResource Include="InternalImpls\SystemArray.cpp" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>..\..\..\tools\PackZip.exe ..\..\runtime.zip ..\..\..\runtime\</PreBuildEvent>
