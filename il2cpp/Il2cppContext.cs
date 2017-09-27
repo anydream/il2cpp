@@ -129,7 +129,7 @@ namespace il2cpp
 			sb.AppendLine("clang -O3 -c -emit-llvm -o opt5.bc opt4.bc");
 			sb.AppendLine("echo Phase 5: Optimization Pass 6");
 			sb.AppendLine("clang -O3 -S -emit-llvm -o opt6.ll opt5.bc");
-			sb.AppendLine(@"..\..\IRPatcher opt6.ll");
+			sb.AppendLine(@"..\..\IRPatcher opt6.ll @calloc @_il2cpp_GC_PatchCalloc");
 
 			sb.AppendLine("echo Phase 6: Linking GC");
 			sb.AppendLine("llvm-link -o linkgc.bc opt6.ll ../il2cppGC.bc ../gc/gc.bc");

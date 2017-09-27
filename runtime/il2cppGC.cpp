@@ -21,7 +21,7 @@ void* il2cpp_GC_AllocAtomic(uintptr_t sz)
 }
 
 #if defined(IL2CPP_PATCH_LLVM)
-extern "C" void* _il2cpp_PatchCalloc(uintptr_t nelem, uintptr_t sz)
+extern "C" void* _il2cpp_GC_PatchCalloc(uintptr_t nelem, uintptr_t sz)
 {
 	if (nelem != 1 && sz == 1)
 		return il2cpp_GC_AllocAtomic(nelem);
