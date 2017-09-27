@@ -441,10 +441,29 @@ namespace il2cpp
 			string strName = fldX.GeneratedFieldName;
 			if (strName == null)
 			{
+				string prefix = fldX.IsStatic ? "sfld_" : "fld_";
+
 				if (!fldX.DeclType.IsArrayType && fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
-					strName = "fld_" + fldX.Def.Name;
+					strName = prefix + fldX.Def.Name;
 				else
-					strName = "fld_" + NameHash((int)fldX.Def.Rid) + "__" + fldX.Def.Name;
+				{
+					string middle = null;
+					if (fldX.IsStatic)
+					{
+						int hashCode =
+							fldX.GetNameKey().GetHashCode() ^
+							fldX.GetReplacedNameKey().GetHashCode() ^
+							fldX.DeclType.GetNameKey().GetHashCode();
+						middle = NameHash(hashCode) + '_' +
+								 GetNameWithGen(fldX.DeclType.Def.Name, fldX.DeclType.GenArgs);
+					}
+					else
+					{
+						middle = NameHash((int)fldX.Def.Rid);
+					}
+
+					strName = prefix + middle + "__" + fldX.Def.Name;
+				}
 
 				fldX.GeneratedFieldName = strName = EscapeName(strName);
 			}

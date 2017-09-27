@@ -81,7 +81,7 @@ namespace il2cpp
 			}
 
 			// 重排字段
-			var fields = LayoutFields();
+			var fields = LayoutFields(out var sfields);
 			// 生成字段
 			foreach (var fldX in fields)
 			{
@@ -89,6 +89,7 @@ namespace il2cpp
 				if (Helper.IsValueType(fldX.FieldType))
 					unit.DeclDepends.Add(strFldTypeName);
 
+				prtDecl.AppendLine("// " + fldX.GetReplacedNameKey());
 				prtDecl.AppendFormatLine("{0} {1};",
 					strFldTypeName,
 					GenContext.GetFieldName(fldX));
@@ -98,6 +99,21 @@ namespace il2cpp
 			prtDecl.AppendLine("};");
 
 			CodePrinter prtImpl = new CodePrinter();
+			// 生成静态字段
+			foreach (var sfldX in sfields)
+			{
+				string strFldTypeName = GenContext.GetTypeName(sfldX.FieldType);
+				if (Helper.IsValueType(sfldX.FieldType))
+					unit.DeclDepends.Add(strFldTypeName);
+
+				string fldDecl = string.Format("{0} {1};",
+					strFldTypeName,
+					GenContext.GetFieldName(sfldX));
+
+				prtDecl.AppendFormatLine("// {0} -> {1}", sfldX.DeclType.GetNameKey(), sfldX.GetReplacedNameKey());
+				prtDecl.AppendLine("extern " + fldDecl);
+				prtImpl.AppendLine(fldDecl);
+			}
 
 			// 生成方法
 			foreach (MethodX metX in CurrType.Methods)
@@ -122,9 +138,18 @@ namespace il2cpp
 			return unit;
 		}
 
-		private List<FieldX> LayoutFields()
+		private List<FieldX> LayoutFields(out List<FieldX> sfields)
 		{
-			var fields = CurrType.Fields.ToList();
+			sfields = new List<FieldX>();
+
+			List<FieldX> fields = new List<FieldX>();
+			foreach (var fldX in CurrType.Fields)
+			{
+				if (fldX.IsStatic)
+					sfields.Add(fldX);
+				else
+					fields.Add(fldX);
+			}
 
 			var layoutType = CurrType.Def.Layout;
 

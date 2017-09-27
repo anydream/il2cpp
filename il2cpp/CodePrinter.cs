@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 
 namespace il2cpp
 {
@@ -55,11 +56,13 @@ namespace il2cpp
 
 		public void AppendFormat(string fmt, params object[] args)
 		{
+			Debug.Assert(args.Length > 0);
 			Append(string.Format(fmt, args));
 		}
 
 		public void AppendFormatLine(string fmt, params object[] args)
 		{
+			Debug.Assert(args.Length > 0);
 			AppendLine(string.Format(fmt, args));
 		}
 

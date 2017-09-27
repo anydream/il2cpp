@@ -105,6 +105,8 @@ namespace testcase
 	[CodeGen]
 	static class TestValueType
 	{
+		private static short sfldI2;
+
 		struct MyStru
 		{
 			public int fldI4;
@@ -139,6 +141,7 @@ namespace testcase
 
 		public static int Entry()
 		{
+			sfldI2 = 26;
 			MyStru rs = new MyStru();
 			var ret = Foo1(new MyStru { fldI4 = 10, fldR8 = 1.44 }, ref rs, out var os);
 
@@ -170,6 +173,9 @@ namespace testcase
 				return 11;
 			if (os2.fldI8 != -2)
 				return 12;
+
+			if (sfldI2 != 26)
+				return 13;
 
 			return 0;
 		}
