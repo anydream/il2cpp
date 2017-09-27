@@ -425,6 +425,8 @@ namespace il2cpp
 
 				case OperandType.InlineType:
 					{
+						TypeX tyX = ResolveTypeDefOrRef((ITypeDefOrRef)inst.Operand, replacer);
+						inst.Operand = tyX;
 						return;
 					}
 

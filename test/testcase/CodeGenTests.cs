@@ -103,6 +103,79 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static class TestValueType
+	{
+		struct MyStru
+		{
+			public int fldI4;
+			public double fldR8;
+		}
+
+		class MyCls
+		{
+			public int fld;
+		}
+
+		struct MyStruHasRef
+		{
+			public long fldI8;
+			public MyCls cls;
+		}
+
+		private static MyStru Foo1(MyStru s, ref MyStru rs, out MyStru os)
+		{
+			rs = s;
+			os = new MyStru { fldI4 = 123, fldR8 = 3.1415926 };
+			return os;
+		}
+
+		private static MyStruHasRef Foo2(MyStruHasRef s, ref MyStruHasRef rs, out MyStruHasRef os)
+		{
+			rs = new MyStruHasRef { fldI8 = ~1, cls = new MyCls { fld = 42 } };
+			os = rs;
+			rs.fldI8 -= s.fldI8;
+			return rs;
+		}
+
+		public static int Entry()
+		{
+			MyStru rs = new MyStru();
+			var ret = Foo1(new MyStru { fldI4 = 10, fldR8 = 1.44 }, ref rs, out var os);
+
+			if (ret.fldI4 != 123)
+				return 1;
+			if (ret.fldR8 != 3.1415926)
+				return 2;
+			if (ret.fldI4 != os.fldI4)
+				return 3;
+			if (ret.fldR8 != os.fldR8)
+				return 4;
+			if (rs.fldI4 != 10)
+				return 5;
+			if (rs.fldR8 != 1.44)
+				return 6;
+
+			MyStruHasRef rs2 = new MyStruHasRef();
+			var ret2 = Foo2(new MyStruHasRef { fldI8 = 999999 }, ref rs2, out var os2);
+
+			if (ret2.cls.fld != 42)
+				return 7;
+			if (ret2.fldI8 != -1000001)
+				return 8;
+			if (rs2.cls.fld != os2.cls.fld)
+				return 9;
+			if (rs2.cls.fld != ret2.cls.fld)
+				return 10;
+			if (ret2.fldI8 != rs2.fldI8)
+				return 11;
+			if (os2.fldI8 != -2)
+				return 12;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
 	static class TestSZArray
 	{
 		public static int Entry()

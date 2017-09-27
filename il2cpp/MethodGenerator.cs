@@ -158,6 +158,11 @@ namespace il2cpp
 			SlotType = stype;
 			SlotIndex = idx;
 		}
+
+		public override string ToString()
+		{
+			return "tmp_" + SlotIndex + '_' + SlotType.GetPostfix();
+		}
 	}
 
 	// 方法生成器
@@ -988,6 +993,10 @@ namespace il2cpp
 					GenNewObj(inst, (MethodX)operand);
 					return;
 
+				case Code.Initobj:
+					GenInitObj(inst, (TypeX)operand);
+					return;
+
 				case Code.Newarr:
 				case Code.Ldlen:
 				case Code.Ldelema:
@@ -1353,6 +1362,28 @@ namespace il2cpp
 			strCode += '\n' + GenCall(metX, PrefixMet, ctorList);
 
 			inst.InstCode = strCode;
+		}
+
+		private void GenInitObj(InstInfo inst, TypeX tyX)
+		{
+			var slotPop = Pop();
+
+			if (tyX.IsValueType)
+			{
+				RefTypeImpl(tyX);
+				string typeName = GenContext.GetTypeName(tyX);
+				inst.InstCode = GenAssign(
+					"*(" + typeName + "*)" + TempName(slotPop),
+					typeName + "()",
+					(TypeSig)null);
+			}
+			else
+			{
+				inst.InstCode = GenAssign(
+					TempName(slotPop),
+					"nullptr",
+					slotPop.SlotType);
+			}
 		}
 
 		private StackType ToStackType(TypeSig tySig)

@@ -28,6 +28,10 @@ namespace il2cpp
 			prtDecl.AppendFormatLine("// {0}", CurrType.GetNameKey());
 			var baseType = CurrType.BaseType;
 
+			// 值类型不继承任何基类
+			if (CurrType.IsValueType)
+				baseType = null;
+
 			// 接口类型继承 object
 			if (baseType == null && CurrType.Def.IsInterface)
 				baseType = GenContext.TypeMgr.GetTypeByName("Object");
