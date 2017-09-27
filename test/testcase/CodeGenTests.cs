@@ -44,6 +44,28 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static class Fibonacci2
+	{
+		static long Fib(int n)
+		{
+			long a = 1;
+			long b = 1;
+			for (int i = 0; i < n - 1; ++i)
+			{
+				long t = a;
+				a = b;
+				b = t + b;
+			}
+			return a;
+		}
+
+		public static long Entry()
+		{
+			return Fib(43);
+		}
+	}
+
+	[CodeGen]
 	static class TestCallVirt
 	{
 		interface Inf
@@ -74,7 +96,9 @@ namespace testcase
 
 		public static int Entry()
 		{
-			return Bla(new ClsB()) - Bla(new ClsA());
+			if (Bla(new ClsB()) - Bla(new ClsA()) != 333)
+				return 1;
+			return 0;
 		}
 	}
 

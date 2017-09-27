@@ -90,7 +90,7 @@ namespace il2cpp
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("@echo off");
 
-			sb.AppendLine("mkdir out");
+			sb.AppendLine("mkdir out 2>NUL");
 			sb.AppendLine("cd out");
 
 			sb.AppendLine("echo Phase 1: Compiling Generated Codes");
@@ -100,16 +100,16 @@ namespace il2cpp
 			sb.AppendLine();
 
 			sb.AppendLine("echo Phase 2: Compiling GC");
-			sb.AppendLine("mkdir gc");
+			sb.AppendLine("mkdir gc 2>NUL");
 			sb.AppendLine("cd gc");
-			sb.AppendLine("clang -O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -I../../bdwgc/include ../../bdwgc/extra/gc.c");
+			sb.AppendLine("clang -O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -I../../bdwgc/include ../../bdwgc/extra/gc.c");
 			sb.AppendLine("cd ..");
 
 			sb.AppendLine("echo Phase 3: Compiling GC Helpers");
 			sb.AppendLine("clang -O3 -c -emit-llvm -Wall -DIL2CPP_PATCH_LLVM -I../bdwgc/include ../il2cppGC.cpp");
 
 			sb.AppendLine("echo Phase 4: Linking Codes");
-			sb.AppendLine("mkdir opt");
+			sb.AppendLine("mkdir opt 2>NUL");
 			sb.Append("llvm-link -o opt/link.bc il2cpp.bc");
 			foreach (string unitName in unitNames)
 				sb.AppendFormat(" {0}.bc", unitName);
