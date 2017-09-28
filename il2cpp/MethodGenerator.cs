@@ -1079,6 +1079,25 @@ else
 					GenUnaryOp(inst, "-");
 					return;
 
+				case Code.And:
+					GenIntBinOp(inst, " & ");
+					return;
+				case Code.Or:
+					GenIntBinOp(inst, " | ");
+					return;
+				case Code.Xor:
+					GenIntBinOp(inst, " ^ ");
+					return;
+				case Code.Not:
+					GenIntUnaryOp(inst, "~");
+					return;
+				case Code.Shl:
+					GenShiftOp(inst, " << ");
+					return;
+				case Code.Shr:
+					GenShiftOp(inst, " >> ");
+					return;
+
 				case Code.Newobj:
 					GenNewobj(inst, (MethodX)operand);
 					return;
@@ -1435,10 +1454,59 @@ else
 		private void GenUnaryOp(InstInfo inst, string op)
 		{
 			var slotPop = Pop();
+
+			var kind = slotPop.SlotType.Kind;
+			if (kind != StackTypeKind.I4 && kind != StackTypeKind.I8 && kind != StackTypeKind.Ptr &&
+				kind != StackTypeKind.R4 && kind != StackTypeKind.R8)
+				throw new InvalidOperationException();
+
 			var slotPush = Push(slotPop.SlotType);
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
 				op + TempName(slotPop),
+				slotPush.SlotType);
+		}
+
+		private void GenIntBinOp(InstInfo inst, string op)
+		{
+			var slotPops = Pop(2);
+
+			if (!IsIntegerOpValid(slotPops[0].SlotType.Kind, slotPops[1].SlotType.Kind, out var retType))
+				throw new InvalidOperationException();
+
+			var slotPush = Push(new StackType(retType));
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				'(' + TempName(slotPops[0]) + op + TempName(slotPops[1]) + ')',
+				slotPush.SlotType);
+		}
+
+		private void GenIntUnaryOp(InstInfo inst, string op)
+		{
+			var slotPop = Pop();
+
+			var kind = slotPop.SlotType.Kind;
+			if (kind != StackTypeKind.I4 && kind != StackTypeKind.I8 && kind != StackTypeKind.Ptr)
+				throw new InvalidOperationException();
+
+			var slotPush = Push(slotPop.SlotType);
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				op + TempName(slotPop),
+				slotPush.SlotType);
+		}
+
+		private void GenShiftOp(InstInfo inst, string op)
+		{
+			var slotPops = Pop(2);
+
+			if (!IsShiftOpValid(slotPops[0].SlotType.Kind, slotPops[1].SlotType.Kind, out var retType))
+				throw new InvalidOperationException();
+
+			var slotPush = Push(new StackType(retType));
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				'(' + TempName(slotPops[0]) + op + TempName(slotPops[1]) + ')',
 				slotPush.SlotType);
 		}
 
@@ -2057,6 +2125,93 @@ else
 				default:
 					throw new ArgumentOutOfRangeException(nameof(op1), op1, null);
 			}
+		}
+
+		private static bool IsIntegerOpValid(StackTypeKind op1, StackTypeKind op2, out StackTypeKind retType)
+		{
+			retType = StackTypeKind.I4;
+
+			switch (op1)
+			{
+				case StackTypeKind.I4:
+					{
+						switch (op2)
+						{
+							case StackTypeKind.I4:
+							case StackTypeKind.Ptr:
+								retType = op2;
+								return true;
+						}
+						return false;
+					}
+
+				case StackTypeKind.I8:
+					{
+						switch (op2)
+						{
+							case StackTypeKind.I8:
+								retType = StackTypeKind.I8;
+								return true;
+						}
+						return false;
+					}
+
+				case StackTypeKind.Ptr:
+					{
+						switch (op2)
+						{
+							case StackTypeKind.I4:
+							case StackTypeKind.Ptr:
+								retType = StackTypeKind.Ptr;
+								return true;
+						}
+						return false;
+					}
+			}
+			return false;
+		}
+
+		private static bool IsShiftOpValid(StackTypeKind beShift, StackTypeKind shiftBy, out StackTypeKind retType)
+		{
+			retType = StackTypeKind.I4;
+
+			switch (beShift)
+			{
+				case StackTypeKind.I4:
+					{
+						switch (shiftBy)
+						{
+							case StackTypeKind.I4:
+							case StackTypeKind.Ptr:
+								retType = StackTypeKind.I4;
+								return true;
+						}
+						return false;
+					}
+				case StackTypeKind.I8:
+					{
+						switch (shiftBy)
+						{
+							case StackTypeKind.I4:
+							case StackTypeKind.Ptr:
+								retType = StackTypeKind.I8;
+								return true;
+						}
+						return false;
+					}
+				case StackTypeKind.Ptr:
+					{
+						switch (shiftBy)
+						{
+							case StackTypeKind.I4:
+							case StackTypeKind.Ptr:
+								retType = StackTypeKind.Ptr;
+								return true;
+						}
+						return false;
+					}
+			}
+			return false;
 		}
 	}
 }
