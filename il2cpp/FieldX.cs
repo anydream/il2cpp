@@ -17,6 +17,7 @@ namespace il2cpp
 
 		// 字段类型
 		public TypeSig FieldType;
+		public TypeX FieldTypeX;
 
 		public bool IsStatic => Def.IsStatic;
 

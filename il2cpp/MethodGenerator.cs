@@ -1675,7 +1675,7 @@ else
 					string.Format("{0}{1}.{2}",
 						isAddr ? "&" : null,
 						TempName(slotPop),
-						GenContext.GetFieldName(fldX)),
+						GetFieldName(fldX)),
 					slotPush.SlotType);
 			}
 			else
@@ -1686,7 +1686,7 @@ else
 						isAddr ? "&" : null,
 						GenContext.GetTypeName(fldX.DeclType),
 						TempName(slotPop),
-						GenContext.GetFieldName(fldX)),
+						GetFieldName(fldX)),
 					slotPush.SlotType);
 			}
 		}
@@ -1703,7 +1703,7 @@ else
 				string.Format("(({0}*){1})->{2}",
 					GenContext.GetTypeName(fldX.DeclType),
 					TempName(slotObj),
-					GenContext.GetFieldName(fldX)),
+					GetFieldName(fldX)),
 				TempName(slotVal),
 				fldX.FieldType);
 		}
@@ -1723,7 +1723,7 @@ else
 				TempName(slotPush),
 				string.Format("{0}{1}",
 					isAddr ? "&" : null,
-					GenContext.GetFieldName(fldX)),
+					GetFieldName(fldX)),
 				slotPush.SlotType);
 		}
 
@@ -1735,7 +1735,7 @@ else
 			var slotPop = Pop();
 
 			inst.InstCode = GenAssign(
-				GenContext.GetFieldName(fldX),
+				GetFieldName(fldX),
 				TempName(slotPop),
 				fldX.FieldType);
 		}
@@ -1827,9 +1827,25 @@ else
 			}
 
 			if (tySig.IsValueType)
-				return new StackType(GenContext.GetTypeName(GenContext.GetTypeBySig(tySig)));
+			{
+				TypeX tyX = GenContext.GetTypeBySig(tySig);
+				if (tyX.IsEnumType)
+					return ToStackType(tyX.EnumInfo.EnumField.FieldType);
+
+				return new StackType(GenContext.GetTypeName(tyX));
+			}
 
 			return StackType.Obj;
+		}
+
+		private string GetFieldName(FieldX fldX)
+		{
+			string strName = GenContext.GetFieldName(fldX);
+
+			if (fldX.FieldTypeX != null && fldX.FieldTypeX.IsEnumType)
+				return strName + '.' + GetFieldName(fldX.FieldTypeX.EnumInfo.EnumField);
+
+			return strName;
 		}
 
 		private string GetTypeDefaultValue(TypeSig tySig)
