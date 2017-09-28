@@ -1474,8 +1474,15 @@ else
 					sb.Append(", ");
 
 				var argType = metX.ParamTypes[i];
-				sb.AppendFormat("{0}{1}",
+
+				bool isGetAddr =
+					i == 0 &&
+					argType.IsByRef &&
+					slotArgs[0].SlotType.Kind == StackTypeKind.ValueType;
+
+				sb.AppendFormat("{0}{1}{2}",
 					CastType(argType),
+					isGetAddr ? "&" : null,
 					TempName(slotArgs[i]));
 			}
 			sb.Append(')');
@@ -1492,51 +1499,61 @@ else
 		private void GenNewobj(InstInfo inst, MethodX metX)
 		{
 			TypeX tyX = metX.DeclType;
-			if (tyX.IsValueType)
-				throw new InvalidOperationException("newobj can't create value type");
 
 			var ctorArgs = Pop(metX.ParamTypes.Count - 1);
-			var newSlot = Push(StackType.Obj);
 
-			string strAddSize = null;
-			if (tyX.IsArrayType)
+			if (tyX.IsValueType)
 			{
-				var elemType = tyX.GenArgs[0];
-				RefTypeImpl(elemType);
-
-				strAddSize = string.Format(" + sizeof({0})",
-					GenContext.GetTypeName(elemType));
-
-				uint rank = tyX.ArrayInfo.Rank;
-				if (rank == ctorArgs.Length)
-				{
-					for (int i = 0; i < rank; ++i)
-						strAddSize += " * " + TempName(ctorArgs[i]);
-				}
-				else if (rank * 2 == ctorArgs.Length)
-				{
-					for (int i = 0; i < rank; ++i)
-						strAddSize += " * " + TempName(ctorArgs[i * 2 + 1]);
-				}
-				else
-					throw new ArgumentOutOfRangeException();
+				var slotPush = Push(ToStackType(tyX.GetTypeSig()));
+				var ctorList = new List<SlotInfo>();
+				ctorList.Add(slotPush);
+				ctorList.AddRange(ctorArgs);
+				inst.InstCode = GenCall(metX, PrefixMet, ctorList);
 			}
+			else
+			{
+				var slotPush = Push(StackType.Obj);
 
-			string strCode = GenAssign(
-				TempName(newSlot),
-				string.Format("IL2CPP_NEW(sizeof({0}){1}, {2}, {3})",
-					GenContext.GetTypeName(tyX),
-					strAddSize,
-					GenContext.GetTypeID(tyX),
-					GenContext.IsNoRefType(tyX) ? "1" : "0"),
-				newSlot.SlotType);
+				string strAddSize = null;
+				if (tyX.IsArrayType)
+				{
+					var elemType = tyX.GenArgs[0];
+					RefTypeImpl(elemType);
 
-			var ctorList = new List<SlotInfo>();
-			ctorList.Add(newSlot);
-			ctorList.AddRange(ctorArgs);
-			strCode += '\n' + GenCall(metX, PrefixMet, ctorList);
+					strAddSize = string.Format(" + sizeof({0})",
+						GenContext.GetTypeName(elemType));
 
-			inst.InstCode = strCode;
+					uint rank = tyX.ArrayInfo.Rank;
+					if (rank == ctorArgs.Length)
+					{
+						for (int i = 0; i < rank; ++i)
+							strAddSize += " * " + TempName(ctorArgs[i]);
+					}
+					else if (rank * 2 == ctorArgs.Length)
+					{
+						for (int i = 0; i < rank; ++i)
+							strAddSize += " * " + TempName(ctorArgs[i * 2 + 1]);
+					}
+					else
+						throw new ArgumentOutOfRangeException();
+				}
+
+				string strCode = GenAssign(
+					TempName(slotPush),
+					string.Format("IL2CPP_NEW(sizeof({0}){1}, {2}, {3})",
+						GenContext.GetTypeName(tyX),
+						strAddSize,
+						GenContext.GetTypeID(tyX),
+						GenContext.IsNoRefType(tyX) ? "1" : "0"),
+					slotPush.SlotType);
+
+				var ctorList = new List<SlotInfo>();
+				ctorList.Add(slotPush);
+				ctorList.AddRange(ctorArgs);
+				strCode += '\n' + GenCall(metX, PrefixMet, ctorList);
+
+				inst.InstCode = strCode;
+			}
 		}
 
 		private void GenLdfld(InstInfo inst, FieldX fldX, bool isAddr = false)
