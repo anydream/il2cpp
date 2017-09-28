@@ -1502,7 +1502,7 @@ else
 			if (tyX.IsArrayType)
 			{
 				var elemType = tyX.GenArgs[0];
-				RefTypeDecl(elemType);
+				RefTypeImpl(elemType);
 
 				strAddSize = string.Format(" + sizeof({0})",
 					GenContext.GetTypeName(elemType));
