@@ -1079,11 +1079,7 @@ else
 					return;
 
 				case Code.Newobj:
-					GenNewObj(inst, (MethodX)operand);
-					return;
-
-				case Code.Initobj:
-					GenInitObj(inst, (TypeX)operand);
+					GenNewobj(inst, (MethodX)operand);
 					return;
 
 				case Code.Ldfld:
@@ -1104,6 +1100,16 @@ else
 					return;
 				case Code.Stsfld:
 					GenStsfld(inst, (FieldX)operand);
+					return;
+
+				case Code.Initobj:
+					GenInitobj(inst, (TypeX)operand);
+					return;
+				case Code.Ldobj:
+					GenLdobj(inst, (TypeX)operand);
+					return;
+				case Code.Stobj:
+					GenStobj(inst, (TypeX)operand);
 					return;
 
 				case Code.Newarr:
@@ -1423,7 +1429,7 @@ else
 				return sb.ToString() + ';';
 		}
 
-		private void GenNewObj(InstInfo inst, MethodX metX)
+		private void GenNewobj(InstInfo inst, MethodX metX)
 		{
 			TypeX tyX = metX.DeclType;
 			if (tyX.IsValueType)
@@ -1471,28 +1477,6 @@ else
 			strCode += '\n' + GenCall(metX, PrefixMet, ctorList);
 
 			inst.InstCode = strCode;
-		}
-
-		private void GenInitObj(InstInfo inst, TypeX tyX)
-		{
-			var slotPop = Pop();
-
-			if (tyX.IsValueType)
-			{
-				RefTypeImpl(tyX);
-				string typeName = GenContext.GetTypeName(tyX);
-				inst.InstCode = GenAssign(
-					"*(" + typeName + "*)" + TempName(slotPop),
-					typeName + "()",
-					(TypeSig)null);
-			}
-			else
-			{
-				inst.InstCode = GenAssign(
-					TempName(slotPop),
-					"nullptr",
-					slotPop.SlotType);
-			}
 		}
 
 		private void GenLdfld(InstInfo inst, FieldX fldX, bool isAddr = false)
@@ -1577,6 +1561,59 @@ else
 				GenContext.GetFieldName(fldX),
 				TempName(slotPop),
 				fldX.FieldType);
+		}
+
+		private void GenInitobj(InstInfo inst, TypeX tyX)
+		{
+			var slotPop = Pop();
+
+			if (tyX.IsValueType)
+			{
+				RefTypeImpl(tyX);
+				string typeName = GenContext.GetTypeName(tyX);
+				inst.InstCode = GenAssign(
+					"*(" + typeName + "*)" + TempName(slotPop),
+					typeName + "()",
+					(TypeSig)null);
+			}
+			else
+			{
+				inst.InstCode = GenAssign(
+					TempName(slotPop),
+					"nullptr",
+					slotPop.SlotType);
+			}
+		}
+
+		private void GenLdobj(InstInfo inst, TypeX tyX)
+		{
+			RefTypeImpl(tyX);
+
+			var slotPop = Pop();
+			var slotPush = Push(ToStackType(tyX.GetTypeSig()));
+
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				string.Format("*({0}*){1}",
+					GenContext.GetTypeName(tyX),
+					TempName(slotPop)),
+				slotPush.SlotType);
+		}
+
+		private void GenStobj(InstInfo inst, TypeX tyX)
+		{
+			RefTypeImpl(tyX);
+
+			var slotPops = Pop(2);
+			var slotDest = slotPops[0];
+			var slotSrc = slotPops[1];
+
+			inst.InstCode = GenAssign(
+				string.Format("*({0}*){1}",
+					GenContext.GetTypeName(tyX),
+					TempName(slotDest)),
+				TempName(slotSrc),
+				tyX);
 		}
 
 		private StackType ToStackType(TypeSig tySig)
@@ -1666,6 +1703,14 @@ else
 				return '(' + GenContext.GetTypeName(tySig) + ')';
 		}
 
+		private string CastType(TypeX tyX)
+		{
+			if (tyX.IsValueType)
+				return null;
+			else
+				return '(' + GenContext.GetTypeName(tyX) + ')';
+		}
+
 		private void RefTypeDecl(TypeSig tySig)
 		{
 			DeclDepends.Add(GenContext.GetTypeName(tySig));
@@ -1701,6 +1746,11 @@ else
 		private string GenAssign(string lhs, string rhs, TypeSig tySig)
 		{
 			return lhs + " = " + (tySig != null ? CastType(tySig) : null) + rhs + ';';
+		}
+
+		private string GenAssign(string lhs, string rhs, TypeX tyX)
+		{
+			return lhs + " = " + (tyX != null ? CastType(tyX) : null) + rhs + ';';
 		}
 
 		private static string GenGoto(int labelID)
