@@ -1086,6 +1086,26 @@ else
 					GenInitObj(inst, (TypeX)operand);
 					return;
 
+				case Code.Ldfld:
+					GenLdfld(inst, (FieldX)operand);
+					return;
+				case Code.Ldflda:
+					GenLdfld(inst, (FieldX)operand, true);
+					return;
+				case Code.Ldsfld:
+					GenLdsfld(inst, (FieldX)operand);
+					return;
+				case Code.Ldsflda:
+					GenLdsfld(inst, (FieldX)operand, true);
+					return;
+
+				case Code.Stfld:
+					GenStfld(inst, (FieldX)operand);
+					return;
+				case Code.Stsfld:
+					GenStsfld(inst, (FieldX)operand);
+					return;
+
 				case Code.Newarr:
 				case Code.Ldlen:
 				case Code.Ldelema:
@@ -1475,6 +1495,90 @@ else
 			}
 		}
 
+		private void GenLdfld(InstInfo inst, FieldX fldX, bool isAddr = false)
+		{
+			RefTypeImpl(fldX.DeclType);
+
+			var slotPop = Pop();
+
+			SlotInfo slotPush;
+			if (isAddr)
+				slotPush = Push(StackType.Ref);
+			else
+				slotPush = Push(ToStackType(fldX.FieldType));
+
+			if (slotPop.SlotType.Kind == StackTypeKind.ValueType)
+			{
+				inst.InstCode = GenAssign(
+					TempName(slotPush),
+					string.Format("{0}{1}.{2}",
+						isAddr ? "&" : null,
+						TempName(slotPop),
+						GenContext.GetFieldName(fldX)),
+					slotPush.SlotType);
+			}
+			else
+			{
+				inst.InstCode = GenAssign(
+					TempName(slotPush),
+					string.Format("{0}(({1}*){2})->{3}",
+						isAddr ? "&" : null,
+						GenContext.GetTypeName(fldX.DeclType),
+						TempName(slotPop),
+						GenContext.GetFieldName(fldX)),
+					slotPush.SlotType);
+			}
+		}
+
+		private void GenStfld(InstInfo inst, FieldX fldX)
+		{
+			RefTypeImpl(fldX.DeclType);
+
+			var slotPops = Pop(2);
+			var slotObj = slotPops[0];
+			var slotVal = slotPops[1];
+
+			inst.InstCode = GenAssign(
+				string.Format("(({0}*){1})->{2}",
+					GenContext.GetTypeName(fldX.DeclType),
+					TempName(slotObj),
+					GenContext.GetFieldName(fldX)),
+				TempName(slotVal),
+				fldX.FieldType);
+		}
+
+		private void GenLdsfld(InstInfo inst, FieldX fldX, bool isAddr = false)
+		{
+			Debug.Assert(fldX.IsStatic);
+			RefTypeImpl(fldX.DeclType);
+
+			SlotInfo slotPush;
+			if (isAddr)
+				slotPush = Push(StackType.Ref);
+			else
+				slotPush = Push(ToStackType(fldX.FieldType));
+
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				string.Format("{0}{1}",
+					isAddr ? "&" : null,
+					GenContext.GetFieldName(fldX)),
+				slotPush.SlotType);
+		}
+
+		private void GenStsfld(InstInfo inst, FieldX fldX)
+		{
+			Debug.Assert(fldX.IsStatic);
+			RefTypeImpl(fldX.DeclType);
+
+			var slotPop = Pop();
+
+			inst.InstCode = GenAssign(
+				GenContext.GetFieldName(fldX),
+				TempName(slotPop),
+				fldX.FieldType);
+		}
+
 		private StackType ToStackType(TypeSig tySig)
 		{
 			switch (tySig.ElementType)
@@ -1549,7 +1653,7 @@ else
 		private static string CastType(StackType stype)
 		{
 			if (stype.Kind == StackTypeKind.ValueType)
-				return "*(" + stype.GetTypeName() + "*)&";
+				return null;
 			else
 				return '(' + stype.GetTypeName() + ')';
 		}
@@ -1557,7 +1661,7 @@ else
 		private string CastType(TypeSig tySig)
 		{
 			if (Helper.IsValueType(tySig))
-				return "*(" + GenContext.GetTypeName(tySig) + "*)&";
+				return null;
 			else
 				return '(' + GenContext.GetTypeName(tySig) + ')';
 		}
