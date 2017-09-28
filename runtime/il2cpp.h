@@ -21,26 +21,12 @@
 #define IL2CPP_UNLIKELY(x)					x
 #endif
 
-#define IL2CPP_CALL_ONCE(_flag, _locktid, _func) \
-		if (IL2CPP_UNLIKELY(_flag != -1)) \
-		{ \
-			if (IL2CPP_ATOMIC_CAS(&_flag, 0, 1) == 0) \
-			{ \
-				_locktid = il2cpp_ThreadID(); \
-				_func(); \
-				IL2CPP_ATOMIC_CAS(&_flag, 1, -1); \
-			} \
-			else if (_locktid != il2cpp_ThreadID()) \
-			{ \
-				while (_flag != -1) \
-					il2cpp_Yield(); \
-			} \
-		}
-
 #define IL2CPP_ASSERT		assert
 #define IL2CPP_NEW			il2cpp_New
 #define IL2CPP_CHECK_RANGE	il2cpp_CheckRange
 #define IL2CPP_REMAINDER	il2cpp_Remainder
+
+#define IL2CPP_CALL_ONCE	il2cpp_CallOnce
 
 void il2cpp_Init();
 
@@ -51,3 +37,4 @@ double il2cpp_Remainder(double numer, double denom);
 
 void il2cpp_Yield();
 uintptr_t il2cpp_ThreadID();
+void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());

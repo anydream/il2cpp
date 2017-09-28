@@ -74,6 +74,89 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static class TestStaticCctor
+	{
+		class MyCls
+		{
+			public static uint sfld;
+
+			static MyCls()
+			{
+				sfld = 654321;
+			}
+		}
+
+		class MyCls2
+		{
+			public static uint sfld;
+
+			static MyCls2()
+			{
+				sfld = sfld + 54789651;
+			}
+
+			public uint Foo()
+			{
+				return sfld;
+			}
+		}
+
+		public class ClsA
+		{
+			public static int sfld = 123;
+
+			static ClsA()
+			{
+				sfld += ClsB.sfld;
+			}
+		}
+
+		public class ClsB
+		{
+			public static int sfld = 456;
+
+			static ClsB()
+			{
+				sfld += ClsA.sfld;
+			}
+		}
+
+		public static int Entry()
+		{
+			if (MyCls.sfld != 654321)
+				return 1;
+
+			uint v1 = new MyCls2().Foo();
+			uint v2 = new MyCls2().Foo();
+			if (v1 != 54789651)
+				return 2;
+			if (v1 != v2)
+				return 3;
+
+			if (ClsA.sfld != 702)
+				return 4;
+			if (ClsB.sfld != 579)
+				return 5;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestStaticCctor2
+	{
+		public static int Entry()
+		{
+			if (TestStaticCctor.ClsB.sfld != 1035)
+				return 1;
+			if (TestStaticCctor.ClsA.sfld != 579)
+				return 2;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
 	static class TestCallVirt
 	{
 		interface Inf

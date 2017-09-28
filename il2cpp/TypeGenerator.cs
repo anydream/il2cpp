@@ -117,7 +117,7 @@ namespace il2cpp
 				metGen.Generate();
 
 				prtDecl.AppendFormatLine("// {0} -> {1}", metX.DeclType.GetNameKey(), metX.GetReplacedNameKey());
-				prtDecl.AppendLine(metGen.DeclCode);
+				prtDecl.Append(metGen.DeclCode);
 				unit.DeclDepends.UnionWith(metGen.DeclDepends);
 
 				prtImpl.Append(metGen.ImplCode);

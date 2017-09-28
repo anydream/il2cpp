@@ -297,17 +297,65 @@ namespace il2cpp
 		{
 			CodePrinter prt = new CodePrinter();
 
-			GenFuncDef(prt, PrefixMet);
-			DeclCode += prt + ";\n";
+			if (CurrMethod.IsStatic && CurrMethod.Def.IsConstructor)
+			{
+				// 静态构造实现
+				string onceFuncName = string.Format("once_{0}",
+					GenContext.GetMethodName(CurrMethod, PrefixMet));
+				prt.AppendFormatLine("static void {0}()",
+					onceFuncName);
+				prt.AppendLine("{");
+				++prt.Indents;
 
-			// 生成指令代码
+				GenMethodImpl(prt);
+
+				--prt.Indents;
+				prt.AppendLine("}");
+
+				// 静态构造调用包装
+				CodePrinter prt2 = new CodePrinter();
+				GenFuncDef(prt2, PrefixMet);
+				DeclCode += prt2 + ";\n";
+
+				prt.Append(prt2.ToString());
+				prt.AppendLine("\n{");
+				++prt.Indents;
+
+				prt.AppendLine("static int8_t s_OnceFlag = 0;");
+				prt.AppendLine("static uintptr_t s_LockTid = 0;");
+				prt.AppendFormatLine("IL2CPP_CALL_ONCE(s_OnceFlag, s_LockTid, &{0});",
+					onceFuncName);
+
+				--prt.Indents;
+				prt.AppendLine("}");
+			}
+			else
+			{
+				GenFuncDef(prt, PrefixMet);
+				DeclCode += prt + ";\n";
+				prt.AppendLine("\n{");
+				++prt.Indents;
+
+				GenMethodImpl(prt);
+
+				--prt.Indents;
+				prt.AppendLine("}");
+			}
+
+			ImplCode += prt;
+		}
+
+		private void GenMethodImpl(CodePrinter prt)
+		{
 			var instList = CurrMethod.InstList;
 			if (instList == null)
 			{
+				// 生成内部实现
 				GenerateRuntimeImpl(prt);
 				return;
 			}
 
+			// 构造指令代码
 			int currIP = 0;
 			for (; ; )
 			{
@@ -324,9 +372,12 @@ namespace il2cpp
 				}
 			}
 
-			// 生成函数体
-			prt.AppendLine("\n{");
-			++prt.Indents;
+			// 调用静态构造
+			if (CurrMethod.IsStatic && !CurrMethod.Def.IsConstructor ||
+				!CurrMethod.IsStatic && CurrMethod.Def.IsConstructor)
+			{
+				prt.Append(GenInvokeStaticCctor(CurrMethod.DeclType));
+			}
 
 			// 局部变量
 			if (CurrMethod.LocalTypes.IsCollectionValid())
@@ -361,7 +412,7 @@ namespace il2cpp
 				prt.AppendLine();
 			}
 
-			// 代码体
+			// 生成代码体
 			foreach (var inst in instList)
 			{
 				if (inst.IsBrTarget)
@@ -374,11 +425,6 @@ namespace il2cpp
 				if (inst.InstCode != null)
 					prt.AppendLine(inst.InstCode);
 			}
-
-			--prt.Indents;
-			prt.AppendLine("}");
-
-			ImplCode += prt;
 		}
 
 		private void GenerateVFtn()
@@ -468,9 +514,6 @@ namespace il2cpp
 
 			if (CurrMethod.DeclType.IsArrayType)
 			{
-				prt.AppendLine("\n{");
-				++prt.Indents;
-
 				TypeSig elemType = CurrMethod.DeclType.GenArgs[0];
 				string metName = CurrMethod.Def.Name;
 				int pCount = CurrMethod.ParamTypes.Count - 1;
@@ -586,17 +629,9 @@ namespace il2cpp
 					else
 						throw new ArgumentOutOfRangeException();
 				}
-
-				--prt.Indents;
-				prt.AppendLine("}");
-
-				ImplCode += prt;
 			}
 			else if (nameKey == "System.Array")
 			{
-				prt.AppendLine("\n{");
-				++prt.Indents;
-
 				string metName = CurrMethod.Def.Name;
 				if (metName == "get_Rank")
 				{
@@ -673,11 +708,6 @@ else
 	return ((int32_t*)&arg_0[1])[arg_1 * 2] + ((int32_t*)&arg_0[1])[arg_1 * 2 + 1] - 1;
 }");
 				}
-
-				--prt.Indents;
-				prt.AppendLine("}");
-
-				ImplCode += prt;
 			}
 		}
 
@@ -713,6 +743,14 @@ else
 					prt.AppendLine(" +");
 			}
 			--prt.Indents;
+		}
+
+		private string GenInvokeStaticCctor(TypeX tyX)
+		{
+			MethodX cctor = tyX.CctorMethod;
+			if (cctor != null && cctor != CurrMethod)
+				return string.Format("{0}();\n", GenContext.GetMethodName(cctor, PrefixMet));
+			return null;
 		}
 
 		private bool GenerateInst(InstInfo inst, ref int currIP)
@@ -1719,12 +1757,14 @@ else
 			else
 				slotPush = Push(ToStackType(fldX.FieldType));
 
-			inst.InstCode = GenAssign(
-				TempName(slotPush),
-				string.Format("{0}{1}",
-					isAddr ? "&" : null,
-					GetFieldName(fldX)),
-				slotPush.SlotType);
+			inst.InstCode =
+				(fldX.DeclType != CurrMethod.DeclType ? GenInvokeStaticCctor(fldX.DeclType) : null) +
+				GenAssign(
+					TempName(slotPush),
+					string.Format("{0}{1}",
+						isAddr ? "&" : null,
+						GetFieldName(fldX)),
+					slotPush.SlotType);
 		}
 
 		private void GenStsfld(InstInfo inst, FieldX fldX)
@@ -1734,10 +1774,12 @@ else
 
 			var slotPop = Pop();
 
-			inst.InstCode = GenAssign(
-				GetFieldName(fldX),
-				TempName(slotPop),
-				fldX.FieldType);
+			inst.InstCode =
+				(fldX.DeclType != CurrMethod.DeclType ? GenInvokeStaticCctor(fldX.DeclType) : null) +
+				GenAssign(
+					GetFieldName(fldX),
+					TempName(slotPop),
+					fldX.FieldType);
 		}
 
 		private void GenInitobj(InstInfo inst, TypeX tyX)

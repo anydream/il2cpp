@@ -70,3 +70,23 @@ uintptr_t il2cpp_ThreadID()
 	return (uintptr_t)gettid();
 #endif
 }
+
+void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
+{
+	if (IL2CPP_UNLIKELY(onceFlag != -1))
+	{
+		if (IL2CPP_ATOMIC_CAS(&onceFlag, 0, 1) == 0)
+		{
+			lockTid = il2cpp_ThreadID();
+			invokeFunc();
+			IL2CPP_ATOMIC_CAS(&onceFlag, 1, -1);
+		}
+		else if (lockTid != il2cpp_ThreadID())
+		{
+			while (onceFlag != -1)
+				il2cpp_Yield();
+		}
+		else if (onceFlag != 1)
+			abort();
+	}
+}
