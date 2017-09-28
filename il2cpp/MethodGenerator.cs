@@ -321,8 +321,8 @@ namespace il2cpp
 				prt.AppendLine("\n{");
 				++prt.Indents;
 
-				prt.AppendLine("static int8_t s_OnceFlag = 0;");
 				prt.AppendLine("static uintptr_t s_LockTid = 0;");
+				prt.AppendLine("static int8_t s_OnceFlag = 0;");
 				prt.AppendFormatLine("IL2CPP_CALL_ONCE(s_OnceFlag, s_LockTid, &{0});",
 					onceFuncName);
 
@@ -379,9 +379,9 @@ namespace il2cpp
 				}
 			}
 
-			// 调用静态构造
 			if (!CurrMethod.IsStatic && CurrMethod.Def.IsConstructor)
 			{
+				// 构造函数里调用静态构造函数
 				prt.Append(GenInvokeStaticCctor(CurrMethod.DeclType));
 			}
 			else if (CurrMethod.IsStatic && !CurrMethod.Def.IsConstructor)
@@ -390,19 +390,18 @@ namespace il2cpp
 				bool isGen = false;
 				foreach (var inst in instList)
 				{
-					switch (inst.OpCode.Code)
+					var code = inst.OpCode.Code;
+					if (code == Code.Ldsfld ||
+						code == Code.Ldsflda ||
+						code == Code.Stsfld)
 					{
-						case Code.Ldsfld:
-						case Code.Ldsflda:
-						case Code.Stsfld:
-							FieldX fldX = (FieldX)inst.Operand;
-							if (fldX.DeclType == CurrMethod.DeclType)
-								isGen = true;
+						FieldX fldX = (FieldX)inst.Operand;
+						if (fldX.DeclType == CurrMethod.DeclType)
+						{
+							isGen = true;
 							break;
+						}
 					}
-
-					if (isGen)
-						break;
 				}
 
 				if (isGen)
