@@ -2065,13 +2065,8 @@ else
 							break;
 					}
 					return false;
-
-				case StackTypeKind.Obj:
-					return false;
-
-				default:
-					throw new ArgumentOutOfRangeException(nameof(op1), op1, null);
 			}
+			return false;
 		}
 
 		private static bool IsBinaryCompareValid(StackTypeKind op1, StackTypeKind op2, Code code)
@@ -2153,10 +2148,8 @@ else
 						}
 					}
 					return false;
-
-				default:
-					throw new ArgumentOutOfRangeException(nameof(op1), op1, null);
 			}
+			return false;
 		}
 
 		private static bool IsIntegerOpValid(StackTypeKind op1, StackTypeKind op2, out StackTypeKind retType)
@@ -2166,39 +2159,33 @@ else
 			switch (op1)
 			{
 				case StackTypeKind.I4:
+					switch (op2)
 					{
-						switch (op2)
-						{
-							case StackTypeKind.I4:
-							case StackTypeKind.Ptr:
-								retType = op2;
-								return true;
-						}
-						return false;
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							retType = op2;
+							return true;
 					}
+					return false;
 
 				case StackTypeKind.I8:
+					switch (op2)
 					{
-						switch (op2)
-						{
-							case StackTypeKind.I8:
-								retType = StackTypeKind.I8;
-								return true;
-						}
-						return false;
+						case StackTypeKind.I8:
+							retType = StackTypeKind.I8;
+							return true;
 					}
+					return false;
 
 				case StackTypeKind.Ptr:
+					switch (op2)
 					{
-						switch (op2)
-						{
-							case StackTypeKind.I4:
-							case StackTypeKind.Ptr:
-								retType = StackTypeKind.Ptr;
-								return true;
-						}
-						return false;
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							retType = StackTypeKind.Ptr;
+							return true;
 					}
+					return false;
 			}
 			return false;
 		}
@@ -2210,38 +2197,34 @@ else
 			switch (beShift)
 			{
 				case StackTypeKind.I4:
+					switch (shiftBy)
 					{
-						switch (shiftBy)
-						{
-							case StackTypeKind.I4:
-							case StackTypeKind.Ptr:
-								retType = StackTypeKind.I4;
-								return true;
-						}
-						return false;
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							retType = StackTypeKind.I4;
+							return true;
 					}
+					return false;
+
 				case StackTypeKind.I8:
+					switch (shiftBy)
 					{
-						switch (shiftBy)
-						{
-							case StackTypeKind.I4:
-							case StackTypeKind.Ptr:
-								retType = StackTypeKind.I8;
-								return true;
-						}
-						return false;
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							retType = StackTypeKind.I8;
+							return true;
 					}
+					return false;
+
 				case StackTypeKind.Ptr:
+					switch (shiftBy)
 					{
-						switch (shiftBy)
-						{
-							case StackTypeKind.I4:
-							case StackTypeKind.Ptr:
-								retType = StackTypeKind.Ptr;
-								return true;
-						}
-						return false;
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							retType = StackTypeKind.Ptr;
+							return true;
 					}
+					return false;
 			}
 			return false;
 		}
