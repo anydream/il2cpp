@@ -337,31 +337,29 @@ namespace il2cpp
 				DeclCode += prt + ";\n";
 
 				CodePrinter prt2 = new CodePrinter();
-				GenMethodImpl(prt2);
+				prt2.AppendLine("\n{");
+				++prt2.Indents;
 
-				if (prt2.Length > 0)
+				bool isGen = GenMethodImpl(prt2);
+
+				--prt2.Indents;
+				prt2.AppendLine("}");
+
+				if (isGen)
 				{
-					prt.AppendLine("\n{");
-					++prt.Indents;
-
 					prt.Append(prt2.ToString());
-
-					--prt.Indents;
-					prt.AppendLine("}");
-
 					ImplCode += prt;
 				}
 			}
 		}
 
-		private void GenMethodImpl(CodePrinter prt)
+		private bool GenMethodImpl(CodePrinter prt)
 		{
 			var instList = CurrMethod.InstList;
 			if (instList == null)
 			{
 				// 生成内部实现
-				GenerateRuntimeImpl(prt);
-				return;
+				return GenerateRuntimeImpl(prt);
 			}
 
 			// 构造指令代码
@@ -457,6 +455,8 @@ namespace il2cpp
 				if (inst.InstCode != null)
 					prt.AppendLine(inst.InstCode);
 			}
+
+			return true;
 		}
 
 		private void GenerateVFtn()
@@ -540,7 +540,7 @@ namespace il2cpp
 			ImplCode += prt;
 		}
 
-		private void GenerateRuntimeImpl(CodePrinter prt)
+		private bool GenerateRuntimeImpl(CodePrinter prt)
 		{
 			string nameKey = CurrMethod.DeclType.GetNameKey();
 
@@ -592,6 +592,8 @@ namespace il2cpp
 					}
 					else
 						throw new ArgumentOutOfRangeException();
+
+					return true;
 				}
 				else if (metName == "Get")
 				{
@@ -614,6 +616,8 @@ namespace il2cpp
 					}
 					else
 						throw new ArgumentOutOfRangeException();
+
+					return true;
 				}
 				else if (metName == "Set")
 				{
@@ -638,6 +642,8 @@ namespace il2cpp
 					}
 					else
 						throw new ArgumentOutOfRangeException();
+
+					return true;
 				}
 				else if (metName == "Address")
 				{
@@ -660,6 +666,8 @@ namespace il2cpp
 					}
 					else
 						throw new ArgumentOutOfRangeException();
+
+					return true;
 				}
 			}
 			else if (nameKey == "System.Array")
@@ -671,6 +679,8 @@ namespace il2cpp
 						@"if (arg_0->Rank == 0)
 	return 1;
 return arg_0->Rank;");
+
+					return true;
 				}
 				else if (metName == "get_Length")
 				{
@@ -684,6 +694,8 @@ else
 		length *= ((int32_t*)&arg_0[1])[i * 2 + 1];
 	return length;
 }");
+
+					return true;
 				}
 				else if (metName == "get_LongLength")
 				{
@@ -697,6 +709,8 @@ else
 		length *= ((int32_t*)&arg_0[1])[i * 2 + 1];
 	return length;
 }");
+
+					return true;
 				}
 				else if (metName == "GetLength")
 				{
@@ -711,6 +725,8 @@ else
 	IL2CPP_CHECK_RANGE(0, arg_0->Rank, arg_1);
 	return ((int32_t*)&arg_0[1])[arg_1 * 2 + 1];
 }");
+
+					return true;
 				}
 				else if (metName == "GetLowerBound")
 				{
@@ -725,6 +741,8 @@ else
 	IL2CPP_CHECK_RANGE(0, arg_0->Rank, arg_1);
 	return ((int32_t*)&arg_0[1])[arg_1 * 2];
 }");
+
+					return true;
 				}
 				else if (metName == "GetUpperBound")
 				{
@@ -739,8 +757,12 @@ else
 	IL2CPP_CHECK_RANGE(0, arg_0->Rank, arg_1);
 	return ((int32_t*)&arg_0[1])[arg_1 * 2] + ((int32_t*)&arg_0[1])[arg_1 * 2 + 1] - 1;
 }");
+
+					return true;
 				}
 			}
+
+			return false;
 		}
 
 		private void GenerateMDArrayIndex(CodePrinter prt, uint rank)
