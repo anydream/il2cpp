@@ -162,9 +162,10 @@ namespace il2cpp
 			}
 			else if (layoutType == TypeAttributes.SequentialLayout)
 			{
+				fields.Sort((lhs, rhs) => lhs.Def.Rid.CompareTo(rhs.Def.Rid));
+
 				for (int i = 0; i < fields.Count - 1; ++i)
 					Debug.Assert(fields[i].Def.Rid < fields[i + 1].Def.Rid);
-				//fields.Sort((lhs, rhs) => lhs.Def.Rid.CompareTo(rhs.Def.Rid));
 			}
 			else if (layoutType == TypeAttributes.ExplicitLayout)
 			{
