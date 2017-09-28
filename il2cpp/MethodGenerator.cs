@@ -382,10 +382,33 @@ namespace il2cpp
 			}
 
 			// 调用静态构造
-			if (CurrMethod.IsStatic && !CurrMethod.Def.IsConstructor ||
-				!CurrMethod.IsStatic && CurrMethod.Def.IsConstructor)
+			if (!CurrMethod.IsStatic && CurrMethod.Def.IsConstructor)
 			{
 				prt.Append(GenInvokeStaticCctor(CurrMethod.DeclType));
+			}
+			else if (CurrMethod.IsStatic && !CurrMethod.Def.IsConstructor)
+			{
+				// 对于引用了本类型静态字段的静态方法, 把调用静态构造放在最前面
+				bool isGen = false;
+				foreach (var inst in instList)
+				{
+					switch (inst.OpCode.Code)
+					{
+						case Code.Ldsfld:
+						case Code.Ldsflda:
+						case Code.Stsfld:
+							FieldX fldX = (FieldX)inst.Operand;
+							if (fldX.DeclType == CurrMethod.DeclType)
+								isGen = true;
+							break;
+					}
+
+					if (isGen)
+						break;
+				}
+
+				if (isGen)
+					prt.Append(GenInvokeStaticCctor(CurrMethod.DeclType));
 			}
 
 			// 局部变量
