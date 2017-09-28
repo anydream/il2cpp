@@ -345,6 +345,44 @@ namespace il2cpp
 			return tyX.NoRefFlag == 1;
 		}
 
+		public string GetTypeDefaultValue(TypeSig tySig)
+		{
+			switch (tySig.ElementType)
+			{
+				case ElementType.Boolean:
+				case ElementType.Char:
+				case ElementType.I1:
+				case ElementType.I2:
+				case ElementType.I4:
+				case ElementType.I8:
+				case ElementType.U1:
+				case ElementType.U2:
+				case ElementType.U4:
+				case ElementType.U8:
+				case ElementType.R4:
+				case ElementType.R8:
+				case ElementType.I:
+				case ElementType.U:
+					return "0";
+
+				case ElementType.Ptr:
+				case ElementType.ByRef:
+				case ElementType.Object:
+					return "nullptr";
+			}
+
+			if (tySig.IsValueType)
+			{
+				TypeX tyX = GetTypeBySig(tySig);
+				if (tyX.IsEnumType)
+					return GetTypeDefaultValue(tyX.EnumInfo.EnumField.FieldType);
+
+				return GetTypeName(tyX) + "()";
+			}
+
+			return "nullptr";
+		}
+
 		public string GetTypeName(TypeSig tySig)
 		{
 			switch (tySig.ElementType)
@@ -397,6 +435,10 @@ namespace il2cpp
 						bool isValueType = tySig.IsValueType;
 						TypeX tyX = GetTypeBySig(tySig);
 						Debug.Assert(tyX != null);
+
+						if (tyX.IsEnumType)
+							return GetTypeName(tyX.EnumInfo.EnumField.FieldType);
+
 						return "struct " +
 							GetTypeName(tyX) +
 							(isValueType ? null : "*");
@@ -409,6 +451,9 @@ namespace il2cpp
 
 		public string GetTypeName(TypeX tyX)
 		{
+			if (tyX.IsEnumType)
+				return GetTypeName(tyX.EnumInfo.EnumField.FieldType);
+
 			string strName = tyX.GeneratedTypeName;
 			if (strName == null)
 			{
@@ -422,6 +467,7 @@ namespace il2cpp
 
 				tyX.GeneratedTypeName = strName = EscapeName(strName);
 			}
+
 			return strName;
 		}
 

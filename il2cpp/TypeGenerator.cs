@@ -21,79 +21,83 @@ namespace il2cpp
 			CompileUnit unit = new CompileUnit();
 			unit.Name = GenContext.GetTypeName(CurrType);
 
+			// 重排字段
+			var fields = LayoutFields(out var sfields);
+
 			// 生成类结构
 			CodePrinter prtDecl = new CodePrinter();
 
-			prtDecl.AppendFormatLine("// {0}", CurrType.GetNameKey());
-			var baseType = CurrType.BaseType;
-
-			// 值类型不继承任何基类
-			if (CurrType.IsValueType)
-				baseType = null;
-
-			// 接口类型继承 object
-			if (baseType == null && CurrType.Def.IsInterface)
-				baseType = GenContext.TypeMgr.GetTypeByName("Object");
-
-			if (baseType != null)
+			if (!CurrType.IsEnumType)
 			{
-				string strBaseTypeName = GenContext.GetTypeName(baseType);
-				unit.DeclDepends.Add(strBaseTypeName);
+				prtDecl.AppendFormatLine("// {0}", CurrType.GetNameKey());
+				var baseType = CurrType.BaseType;
 
-				prtDecl.AppendFormatLine("struct {0} : {1}",
-					GenContext.GetTypeName(CurrType),
-					strBaseTypeName);
-			}
-			else
-			{
-				prtDecl.AppendFormatLine("struct {0}",
-					GenContext.GetTypeName(CurrType));
-			}
+				// 值类型不继承任何基类
+				if (CurrType.IsValueType)
+					baseType = null;
 
-			prtDecl.AppendLine("{");
-			++prtDecl.Indents;
+				// 接口类型继承 object
+				if (baseType == null && CurrType.Def.IsInterface)
+					baseType = GenContext.TypeMgr.GetTypeByName("Object");
 
-			// 生成对象内置字段
-			if (CurrType.IsArrayType)
-			{
-				var arrayInfo = CurrType.ArrayInfo;
-				if (arrayInfo.IsSZArray)
-					prtDecl.AppendLine("int32_t Length;");
+				if (baseType != null)
+				{
+					string strBaseTypeName = GenContext.GetTypeName(baseType);
+					unit.DeclDepends.Add(strBaseTypeName);
+
+					prtDecl.AppendFormatLine("struct {0} : {1}",
+						GenContext.GetTypeName(CurrType),
+						strBaseTypeName);
+				}
 				else
 				{
-					uint rank = arrayInfo.Rank;
-					for (int i = 0; i < rank; ++i)
-						prtDecl.AppendFormatLine("int32_t LowerBound{0};\nint32_t Size{0};", i);
+					prtDecl.AppendFormatLine("struct {0}",
+						GenContext.GetTypeName(CurrType));
 				}
-			}
-			else
-			{
-				string nameKey = CurrType.GetNameKey();
-				if (nameKey == "Object")
+
+				prtDecl.AppendLine("{");
+				++prtDecl.Indents;
+
+				// 生成对象内置字段
+				if (CurrType.IsArrayType)
 				{
-					prtDecl.AppendLine("uint32_t TypeID;");
+					var arrayInfo = CurrType.ArrayInfo;
+					if (arrayInfo.IsSZArray)
+						prtDecl.AppendLine("int32_t Length;");
+					else
+					{
+						uint rank = arrayInfo.Rank;
+						for (int i = 0; i < rank; ++i)
+							prtDecl.AppendFormatLine("int32_t LowerBound{0};\nint32_t Size{0};", i);
+					}
 				}
-				else if (nameKey == "System.Array")
+				else
 				{
-					prtDecl.AppendLine("int32_t Rank;");
+					string nameKey = CurrType.GetNameKey();
+					if (nameKey == "Object")
+					{
+						prtDecl.AppendLine("uint32_t TypeID;");
+					}
+					else if (nameKey == "System.Array")
+					{
+						prtDecl.AppendLine("int32_t Rank;");
+					}
 				}
+
+				// 生成字段
+				foreach (var fldX in fields)
+				{
+					RefValueTypeDecl(unit, fldX.FieldType);
+
+					prtDecl.AppendLine("// " + fldX.GetReplacedNameKey());
+					prtDecl.AppendFormatLine("{0} {1};",
+						GenContext.GetTypeName(fldX.FieldType),
+						GenContext.GetFieldName(fldX));
+				}
+
+				--prtDecl.Indents;
+				prtDecl.AppendLine("};");
 			}
-
-			// 重排字段
-			var fields = LayoutFields(out var sfields);
-			// 生成字段
-			foreach (var fldX in fields)
-			{
-				RefValueTypeDecl(unit, fldX.FieldType);
-
-				prtDecl.AppendLine("// " + fldX.GetReplacedNameKey());
-				prtDecl.AppendFormatLine("{0} {1};",
-					GenContext.GetTypeName(fldX.FieldType),
-					GenContext.GetFieldName(fldX));
-			}
-
-			--prtDecl.Indents;
-			prtDecl.AppendLine("};");
 
 			CodePrinter prtImpl = new CodePrinter();
 			// 生成静态字段

@@ -578,6 +578,11 @@ namespace testcase
 		static MyEnum senum1 = MyEnum.BB;
 		static MyEnumI8 senum2 = MyEnumI8.EE;
 
+		static MyEnumI8 Foo(MyEnum enu)
+		{
+			return (MyEnumI8)enu;
+		}
+
 		public static int Entry()
 		{
 			var cls = new MyCls();
@@ -599,13 +604,32 @@ namespace testcase
 			if (cls.enum2 > (MyEnumI8)4)
 				return 6;
 
+			MyEnum e = MyEnum.CC;
+			MyEnumI8 e8 = Foo(e);
+
+			if (e8 != (MyEnumI8)123)
+				return 7;
+
 			return 0;
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestRayTrace
 	{
+		static extern double MathSqrt(double n);
+		static extern double MathAbs(double n);
+		static extern double MathSin(double n);
+		static extern double MathCos(double n);
+		static extern double MathPow(double n, double m);
+
+		static double MathMax(double v1, double v2)
+		{
+			return v1 > v2 ? v1 : v2;
+		}
+
+		private static double MathPI = 3.14159265358979;
+
 		class RandomLCG
 		{
 			private uint mSeed;
@@ -670,7 +694,7 @@ namespace testcase
 
 			public void normal()
 			{
-				mul(out this, ref this, 1 / Math.Sqrt(x * x + y * y + z * z));
+				mul(out this, ref this, 1 / MathSqrt(x * x + y * y + z * z));
 			}
 
 			public double dot(ref Vec b)
@@ -724,7 +748,7 @@ namespace testcase
 				this.refl = refl;
 
 				sqRad = rad * rad;
-				maxC = Math.Max(Math.Max(c.x, c.y), c.z);
+				maxC = MathMax(MathMax(c.x, c.y), c.z);
 				// cc = c * (1.0 / maxC);
 				Vec.mul(out cc, ref c, 1.0 / maxC);
 			}
@@ -744,7 +768,7 @@ namespace testcase
 					return 1e20;
 				else
 				{
-					double dets = Math.Sqrt(det);
+					double dets = MathSqrt(det);
 
 					if (b - dets > eps)
 						return b - dets;
@@ -792,7 +816,7 @@ namespace testcase
 
 			static int toInt(double x)
 			{
-				return (int)(Math.Pow(clamp(x), 1 / 2.2) * 255 + .5);
+				return (int)(MathPow(clamp(x), 1 / 2.2) * 255 + .5);
 			}
 
 			static Sphere intersect(ref Ray r, out double t)
@@ -852,12 +876,12 @@ namespace testcase
 
 						if (obj.refl == Refl_t.DIFF) // Ideal DIFFUSE reflection
 						{
-							double r1 = 2 * Math.PI * rand();
+							double r1 = 2 * MathPI * rand();
 							double r2 = rand();
-							double r2s = Math.Sqrt(r2);
+							double r2s = MathSqrt(r2);
 
 							Vec w = nl;
-							Vec wo = Math.Abs(w.x) > .1 ? Vec.YAxis : Vec.XAxis;
+							Vec wo = MathAbs(w.x) > .1 ? Vec.YAxis : Vec.XAxis;
 							//Vec u = (wo % w).norm();
 							Vec u;
 							Vec.cross(out u, ref wo, ref w);
@@ -866,11 +890,11 @@ namespace testcase
 							Vec v;
 							Vec.cross(out v, ref w, ref u);
 
-							//Vec d = (u * (Math.Cos(r1) * r2s) + v * (Math.Sin(r1) * r2s) + w * Math.Sqrt(1 - r2)).norm();
+							//Vec d = (u * (MathCos(r1) * r2s) + v * (MathSin(r1) * r2s) + w * MathSqrt(1 - r2)).norm();
 							Vec d, ta, tb;
-							Vec.mul(out d, ref u, Math.Cos(r1) * r2s);
-							Vec.mul(out ta, ref v, Math.Sin(r1) * r2s);
-							Vec.mul(out tb, ref w, Math.Sqrt(1 - r2));
+							Vec.mul(out d, ref u, MathCos(r1) * r2s);
+							Vec.mul(out ta, ref v, MathSin(r1) * r2s);
+							Vec.mul(out tb, ref w, MathSqrt(1 - r2));
 							Vec.add(out d, ref d, ref ta);
 							Vec.add(out d, ref d, ref tb);
 							d.normal();
@@ -920,8 +944,8 @@ namespace testcase
 							}
 							else
 							{
-								//Vec tdir = (r.d * nnt - n * ((into ? 1 : -1) * (ddn * nnt + Math.Sqrt(cos2t)))).norm();
-								double temp = ddn * nnt + Math.Sqrt(cos2t);
+								//Vec tdir = (r.d * nnt - n * ((into ? 1 : -1) * (ddn * nnt + MathSqrt(cos2t)))).norm();
+								double temp = ddn * nnt + MathSqrt(cos2t);
 								if (!into) temp = -temp;
 								Vec tn;
 								Vec.mul(out tn, ref n, temp);
@@ -1024,8 +1048,8 @@ namespace testcase
 								{
 									double r1 = 2 * rand();
 									double r2 = 2 * rand();
-									double dx = r1 < 1 ? Math.Sqrt(r1) - 1 : 1 - Math.Sqrt(2 - r1);
-									double dy = r2 < 1 ? Math.Sqrt(r2) - 1 : 1 - Math.Sqrt(2 - r2);
+									double dx = r1 < 1 ? MathSqrt(r1) - 1 : 1 - MathSqrt(2 - r1);
+									double dy = r2 < 1 ? MathSqrt(r2) - 1 : 1 - MathSqrt(2 - r2);
 									//Vec d = cx * (((sx + .5 + dx) / 2 + x) / w - .5) +
 									//        cy * (((sy + .5 + dy) / 2 + y) / h - .5) + cam.d;
 									Vec temp;

@@ -328,21 +328,30 @@ namespace il2cpp
 
 				--prt.Indents;
 				prt.AppendLine("}");
+
+				ImplCode += prt;
 			}
 			else
 			{
 				GenFuncDef(prt, PrefixMet);
 				DeclCode += prt + ";\n";
-				prt.AppendLine("\n{");
-				++prt.Indents;
 
-				GenMethodImpl(prt);
+				CodePrinter prt2 = new CodePrinter();
+				GenMethodImpl(prt2);
 
-				--prt.Indents;
-				prt.AppendLine("}");
+				if (prt2.Length > 0)
+				{
+					prt.AppendLine("\n{");
+					++prt.Indents;
+
+					prt.Append(prt2.ToString());
+
+					--prt.Indents;
+					prt.AppendLine("}");
+
+					ImplCode += prt;
+				}
 			}
-
-			ImplCode += prt;
 		}
 
 		private void GenMethodImpl(CodePrinter prt)
@@ -390,7 +399,7 @@ namespace il2cpp
 					prt.AppendFormatLine("{0} {1}{2};",
 						GenContext.GetTypeName(locType),
 						LocalName(i),
-						isInitLocals ? " = " + GetTypeDefaultValue(locType) : null);
+						isInitLocals ? " = " + GenContext.GetTypeDefaultValue(locType) : null);
 				}
 				prt.AppendLine();
 			}
@@ -1713,7 +1722,7 @@ else
 					string.Format("{0}{1}.{2}",
 						isAddr ? "&" : null,
 						TempName(slotPop),
-						GetFieldName(fldX)),
+						GenContext.GetFieldName(fldX)),
 					slotPush.SlotType);
 			}
 			else
@@ -1724,7 +1733,7 @@ else
 						isAddr ? "&" : null,
 						GenContext.GetTypeName(fldX.DeclType),
 						TempName(slotPop),
-						GetFieldName(fldX)),
+						GenContext.GetFieldName(fldX)),
 					slotPush.SlotType);
 			}
 		}
@@ -1741,7 +1750,7 @@ else
 				string.Format("(({0}*){1})->{2}",
 					GenContext.GetTypeName(fldX.DeclType),
 					TempName(slotObj),
-					GetFieldName(fldX)),
+					GenContext.GetFieldName(fldX)),
 				TempName(slotVal),
 				fldX.FieldType);
 		}
@@ -1763,7 +1772,7 @@ else
 					TempName(slotPush),
 					string.Format("{0}{1}",
 						isAddr ? "&" : null,
-						GetFieldName(fldX)),
+						GenContext.GetFieldName(fldX)),
 					slotPush.SlotType);
 		}
 
@@ -1777,7 +1786,7 @@ else
 			inst.InstCode =
 				(fldX.DeclType != CurrMethod.DeclType ? GenInvokeStaticCctor(fldX.DeclType) : null) +
 				GenAssign(
-					GetFieldName(fldX),
+					GenContext.GetFieldName(fldX),
 					TempName(slotPop),
 					fldX.FieldType);
 		}
@@ -1878,48 +1887,6 @@ else
 			}
 
 			return StackType.Obj;
-		}
-
-		private string GetFieldName(FieldX fldX)
-		{
-			string strName = GenContext.GetFieldName(fldX);
-
-			if (fldX.FieldTypeX != null && fldX.FieldTypeX.IsEnumType)
-				return strName + '.' + GetFieldName(fldX.FieldTypeX.EnumInfo.EnumField);
-
-			return strName;
-		}
-
-		private string GetTypeDefaultValue(TypeSig tySig)
-		{
-			switch (tySig.ElementType)
-			{
-				case ElementType.Boolean:
-				case ElementType.Char:
-				case ElementType.I1:
-				case ElementType.I2:
-				case ElementType.I4:
-				case ElementType.I8:
-				case ElementType.U1:
-				case ElementType.U2:
-				case ElementType.U4:
-				case ElementType.U8:
-				case ElementType.R4:
-				case ElementType.R8:
-				case ElementType.I:
-				case ElementType.U:
-					return "0";
-
-				case ElementType.Ptr:
-				case ElementType.ByRef:
-				case ElementType.Object:
-					return "nullptr";
-			}
-
-			if (tySig.IsValueType)
-				return GenContext.GetTypeName(GenContext.GetTypeBySig(tySig)) + "()";
-
-			return "nullptr";
 		}
 
 		private static string CastType(StackType stype)
