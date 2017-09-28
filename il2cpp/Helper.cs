@@ -566,5 +566,13 @@ namespace il2cpp
 			}
 			return result;
 		}
+
+		public static int CombineHash(params int[] hashCodes)
+		{
+			int result = 0;
+			foreach (int hash in hashCodes)
+				result = ((result << 5) + result) ^ hash;
+			return result;
+		}
 	}
 }

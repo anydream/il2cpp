@@ -492,10 +492,10 @@ namespace il2cpp
 			string strName = metX.GeneratedMethodName;
 			if (strName == null)
 			{
-				int hashCode =
-					metX.GetNameKey().GetHashCode() ^
-					metX.GetReplacedNameKey().GetHashCode() ^
-					metX.DeclType.GetNameKey().GetHashCode();
+				int hashCode = Helper.CombineHash(
+					metX.GetNameKey().GetHashCode(),
+					metX.GetReplacedNameKey().GetHashCode(),
+					metX.DeclType.GetNameKey().GetHashCode());
 
 				strName = NameHash(hashCode) + '_' +
 					GetNameWithGen(metX.DeclType.Def.Name, metX.DeclType.GenArgs) + "__" +
@@ -520,10 +520,10 @@ namespace il2cpp
 					string middle = null;
 					if (fldX.IsStatic)
 					{
-						int hashCode =
-							fldX.GetNameKey().GetHashCode() ^
-							fldX.GetReplacedNameKey().GetHashCode() ^
-							fldX.DeclType.GetNameKey().GetHashCode();
+						int hashCode = Helper.CombineHash(
+							fldX.GetNameKey().GetHashCode(),
+							fldX.GetReplacedNameKey().GetHashCode(),
+							fldX.DeclType.GetNameKey().GetHashCode());
 						middle = NameHash(hashCode) + '_' +
 								 GetNameWithGen(fldX.DeclType.Def.Name, fldX.DeclType.GenArgs);
 					}
