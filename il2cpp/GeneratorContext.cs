@@ -257,7 +257,26 @@ namespace il2cpp
 
 				case ElementType.ValueType:
 				case ElementType.GenericInst:
-					return tySig.IsValueType ? 12 : 10;
+					if (tySig.IsValueType)
+					{
+						TypeX tyX = GetTypeBySig(tySig);
+						if (tyX.AccumOrderSize >= 0)
+							return tyX.AccumOrderSize;
+
+						// 值类型需要累加所有字段的长度
+						int size = 0;
+						foreach (var fldX in tyX.Fields)
+						{
+							if (fldX.IsStatic)
+								continue;
+
+							size += GetTypeLayoutOrder(fldX.FieldType);
+						}
+						tyX.AccumOrderSize = size;
+						return size;
+					}
+					else
+						return 10;
 
 				default:
 					throw new NotImplementedException();
@@ -373,7 +392,7 @@ namespace il2cpp
 				case ElementType.Array:
 					{
 						bool isValueType = tySig.IsValueType;
-						return (isValueType ? null : "struct ") +
+						return "struct " +
 							GetTypeName(GetTypeBySig(tySig)) +
 							(isValueType ? null : "*");
 					}
@@ -410,7 +429,7 @@ namespace il2cpp
 			return tyX.GeneratedTypeID;
 		}
 
-		private TypeX GetTypeBySig(TypeSig tySig)
+		public TypeX GetTypeBySig(TypeSig tySig)
 		{
 			StringBuilder sb = new StringBuilder();
 			Helper.TypeSigName(sb, tySig, true);

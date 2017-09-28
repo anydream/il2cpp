@@ -84,6 +84,8 @@ namespace il2cpp
 		public string GeneratedTypeName;
 		// 生成的类型索引
 		public uint GeneratedTypeID;
+		// 类型排序长度
+		public int AccumOrderSize = -1;
 		// 无引用标记. 1=true, 2=false
 		public byte NoRefFlag;
 

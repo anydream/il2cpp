@@ -479,6 +479,8 @@ namespace il2cpp
 				bool isSZArray = arrayInfo.IsSZArray;
 				uint rank = arrayInfo.Rank;
 
+				RefTypeImpl(elemType);
+
 				if (metName == ".ctor")
 				{
 					if (isSZArray)
@@ -1777,7 +1779,9 @@ else
 
 		private void RefTypeDecl(TypeSig tySig)
 		{
-			DeclDepends.Add(GenContext.GetTypeName(tySig));
+			TypeX tyX = GenContext.GetTypeBySig(tySig);
+			if (tyX != null)
+				DeclDepends.Add(GenContext.GetTypeName(tyX));
 		}
 
 		private void RefValueTypeDecl(TypeSig tySig)
@@ -1788,7 +1792,9 @@ else
 
 		private void RefTypeImpl(TypeSig tySig)
 		{
-			ImplDepends.Add(GenContext.GetTypeName(tySig));
+			TypeX tyX = GenContext.GetTypeBySig(tySig);
+			if (tyX != null)
+				ImplDepends.Add(GenContext.GetTypeName(tyX));
 		}
 
 		private void RefTypeImpl(TypeX tyX)

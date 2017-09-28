@@ -102,7 +102,7 @@ namespace il2cpp
 			sb.AppendLine("echo Phase 2: Compiling GC");
 			sb.AppendLine("mkdir gc 2>NUL");
 			sb.AppendLine("cd gc");
-			sb.AppendLine("clang -O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -I../../bdwgc/include ../../bdwgc/extra/gc.c");
+			sb.AppendLine("clang -O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -I../../bdwgc/include ../../bdwgc/extra/gc.c");
 			sb.AppendLine("cd ..");
 
 			sb.AppendLine("echo Phase 3: Compiling GC Helpers");
