@@ -1073,7 +1073,7 @@ else
 					GenBinOp(inst, " / ");
 					return;
 				case Code.Rem:
-					GenBinOp(inst, " % ");
+					GenRem(inst);
 					return;
 				case Code.Neg:
 					GenUnaryOp(inst, "-");
@@ -1437,17 +1437,45 @@ else
 				return TempName(Pop()) + " == 0";
 		}
 
+		private void GenRem(InstInfo inst)
+		{
+			var slotPops = Pop(2);
+			var op1 = slotPops[0];
+			var op2 = slotPops[1];
+
+			if (!IsBinaryOpValid(op1.SlotType.Kind, op2.SlotType.Kind, out var retType, inst.OpCode.Code))
+				throw new InvalidOperationException();
+
+			var slotPush = Push(new StackType(retType));
+			if (retType == StackTypeKind.R4 || retType == StackTypeKind.R8)
+			{
+				inst.InstCode = GenAssign(
+					TempName(slotPush),
+					"IL2CPP_REMAINDER(" + TempName(op1) + ", " + TempName(op2) + ')',
+					slotPush.SlotType);
+			}
+			else
+			{
+				inst.InstCode = GenAssign(
+					TempName(slotPush),
+					'(' + TempName(op1) + " % " + TempName(op2) + ')',
+					slotPush.SlotType);
+			}
+		}
+
 		private void GenBinOp(InstInfo inst, string op)
 		{
 			var slotPops = Pop(2);
+			var op1 = slotPops[0];
+			var op2 = slotPops[1];
 
-			if (!IsBinaryOpValid(slotPops[0].SlotType.Kind, slotPops[1].SlotType.Kind, out var retType, inst.OpCode.Code))
+			if (!IsBinaryOpValid(op1.SlotType.Kind, op2.SlotType.Kind, out var retType, inst.OpCode.Code))
 				throw new InvalidOperationException();
 
 			var slotPush = Push(new StackType(retType));
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				'(' + TempName(slotPops[0]) + op + TempName(slotPops[1]) + ')',
+				'(' + TempName(op1) + op + TempName(op2) + ')',
 				slotPush.SlotType);
 		}
 
@@ -1470,14 +1498,16 @@ else
 		private void GenIntBinOp(InstInfo inst, string op)
 		{
 			var slotPops = Pop(2);
+			var op1 = slotPops[0];
+			var op2 = slotPops[1];
 
-			if (!IsIntegerOpValid(slotPops[0].SlotType.Kind, slotPops[1].SlotType.Kind, out var retType))
+			if (!IsIntegerOpValid(op1.SlotType.Kind, op2.SlotType.Kind, out var retType))
 				throw new InvalidOperationException();
 
 			var slotPush = Push(new StackType(retType));
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				'(' + TempName(slotPops[0]) + op + TempName(slotPops[1]) + ')',
+				'(' + TempName(op1) + op + TempName(op2) + ')',
 				slotPush.SlotType);
 		}
 
@@ -1499,14 +1529,16 @@ else
 		private void GenShiftOp(InstInfo inst, string op)
 		{
 			var slotPops = Pop(2);
+			var op1 = slotPops[0];
+			var op2 = slotPops[1];
 
-			if (!IsShiftOpValid(slotPops[0].SlotType.Kind, slotPops[1].SlotType.Kind, out var retType))
+			if (!IsShiftOpValid(op1.SlotType.Kind, op2.SlotType.Kind, out var retType))
 				throw new InvalidOperationException();
 
 			var slotPush = Push(new StackType(retType));
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				'(' + TempName(slotPops[0]) + op + TempName(slotPops[1]) + ')',
+				'(' + TempName(op1) + op + TempName(op2) + ')',
 				slotPush.SlotType);
 		}
 

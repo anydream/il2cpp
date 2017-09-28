@@ -5,6 +5,8 @@
 #include <sched.h>
 #endif
 
+#include <math.h>
+
 #include "il2cpp.h"
 #include "il2cppGC.h"
 #include "il2cppBridge.h"
@@ -39,6 +41,16 @@ void il2cpp_CheckRange(int32_t lowerBound, int32_t length, int32_t index)
 {
 	if (index < lowerBound || index >= lowerBound + length)
 		abort();
+}
+
+float il2cpp_Remainder(float numer, float denom)
+{
+	return remainder(numer, denom);
+}
+
+double il2cpp_Remainder(double numer, double denom)
+{
+	return remainder(numer, denom);
 }
 
 void il2cpp_Yield()

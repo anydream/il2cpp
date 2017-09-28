@@ -40,11 +40,14 @@
 #define IL2CPP_ASSERT		assert
 #define IL2CPP_NEW			il2cpp_New
 #define IL2CPP_CHECK_RANGE	il2cpp_CheckRange
+#define IL2CPP_REMAINDER	il2cpp_Remainder
 
 void il2cpp_Init();
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
 void il2cpp_CheckRange(int32_t lowerBound, int32_t length, int32_t index);
+float il2cpp_Remainder(float numer, float denom);
+double il2cpp_Remainder(double numer, double denom);
 
 void il2cpp_Yield();
 uintptr_t il2cpp_ThreadID();
