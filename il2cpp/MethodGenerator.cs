@@ -1106,10 +1106,69 @@ else
 					GenInitobj(inst, (TypeX)operand);
 					return;
 				case Code.Ldobj:
-					GenLdobj(inst, (TypeX)operand);
+					GenLdobj(inst, ((TypeX)operand).GetTypeSig());
 					return;
 				case Code.Stobj:
-					GenStobj(inst, (TypeX)operand);
+					GenStobj(inst, ((TypeX)operand).GetTypeSig());
+					return;
+
+				case Code.Ldind_I1:
+					GenLdobj(inst, GetCorLibTypes().SByte);
+					return;
+				case Code.Ldind_I2:
+					GenLdobj(inst, GetCorLibTypes().Int16);
+					return;
+				case Code.Ldind_I4:
+					GenLdobj(inst, GetCorLibTypes().Int32);
+					return;
+				case Code.Ldind_I8:
+					GenLdobj(inst, GetCorLibTypes().Int64);
+					return;
+				case Code.Ldind_U1:
+					GenLdobj(inst, GetCorLibTypes().Byte);
+					return;
+				case Code.Ldind_U2:
+					GenLdobj(inst, GetCorLibTypes().UInt16);
+					return;
+				case Code.Ldind_U4:
+					GenLdobj(inst, GetCorLibTypes().UInt32);
+					return;
+				case Code.Ldind_R4:
+					GenLdobj(inst, GetCorLibTypes().Single);
+					return;
+				case Code.Ldind_R8:
+					GenLdobj(inst, GetCorLibTypes().Double);
+					return;
+				case Code.Ldind_I:
+					GenLdobj(inst, GetCorLibTypes().IntPtr);
+					return;
+				case Code.Ldind_Ref:
+					GenLdobj(inst, GetCorLibTypes().Object);
+					return;
+
+				case Code.Stind_I1:
+					GenStobj(inst, GetCorLibTypes().SByte);
+					return;
+				case Code.Stind_I2:
+					GenStobj(inst, GetCorLibTypes().Int16);
+					return;
+				case Code.Stind_I4:
+					GenStobj(inst, GetCorLibTypes().Int32);
+					return;
+				case Code.Stind_I8:
+					GenStobj(inst, GetCorLibTypes().Int64);
+					return;
+				case Code.Stind_R4:
+					GenStobj(inst, GetCorLibTypes().Single);
+					return;
+				case Code.Stind_R8:
+					GenStobj(inst, GetCorLibTypes().Double);
+					return;
+				case Code.Stind_I:
+					GenStobj(inst, GetCorLibTypes().IntPtr);
+					return;
+				case Code.Stind_Ref:
+					GenStobj(inst, GetCorLibTypes().Object);
 					return;
 
 				case Code.Newarr:
@@ -1585,24 +1644,24 @@ else
 			}
 		}
 
-		private void GenLdobj(InstInfo inst, TypeX tyX)
+		private void GenLdobj(InstInfo inst, TypeSig tySig)
 		{
-			RefTypeImpl(tyX);
+			RefTypeImpl(tySig);
 
 			var slotPop = Pop();
-			var slotPush = Push(ToStackType(tyX.GetTypeSig()));
+			var slotPush = Push(ToStackType(tySig));
 
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
 				string.Format("*({0}*){1}",
-					GenContext.GetTypeName(tyX),
+					GenContext.GetTypeName(tySig),
 					TempName(slotPop)),
 				slotPush.SlotType);
 		}
 
-		private void GenStobj(InstInfo inst, TypeX tyX)
+		private void GenStobj(InstInfo inst, TypeSig tySig)
 		{
-			RefTypeImpl(tyX);
+			RefTypeImpl(tySig);
 
 			var slotPops = Pop(2);
 			var slotDest = slotPops[0];
@@ -1610,10 +1669,10 @@ else
 
 			inst.InstCode = GenAssign(
 				string.Format("*({0}*){1}",
-					GenContext.GetTypeName(tyX),
+					GenContext.GetTypeName(tySig),
 					TempName(slotDest)),
 				TempName(slotSrc),
-				tyX);
+				tySig);
 		}
 
 		private StackType ToStackType(TypeSig tySig)
@@ -1709,6 +1768,11 @@ else
 				return null;
 			else
 				return '(' + GenContext.GetTypeName(tyX) + ')';
+		}
+
+		private ICorLibTypes GetCorLibTypes()
+		{
+			return GenContext.TypeMgr.Context.CorLibTypes;
 		}
 
 		private void RefTypeDecl(TypeSig tySig)

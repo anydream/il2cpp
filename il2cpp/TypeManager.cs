@@ -11,7 +11,7 @@ namespace il2cpp
 	internal class TypeManager
 	{
 		// 当前环境
-		private readonly Il2cppContext Context;
+		public readonly Il2cppContext Context;
 
 		// 实例类型映射
 		private readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
