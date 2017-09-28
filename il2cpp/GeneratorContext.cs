@@ -392,8 +392,10 @@ namespace il2cpp
 				case ElementType.Array:
 					{
 						bool isValueType = tySig.IsValueType;
+						TypeX tyX = GetTypeBySig(tySig);
+						Debug.Assert(tyX != null);
 						return "struct " +
-							GetTypeName(GetTypeBySig(tySig)) +
+							GetTypeName(tyX) +
 							(isValueType ? null : "*");
 					}
 

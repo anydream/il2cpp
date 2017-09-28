@@ -31,6 +31,11 @@ namespace il2cpp
 			Def = fldDef;
 		}
 
+		public override string ToString()
+		{
+			return DeclType + " -> " + NameKey;
+		}
+
 		public string GetNameKey()
 		{
 			if (NameKey == null)

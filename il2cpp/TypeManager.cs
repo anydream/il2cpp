@@ -58,8 +58,8 @@ namespace il2cpp
 		{
 			if (TypeMap.TryGetValue(name, out var tyX))
 				return tyX;
-			// 找不到的类型一律返回 object
-			return TypeMap["Object"];
+
+			return null;
 		}
 
 		// 解析所有引用
@@ -544,7 +544,7 @@ namespace il2cpp
 			return AddField(fldX);
 		}
 
-		private static FieldX AddField(FieldX fldX)
+		private FieldX AddField(FieldX fldX)
 		{
 			Debug.Assert(fldX != null);
 
@@ -557,6 +557,8 @@ namespace il2cpp
 			IGenericReplacer replacer = new GenericReplacer(fldX.DeclType, null);
 			// 展开字段类型
 			fldX.FieldType = Helper.ReplaceGenericSig(fldX.Def.FieldType, replacer);
+
+			TypeX fldTyX = ResolveTypeDefOrRef(fldX.FieldType.ToTypeDefOrRef(), null);
 
 			return fldX;
 		}
@@ -662,7 +664,19 @@ namespace il2cpp
 
 			// 解析基类
 			if (tyX.Def.BaseType != null)
+			{
 				tyX.BaseType = ResolveTypeDefOrRef(tyX.Def.BaseType, replacer);
+
+				if (tyX.BaseType.GetNameKey() == "System.Enum")
+				{
+					// 处理枚举类型
+					var fields = tyX.Def.Fields.Where(fldDef => !fldDef.IsStatic).ToList();
+					Debug.Assert(fields.Count == 1);
+
+					FieldX fldX = ResolveFieldDef(fields[0]);
+					tyX.EnumInfo = new EnumProperty { EnumField = fldX };
+				}
+			}
 			// 解析接口
 			if (tyX.Def.HasInterfaces)
 			{

@@ -85,11 +85,7 @@ namespace il2cpp
 			// 生成字段
 			foreach (var fldX in fields)
 			{
-				if (Helper.IsValueType(fldX.FieldType))
-				{
-					unit.DeclDepends.Add(
-						GenContext.GetTypeName(GenContext.GetTypeBySig(fldX.FieldType)));
-				}
+				RefValueTypeDecl(unit, fldX.FieldType);
 
 				prtDecl.AppendLine("// " + fldX.GetReplacedNameKey());
 				prtDecl.AppendFormatLine("{0} {1};",
@@ -104,11 +100,7 @@ namespace il2cpp
 			// 生成静态字段
 			foreach (var sfldX in sfields)
 			{
-				if (Helper.IsValueType(sfldX.FieldType))
-				{
-					unit.DeclDepends.Add(
-						GenContext.GetTypeName(GenContext.GetTypeBySig(sfldX.FieldType)));
-				}
+				RefValueTypeDecl(unit, sfldX.FieldType);
 
 				string fldDecl = string.Format("{0} {1};",
 					GenContext.GetTypeName(sfldX.FieldType),
@@ -137,6 +129,16 @@ namespace il2cpp
 			unit.ImplCode = prtImpl.ToString();
 
 			return unit;
+		}
+
+		private void RefValueTypeDecl(CompileUnit unit, TypeSig tySig)
+		{
+			if (!Helper.IsValueType(tySig))
+				return;
+
+			TypeX tyX = GenContext.GetTypeBySig(tySig);
+			if (tyX != null)
+				unit.DeclDepends.Add(GenContext.GetTypeName(tyX));
 		}
 
 		private List<FieldX> LayoutFields(out List<FieldX> sfields)

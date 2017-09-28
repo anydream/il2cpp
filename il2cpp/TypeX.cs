@@ -27,6 +27,11 @@ namespace il2cpp
 		public IList<int> LowerBounds;
 	}
 
+	internal class EnumProperty
+	{
+		public FieldX EnumField;
+	}
+
 	internal class TypeX : GenericArgs
 	{
 		// 类型定义
@@ -71,6 +76,10 @@ namespace il2cpp
 		public ArrayProperty ArrayInfo;
 		// 是否为数组类型
 		public bool IsArrayType => ArrayInfo != null;
+
+		public EnumProperty EnumInfo;
+		// 是否为枚举类型
+		public bool IsEnumType => EnumInfo != null;
 
 		// 是否实例化过
 		public bool IsInstantiated;
