@@ -1881,7 +1881,7 @@ else
 			{
 				TypeX tyX = GenContext.GetTypeBySig(tySig);
 				if (tyX.IsEnumType)
-					return ToStackType(tyX.EnumInfo.EnumField.FieldType);
+					return ToStackType(tyX.EnumTypeSig);
 
 				return new StackType(GenContext.GetTypeName(tyX));
 			}

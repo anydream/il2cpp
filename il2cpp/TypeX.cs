@@ -80,6 +80,7 @@ namespace il2cpp
 		public EnumProperty EnumInfo;
 		// 是否为枚举类型
 		public bool IsEnumType => EnumInfo != null;
+		public TypeSig EnumTypeSig => EnumInfo.EnumField.FieldType;
 
 		// 是否实例化过
 		public bool IsInstantiated;

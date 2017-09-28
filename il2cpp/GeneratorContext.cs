@@ -375,7 +375,7 @@ namespace il2cpp
 			{
 				TypeX tyX = GetTypeBySig(tySig);
 				if (tyX.IsEnumType)
-					return GetTypeDefaultValue(tyX.EnumInfo.EnumField.FieldType);
+					return GetTypeDefaultValue(tyX.EnumTypeSig);
 
 				return GetTypeName(tyX) + "()";
 			}
@@ -437,7 +437,7 @@ namespace il2cpp
 						Debug.Assert(tyX != null);
 
 						if (tyX.IsEnumType)
-							return GetTypeName(tyX.EnumInfo.EnumField.FieldType);
+							return GetTypeName(tyX.EnumTypeSig);
 
 						return "struct " +
 							GetTypeName(tyX) +
@@ -452,7 +452,7 @@ namespace il2cpp
 		public string GetTypeName(TypeX tyX)
 		{
 			if (tyX.IsEnumType)
-				return GetTypeName(tyX.EnumInfo.EnumField.FieldType);
+				return GetTypeName(tyX.EnumTypeSig);
 
 			string strName = tyX.GeneratedTypeName;
 			if (strName == null)
