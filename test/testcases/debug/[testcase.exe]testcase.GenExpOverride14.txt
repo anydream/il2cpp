@@ -33,3 +33,7 @@
    - Foo|Void<[testcase]group11.Res,[testcase]group11.Res2>(!!0,!!1)|30|5C6, Foo|Void<[testcase]group11.Res,[testcase]group11.Res2>([testcase]group11.Inf,[testcase]group11.Res,[testcase]group11.Res2)|30 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
      - [testcase]group11.Cls -> group11.Inf.Foo|Void<[testcase]group11.Res,[testcase]group11.Res2>(!!0,!!1)|30|1E1, group11.Inf.Foo|Void<[testcase]group11.Res,[testcase]group11.Res2>([testcase]group11.Cls,[testcase]group11.Res,[testcase]group11.Res2)|30
 
+[class [testcase]group11.Res] NotPublic AutoLayout Interface Abstract AnsiClass 
+
+[class [testcase]group11.Res2] NotPublic AutoLayout Interface Abstract AnsiClass 
+

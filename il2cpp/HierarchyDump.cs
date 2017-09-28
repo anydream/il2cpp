@@ -120,7 +120,7 @@ namespace il2cpp
 							foreach (MethodX overMetX in metX.OverrideImpls)
 							{
 								sb.AppendFormat("     - {0}, {1}\n",
-									overMetX.ToString() + '|' + ((uint)overMetX.Def.Attributes).ToString("X"),
+									overMetX.DeclType.GetNameKey() + " -> " + overMetX.GetNameKey() + '|' + ((uint)overMetX.Def.Attributes).ToString("X"),
 									overMetX.GetReplacedNameKey());
 							}
 						}

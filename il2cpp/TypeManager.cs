@@ -907,6 +907,12 @@ namespace il2cpp
 				case ArraySig arySig:
 					return ResolveArrayType(arySig, replacer);
 
+				case GenericVar genVar:
+					return ResolveTypeSigImpl(Helper.ReplaceGenericSig(genVar, replacer), null);
+
+				case GenericMVar genMVar:
+					return ResolveTypeSigImpl(Helper.ReplaceGenericSig(genMVar, replacer), null);
+
 				default:
 					throw new ArgumentOutOfRangeException();
 			}

@@ -103,6 +103,18 @@
    - [HelloWorld]XBA
    - [HelloWorld]I`1<[HelloWorld]A>
 
+[class [HelloWorld]I`1<[HelloWorld]C>] NotPublic AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - [HelloWorld]XAB
+   - [HelloWorld]XBA
+   - [HelloWorld]I`1<[HelloWorld]A>
+   - [HelloWorld]I`1<[HelloWorld]B>
+ - Methods:
+   - Print|String(!0)|20|5C6, Print|String([HelloWorld]I`1<[HelloWorld]C>,[HelloWorld]C)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
+     - [HelloWorld]XAB -> Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XAB,[HelloWorld]A)|20
+     - [HelloWorld]XBA -> Print|String([HelloWorld]B)|20|1E6, Print|String([HelloWorld]XBA,[HelloWorld]B)|20
+
 [class [HelloWorld]C] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
  - Base: [HelloWorld]B
@@ -125,18 +137,6 @@
    - value|String|4, value|String, Family 
  - Methods:
    - .ctor|Void(Int32)|20|1886, .ctor|Void([HelloWorld]A,Int32)|20, Public HideBySig SpecialName RTSpecialName Managed None
-
-[class [HelloWorld]I`1<[HelloWorld]C>] NotPublic AutoLayout Interface Abstract AnsiClass 
- - Variances: Contravariant 
- - DerivedTypes:
-   - [HelloWorld]XAB
-   - [HelloWorld]XBA
-   - [HelloWorld]I`1<[HelloWorld]A>
-   - [HelloWorld]I`1<[HelloWorld]B>
- - Methods:
-   - Print|String(!0)|20|5C6, Print|String([HelloWorld]I`1<[HelloWorld]C>,[HelloWorld]C)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-     - [HelloWorld]XAB -> Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XAB,[HelloWorld]A)|20
-     - [HelloWorld]XBA -> Print|String([HelloWorld]B)|20|1E6, Print|String([HelloWorld]XBA,[HelloWorld]B)|20
 
 [class [HelloWorld]XBA] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated

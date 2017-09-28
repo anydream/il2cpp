@@ -140,7 +140,9 @@ namespace il2cpp
 			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc2.bc optgc1.bc");
 
 			sb.AppendLine("echo Phase 8: Generating Executable File");
-			sb.AppendLine("clang -O3 -o ../../final.exe optgc2.bc");
+			sb.AppendLine("cd ../../");
+			sb.AppendLine("clang -O3 -c -o final.o out/opt/optgc2.bc");
+			sb.AppendLine("clang -O3 -o final.exe final.o");
 
 			sb.AppendLine("echo Completed!");
 			sb.AppendLine("pause");

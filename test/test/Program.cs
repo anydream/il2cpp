@@ -289,7 +289,7 @@ namespace test
 
 		private static void Main(string[] args)
 		{
-#if false
+#if true
 			var testBinding = new Testbed();
 			testBinding.TestDir = "../../../testcases/";
 			testBinding.OnType = TestBinding;
