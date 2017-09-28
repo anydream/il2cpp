@@ -471,6 +471,56 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static class TestEnum
+	{
+		enum MyEnum
+		{
+			AA,
+			BB,
+			CC = 123
+		}
+
+		enum MyEnumI8 : long
+		{
+			DD = 3,
+			EE
+		}
+
+		class MyCls
+		{
+			public MyEnum enum1;
+			public MyEnumI8 enum2;
+		}
+
+		static MyEnum senum1 = MyEnum.BB;
+		static MyEnumI8 senum2 = MyEnumI8.EE;
+
+		public static int Entry()
+		{
+			var cls = new MyCls();
+			if (cls.enum1 != 0)
+				return 1;
+			if (cls.enum2 != 0)
+				return 2;
+
+			cls.enum1 = senum1;
+			cls.enum2 = senum2;
+
+			if (cls.enum1 != MyEnum.BB)
+				return 3;
+			if (cls.enum2 != MyEnumI8.EE)
+				return 4;
+
+			if (cls.enum1 > (MyEnum)1)
+				return 5;
+			if (cls.enum2 > (MyEnumI8)4)
+				return 6;
+
+			return 0;
+		}
+	}
+
+	//[CodeGen]
 	static class TestRayTrace
 	{
 		class RandomLCG

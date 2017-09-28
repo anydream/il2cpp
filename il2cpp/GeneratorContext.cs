@@ -285,6 +285,9 @@ namespace il2cpp
 
 		public bool IsNoRefType(TypeX tyX)
 		{
+			if (tyX == null)
+				return true;
+
 			if (tyX.NoRefFlag == 0)
 			{
 				if (tyX.IsArrayType)
