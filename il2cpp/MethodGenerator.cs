@@ -336,11 +336,10 @@ namespace il2cpp
 				for (int i = 0, sz = CurrMethod.LocalTypes.Count; i < sz; ++i)
 				{
 					var locType = CurrMethod.LocalTypes[i];
-					string locTypeName = GenContext.GetTypeName(locType);
 					prt.AppendFormatLine("{0} {1}{2};",
-						locTypeName,
+						GenContext.GetTypeName(locType),
 						LocalName(i),
-						isInitLocals ? " = " + GetTypeDefaultValue(locType, locTypeName) : null);
+						isInitLocals ? " = " + GetTypeDefaultValue(locType) : null);
 				}
 				prt.AppendLine();
 			}
@@ -1711,12 +1710,12 @@ else
 			}
 
 			if (tySig.IsValueType)
-				return new StackType(GenContext.GetTypeName(tySig));
+				return new StackType(GenContext.GetTypeName(GenContext.GetTypeBySig(tySig)));
 
 			return StackType.Obj;
 		}
 
-		private static string GetTypeDefaultValue(TypeSig tySig, string locTypeName)
+		private string GetTypeDefaultValue(TypeSig tySig)
 		{
 			switch (tySig.ElementType)
 			{
@@ -1743,7 +1742,7 @@ else
 			}
 
 			if (tySig.IsValueType)
-				return locTypeName + "()";
+				return GenContext.GetTypeName(GenContext.GetTypeBySig(tySig)) + "()";
 
 			return "nullptr";
 		}
@@ -1762,14 +1761,6 @@ else
 				return null;
 			else
 				return '(' + GenContext.GetTypeName(tySig) + ')';
-		}
-
-		private string CastType(TypeX tyX)
-		{
-			if (tyX.IsValueType)
-				return null;
-			else
-				return '(' + GenContext.GetTypeName(tyX) + ')';
 		}
 
 		private ICorLibTypes GetCorLibTypes()
@@ -1816,11 +1807,6 @@ else
 		private string GenAssign(string lhs, string rhs, TypeSig tySig)
 		{
 			return lhs + " = " + (tySig != null ? CastType(tySig) : null) + rhs + ';';
-		}
-
-		private string GenAssign(string lhs, string rhs, TypeX tyX)
-		{
-			return lhs + " = " + (tyX != null ? CastType(tyX) : null) + rhs + ';';
 		}
 
 		private static string GenGoto(int labelID)

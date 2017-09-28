@@ -11,6 +11,14 @@ namespace testcase
 	{
 		public static bool IsEquals(this float lhs, float rhs, float prec = 0.00001f)
 		{
+			float abs = lhs - rhs;
+			if (abs < 0)
+				abs = -abs;
+			return abs < prec;
+		}
+
+		public static bool IsEquals(this double lhs, double rhs, double prec = 0.00001)
+		{
 			double abs = lhs - rhs;
 			if (abs < 0)
 				abs = -abs;
@@ -426,6 +434,39 @@ namespace testcase
 			for (int i = 0; i < times; ++i)
 				sum += TestMDArray.Entry();
 			return sum;
+		}
+	}
+
+
+	[CodeGen]
+	static class TestValueTypeArray
+	{
+		struct MyStru
+		{
+			public int fldI4;
+			public double fldR8;
+		}
+
+		public static int Entry()
+		{
+			MyStru[] sary = new MyStru[30];
+			for (int i = 0; i < sary.Length; ++i)
+			{
+				sary[i].fldI4 = i + 1;
+				sary[i].fldR8 = i * 100 + 0.1234567;
+			}
+
+			for (int i = sary.Length - 1; i >= 0; --i)
+			{
+				if (sary[i].fldI4 != i + 1)
+					return 1;
+				if (!sary[i].fldR8.IsEquals(i * 100 + 0.1234567))
+					return 2;
+			}
+
+			//MyStru[,,] sary3d = new MyStru[5, 4, 3];
+
+			return 0;
 		}
 	}
 

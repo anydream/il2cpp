@@ -85,13 +85,15 @@ namespace il2cpp
 			// 生成字段
 			foreach (var fldX in fields)
 			{
-				string strFldTypeName = GenContext.GetTypeName(fldX.FieldType);
 				if (Helper.IsValueType(fldX.FieldType))
-					unit.DeclDepends.Add(strFldTypeName);
+				{
+					unit.DeclDepends.Add(
+						GenContext.GetTypeName(GenContext.GetTypeBySig(fldX.FieldType)));
+				}
 
 				prtDecl.AppendLine("// " + fldX.GetReplacedNameKey());
 				prtDecl.AppendFormatLine("{0} {1};",
-					strFldTypeName,
+					GenContext.GetTypeName(fldX.FieldType),
 					GenContext.GetFieldName(fldX));
 			}
 
@@ -102,12 +104,14 @@ namespace il2cpp
 			// 生成静态字段
 			foreach (var sfldX in sfields)
 			{
-				string strFldTypeName = GenContext.GetTypeName(sfldX.FieldType);
 				if (Helper.IsValueType(sfldX.FieldType))
-					unit.DeclDepends.Add(strFldTypeName);
+				{
+					unit.DeclDepends.Add(
+						GenContext.GetTypeName(GenContext.GetTypeBySig(sfldX.FieldType)));
+				}
 
 				string fldDecl = string.Format("{0} {1};",
-					strFldTypeName,
+					GenContext.GetTypeName(sfldX.FieldType),
 					GenContext.GetFieldName(sfldX));
 
 				prtDecl.AppendFormatLine("// {0} -> {1}", sfldX.DeclType.GetNameKey(), sfldX.GetReplacedNameKey());
