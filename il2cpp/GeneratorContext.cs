@@ -363,10 +363,10 @@ namespace il2cpp
 				case ElementType.R8:
 				case ElementType.I:
 				case ElementType.U:
-					return "0";
-
 				case ElementType.Ptr:
 				case ElementType.ByRef:
+					return "0";
+
 				case ElementType.Object:
 					return "nullptr";
 			}
@@ -377,7 +377,7 @@ namespace il2cpp
 				if (tyX.IsEnumType)
 					return GetTypeDefaultValue(tyX.EnumTypeSig);
 
-				return GetTypeName(tyX) + "()";
+				return "{}";
 			}
 
 			return "nullptr";
