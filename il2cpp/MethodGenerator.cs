@@ -1142,7 +1142,7 @@ else
 					GenConv(inst, StackType.R8, "double");
 					return;
 				case Code.Conv_R_Un:
-					GenConv(inst, StackType.R8, "uintptr_t");
+					GenConv(inst, StackType.R8, "uint32_t");
 					return;
 				case Code.Conv_I:
 					GenConv(inst, StackType.Ptr, "intptr_t");

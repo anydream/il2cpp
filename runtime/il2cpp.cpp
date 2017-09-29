@@ -45,7 +45,7 @@ void il2cpp_CheckRange(int32_t lowerBound, int32_t length, int32_t index)
 
 float il2cpp_Remainder(float numer, float denom)
 {
-	return remainder(numer, denom);
+	return remainderf(numer, denom);
 }
 
 double il2cpp_Remainder(double numer, double denom)

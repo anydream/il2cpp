@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
+using System.IO;
 
 namespace testcase
 {
@@ -145,12 +145,40 @@ namespace testcase
 	[CodeGen]
 	static class TestStaticCctor2
 	{
+		class MyCls
+		{
+			public static float sfldR4 = 6.28f;
+
+			public static void StaticEmpty()
+			{
+			}
+
+			public static float StaticGet()
+			{
+				return sfldR4;
+			}
+
+			public static bool StaticEq(float cmp)
+			{
+				return sfldR4 == cmp;
+			}
+		}
+
 		public static int Entry()
 		{
 			if (TestStaticCctor.ClsB.sfld != 1035)
 				return 1;
 			if (TestStaticCctor.ClsA.sfld != 579)
 				return 2;
+
+			MyCls.StaticEmpty();
+			float val = MyCls.StaticGet();
+			bool eq = MyCls.StaticEq(val);
+
+			if (val != 6.28f)
+				return 3;
+			if (!eq)
+				return 4;
 
 			return 0;
 		}
@@ -617,11 +645,66 @@ namespace testcase
 	[CodeGen]
 	static class TestRayTrace
 	{
+#if true
 		static extern double MathSqrt(double n);
 		static extern double MathAbs(double n);
 		static extern double MathSin(double n);
 		static extern double MathCos(double n);
 		static extern double MathPow(double n, double m);
+#else
+		/*[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+		public static extern double sqrt(double n);
+		[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+		public static extern double fabs(double n);
+		[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+		public static extern double sin(double n);
+		[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+		public static extern double cos(double n);
+		[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+		public static extern double pow(double n, double m);
+
+		static double MathSqrt(double n)
+		{
+			return sqrt(n);
+		}
+		static double MathAbs(double n)
+		{
+			return fabs(n);
+		}
+		static double MathSin(double n)
+		{
+			return sin(n);
+		}
+		static double MathCos(double n)
+		{
+			return cos(n);
+		}
+		static double MathPow(double n, double m)
+		{
+			return pow(n, m);
+
+		}*/
+		static double MathSqrt(double n)
+		{
+			return Math.Sqrt(n);
+		}
+		static double MathAbs(double n)
+		{
+			return Math.Abs(n);
+		}
+		static double MathSin(double n)
+		{
+			return Math.Sin(n);
+		}
+		static double MathCos(double n)
+		{
+			return Math.Cos(n);
+		}
+		static double MathPow(double n, double m)
+		{
+			return Math.Pow(n, m);
+		}
+#endif
 
 		static double MathMax(double v1, double v2)
 		{
@@ -646,7 +729,7 @@ namespace testcase
 			}
 		}
 
-		struct Vec
+		public struct Vec
 		{
 			public double x;
 			public double y;
@@ -780,7 +863,7 @@ namespace testcase
 			}
 		};
 
-		class Smallpt
+		public class Smallpt
 		{
 			//Scene: radius, position, emission, color, material
 			static Sphere[] spheres =
@@ -814,7 +897,7 @@ namespace testcase
 					return x;
 			}
 
-			static int toInt(double x)
+			public static int toInt(double x)
 			{
 				return (int)(MathPow(clamp(x), 1 / 2.2) * 255 + .5);
 			}
@@ -1004,7 +1087,7 @@ namespace testcase
 				}
 			}
 
-			public static void Entry()
+			public static Vec[] RenderEntry()
 			{
 				const int w = 256;
 				const int h = 256;
@@ -1084,12 +1167,13 @@ namespace testcase
 						}
 					}
 				}
+				return c;
 			}
 		}
 
-		public static void Entry()
+		public static Vec[] Entry()
 		{
-			Smallpt.Entry();
+			return Smallpt.RenderEntry();
 		}
 	}
 
@@ -1097,6 +1181,15 @@ namespace testcase
 	{
 		private static void Main()
 		{
+			var c = TestRayTrace.Entry();
+
+			using (StreamWriter sw = new StreamWriter("imageCS.ppm"))
+			{
+				sw.Write("P3\r\n{0} {1}\r\n{2}\r\n", 256, 256, 255);
+				for (int i = 0; i < 256 * 256; i++)
+					sw.Write("{0} {1} {2}\r\n", TestRayTrace.Smallpt.toInt(c[i].x), TestRayTrace.Smallpt.toInt(c[i].y), TestRayTrace.Smallpt.toInt(c[i].z));
+			}
+
 			//Console.Write("Input Times: ");
 			//int times = int.Parse(Console.ReadLine());
 			//Console.WriteLine("Times: {0}", times);
