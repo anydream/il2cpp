@@ -444,6 +444,9 @@ namespace il2cpp
 							(isValueType ? null : "*");
 					}
 
+				case ElementType.Pinned:
+					return GetTypeName(tySig.Next);
+
 				default:
 					throw new NotImplementedException(tySig.ElementType.ToString());
 			}
