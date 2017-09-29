@@ -643,7 +643,6 @@ namespace testcase
 		}
 	}
 
-	[CodeGen]
 	static class TestRayTrace
 	{
 #if false
@@ -653,38 +652,6 @@ namespace testcase
 		static extern double MathCos(double n);
 		static extern double MathPow(double n, double m);
 #else
-		/*[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-		public static extern double sqrt(double n);
-		[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-		public static extern double fabs(double n);
-		[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-		public static extern double sin(double n);
-		[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-		public static extern double cos(double n);
-		[DllImport("msvcrt.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-		public static extern double pow(double n, double m);
-
-		static double MathSqrt(double n)
-		{
-			return sqrt(n);
-		}
-		static double MathAbs(double n)
-		{
-			return fabs(n);
-		}
-		static double MathSin(double n)
-		{
-			return sin(n);
-		}
-		static double MathCos(double n)
-		{
-			return cos(n);
-		}
-		static double MathPow(double n, double m)
-		{
-			return pow(n, m);
-
-		}*/
 		static double MathSqrt(double n)
 		{
 			return Math.Sqrt(n);
@@ -1178,8 +1145,38 @@ namespace testcase
 		}
 	}
 
+	[CodeGen]
 	static class TestRayTrace2
 	{
+#if true
+		static extern double MathSqrt(double n);
+		static extern double MathAbs(double n);
+		static extern double MathSin(double n);
+		static extern double MathCos(double n);
+		static extern double MathPow(double n, double m);
+#else
+		static double MathSqrt(double n)
+		{
+			return Math.Sqrt(n);
+		}
+		static double MathAbs(double n)
+		{
+			return Math.Abs(n);
+		}
+		static double MathSin(double n)
+		{
+			return Math.Sin(n);
+		}
+		static double MathCos(double n)
+		{
+			return Math.Cos(n);
+		}
+		static double MathPow(double n, double m)
+		{
+			return Math.Pow(n, m);
+		}
+#endif
+
 		static double M_PI = 3.141592653589793238462643;
 
 		public class RandomLCG
@@ -1231,7 +1228,7 @@ namespace testcase
 
 			public Vec Norm()
 			{
-				return this.Mul(1.0 / Math.Sqrt(x * x + y * y + z * z));
+				return this.Mul(1.0 / MathSqrt(x * x + y * y + z * z));
 			}
 
 			public double Dot(ref Vec b)
@@ -1317,7 +1314,7 @@ namespace testcase
 					return 1e20;
 				else
 				{
-					double dets = Math.Sqrt(det);
+					double dets = MathSqrt(det);
 
 					if (b - dets > eps)
 						return b - dets;
@@ -1355,7 +1352,7 @@ namespace testcase
 
 		public static int toInt(double x)
 		{
-			return (int)(Math.Pow(clamp(x), 1 / 2.2) * 255 + .5);
+			return (int)(MathPow(clamp(x), 1 / 2.2) * 255 + .5);
 		}
 
 		public static unsafe Sphere* intersect(ref Ray r, out double t)
@@ -1409,16 +1406,16 @@ namespace testcase
 					{ // Ideal DIFFUSE reflection
 						double r1 = 2 * M_PI * rand.NextNumber();
 						double r2 = rand.NextNumber();
-						double r2s = Math.Sqrt(r2);
+						double r2s = MathSqrt(r2);
 
 						Vec w = nl;
 						Vec wo = w.x < -0.1 || w.x > 0.1 ? Vec_YAxis : Vec_XAxis;
 						Vec u = (wo.Cross(ref w)).Norm();
 						Vec v = w.Cross(ref u);
 
-						var tmp2 = v.Mul(Math.Sin(r1)).Mul(r2s);
-						var tmp3 = w.Mul(Math.Sqrt(1 - r2));
-						Vec d = (u.Mul(Math.Cos(r1)).Mul(r2s).Add(ref tmp2).Add(ref tmp3)).Norm();
+						var tmp2 = v.Mul(MathSin(r1)).Mul(r2s);
+						var tmp3 = w.Mul(MathSqrt(1 - r2));
+						Vec d = (u.Mul(MathCos(r1)).Mul(r2s).Add(ref tmp2).Add(ref tmp3)).Norm();
 
 						var tmp4 = new Ray(ref x, ref d);
 						var tmp5 = radiance(ref tmp4, newDepth, rand);
@@ -1454,7 +1451,7 @@ namespace testcase
 						}
 						else
 						{
-							var tmp14 = n.Mul((into ? 1 : -1) * (ddn * nnt + Math.Sqrt(cos2t)));
+							var tmp14 = n.Mul((into ? 1 : -1) * (ddn * nnt + MathSqrt(cos2t)));
 							Vec tdir = (r.d.Mul(nnt).Sub(ref tmp14)).Norm();
 							double a = nt - nc;
 							double b = nt + nc;
@@ -1529,8 +1526,8 @@ namespace testcase
 							{
 								double r1 = 2 * rand.NextNumber();
 								double r2 = 2 * rand.NextNumber();
-								double dx = r1 < 1 ? Math.Sqrt(r1) - 1 : 1 - Math.Sqrt(2 - r1);
-								double dy = r2 < 1 ? Math.Sqrt(r2) - 1 : 1 - Math.Sqrt(2 - r2);
+								double dx = r1 < 1 ? MathSqrt(r1) - 1 : 1 - MathSqrt(2 - r1);
+								double dy = r2 < 1 ? MathSqrt(r2) - 1 : 1 - MathSqrt(2 - r2);
 
 								var tmp3 = cy.Mul(((sy + .5 + dy) / 2 + y) / h - .5);
 								Vec d = cx.Mul(((sx + .5 + dx) / 2 + x) / w - .5).Add(
@@ -1563,7 +1560,7 @@ namespace testcase
 			tw.Stop();
 			Console.WriteLine("Elapsed: {0}", tw.ElapsedMilliseconds);
 
-			using (StreamWriter sw = new StreamWriter("imageCS.ppm"))
+			using (StreamWriter sw = new StreamWriter("imageCS2.ppm"))
 			{
 				sw.Write("P3\r\n{0} {1}\r\n{2}\r\n", 256, 256, 255);
 				for (int i = 0; i < 256 * 256; i++)
