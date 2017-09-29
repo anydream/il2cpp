@@ -104,7 +104,7 @@ namespace il2cpp
 					return "double";
 				case StackTypeKind.Ptr:
 				case StackTypeKind.Ref:
-					return "void*";
+					return "uintptr_t";
 				case StackTypeKind.Obj:
 					return "cls_Object*";
 				case StackTypeKind.ValueType:
@@ -1282,6 +1282,10 @@ else
 					GenStobj(inst, GetCorLibTypes().Object);
 					return;
 
+				case Code.Sizeof:
+					GenSizeof(inst, (TypeX)operand);
+					return;
+
 				case Code.Newarr:
 				case Code.Ldlen:
 				case Code.Ldelema:
@@ -1886,6 +1890,27 @@ else
 					TempName(slotDest)),
 				TempName(slotSrc),
 				tySig);
+		}
+
+		private void GenSizeof(InstInfo inst, TypeX tyX)
+		{
+			var slotPush = Push(StackType.I4);
+
+			if (tyX.IsValueType)
+			{
+				inst.InstCode = GenAssign(
+					TempName(slotPush),
+					string.Format("sizeof({0})",
+						GenContext.GetTypeName(tyX)),
+					slotPush.SlotType);
+			}
+			else
+			{
+				inst.InstCode = GenAssign(
+					TempName(slotPush),
+					"sizeof(uintptr_t)",
+					slotPush.SlotType);
+			}
 		}
 
 		private StackType ToStackType(TypeSig tySig)
