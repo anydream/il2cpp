@@ -2,9 +2,40 @@
 using System.Diagnostics;
 using System.Text;
 using dnlib.DotNet;
+using dnlib.DotNet.Emit;
 
 namespace il2cpp
 {
+	// 指令
+	internal class InstInfo
+	{
+		public OpCode OpCode;
+		public object Operand;
+		public int Offset;
+
+		public bool IsBrTarget;
+		public bool IsGenerated;
+		public string InstCode;
+
+		public override string ToString()
+		{
+			return (IsBrTarget ? Offset + ": " : null) +
+				   OpCode + ' ' + Operand;
+		}
+	}
+
+	// 异常处理信息
+	internal class ExHandlerInfo
+	{
+		public int TryStart;
+		public int TryEnd;
+		public int FilterStart;
+		public int HandlerStart;
+		public int HandlerEnd;
+		public TypeX CatchType;
+		public ExceptionHandlerType HandlerType;
+	}
+
 	internal class MethodX : GenericArgs
 	{
 		// 所属类型
@@ -25,7 +56,8 @@ namespace il2cpp
 		public IList<TypeSig> ParamAfterSentinel;
 		// 局部变量类型列表
 		public IList<TypeSig> LocalTypes;
-		//! 异常处理器列表
+		// 异常处理器列表
+		public ExHandlerInfo[] ExHandlerList;
 		// 指令列表
 		public InstInfo[] InstList;
 
@@ -53,19 +85,6 @@ namespace il2cpp
 			Def = metDef;
 
 			Debug.Assert(HasThis && !metDef.IsStatic || !HasThis && metDef.IsStatic);
-
-			if (metDef.HasBody)
-			{
-				if (metDef.Body.HasVariables)
-				{
-					LocalTypes = new List<TypeSig>();
-					foreach (var loc in metDef.Body.Variables)
-					{
-						Debug.Assert(loc.Index == LocalTypes.Count);
-						LocalTypes.Add(loc.Type);
-					}
-				}
-			}
 		}
 
 		public override string ToString()

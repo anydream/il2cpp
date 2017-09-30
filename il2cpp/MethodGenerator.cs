@@ -8,24 +8,6 @@ using dnlib.DotNet.Emit;
 
 namespace il2cpp
 {
-	// 指令
-	internal class InstInfo
-	{
-		public OpCode OpCode;
-		public object Operand;
-		public int Offset;
-
-		public bool IsBrTarget;
-		public bool IsGenerated;
-		public string InstCode;
-
-		public override string ToString()
-		{
-			return (IsBrTarget ? Offset + ": " : null) +
-				OpCode + ' ' + Operand;
-		}
-	}
-
 	internal enum StackTypeKind
 	{
 		I4,
@@ -1898,6 +1880,8 @@ else
 
 			if (tyX.IsValueType)
 			{
+				RefTypeImpl(tyX);
+
 				inst.InstCode = GenAssign(
 					TempName(slotPush),
 					string.Format("sizeof({0})",

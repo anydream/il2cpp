@@ -157,6 +157,43 @@ namespace il2cpp
 				}
 			}
 
+			// 展开异常处理信息
+			if (metX.Def.Body.HasExceptionHandlers)
+			{
+				List<Tuple<int, ExHandlerInfo>> sortedHandlers = new List<Tuple<int, ExHandlerInfo>>();
+				int idx = 0;
+				foreach (var eh in metX.Def.Body.ExceptionHandlers)
+				{
+					ExHandlerInfo info = new ExHandlerInfo();
+					info.TryStart = offsetMap[eh.TryStart.Offset];
+					info.TryEnd = offsetMap[eh.TryEnd.Offset];
+					info.FilterStart = offsetMap[eh.FilterStart.Offset];
+					info.HandlerStart = offsetMap[eh.HandlerStart.Offset];
+					info.HandlerEnd = offsetMap[eh.HandlerEnd.Offset];
+					info.CatchType = ResolveTypeDefOrRef(eh.CatchType, replacer);
+					info.HandlerType = eh.HandlerType;
+					sortedHandlers.Add(new Tuple<int, ExHandlerInfo>(idx++, info));
+				}
+				// 根据 try 位置排序, 如果相同则根据定义顺序排序
+				sortedHandlers.Sort((lhs, rhs) =>
+				{
+					int cmp = lhs.Item2.TryStart.CompareTo(rhs.Item2.TryStart);
+					if (cmp == 0)
+					{
+						cmp = rhs.Item2.TryEnd.CompareTo(lhs.Item2.TryEnd);
+						if (cmp == 0)
+							return lhs.Item1.CompareTo(rhs.Item1);
+					}
+					return cmp;
+				});
+
+				ExHandlerInfo[] handlers = new ExHandlerInfo[sortedHandlers.Count];
+				for (int i = 0, sz = handlers.Length; i < sz; ++i)
+					handlers[i] = sortedHandlers[i].Item2;
+
+				metX.ExHandlerList = handlers;
+			}
+
 			metX.InstList = instList;
 		}
 
@@ -637,10 +674,21 @@ namespace il2cpp
 				metX.ParamTypes.Insert(0, Helper.ReplaceGenericSig(metX.DeclType.GetThisTypeSig(), replacer));
 			metX.ParamAfterSentinel = Helper.ReplaceGenericSigList(metX.DefSig.ParamsAfterSentinel, replacer);
 
-			// 展开局部变量类型
-			metX.LocalTypes = Helper.ReplaceGenericSigList(metX.LocalTypes, replacer);
-
-			//! 展开异常处理信息
+			MethodDef metDef = metX.Def;
+			if (metDef.HasBody)
+			{
+				if (metDef.Body.HasVariables)
+				{
+					metX.LocalTypes = new List<TypeSig>();
+					foreach (var loc in metDef.Body.Variables)
+					{
+						Debug.Assert(loc.Index == metX.LocalTypes.Count);
+						metX.LocalTypes.Add(loc.Type);
+					}
+					// 展开局部变量类型
+					metX.LocalTypes = Helper.ReplaceGenericSigList(metX.LocalTypes, replacer);
+				}
+			}
 
 			// 添加到待处理队列
 			AddPendingMethod(metX);
