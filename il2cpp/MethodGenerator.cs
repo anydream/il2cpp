@@ -1227,6 +1227,10 @@ else
 					GenBrCond(inst, (int)operand, GenBoolCond(true));
 					return;
 
+				case Code.Switch:
+					GenSwitch(inst, (int[])operand);
+					return;
+
 				case Code.Beq:
 				case Code.Beq_S:
 				case Code.Bge:
@@ -1437,6 +1441,13 @@ else
 					GenSizeof(inst, (TypeX)operand);
 					return;
 
+				case Code.Throw:
+					GenThrow(inst);
+					return;
+				case Code.Rethrow:
+					inst.InstCode = "IL2CPP_THROW(lastException);";
+					return;
+
 				case Code.Endfilter:
 					GenEndfilter(inst);
 					return;
@@ -1534,6 +1545,30 @@ else
 		private void GenBrCond(InstInfo inst, int labelID, string cond)
 		{
 			inst.InstCode = "if (" + cond + ") " + GenGoto(labelID);
+		}
+
+		private void GenSwitch(InstInfo inst, int[] targets)
+		{
+			var slotPop = Pop();
+
+			CodePrinter prt = new CodePrinter();
+			prt.AppendFormatLine("switch ((uint32_t){0})",
+				TempName(slotPop));
+
+			prt.AppendLine("{");
+			++prt.Indents;
+
+			for (int i = 0; i < targets.Length; ++i)
+			{
+				prt.AppendFormatLine("case {0}: {1}",
+					i,
+					GenGoto(targets[i]));
+			}
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			inst.InstCode = prt.ToString();
 		}
 
 		private void GenConv(InstInfo inst, StackType stype, string cast)
@@ -2101,6 +2136,13 @@ else
 					"sizeof(uintptr_t)",
 					slotPush.SlotType);
 			}
+		}
+
+		private void GenThrow(InstInfo inst)
+		{
+			var slotPop = Pop();
+			inst.InstCode = string.Format("IL2CPP_THROW({0});",
+				TempName(slotPop));
 		}
 
 		private void GenEndfilter(InstInfo inst)

@@ -19,6 +19,17 @@ namespace il2cpp
 
 		public override string ToString()
 		{
+			if (Operand is int[] iary)
+			{
+				string p = null;
+				for (int i = 0; i < iary.Length; i++)
+				{
+					if (i != 0)
+						p += ',';
+					p += iary[i];
+				}
+				return OpCode + " " + p;
+			}
 			return OpCode + " " + Operand;
 		}
 	}

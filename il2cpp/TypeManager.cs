@@ -622,7 +622,14 @@ namespace il2cpp
 			IGenericReplacer replacer = new GenericReplacer(fldX.DeclType, null);
 			// 展开字段类型
 			fldX.FieldType = Helper.ReplaceGenericSig(fldX.Def.FieldType, replacer);
-			ResolveTypeDefOrRef(fldX.FieldType.ToTypeDefOrRef(), null);
+
+			try
+			{
+				ResolveTypeDefOrRef(fldX.FieldType.ToTypeDefOrRef(), null);
+			}
+			catch (ArgumentOutOfRangeException)
+			{
+			}
 
 			return fldX;
 		}

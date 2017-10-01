@@ -646,6 +646,11 @@ namespace testcase
 	[CodeGen]
 	static class TestException
 	{
+		private static int testID = 0;
+		private static int filterNum = 0;
+		private static int catchNum = 0;
+		private static int finallyNum = 0;
+
 		class Except1 : Exception
 		{
 		}
@@ -660,47 +665,58 @@ namespace testcase
 
 		static void Foo()
 		{
+			switch (testID)
+			{
+				case 1:
+					throw new Except1();
 
+				case 2:
+					throw new Except2();
+
+				case 3:
+					throw new Except3();
+			}
 		}
 
 		static void Catch1()
 		{
-
+			catchNum += 1;
 		}
 
 		static void Catch2()
 		{
-
+			catchNum += 2;
 		}
 
 		static void Catch3()
 		{
-
+			catchNum += 3;
 		}
 
 		static void Catch4()
 		{
-
+			catchNum += 4;
 		}
 
 		static void Finally1()
 		{
-
+			finallyNum += 1;
 		}
 
 		static void Finally2()
 		{
-
+			finallyNum += 2;
 		}
 
 		static void Finally3()
 		{
-
+			finallyNum += 3;
 		}
 
-		private static int i = 0;
-		public static void Entry()
+		private static void ExceptionFunc()
 		{
+			catchNum = 0;
+			finallyNum = 0;
 			try
 			{
 				try
@@ -727,13 +743,14 @@ namespace testcase
 			{
 				Catch2();
 			}
-			catch (Except3 ex) when (i == 1)
+			catch (Except3 ex) when (filterNum == 1)
 			{
 				Catch3();
 			}
-			catch (Except3 ex) when (i == 2)
+			catch (Except3 ex) when (filterNum == 2)
 			{
 				Catch3();
+				catchNum += 10;
 			}
 			catch
 			{
@@ -743,6 +760,86 @@ namespace testcase
 			{
 				Finally3();
 			}
+		}
+
+		public static int Entry()
+		{
+			filterNum = 0;
+			ExceptionFunc();
+			if (catchNum != 0 ||
+				finallyNum != 6)
+				return 1;
+
+			filterNum = 1;
+			ExceptionFunc();
+			if (catchNum != 0 ||
+				finallyNum != 6)
+				return 1;
+
+			filterNum = 2;
+			ExceptionFunc();
+			if (catchNum != 0 ||
+				finallyNum != 6)
+				return 1;
+
+			testID = 1;
+			filterNum = 0;
+			ExceptionFunc();
+			if (catchNum != 1 ||
+				finallyNum != 6)
+				return 1;
+
+			filterNum = 1;
+			ExceptionFunc();
+			if (catchNum != 1 ||
+				finallyNum != 6)
+				return 1;
+
+			filterNum = 2;
+			ExceptionFunc();
+			if (catchNum != 1 ||
+				finallyNum != 6)
+				return 1;
+
+			testID = 2;
+			filterNum = 0;
+			ExceptionFunc();
+			if (catchNum != 2 ||
+				finallyNum != 6)
+				return 1;
+
+			filterNum = 1;
+			ExceptionFunc();
+			if (catchNum != 2 ||
+				finallyNum != 6)
+				return 1;
+
+			filterNum = 2;
+			ExceptionFunc();
+			if (catchNum != 2 ||
+				finallyNum != 6)
+				return 1;
+
+			testID = 3;
+			filterNum = 0;
+			ExceptionFunc();
+			if (catchNum != 4 ||
+				finallyNum != 6)
+				return 1;
+
+			filterNum = 1;
+			ExceptionFunc();
+			if (catchNum != 3 ||
+				finallyNum != 6)
+				return 1;
+
+			filterNum = 2;
+			ExceptionFunc();
+			if (catchNum != 13 ||
+				finallyNum != 6)
+				return 1;
+
+			return 0;
 		}
 	}
 
@@ -1657,7 +1754,9 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			var tw = new Stopwatch();
+			TestException.Entry();
+
+			/*var tw = new Stopwatch();
 			tw.Start();
 			var c = TestRayTrace2.Entry();
 			tw.Stop();
@@ -1668,7 +1767,7 @@ namespace testcase
 				sw.Write("P3\r\n{0} {1}\r\n{2}\r\n", 256, 256, 255);
 				for (int i = 0; i < 256 * 256; i++)
 					sw.Write("{0} {1} {2}\r\n", TestRayTrace2.toInt(c[i].x), TestRayTrace2.toInt(c[i].y), TestRayTrace2.toInt(c[i].z));
-			}
+			}*/
 
 			//Console.Write("Input Times: ");
 			//int times = int.Parse(Console.ReadLine());
