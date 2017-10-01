@@ -463,7 +463,7 @@ namespace il2cpp
 				strName = tyX.IsValueType ? "stru_" : "cls_";
 
 				string nameKey = tyX.GetNameKey();
-				if (!tyX.IsArrayType && tyX.Def.DefinitionAssembly.IsCorLib())
+				if (!tyX.HasGenArgs && tyX.Def.DefinitionAssembly.IsCorLib())
 					strName += nameKey;
 				else
 					strName += NameHash(nameKey.GetHashCode()) + '_' + GetNameWithGen(tyX.Def.Name, tyX.GenArgs);
@@ -516,7 +516,7 @@ namespace il2cpp
 			{
 				string prefix = fldX.IsStatic ? "sfld_" : "fld_";
 
-				if (!fldX.DeclType.IsArrayType && fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
+				if (!fldX.DeclType.HasGenArgs && fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
 					strName = prefix + fldX.Def.Name;
 				else
 				{
@@ -550,7 +550,7 @@ namespace il2cpp
 				foreach (var arg in genArgs)
 				{
 					name += '_';
-					name += arg.GetName();
+					name += arg.TypeName;
 				}
 			}
 			return name;

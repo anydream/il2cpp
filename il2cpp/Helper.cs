@@ -465,7 +465,10 @@ namespace il2cpp
 		{
 			string fullName = tySig.FullName;
 
-			if (!tySig.IsSingleOrMultiDimensionalArray && tySig.DefinitionAssembly.IsCorLib())
+			if (tySig.ElementType != ElementType.SZArray &&
+				tySig.ElementType != ElementType.Array &&
+				tySig.ElementType != ElementType.GenericInst &&
+				tySig.DefinitionAssembly.IsCorLib())
 			{
 				string basicName = IsBasicType(fullName);
 				if (basicName != null)

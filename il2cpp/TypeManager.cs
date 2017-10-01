@@ -167,10 +167,18 @@ namespace il2cpp
 					ExHandlerInfo info = new ExHandlerInfo();
 					info.TryStart = offsetMap[eh.TryStart.Offset];
 					info.TryEnd = offsetMap[eh.TryEnd.Offset];
-					info.FilterStart = offsetMap[eh.FilterStart.Offset];
+
+					if (eh.FilterStart != null)
+						info.FilterStart = offsetMap[eh.FilterStart.Offset];
+					else
+						info.FilterStart = -1;
+
 					info.HandlerStart = offsetMap[eh.HandlerStart.Offset];
 					info.HandlerEnd = offsetMap[eh.HandlerEnd.Offset];
-					info.CatchType = ResolveTypeDefOrRef(eh.CatchType, replacer);
+
+					if (eh.CatchType != null)
+						info.CatchType = ResolveTypeDefOrRef(eh.CatchType, replacer);
+
 					info.HandlerType = eh.HandlerType;
 					sortedHandlers.Add(new Tuple<int, ExHandlerInfo>(idx++, info));
 				}

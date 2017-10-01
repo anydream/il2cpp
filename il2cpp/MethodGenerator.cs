@@ -164,8 +164,8 @@ namespace il2cpp
 		public string DeclCode;
 		public string ImplCode;
 
-		private int PushCount = 0;
-		private int PopCount = 0;
+		private int PushCount;
+		private int PopCount;
 
 		public MethodGenerator(GeneratorContext genContext, MethodX metX)
 		{
@@ -263,20 +263,16 @@ namespace il2cpp
 
 		public void Generate()
 		{
-			if (!CurrMethod.IsSkipProcessing)
-			{
-				GenerateMet();
-			}
-
-			if (CurrMethod.IsVirtual)
-			{
-				GenerateVFtn();
-				GenerateVMet();
-			}
+			GenerateMet();
+			GenerateVFtn();
+			GenerateVMet();
 		}
 
 		private void GenerateMet()
 		{
+			if (CurrMethod.IsSkipProcessing)
+				return;
+
 			CodePrinter prt = new CodePrinter();
 
 			if (CurrMethod.IsStatic && CurrMethod.Def.IsConstructor)
@@ -426,12 +422,16 @@ namespace il2cpp
 			// 生成代码体
 			foreach (var inst in instList)
 			{
+				GenExHandlerEnd(prt);
+
 				if (inst.IsBrTarget)
 				{
 					--prt.Indents;
 					prt.AppendLine(LabelName(inst.Offset) + ':');
 					++prt.Indents;
 				}
+
+				GenExHandlerStart(prt);
 
 				if (inst.InstCode != null)
 					prt.AppendLine(inst.InstCode);
@@ -442,6 +442,9 @@ namespace il2cpp
 
 		private void GenerateVFtn()
 		{
+			if (!CurrMethod.IsVirtual)
+				return;
+
 			CodePrinter prt = new CodePrinter();
 
 			// 函数签名
@@ -462,7 +465,11 @@ namespace il2cpp
 				prt.AppendLine("switch (typeID)\n{");
 				++prt.Indents;
 
-				foreach (MethodX implMetX in implSet)
+				List<MethodX> implMets = new List<MethodX>(implSet);
+				implMets.Sort((lhs, rhs) =>
+					GenContext.GetTypeID(lhs.DeclType).CompareTo(GenContext.GetTypeID(rhs.DeclType)));
+
+				foreach (MethodX implMetX in implMets)
 				{
 					RefTypeImpl(implMetX.DeclType);
 
@@ -487,6 +494,9 @@ namespace il2cpp
 
 		private void GenerateVMet()
 		{
+			if (!CurrMethod.IsVirtual)
+				return;
+
 			CodePrinter prt = new CodePrinter();
 
 			GenFuncDef(prt, PrefixVMet);
@@ -778,6 +788,16 @@ else
 					prt.AppendLine(" +");
 			}
 			--prt.Indents;
+		}
+
+		private void GenExHandlerStart(CodePrinter prt)
+		{
+
+		}
+
+		private void GenExHandlerEnd(CodePrinter prt)
+		{
+
 		}
 
 		private string GenInvokeStaticCctor(TypeX tyX)

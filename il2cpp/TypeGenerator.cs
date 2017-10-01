@@ -100,6 +100,10 @@ namespace il2cpp
 			}
 
 			CodePrinter prtImpl = new CodePrinter();
+
+			// 生成类型判断函数
+			GenerateIsType(prtDecl, prtImpl);
+
 			// 生成静态字段
 			foreach (var sfldX in sfields)
 			{
@@ -132,6 +136,60 @@ namespace il2cpp
 			unit.ImplCode = prtImpl.ToString();
 
 			return unit;
+		}
+
+		private void GenerateIsType(CodePrinter prtDecl, CodePrinter prtImpl)
+		{
+			if (!CurrType.DerivedTypes.IsCollectionValid())
+				return;
+
+			CodePrinter prt = new CodePrinter();
+
+			prt.AppendFormat("uint8_t istype_{0}(uint32_t typeID)",
+				GenContext.GetTypeName(CurrType));
+
+			string strDecl = prt.ToString() + ";\n";
+
+			prt.AppendLine("\n{");
+			++prt.Indents;
+
+			prt.AppendLine("switch (typeID)\n{");
+			++prt.Indents;
+
+			List<TypeX> derivedTypes = new List<TypeX>();
+			foreach (var derTyX in CurrType.DerivedTypes)
+			{
+				// 跳过不分配在堆上的类型
+				if (!derTyX.IsInstantiated || derTyX.IsValueType || derTyX.Def.IsInterface)
+					continue;
+				derivedTypes.Add(derTyX);
+			}
+			if (derivedTypes.Count == 0)
+				return;
+
+			derivedTypes.Sort((lhs, rhs) =>
+				GenContext.GetTypeID(lhs).CompareTo(GenContext.GetTypeID(rhs)));
+
+			foreach (var derTyX in derivedTypes)
+			{
+				prt.AppendFormatLine("// {0}",
+					derTyX.GetNameKey());
+				prt.AppendFormatLine("case {0}:",
+					GenContext.GetTypeID(derTyX));
+			}
+
+			++prt.Indents;
+			prt.AppendLine("return 1;");
+			--prt.Indents;
+
+			--prt.Indents;
+			prt.AppendLine("}\nreturn 0;");
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			prtDecl.Append(strDecl);
+			prtImpl.Append(prt.ToString());
 		}
 
 		private void RefValueTypeDecl(CompileUnit unit, TypeSig tySig)
