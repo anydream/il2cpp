@@ -774,70 +774,70 @@ namespace testcase
 			ExceptionFunc();
 			if (catchNum != 0 ||
 				finallyNum != 6)
-				return 1;
+				return 2;
 
 			filterNum = 2;
 			ExceptionFunc();
 			if (catchNum != 0 ||
 				finallyNum != 6)
-				return 1;
+				return 3;
 
 			testID = 1;
 			filterNum = 0;
 			ExceptionFunc();
 			if (catchNum != 1 ||
 				finallyNum != 6)
-				return 1;
+				return 4;
 
 			filterNum = 1;
 			ExceptionFunc();
 			if (catchNum != 1 ||
 				finallyNum != 6)
-				return 1;
+				return 5;
 
 			filterNum = 2;
 			ExceptionFunc();
 			if (catchNum != 1 ||
 				finallyNum != 6)
-				return 1;
+				return 6;
 
 			testID = 2;
 			filterNum = 0;
 			ExceptionFunc();
 			if (catchNum != 2 ||
 				finallyNum != 6)
-				return 1;
+				return 7;
 
 			filterNum = 1;
 			ExceptionFunc();
 			if (catchNum != 2 ||
 				finallyNum != 6)
-				return 1;
+				return 8;
 
 			filterNum = 2;
 			ExceptionFunc();
 			if (catchNum != 2 ||
 				finallyNum != 6)
-				return 1;
+				return 9;
 
 			testID = 3;
 			filterNum = 0;
 			ExceptionFunc();
 			if (catchNum != 4 ||
 				finallyNum != 6)
-				return 1;
+				return 10;
 
 			filterNum = 1;
 			ExceptionFunc();
 			if (catchNum != 3 ||
 				finallyNum != 6)
-				return 1;
+				return 11;
 
 			filterNum = 2;
 			ExceptionFunc();
 			if (catchNum != 13 ||
 				finallyNum != 6)
-				return 1;
+				return 12;
 
 			return 0;
 		}

@@ -211,12 +211,9 @@ namespace il2cpp
 						Debug.Assert(headInfo.CombinedHandlers.Count == 0);
 						headInfo.CombinedHandlers.Add(headInfo);
 						handlers.Add(headInfo);
-
-						if (headInfo.FilterStart != -1)
-							instList[headInfo.FilterStart].IsBrTarget = true;
-						else
-							instList[headInfo.HandlerStart].IsBrTarget = true;
 					}
+
+					instList[currInfo.HandlerOrFilterStart].IsBrTarget = true;
 				}
 
 				metX.ExHandlerList = handlers;

@@ -48,6 +48,8 @@ namespace il2cpp
 		public readonly List<ExHandlerInfo> CombinedHandlers = new List<ExHandlerInfo>();
 		public HashSet<int> LeaveTargets;
 
+		public int HandlerOrFilterStart => FilterStart != -1 ? FilterStart : HandlerStart;
+
 		public bool NeedCombine(ExHandlerInfo other)
 		{
 			return TryStart == other.TryStart &&

@@ -924,10 +924,13 @@ else
 					--prt.Indents;
 					prt.AppendLine("}");
 
-					prt.AppendLine(GenGoto(info.FilterStart != -1 ? info.FilterStart : info.HandlerStart));
+					prt.AppendLine(GenGoto(info.HandlerOrFilterStart));
 				}
-				foreach (var cinfo in info.CombinedHandlers)
+
+				for (int i = 0, sz = info.CombinedHandlers.Count; i < sz; ++i)
 				{
+					var cinfo = info.CombinedHandlers[i];
+
 					if (offset == cinfo.HandlerEnd)
 					{
 						if (cinfo.HandlerType == ExceptionHandlerType.Catch)
@@ -939,6 +942,18 @@ else
 						{
 							--prt.Indents;
 							prt.AppendLine("}");
+						}
+
+						if (i == sz - 1)
+						{
+							// 最后一项往上抛异常
+							prt.AppendLine("IL2CPP_THROW(lastException);");
+						}
+						else
+						{
+							// 跳到下一个异常处理块
+							var cnext = info.CombinedHandlers[i + 1];
+							prt.AppendLine(GenGoto(cnext.HandlerOrFilterStart));
 						}
 					}
 				}
