@@ -762,8 +762,112 @@ namespace testcase
 			}
 		}
 
+		private static int Test1()
+		{
+			int res = 0;
+			try
+			{
+				throw new Exception();
+			}
+			catch (Exception ex)
+			{
+				res = 10;
+			}
+			finally
+			{
+				res -= 1;
+			}
+			return res;
+		}
+
+		private static int Test2()
+		{
+			int i = 0;
+			try
+			{
+				for (; ; )
+				{
+					++i;
+					if (i >= 123456)
+						return i;
+				}
+			}
+			finally
+			{
+				i = 0;
+			}
+		}
+
+		private static int Test3()
+		{
+			int val = 0;
+			try
+			{
+				try
+				{
+					val = 42;
+					throw new Exception();
+				}
+				catch (Exception) when (val == 42)
+				{
+					val = 30;
+					throw;
+				}
+			}
+			catch
+			{
+				return val + 1;
+			}
+		}
+
+		static int test4num = 0;
+		static int Test4()
+		{
+			try
+			{
+				test4num = 2;
+				DoIt();
+			}
+			catch
+			{
+				test4num *= 9;
+			}
+			finally
+			{
+				test4num *= 11;
+			}
+			return test4num;
+		}
+		static void DoIt()
+		{
+			try
+			{
+				test4num *= 3;
+				int i = 0;
+				throw new Exception();
+			}
+			catch (Exception e)
+			{
+				test4num *= 5;
+				throw e;
+			}
+			finally
+			{
+				test4num *= 7;
+			}
+		}
+
 		public static int Entry()
 		{
+			if (Test1() != 9)
+				return -1;
+			if (Test2() != 123456)
+				return -2;
+			if (Test3() != 31)
+				return -3;
+			if (Test4() != 20790)
+				return -4;
+
 			filterNum = 0;
 			ExceptionFunc();
 			if (catchNum != 0 ||

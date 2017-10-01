@@ -174,7 +174,11 @@ namespace il2cpp
 						info.FilterStart = -1;
 
 					info.HandlerStart = offsetMap[eh.HandlerStart.Offset];
-					info.HandlerEnd = offsetMap[eh.HandlerEnd.Offset];
+
+					if (eh.HandlerEnd != null)
+						info.HandlerEnd = offsetMap[eh.HandlerEnd.Offset];
+					else
+						info.HandlerEnd = instList.Length;
 
 					if (eh.CatchType != null)
 						info.CatchType = ResolveTypeDefOrRef(eh.CatchType, replacer);

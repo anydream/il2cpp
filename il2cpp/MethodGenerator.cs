@@ -461,7 +461,7 @@ namespace il2cpp
 			// 生成代码体
 			foreach (var inst in instList)
 			{
-				GenExHandlerEnd(inst, prt);
+				GenExHandlerEnd(inst.Offset, prt);
 
 				if (inst.IsBrTarget)
 				{
@@ -479,6 +479,9 @@ namespace il2cpp
 				if (inst.InstCode != null)
 					prt.AppendLine(inst.InstCode);
 			}
+
+			// 异常块扫尾
+			GenExHandlerEnd(instList.Length, prt);
 
 			return true;
 		}
@@ -877,20 +880,24 @@ else
 					if (handler.HandlerType == ExceptionHandlerType.Finally)
 					{
 						prt.AppendLine("if (lastException) IL2CPP_THROW(lastException);");
-						prt.AppendLine("switch (leaveTarget)\n{");
-						++prt.Indents;
 
-						List<int> leaveTargets = new List<int>(handler.LeaveTargets);
-						leaveTargets.Sort((lhs, rhs) => LeaveMap[lhs].CompareTo(LeaveMap[rhs]));
-						foreach (int target in leaveTargets)
+						if (handler.LeaveTargets.IsCollectionValid())
 						{
-							prt.AppendFormatLine("case {0}: {1}",
-								LeaveMap[target],
-								GenGoto(target));
-						}
+							prt.AppendLine("switch (leaveTarget)\n{");
+							++prt.Indents;
 
-						--prt.Indents;
-						prt.AppendLine("}");
+							List<int> leaveTargets = new List<int>(handler.LeaveTargets);
+							leaveTargets.Sort((lhs, rhs) => LeaveMap[lhs].CompareTo(LeaveMap[rhs]));
+							foreach (int target in leaveTargets)
+							{
+								prt.AppendFormatLine("case {0}: {1}",
+									LeaveMap[target],
+									GenGoto(target));
+							}
+
+							--prt.Indents;
+							prt.AppendLine("}");
+						}
 						prt.AppendLine("abort();");
 					}
 					else
@@ -902,39 +909,25 @@ else
 			}
 		}
 
-		private void GenExHandlerEnd(InstInfo inst, CodePrinter prt)
+		private void GenExHandlerEnd(int offset, CodePrinter prt)
 		{
 			var hlist = CurrMethod.ExHandlerList;
 			if (!hlist.IsCollectionValid())
 				return;
 
-			int offset = inst.Offset;
+			var rhlist = new List<ExHandlerInfo>(hlist);
+			rhlist.Reverse();
 
-			foreach (var info in hlist)
+			foreach (var info in rhlist)
 			{
-				if (offset == info.TryEnd)
-				{
-					--prt.Indents;
-					prt.AppendLine("}\ncatch (il2cppException& ex)\n{");
-					++prt.Indents;
-
-					prt.AppendLine("lastException = ex.ExceptionPtr;");
-					prt.AppendLine(GenAssign(TempName(0, StackType.Obj), "lastException", StackType.Obj));
-
-					--prt.Indents;
-					prt.AppendLine("}");
-
-					prt.AppendLine(GenGoto(info.HandlerOrFilterStart));
-				}
-
 				for (int i = 0, sz = info.CombinedHandlers.Count; i < sz; ++i)
 				{
-					var cinfo = info.CombinedHandlers[i];
+					var chandler = info.CombinedHandlers[i];
 
-					if (offset == cinfo.HandlerEnd)
+					if (offset == chandler.HandlerEnd)
 					{
-						if (cinfo.HandlerType == ExceptionHandlerType.Catch ||
-							cinfo.HandlerType == ExceptionHandlerType.Filter)
+						if (chandler.HandlerType == ExceptionHandlerType.Catch ||
+							chandler.HandlerType == ExceptionHandlerType.Filter)
 						{
 							--prt.Indents;
 							prt.AppendLine("}");
@@ -952,6 +945,21 @@ else
 							}
 						}
 					}
+				}
+
+				if (offset == info.TryEnd)
+				{
+					--prt.Indents;
+					prt.AppendLine("}\ncatch (il2cppException& ex)\n{");
+					++prt.Indents;
+
+					prt.AppendLine("lastException = ex.ExceptionPtr;");
+					prt.AppendLine(GenAssign(TempName(0, StackType.Obj), "lastException", StackType.Obj));
+
+					--prt.Indents;
+					prt.AppendLine("}");
+
+					prt.AppendLine(GenGoto(info.HandlerOrFilterStart));
 				}
 			}
 		}
