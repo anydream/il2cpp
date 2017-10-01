@@ -855,6 +855,8 @@ else
 					{
 						if (chandler.HandlerType == ExceptionHandlerType.Catch)
 						{
+							RefTypeImpl(chandler.CatchType);
+
 							prt.AppendFormatLine("if (istype_{0}({1}->TypeID))",
 								GenContext.GetTypeName(chandler.CatchType),
 								TempName(0, StackType.Obj));
@@ -1848,7 +1850,7 @@ else
 				inst.InstCode = "return;";
 		}
 
-		private string GenCall(MethodX metX, string prefix = PrefixMet, List<SlotInfo> slotArgs = null)
+		private string GenCall(MethodX metX, string prefix = PrefixMet, List<SlotInfo> slotArgs = null, bool isArg0ValueType = false)
 		{
 			RefTypeImpl(metX.DeclType);
 
@@ -1869,14 +1871,9 @@ else
 
 				var argType = metX.ParamTypes[i];
 
-				bool isGetAddr =
-					i == 0 &&
-					argType.IsByRef &&
-					slotArgs[0].SlotType.Kind == StackTypeKind.ValueType;
-
 				sb.AppendFormat("{0}{1}{2}",
 					CastType(argType),
-					isGetAddr ? "&" : null,
+					isArg0ValueType && i == 0 ? "&" : null,
 					TempName(slotArgs[i]));
 			}
 			sb.Append(')');
@@ -1902,7 +1899,7 @@ else
 				var ctorList = new List<SlotInfo>();
 				ctorList.Add(slotPush);
 				ctorList.AddRange(ctorArgs);
-				inst.InstCode = GenCall(metX, PrefixMet, ctorList);
+				inst.InstCode = GenCall(metX, PrefixMet, ctorList, true);
 			}
 			else
 			{
@@ -1965,6 +1962,8 @@ else
 			}
 			else
 			{
+				RefTypeImpl(tyX);
+
 				inst.InstCode = GenAssign(
 					TempName(slotPush),
 					string.Format("(({0} && istype_{1}({0}->TypeID)) ? {0} : 0)",

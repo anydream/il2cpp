@@ -140,7 +140,7 @@ namespace il2cpp
 
 		private void GenerateIsType(CodePrinter prtDecl, CodePrinter prtImpl)
 		{
-			if (!CurrType.DerivedTypes.IsCollectionValid())
+			if (CurrType.IsValueType)
 				return;
 
 			CodePrinter prt = new CodePrinter();
@@ -153,37 +153,43 @@ namespace il2cpp
 			prt.AppendLine("\n{");
 			++prt.Indents;
 
-			prt.AppendLine("switch (typeID)\n{");
-			++prt.Indents;
+			var derivedRange = new List<TypeX>(CurrType.DerivedTypes);
+			derivedRange.Add(CurrType);
 
-			List<TypeX> derivedTypes = new List<TypeX>();
-			foreach (var derTyX in CurrType.DerivedTypes)
+			List<TypeX> derTypes = new List<TypeX>();
+			foreach (var derTyX in derivedRange)
 			{
 				// 跳过不分配在堆上的类型
 				if (!derTyX.IsInstantiated || derTyX.IsValueType || derTyX.Def.IsInterface)
 					continue;
-				derivedTypes.Add(derTyX);
+				derTypes.Add(derTyX);
 			}
-			if (derivedTypes.Count == 0)
-				return;
 
-			derivedTypes.Sort((lhs, rhs) =>
-				GenContext.GetTypeID(lhs).CompareTo(GenContext.GetTypeID(rhs)));
-
-			foreach (var derTyX in derivedTypes)
+			if (derTypes.Count > 0)
 			{
-				prt.AppendFormatLine("// {0}",
-					derTyX.GetNameKey());
-				prt.AppendFormatLine("case {0}:",
-					GenContext.GetTypeID(derTyX));
+				prt.AppendLine("switch (typeID)\n{");
+				++prt.Indents;
+
+				derTypes.Sort((lhs, rhs) =>
+					GenContext.GetTypeID(lhs).CompareTo(GenContext.GetTypeID(rhs)));
+
+				foreach (var derTyX in derTypes)
+				{
+					prt.AppendFormatLine("// {0}",
+						derTyX.GetNameKey());
+					prt.AppendFormatLine("case {0}:",
+						GenContext.GetTypeID(derTyX));
+				}
+
+				++prt.Indents;
+				prt.AppendLine("return 1;");
+				--prt.Indents;
+
+				--prt.Indents;
+				prt.AppendLine("}");
 			}
 
-			++prt.Indents;
-			prt.AppendLine("return 1;");
-			--prt.Indents;
-
-			--prt.Indents;
-			prt.AppendLine("}\nreturn 0;");
+			prt.AppendLine("return 0;");
 
 			--prt.Indents;
 			prt.AppendLine("}");

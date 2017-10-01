@@ -207,29 +207,6 @@ namespace il2cpp
 			TypeMgr = typeMgr;
 		}
 
-		private static bool IsSkippedType(string typeName)
-		{
-			switch (typeName)
-			{
-				case "Boolean":
-				case "Char":
-				case "SByte":
-				case "Byte":
-				case "Int16":
-				case "UInt16":
-				case "Int32":
-				case "UInt32":
-				case "Int64":
-				case "UInt64":
-				case "IntPtr":
-				case "UIntPtr":
-				case "Single":
-				case "Double":
-					return true;
-			}
-			return false;
-		}
-
 		public GenerateResult Generate()
 		{
 			var units = new Dictionary<string, CompileUnit>();
@@ -238,9 +215,6 @@ namespace il2cpp
 			var types = TypeMgr.Types;
 			foreach (TypeX tyX in types)
 			{
-				if (tyX.IsValueType && IsSkippedType(tyX.GetNameKey()))
-					continue;
-
 				CompileUnit unit = new TypeGenerator(this, tyX).Generate();
 				units.Add(unit.Name, unit);
 			}

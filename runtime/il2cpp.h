@@ -28,6 +28,15 @@
 
 #define IL2CPP_CALL_ONCE	il2cpp_CallOnce
 
+#define IL2CPP_THROW(_ex)	throw il2cppException(_ex)
+
+struct cls_Object;
+struct il2cppException
+{
+	cls_Object* ExceptionPtr;
+	il2cppException(cls_Object* ptr) : ExceptionPtr(ptr) {}
+};
+
 void il2cpp_Init();
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);

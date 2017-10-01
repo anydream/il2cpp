@@ -137,18 +137,19 @@ namespace il2cpp
 				return new ArraySig(GenArgs[0], ArrayInfo.Rank, ArrayInfo.Sizes, ArrayInfo.LowerBounds);
 			}
 
-			ClassOrValueTypeSig tySig;
-
-			if (IsValueType)
-				tySig = new ValueTypeSig(Def);
-			else
-				tySig = new ClassSig(Def);
-
-			TypeSig thisSig = tySig;
 			if (HasGenArgs)
-				thisSig = new GenericInstSig(tySig, GenArgs);
+			{
+				ClassOrValueTypeSig tySig;
 
-			return thisSig;
+				if (IsValueType)
+					tySig = new ValueTypeSig(Def);
+				else
+					tySig = new ClassSig(Def);
+
+				return new GenericInstSig(tySig, GenArgs);
+			}
+			else
+				return Def.ToTypeSig();
 		}
 
 		public TypeSig GetThisTypeSig()
