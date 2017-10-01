@@ -19,8 +19,7 @@ namespace il2cpp
 
 		public override string ToString()
 		{
-			return (IsBrTarget ? Offset + ": " : null) +
-				   OpCode + ' ' + Operand;
+			return OpCode + " " + Operand;
 		}
 	}
 
@@ -34,6 +33,24 @@ namespace il2cpp
 		public int HandlerEnd;
 		public TypeX CatchType;
 		public ExceptionHandlerType HandlerType;
+
+		public readonly List<ExHandlerInfo> CombinedHandlers = new List<ExHandlerInfo>();
+		public HashSet<int> LeaveTargets;
+
+		public bool NeedCombine(ExHandlerInfo other)
+		{
+			return TryStart == other.TryStart &&
+				   TryEnd == other.TryEnd &&
+				   (HandlerType == ExceptionHandlerType.Catch || HandlerType == ExceptionHandlerType.Filter) &&
+				   (other.HandlerType == ExceptionHandlerType.Catch || other.HandlerType == ExceptionHandlerType.Filter);
+		}
+
+		public void AddLeaveTarget(int target)
+		{
+			if (LeaveTargets == null)
+				LeaveTargets = new HashSet<int>();
+			LeaveTargets.Add(target);
+		}
 	}
 
 	internal class MethodX : GenericArgs
@@ -54,10 +71,13 @@ namespace il2cpp
 		// 参数类型列表, 包含 this 类型
 		public IList<TypeSig> ParamTypes;
 		public IList<TypeSig> ParamAfterSentinel;
+
 		// 局部变量类型列表
 		public IList<TypeSig> LocalTypes;
+
 		// 异常处理器列表
-		public ExHandlerInfo[] ExHandlerList;
+		public List<ExHandlerInfo> ExHandlerList;
+
 		// 指令列表
 		public InstInfo[] InstList;
 

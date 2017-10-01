@@ -195,9 +195,29 @@ namespace il2cpp
 					return cmp;
 				});
 
-				ExHandlerInfo[] handlers = new ExHandlerInfo[sortedHandlers.Count];
-				for (int i = 0, sz = handlers.Length; i < sz; ++i)
-					handlers[i] = sortedHandlers[i].Item2;
+				// 合并同范围的异常处理器
+				List<ExHandlerInfo> handlers = new List<ExHandlerInfo>();
+
+				ExHandlerInfo headInfo = null;
+				int count = sortedHandlers.Count;
+				for (int i = 0; i < count; ++i)
+				{
+					ExHandlerInfo currInfo = sortedHandlers[i].Item2;
+					if (headInfo != null && headInfo.NeedCombine(currInfo))
+						headInfo.CombinedHandlers.Add(currInfo);
+					else
+					{
+						headInfo = currInfo;
+						Debug.Assert(headInfo.CombinedHandlers.Count == 0);
+						headInfo.CombinedHandlers.Add(headInfo);
+						handlers.Add(headInfo);
+
+						if (headInfo.FilterStart != -1)
+							instList[headInfo.FilterStart].IsBrTarget = true;
+						else
+							instList[headInfo.HandlerStart].IsBrTarget = true;
+					}
+				}
 
 				metX.ExHandlerList = handlers;
 			}

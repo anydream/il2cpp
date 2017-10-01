@@ -159,6 +159,10 @@ namespace il2cpp
 		private readonly Queue<Tuple<Stack<StackType>, int>> Branches = new Queue<Tuple<Stack<StackType>, int>>();
 		private readonly Dictionary<int, HashSet<StackType>> SlotMap = new Dictionary<int, HashSet<StackType>>();
 
+		// 离开异常映射
+		private readonly Dictionary<int, int> LeaveMap = new Dictionary<int, int>();
+		private int LeaveCount;
+
 		public readonly HashSet<string> DeclDepends = new HashSet<string>();
 		public readonly HashSet<string> ImplDepends = new HashSet<string>();
 		public string DeclCode;
@@ -219,6 +223,16 @@ namespace il2cpp
 				SlotMap.Add(slot.SlotIndex, stSet);
 			}
 			stSet.Add(slot.SlotType);
+		}
+
+		private int RegLeaveMap(int target)
+		{
+			if (!LeaveMap.TryGetValue(target, out int idx))
+			{
+				idx = ++LeaveCount;
+				LeaveMap.Add(target, idx);
+			}
+			return idx;
 		}
 
 		private void GenFuncDef(CodePrinter prt, string prefix)
@@ -340,6 +354,22 @@ namespace il2cpp
 				return GenerateRuntimeImpl(prt);
 			}
 
+			// 添加异常处理块分支
+			if (CurrMethod.ExHandlerList.IsCollectionValid())
+			{
+				Push(StackType.Obj);
+				foreach (var handler in CurrMethod.ExHandlerList)
+				{
+					foreach (var chandler in handler.CombinedHandlers)
+					{
+						AddBranch(chandler.HandlerStart);
+						if (chandler.FilterStart != -1)
+							AddBranch(chandler.FilterStart);
+					}
+				}
+				TypeStack.Clear();
+			}
+
 			// 构造指令代码
 			int currIP = 0;
 			for (; ; )
@@ -419,10 +449,19 @@ namespace il2cpp
 				prt.AppendLine();
 			}
 
+			// 构造异常辅助变量
+			if (CurrMethod.ExHandlerList.IsCollectionValid())
+			{
+				prt.AppendLine("// exceptions");
+				prt.AppendLine("cls_Object* lastException = 0;");
+				prt.AppendLine("int leaveTarget = 0;");
+				prt.AppendLine();
+			}
+
 			// 生成代码体
 			foreach (var inst in instList)
 			{
-				GenExHandlerEnd(prt);
+				GenExHandlerEnd(inst, prt);
 
 				if (inst.IsBrTarget)
 				{
@@ -431,7 +470,11 @@ namespace il2cpp
 					++prt.Indents;
 				}
 
-				GenExHandlerStart(prt);
+				GenExHandlerStart(inst, prt);
+
+#if true
+				prt.AppendLine("// " + inst);
+#endif
 
 				if (inst.InstCode != null)
 					prt.AppendLine(inst.InstCode);
@@ -484,7 +527,8 @@ namespace il2cpp
 				prt.AppendLine("}");
 			}
 
-			prt.AppendLine("abort();\nreturn nullptr;");
+			prt.AppendLine("abort();");
+			prt.AppendLine("return nullptr;");
 
 			--prt.Indents;
 			prt.AppendLine("}");
@@ -790,14 +834,113 @@ else
 			--prt.Indents;
 		}
 
-		private void GenExHandlerStart(CodePrinter prt)
+		private void GenExHandlerStart(InstInfo inst, CodePrinter prt)
 		{
+			var handlerList = CurrMethod.ExHandlerList;
+			if (!handlerList.IsCollectionValid())
+				return;
 
+			int offset = inst.Offset;
+
+			foreach (var handler in handlerList)
+			{
+				if (offset == handler.TryStart)
+				{
+					prt.AppendLine("try\n{");
+					++prt.Indents;
+				}
+				foreach (var chandler in handler.CombinedHandlers)
+				{
+					if (offset == chandler.HandlerStart)
+					{
+						if (chandler.HandlerType == ExceptionHandlerType.Catch)
+						{
+							prt.AppendFormatLine("if (istype_{0}({1}->TypeID))",
+								GenContext.GetTypeName(chandler.CatchType),
+								TempName(0, StackType.Obj));
+							prt.AppendLine("{");
+							++prt.Indents;
+						}
+						else if (chandler.HandlerType == ExceptionHandlerType.Filter)
+						{
+							prt.AppendLine("{");
+							++prt.Indents;
+						}
+					}
+				}
+
+				if (offset >= handler.HandlerStart && offset < handler.HandlerEnd &&
+					inst.OpCode.Code == Code.Endfinally)
+				{
+					if (handler.HandlerType == ExceptionHandlerType.Finally)
+					{
+						prt.AppendLine("if (lastException) IL2CPP_THROW(lastException);");
+						prt.AppendLine("switch (leaveTarget)\n{");
+						++prt.Indents;
+
+						List<int> leaveTargets = new List<int>(handler.LeaveTargets);
+						leaveTargets.Sort((lhs, rhs) => LeaveMap[lhs].CompareTo(LeaveMap[rhs]));
+						foreach (int target in leaveTargets)
+						{
+							prt.AppendFormatLine("case {0}: {1}",
+								LeaveMap[target],
+								GenGoto(target));
+						}
+
+						--prt.Indents;
+						prt.AppendLine("}");
+						prt.AppendLine("abort();");
+					}
+					else
+					{
+						Debug.Assert(handler.HandlerType == ExceptionHandlerType.Fault);
+						prt.AppendLine("IL2CPP_THROW(lastException);");
+					}
+				}
+			}
 		}
 
-		private void GenExHandlerEnd(CodePrinter prt)
+		private void GenExHandlerEnd(InstInfo inst, CodePrinter prt)
 		{
+			var hlist = CurrMethod.ExHandlerList;
+			if (!hlist.IsCollectionValid())
+				return;
 
+			int offset = inst.Offset;
+
+			foreach (var info in hlist)
+			{
+				if (offset == info.TryEnd)
+				{
+					--prt.Indents;
+					prt.AppendLine("}\ncatch (il2cppException& ex)\n{");
+					++prt.Indents;
+
+					prt.AppendLine("lastException = ex.ExceptionPtr;");
+					prt.AppendLine(GenAssign(TempName(0, StackType.Obj), "lastException", StackType.Obj));
+
+					--prt.Indents;
+					prt.AppendLine("}");
+
+					prt.AppendLine(GenGoto(info.FilterStart != -1 ? info.FilterStart : info.HandlerStart));
+				}
+				foreach (var cinfo in info.CombinedHandlers)
+				{
+					if (offset == cinfo.HandlerEnd)
+					{
+						if (cinfo.HandlerType == ExceptionHandlerType.Catch)
+						{
+							--prt.Indents;
+							prt.AppendLine("}");
+						}
+						else if (cinfo.HandlerType == ExceptionHandlerType.Filter)
+						{
+							--prt.Indents;
+							prt.AppendLine("}");
+						}
+					}
+				}
+			}
 		}
 
 		private string GenInvokeStaticCctor(TypeX tyX)
@@ -813,6 +956,8 @@ else
 			if (inst.IsGenerated)
 				return false;
 			inst.IsGenerated = true;
+
+			PushCount = PopCount = 0;
 
 			GenerateInstCode(inst);
 
@@ -1195,6 +1340,10 @@ else
 					GenNewobj(inst, (MethodX)operand);
 					return;
 
+				case Code.Isinst:
+					GenIsinst(inst, (TypeX)operand);
+					return;
+
 				case Code.Ldfld:
 					GenLdfld(inst, (FieldX)operand);
 					return;
@@ -1286,6 +1435,19 @@ else
 
 				case Code.Sizeof:
 					GenSizeof(inst, (TypeX)operand);
+					return;
+
+				case Code.Endfilter:
+					GenEndfilter(inst);
+					return;
+
+				case Code.Endfinally:
+					TypeStack.Clear();
+					return;
+
+				case Code.Leave:
+				case Code.Leave_S:
+					GenLeave(inst, (int)operand);
 					return;
 
 				case Code.Newarr:
@@ -1753,6 +1915,30 @@ else
 			}
 		}
 
+		private void GenIsinst(InstInfo inst, TypeX tyX)
+		{
+			var slotPop = Pop();
+			var slotPush = Push(StackType.Obj);
+
+			if (tyX.GetNameKey() == "System.Nullable`1")
+			{
+				throw new NotImplementedException();
+			}
+			else if (tyX.IsValueType)
+			{
+				throw new NotImplementedException();
+			}
+			else
+			{
+				inst.InstCode = GenAssign(
+					TempName(slotPush),
+					string.Format("(({0} && istype_{1}({0}->TypeID)) ? {0} : 0)",
+						TempName(slotPop),
+						GenContext.GetTypeName(tyX)),
+					slotPush.SlotType);
+			}
+		}
+
 		private void GenLdfld(InstInfo inst, FieldX fldX, bool isAddr = false)
 		{
 			RefTypeImpl(fldX.DeclType);
@@ -1917,6 +2103,52 @@ else
 			}
 		}
 
+		private void GenEndfilter(InstInfo inst)
+		{
+			var slotPop = Pop();
+			inst.InstCode = string.Format("if ({0} == 1)",
+				TempName(slotPop));
+		}
+
+		private void GenLeave(InstInfo inst, int target)
+		{
+			inst.InstCode = "lastException = 0;\n";
+
+			var leaveHandlers = GetLeaveThroughHandlers(inst.Offset, target);
+			if (leaveHandlers.IsCollectionValid())
+			{
+				foreach (var handler in leaveHandlers)
+					handler.AddLeaveTarget(target);
+
+				inst.InstCode += string.Format("leaveTarget = {0};\n{1}",
+					RegLeaveMap(target),
+					GenGoto(leaveHandlers[0].HandlerStart));
+			}
+			else
+			{
+				inst.InstCode += GenGoto(target);
+			}
+		}
+
+		private List<ExHandlerInfo> GetLeaveThroughHandlers(int offset, int target)
+		{
+			Debug.Assert(CurrMethod.ExHandlerList.IsCollectionValid());
+
+			List<ExHandlerInfo> result = new List<ExHandlerInfo>();
+			foreach (var handler in CurrMethod.ExHandlerList)
+			{
+				if (handler.HandlerType == ExceptionHandlerType.Finally)
+				{
+					if (offset >= handler.TryStart && offset < handler.TryEnd &&
+						!(target >= handler.TryStart && target < handler.TryEnd))
+					{
+						result.Add(handler);
+					}
+				}
+			}
+			return result;
+		}
+
 		private StackType ToStackType(TypeSig tySig)
 		{
 			switch (tySig.ElementType)
@@ -2024,8 +2256,9 @@ else
 			return lhs + " = " + (tySig != null ? CastType(tySig) : null) + rhs + ';';
 		}
 
-		private static string GenGoto(int labelID)
+		private string GenGoto(int labelID)
 		{
+			Debug.Assert(CurrMethod.InstList[labelID].IsBrTarget);
 			return "goto " + LabelName(labelID) + ';';
 		}
 

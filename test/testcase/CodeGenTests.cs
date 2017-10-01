@@ -643,6 +643,109 @@ namespace testcase
 		}
 	}
 
+	[CodeGen]
+	static class TestException
+	{
+		class Except1 : Exception
+		{
+		}
+
+		class Except2 : Exception
+		{
+		}
+
+		class Except3 : Exception
+		{
+		}
+
+		static void Foo()
+		{
+
+		}
+
+		static void Catch1()
+		{
+
+		}
+
+		static void Catch2()
+		{
+
+		}
+
+		static void Catch3()
+		{
+
+		}
+
+		static void Catch4()
+		{
+
+		}
+
+		static void Finally1()
+		{
+
+		}
+
+		static void Finally2()
+		{
+
+		}
+
+		static void Finally3()
+		{
+
+		}
+
+		private static int i = 0;
+		public static void Entry()
+		{
+			try
+			{
+				try
+				{
+					try
+					{
+						Foo();
+					}
+					catch (Except1 ex)
+					{
+						Catch1();
+					}
+					finally
+					{
+						Finally1();
+					}
+				}
+				finally
+				{
+					Finally2();
+				}
+			}
+			catch (Except2 ex)
+			{
+				Catch2();
+			}
+			catch (Except3 ex) when (i == 1)
+			{
+				Catch3();
+			}
+			catch (Except3 ex) when (i == 2)
+			{
+				Catch3();
+			}
+			catch
+			{
+				Catch4();
+			}
+			finally
+			{
+				Finally3();
+			}
+		}
+	}
+
 	static class TestRayTrace
 	{
 #if false
