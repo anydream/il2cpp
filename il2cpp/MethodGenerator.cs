@@ -933,27 +933,23 @@ else
 
 					if (offset == cinfo.HandlerEnd)
 					{
-						if (cinfo.HandlerType == ExceptionHandlerType.Catch)
+						if (cinfo.HandlerType == ExceptionHandlerType.Catch ||
+							cinfo.HandlerType == ExceptionHandlerType.Filter)
 						{
 							--prt.Indents;
 							prt.AppendLine("}");
-						}
-						else if (cinfo.HandlerType == ExceptionHandlerType.Filter)
-						{
-							--prt.Indents;
-							prt.AppendLine("}");
-						}
 
-						if (i == sz - 1)
-						{
-							// 最后一项往上抛异常
-							prt.AppendLine("IL2CPP_THROW(lastException);");
-						}
-						else
-						{
-							// 跳到下一个异常处理块
-							var cnext = info.CombinedHandlers[i + 1];
-							prt.AppendLine(GenGoto(cnext.HandlerOrFilterStart));
+							if (i == sz - 1)
+							{
+								// 最后一项往上抛异常
+								prt.AppendLine("IL2CPP_THROW(lastException);");
+							}
+							else
+							{
+								// 跳到下一个异常处理块
+								var cnext = info.CombinedHandlers[i + 1];
+								prt.AppendLine(GenGoto(cnext.HandlerOrFilterStart));
+							}
 						}
 					}
 				}
