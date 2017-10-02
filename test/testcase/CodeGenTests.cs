@@ -46,9 +46,12 @@ namespace testcase
 				return Fib(n - 1) + Fib(n - 2);
 		}
 
-		public static long Entry()
+		public static int Entry()
 		{
-			return Fib(43);
+			long res = Fib(26);
+			if (res != 121393)
+				return 1;
+			return 0;
 		}
 	}
 
@@ -68,9 +71,12 @@ namespace testcase
 			return a;
 		}
 
-		public static long Entry()
+		public static int Entry()
 		{
-			return Fib(43);
+			long res = Fib(26);
+			if (res != 121393)
+				return 1;
+			return 0;
 		}
 	}
 
@@ -388,10 +394,10 @@ namespace testcase
 	[CodeGen]
 	static class TestSZArrayPerf
 	{
-		public static long Entry(int times)
+		public static long Entry()
 		{
 			long sum = 0;
-			for (int i = 0; i < times; ++i)
+			for (int i = 0; i < 9991234; ++i)
 				sum += TestSZArray.Entry();
 			return sum;
 		}
@@ -540,10 +546,10 @@ namespace testcase
 	[CodeGen]
 	static class TestMDArrayPerf
 	{
-		public static long Entry(int times)
+		public static long Entry()
 		{
 			long sum = 0;
-			for (int i = 0; i < times; ++i)
+			for (int i = 0; i < 9991234; ++i)
 				sum += TestMDArray.Entry();
 			return sum;
 		}
@@ -1449,7 +1455,7 @@ namespace testcase
 		}
 	}
 
-	[CodeGen]
+	//[CodeGen]
 	static class TestRayTrace2
 	{
 #if true
@@ -1858,30 +1864,6 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestException.Entry();
-
-			/*var tw = new Stopwatch();
-			tw.Start();
-			var c = TestRayTrace2.Entry();
-			tw.Stop();
-			Console.WriteLine("Elapsed: {0}", tw.ElapsedMilliseconds);
-
-			using (StreamWriter sw = new StreamWriter("imageCS2.ppm"))
-			{
-				sw.Write("P3\r\n{0} {1}\r\n{2}\r\n", 256, 256, 255);
-				for (int i = 0; i < 256 * 256; i++)
-					sw.Write("{0} {1} {2}\r\n", TestRayTrace2.toInt(c[i].x), TestRayTrace2.toInt(c[i].y), TestRayTrace2.toInt(c[i].z));
-			}*/
-
-			//Console.Write("Input Times: ");
-			//int times = int.Parse(Console.ReadLine());
-			//Console.WriteLine("Times: {0}", times);
-			/*var sw = new Stopwatch();
-			sw.Start();
-			long res = Fibonacci.Entry();
-			sw.Stop();
-
-			Console.WriteLine("Result: {0}, Elapsed: {1}ms", res, sw.ElapsedMilliseconds);*/
 		}
 	}
 }
