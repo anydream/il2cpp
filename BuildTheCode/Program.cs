@@ -458,20 +458,25 @@ namespace BuildTheCode
 					out lastOptFile);
 			}
 
+			string finalFile = "final.exe";
 			// 生成可执行文件
 			Make.Compile(
 				lastOptFile,
 				"-O3",
-				"final.exe",
+				finalFile,
 				null,
-				srcDir,
+				outDir,
 				false,
 				Console.WriteLine,
 				strErr =>
 				{
 					Console.WriteLine("[FinalLink] {0}", strErr);
 				},
-				out var finalFile);
+				out var outExeFile);
+
+			if (File.Exists(finalFile))
+				File.Delete(finalFile);
+			File.Copy(outExeFile, finalFile);
 		}
 
 		static void PatchFile(string file, string src, string dst)
@@ -494,7 +499,7 @@ namespace BuildTheCode
 
 		static void Main(string[] args)
 		{
-
+			MakeIl2cpp(".", "output", args.ToList());
 		}
 	}
 }
