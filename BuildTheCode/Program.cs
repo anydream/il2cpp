@@ -499,7 +499,8 @@ namespace BuildTheCode
 
 		static void Main(string[] args)
 		{
-			MakeIl2cpp(".", "output", args.ToList());
+			if (args.Length > 0)
+				MakeIl2cpp(".", "output", args.ToList());
 		}
 	}
 }

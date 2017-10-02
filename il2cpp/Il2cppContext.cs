@@ -89,62 +89,10 @@ namespace il2cpp
 			// 生成编译脚本
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("@echo off");
-
-			sb.AppendLine("mkdir out 2>NUL");
-			sb.AppendLine("cd out");
-
-			sb.AppendLine("echo Phase 1: Compiling Generated Codes");
-			sb.Append("clang -O3 -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM ../il2cpp.cpp");
+			sb.Append("BuildTheCode il2cpp.cpp");
 			foreach (string unitName in unitNames)
-				sb.AppendFormat(" ../{0}.cpp", unitName);
+				sb.AppendFormat(" {0}.cpp", unitName);
 			sb.AppendLine();
-
-			sb.AppendLine("echo Phase 2: Compiling GC");
-			sb.AppendLine("mkdir gc 2>NUL");
-			sb.AppendLine("cd gc");
-			sb.AppendLine("clang -O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -I../../bdwgc/include ../../bdwgc/extra/gc.c");
-			sb.AppendLine("cd ..");
-
-			sb.AppendLine("echo Phase 3: Compiling GC Helpers");
-			sb.AppendLine("clang -O3 -c -emit-llvm -Wall -DIL2CPP_PATCH_LLVM -I../bdwgc/include ../il2cppGC.cpp");
-
-			sb.AppendLine("echo Phase 4: Linking Codes");
-			sb.AppendLine("mkdir opt 2>NUL");
-			sb.Append("llvm-link -o opt/link.bc il2cpp.bc");
-			foreach (string unitName in unitNames)
-				sb.AppendFormat(" {0}.bc", unitName);
-			sb.AppendLine();
-
-			sb.AppendLine("cd opt");
-
-			sb.AppendLine("echo Phase 5: Optimization Pass 1");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o opt1.bc link.bc");
-			sb.AppendLine("echo Phase 5: Optimization Pass 2");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o opt2.bc opt1.bc");
-			sb.AppendLine("echo Phase 5: Optimization Pass 3");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o opt3.bc opt2.bc");
-			sb.AppendLine("echo Phase 5: Optimization Pass 4");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o opt4.bc opt3.bc");
-			sb.AppendLine("echo Phase 5: Optimization Pass 5");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o opt5.bc opt4.bc");
-			sb.AppendLine("echo Phase 5: Optimization Pass 6");
-			sb.AppendLine("clang -O3 -S -emit-llvm -o opt6.ll opt5.bc");
-			sb.AppendLine(@"..\..\IRPatcher opt6.ll @calloc @_il2cpp_GC_PatchCalloc");
-
-			sb.AppendLine("echo Phase 6: Linking GC");
-			sb.AppendLine("llvm-link -o linkgc.bc opt6.ll ../il2cppGC.bc ../gc/gc.bc");
-
-			sb.AppendLine("echo Phase 7: Final Optimization Pass 1");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc1.bc linkgc.bc");
-			sb.AppendLine("echo Phase 7: Final Optimization Pass 2");
-			sb.AppendLine("clang -O3 -c -emit-llvm -o optgc2.bc optgc1.bc");
-
-			sb.AppendLine("echo Phase 8: Generating Executable File");
-			sb.AppendLine("cd ../../");
-			sb.AppendLine("clang -O3 -c -o final.o out/opt/optgc2.bc");
-			sb.AppendLine("clang -O3 -o final.exe final.o");
-
-			sb.AppendLine("echo Completed!");
 			sb.AppendLine("pause");
 
 			File.WriteAllText(Path.Combine(folder, "build.cmd"), sb.ToString());
