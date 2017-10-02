@@ -188,12 +188,19 @@ namespace BuildTheCode
 
 		private static byte[] GetFileHash(string file)
 		{
-			using (var md5 = MD5.Create())
+			try
 			{
-				using (var stream = File.OpenRead(file))
+				using (var md5 = MD5.Create())
 				{
-					return md5.ComputeHash(stream);
+					using (var stream = File.OpenRead(file))
+					{
+						return md5.ComputeHash(stream);
+					}
 				}
+			}
+			catch (IOException)
+			{
+				return new byte[0];
 			}
 		}
 

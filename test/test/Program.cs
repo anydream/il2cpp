@@ -205,13 +205,13 @@ namespace test
 			}
 			sw.Stop();
 			long elapsedMS = sw.ElapsedMilliseconds;
-			Console.Write("Resolve: {0}ms, ", elapsedMS);
+			Console.Write("Res({0}ms) ", elapsedMS);
 
 			sw.Restart();
 			var genResult = context.Generate();
 			sw.Stop();
 			elapsedMS = sw.ElapsedMilliseconds;
-			Console.Write("Generate: {0}ms, ", elapsedMS);
+			Console.Write("Gen({0}ms) ", elapsedMS);
 
 			var mainUnit = new CompileUnit();
 			genResult.UnitList.Add(mainUnit);
@@ -228,21 +228,91 @@ namespace test
 				"	auto start = clock();\n" +
 				"	auto result = " + metName + "();\n" +
 				"	auto elapsed = clock() - start;\n" +
-				"	printf(\"Result: %s, Elapsed: %ldms\", std::to_string(result).c_str(), elapsed);\n" +
-				"	getchar();\n" +
+				"	printf(\"Result(%s), %ldms\", std::to_string(result).c_str(), elapsed);\n" +
 				"	return 0;\n" +
 				"}\n";
 
 			genResult.GenerateIncludes();
 
 			string validatedName = ValidatePath(testName);
+			string genDir = Path.Combine(imageDir, "../../gen/", validatedName);
 			Il2cppContext.SaveToFolder(
-				Path.Combine(imageDir, "../../gen/", validatedName),
+				genDir,
 				genResult.UnitList);
+			genDir = Path.GetFullPath(genDir);
 
-			Console.WriteLine();
+			Console.Write("Building");
+			bool hasBuildErr = false;
+			RunCommand(
+				null,
+				"build.cmd",
+				genDir,
+				strOut =>
+				{
+					if (!hasBuildErr)
+					{
+						if (strOut.IndexOf("error") != -1)
+						{
+							Console.WriteLine();
+							hasBuildErr = true;
+						}
+						else if (strOut.IndexOf("Compiled") != -1)
+							Console.Write(".");
+					}
+
+					if (hasBuildErr)
+					{
+						Console.WriteLine("! {0}", strOut);
+					}
+				},
+				Console.WriteLine);
+
+			string result = null;
+			if (!hasBuildErr)
+			{
+				Console.Write(" Running");
+				string runOutput = null;
+				RunCommand(
+					null,
+					"final.exe",
+					genDir,
+					strOut => runOutput = strOut,
+					Console.WriteLine);
+
+				Console.Write(" {0} ", runOutput);
+
+				result = GetRunResult(runOutput);
+			}
+
+			if (result == "0")
+			{
+				Console.ForegroundColor = ConsoleColor.Green;
+				Console.WriteLine("PASS");
+				Console.ForegroundColor = oldColor;
+
+				++PassedTests;
+			}
+			else
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine("FAIL");
+				Console.ForegroundColor = oldColor;
+			}
 
 			context.Reset();
+		}
+
+		private static string GetRunResult(string str)
+		{
+			int lp = str.IndexOf('(');
+			if (lp == -1)
+				return null;
+			++lp;
+			int rp = str.IndexOf(')', lp);
+			if (rp == -1)
+				return null;
+
+			return str.Substring(lp, rp - lp);
 		}
 
 		private static byte[] ReplaceNewLines(byte[] data)
@@ -292,6 +362,64 @@ namespace test
 					sb.Append(ch);
 			}
 			return sb.ToString();
+		}
+
+		private static void RunCommand(
+			string program,
+			string arguments,
+			string workDir,
+			Action<string> onOutput,
+			Action<string> onError,
+			bool isWait = true)
+		{
+			if (program == null)
+			{
+				program = "cmd";
+				arguments = "/c " + arguments;
+			}
+
+			Process pSpawn = new Process
+			{
+				StartInfo =
+				{
+					WorkingDirectory = workDir,
+					FileName = program,
+					Arguments = arguments,
+					CreateNoWindow = true,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true,
+					RedirectStandardInput = true,
+					UseShellExecute = false
+				}
+			};
+
+			if (onOutput != null)
+			{
+				pSpawn.OutputDataReceived += (sender, args) =>
+				{
+					if (args.Data != null)
+						onOutput(args.Data);
+				};
+			}
+			if (onError != null)
+			{
+				pSpawn.ErrorDataReceived += (sender, args) =>
+				{
+					if (args.Data != null)
+						onError(args.Data);
+				};
+			}
+
+			pSpawn.Start();
+
+			if (onOutput != null)
+				pSpawn.BeginOutputReadLine();
+
+			if (onError != null)
+				pSpawn.BeginErrorReadLine();
+
+			if (isWait)
+				pSpawn.WaitForExit();
 		}
 
 		private static void Main(string[] args)

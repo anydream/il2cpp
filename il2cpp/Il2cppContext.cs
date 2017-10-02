@@ -93,7 +93,6 @@ namespace il2cpp
 			foreach (string unitName in unitNames)
 				sb.AppendFormat(" {0}.cpp", unitName);
 			sb.AppendLine();
-			sb.AppendLine("pause");
 
 			File.WriteAllText(Path.Combine(folder, "build.cmd"), sb.ToString());
 
