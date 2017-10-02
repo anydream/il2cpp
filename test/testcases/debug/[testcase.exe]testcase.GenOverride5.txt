@@ -10,6 +10,8 @@
    - [testcase]group2.Base`2<Int32,Single>
    - [testcase]group2.Derived`2<Single,Int32>
    - [testcase]group2.DerivedX2`1<Single>
+   - System.ValueType
+   - Int32
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
@@ -46,4 +48,39 @@
    - [testcase]group2.Base`2<Int32,Single>
    - [testcase]group2.Derived`2<Single,Int32>
    - [testcase]group2.DerivedX2`1<Single>
+
+[struct Int32] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Base: System.ValueType
+ - Interfaces:
+   - System.IComparable
+   - System.IFormattable
+   - System.IConvertible
+   - System.IComparable`1<Int32>
+   - System.IEquatable`1<Int32>
+
+[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - Int32
+
+[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Int32
+
+[class System.IFormattable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Int32
+
+[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Int32
+
+[class System.IComparable`1<Int32>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - Int32
+
+[class System.IEquatable`1<Int32>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Int32
 

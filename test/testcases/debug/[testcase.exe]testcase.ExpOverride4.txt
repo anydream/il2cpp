@@ -9,6 +9,8 @@
    - [testcase]testcase.ExpOverride4
    - [testcase]group4.Base
    - [testcase]group4.ClsB
+   - System.ValueType
+   - Single
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
@@ -39,4 +41,39 @@
  - Methods:
    - Foo|Void()|20|5C6, Foo|Void([testcase]group4.Inf)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
      - [testcase]group4.ClsB -> Foo|Void()|20|C6, Foo|Void([testcase]group4.ClsB)|20
+
+[struct Single] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Base: System.ValueType
+ - Interfaces:
+   - System.IComparable
+   - System.IFormattable
+   - System.IConvertible
+   - System.IComparable`1<Single>
+   - System.IEquatable`1<Single>
+
+[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - Single
+
+[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Single
+
+[class System.IFormattable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Single
+
+[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Single
+
+[class System.IComparable`1<Single>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - Single
+
+[class System.IEquatable`1<Single>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Single
 

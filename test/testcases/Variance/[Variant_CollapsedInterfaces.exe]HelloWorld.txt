@@ -14,9 +14,10 @@
    - [HelloWorld]XBC
    - [HelloWorld]A
    - [HelloWorld]XCB
+   - System.ValueType
+   - Char
    - [HelloWorld]B
    - [HelloWorld]C
-   - System.ValueType
    - Int32
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
@@ -48,6 +49,7 @@
 [class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
+   - Char
    - Int32
 
 [class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
@@ -57,6 +59,7 @@
 [class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
+   - Char
    - Int32
 
 [class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
@@ -140,6 +143,29 @@
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XCB)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Print|[HelloWorld]C(Int32)|20|1E6, Print|[HelloWorld]C([HelloWorld]XCB,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
 
+[struct Char] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Base: System.ValueType
+ - Interfaces:
+   - System.IComparable
+   - System.IConvertible
+   - System.IComparable`1<Char>
+   - System.IEquatable`1<Char>
+
+[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - Char
+   - Int32
+
+[class System.IComparable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - Char
+
+[class System.IEquatable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Char
+
 [class [HelloWorld]B] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
  - Base: [HelloWorld]A
@@ -162,11 +188,6 @@
    - System.IConvertible
    - System.IComparable`1<Int32>
    - System.IEquatable`1<Int32>
-
-[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
- - Base: Object
- - DerivedTypes:
-   - Int32
 
 [class System.IFormattable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:

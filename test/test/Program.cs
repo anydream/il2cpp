@@ -45,9 +45,16 @@ namespace test
 
 		private static string GetRelativePath(string path, string relativeTo)
 		{
-			string fullPath = Path.GetFullPath(path + '/');
-			string fullRelative = Path.GetFullPath(relativeTo);
-			return fullPath.Substring(fullRelative.Length);
+			string fullPath = Path.GetFullPath(path);
+
+			if (string.IsNullOrEmpty(relativeTo))
+				relativeTo = ".";
+
+			string fullRelative = Path.GetFullPath(relativeTo + '/');
+			if (fullPath.Length >= fullRelative.Length)
+				return fullPath.Substring(fullRelative.Length);
+			else
+				return path;
 		}
 	}
 
@@ -289,7 +296,7 @@ namespace test
 
 		private static void Main(string[] args)
 		{
-#if false
+#if true
 			var testBinding = new Testbed();
 			testBinding.TestDir = "../../../testcases/";
 			testBinding.OnType = TestBinding;

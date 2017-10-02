@@ -20,6 +20,8 @@
    - [HelloWorld]XIAB_2
    - [HelloWorld]XIBA_1
    - [HelloWorld]XIBA_2
+   - System.ValueType
+   - Char
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
@@ -49,6 +51,7 @@
 [class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
+   - Char
 
 [class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
@@ -57,6 +60,7 @@
 [class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
+   - Char
 
 [class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
@@ -178,4 +182,26 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XIBA_2)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Print|String([HelloWorld]A)|20|1E6, Print|String([HelloWorld]XIBA_2,[HelloWorld]A)|20, Public Final Virtual HideBySig NewSlot Managed None
+
+[struct Char] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Base: System.ValueType
+ - Interfaces:
+   - System.IComparable
+   - System.IConvertible
+   - System.IComparable`1<Char>
+   - System.IEquatable`1<Char>
+
+[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - Char
+
+[class System.IComparable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - Char
+
+[class System.IEquatable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - Char
 
