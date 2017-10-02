@@ -27,41 +27,81 @@ namespace BuildTheCode
 			return units;
 		}
 
-		public static void Compile(
+		public static bool Compile(
+			string unitSrcFile,
+			string unitArgs,
+			string outputName,
+			string srcDir,
+			string outDir,
+			bool hasDepFile,
+			Action<string> onOutput,
+			Action<string> onError,
+			out string outputFile)
+		{
+			string srcFile = GetRelativePath(unitSrcFile, srcDir);
+			string unitName = EscapePath(srcFile);
+
+			if (outputName == null)
+				outputName = unitName + ".bc";
+
+			outputFile = Path.Combine(outDir, outputName);
+			string depFile = hasDepFile ? Path.Combine(outDir, unitName + ".d") : null;
+			string hashFile = Path.Combine(outDir, unitName + ".hash");
+
+			if (!IsNeedCompile(srcFile, outputFile, depFile, hashFile))
+			{
+				onOutput(string.Format("Skipped: {0}", srcFile));
+				return false;
+			}
+
+			string prependArgs = srcFile + " -o " + outputFile + " " + (hasDepFile ? "-MD " : null);
+			RunCommand("clang", prependArgs + unitArgs, srcDir, onOutput, onError);
+
+			File.WriteAllBytes(hashFile, GetFileHash(srcFile));
+
+			onOutput(string.Format("Compiled: {0} -> {1}", srcFile, outputFile));
+
+			return true;
+		}
+
+		public static List<string> Compile(
 			List<CompileUnit> units,
-			string relDir,
+			string srcDir,
 			string outDir,
 			Action<string> onOutput,
 			Action<string> onError)
 		{
 			Directory.CreateDirectory(outDir);
 
+			List<string> objFiles = new List<string>();
+
 			int compiled = 0;
 			Parallel.ForEach(units, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
 				unit =>
 				{
-					string srcFile = GetRelativePath(unit.SrcFile, relDir);
-					string unitName = EscapePath(srcFile);
+					bool result = Compile(
+						unit.SrcFile,
+						 unit.Arguments,
+						null,
+						srcDir,
+						outDir,
+						true,
+						onOutput,
+						onError,
+						out var outputFile);
 
-					string objFile = Path.Combine(outDir, unitName + ".bc");
-					string depFile = Path.Combine(outDir, unitName + ".d");
-					string hashFile = Path.Combine(outDir, unitName + ".hash");
-					if (!IsNeedCompile(srcFile, objFile, depFile, hashFile))
+					lock (objFiles)
 					{
-						Console.WriteLine("Skipped: {0}", srcFile);
-						return;
+						objFiles.Add(outputFile);
 					}
 
-					string prependArgs = srcFile + " -o " + objFile + " -c -emit-llvm -MD ";
-					RunCommand("clang", prependArgs + unit.Arguments, relDir, onOutput, onError);
-
-					File.WriteAllBytes(hashFile, GetFileHash(srcFile));
-
-					Interlocked.Increment(ref compiled);
-					Console.WriteLine("Compiled: {0}", srcFile);
+					if (result)
+						Interlocked.Increment(ref compiled);
 				});
 
-			Console.WriteLine("Compiled {0} of {1}", compiled, units.Count);
+			onOutput(string.Format("Compiled {0} of {1}", compiled, units.Count));
+
+			return objFiles;
 		}
 
 		private static bool IsNeedCompile(string srcFile, string objFile, string depFile, string hashFile)
@@ -75,22 +115,58 @@ namespace BuildTheCode
 			if (srcMT > objMT)
 				return IsHashChanged(srcFile, hashFile);
 
-			try
+			if (depFile != null)
 			{
-				string depContent = File.ReadAllText(depFile);
-				var depLines = ParseDependsFile(depContent);
-
-				foreach (string hfile in depLines)
+				try
 				{
-					if (!GetModifyTime(hfile, out var hMT) || hMT > objMT)
-						return true;
+					string depContent = File.ReadAllText(depFile);
+					var depLines = ParseDependsFile(depContent);
+
+					foreach (string hfile in depLines)
+					{
+						if (!GetModifyTime(hfile, out var hMT) || hMT > objMT)
+							return true;
+					}
+				}
+				catch (IOException)
+				{
+					return true;
 				}
 			}
-			catch (IOException)
+
+			return false;
+		}
+
+		public static void Link(
+			List<string> objFiles,
+			string linkFile,
+			string srcDir,
+			Action<string> onOutput,
+			Action<string> onError)
+		{
+			if (!IsNeedLink(objFiles, linkFile))
 			{
-				return true;
+				onOutput(string.Format("Skipped Linking {0}", linkFile));
+				return;
 			}
 
+			string args = "-o " + linkFile + " " + string.Join(" ", objFiles);
+
+			RunCommand("llvm-link", args, srcDir, onOutput, onError);
+
+			onOutput(string.Format("Linked {0}", linkFile));
+		}
+
+		private static bool IsNeedLink(List<string> objFiles, string linkFile)
+		{
+			if (!GetModifyTime(linkFile, out var linkMT))
+				return true;
+
+			foreach (string objFile in objFiles)
+			{
+				if (!GetModifyTime(objFile, out var objMT) || objMT > linkMT)
+					return true;
+			}
 			return false;
 		}
 
@@ -266,6 +342,156 @@ namespace BuildTheCode
 
 	class Program
 	{
+		static void MakeIl2cpp(
+			string srcDir,
+			string outDir,
+			List<string> genFiles)
+		{
+			Directory.SetCurrentDirectory(srcDir);
+
+			// 编译生成的文件
+			var objFiles = Make.Compile(
+				Make.ToUnits(genFiles, "-O3 -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM"),
+				null, outDir,
+				Console.WriteLine,
+				strErr =>
+				{
+					Console.WriteLine("[CompileError] {0}", strErr);
+				});
+
+			// 连接
+			string linkedFile = Path.Combine(outDir, "!linked.bc");
+			Make.Link(
+				objFiles,
+				linkedFile,
+				null,
+				Console.WriteLine,
+				strErr =>
+				{
+					Console.WriteLine("[LinkError] {0}", strErr);
+				});
+
+			// 优化
+			string lastOptFile = linkedFile;
+			int optCount = 6;
+			for (int i = 0; i < optCount; ++i)
+			{
+				bool isLast = i == optCount - 1;
+
+				string optFile;
+				string args;
+				if (isLast)
+				{
+					optFile = "!opt_" + i + ".ll";
+					args = "-O3 -S -emit-llvm";
+				}
+				else
+				{
+					optFile = "!opt_" + i + ".bc";
+					args = "-O3 -c -emit-llvm";
+				}
+
+				Make.Compile(
+				  lastOptFile, args,
+				  optFile,
+				  null,
+				  outDir,
+				  false,
+				  Console.WriteLine,
+				  Console.WriteLine,
+				  out lastOptFile);
+			}
+
+			PatchFile(lastOptFile, "@calloc", "@_il2cpp_GC_PatchCalloc");
+
+			// 编译 GC
+			Make.Compile(
+				"bdwgc/extra/gc.c",
+				"-O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include",
+				null,
+				null,
+				outDir,
+				true,
+				Console.WriteLine,
+				Console.WriteLine,
+				out var outGCFile);
+
+			Make.Compile(
+				"il2cppGC.cpp",
+				"-O3 -c -emit-llvm -Wall -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM -Ibdwgc/include",
+				null,
+				null,
+				outDir,
+				true,
+				Console.WriteLine,
+				Console.WriteLine,
+				out var outGCHlpFile);
+
+			// 连接 GC
+			linkedFile = Path.Combine(outDir, "!linked_gc.bc");
+			Make.Link(
+				new List<string> { lastOptFile, outGCFile, outGCHlpFile },
+				linkedFile,
+				null,
+				Console.WriteLine,
+				strErr =>
+				{
+					Console.WriteLine("[LinkGCError] {0}", strErr);
+				});
+
+			// 最终优化
+			lastOptFile = linkedFile;
+			optCount = 2;
+			for (int i = 0; i < optCount; ++i)
+			{
+				string optFile = "!opt_gc_" + i + ".bc";
+
+				Make.Compile(
+					lastOptFile,
+					"-O3 -c -emit-llvm",
+					optFile,
+					null,
+					outDir,
+					false,
+					Console.WriteLine,
+					Console.WriteLine,
+					out lastOptFile);
+			}
+
+			// 生成可执行文件
+			Make.Compile(
+				lastOptFile,
+				"-O3",
+				"final.exe",
+				null,
+				srcDir,
+				false,
+				Console.WriteLine,
+				strErr =>
+				{
+					Console.WriteLine("[FinalLink] {0}", strErr);
+				},
+				out var finalFile);
+		}
+
+		static void PatchFile(string file, string src, string dst)
+		{
+			try
+			{
+				string content = File.ReadAllText(file, Encoding.UTF8);
+				if (content.IndexOf(src, StringComparison.Ordinal) == -1)
+					return;
+
+				content = content.Replace(src, dst);
+				var buf = Encoding.UTF8.GetBytes(content);
+				File.WriteAllBytes(file, buf);
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+			}
+		}
+
 		static void Main(string[] args)
 		{
 
