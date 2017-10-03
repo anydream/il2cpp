@@ -592,8 +592,8 @@ namespace BuildTheCode
 						int eq = cmd.IndexOf('=');
 						if (eq != -1)
 						{
-							cmd = cmd.Substring(0, eq);
 							cmdArg = cmd.Substring(eq + 1);
+							cmd = cmd.Substring(0, eq);
 						}
 						else if (i + 1 < args.Length)
 						{

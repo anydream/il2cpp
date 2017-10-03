@@ -256,7 +256,7 @@ namespace test
 							Console.WriteLine();
 							hasBuildErr = true;
 						}
-						else if (strOut.IndexOf("Compiled") != -1)
+						else if (strOut.IndexOf("Compiled:") != -1)
 							Console.Write(".");
 					}
 
