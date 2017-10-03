@@ -1691,12 +1691,16 @@ else
 					throw new ArgumentOutOfRangeException();
 			}
 
-			string castType = slotLhs.SlotType.GetSignedTypeName();
-			Debug.Assert(castType == slotRhs.SlotType.GetSignedTypeName());
+			string castType;
 			if (isUn)
 			{
 				castType = slotLhs.SlotType.GetUnsignedTypeName();
 				Debug.Assert(castType == slotRhs.SlotType.GetUnsignedTypeName());
+			}
+			else
+			{
+				castType = slotLhs.SlotType.GetSignedTypeName();
+				Debug.Assert(castType == slotRhs.SlotType.GetSignedTypeName());
 			}
 
 			switch (cmp)
@@ -1977,8 +1981,8 @@ else
 
 			if (tyX.IsValueType)
 			{
-				Debug.Assert(tyX.BoxedType != null);
 				TypeX boxedTyX = tyX.BoxedType;
+				Debug.Assert(boxedTyX != null);
 				RefTypeImpl(boxedTyX);
 
 				string strCode = GenAssign(
@@ -2019,7 +2023,16 @@ else
 
 			if (tyX.IsValueType)
 			{
-				throw new NotImplementedException();
+				TypeX boxedTyX = tyX.BoxedType;
+				Debug.Assert(boxedTyX != null);
+				RefTypeImpl(boxedTyX);
+
+				inst.InstCode = GenAssign(
+					TempName(slotPush),
+					string.Format("(({0} && istype_{1}({0}->TypeID)) ? {0} : 0)",
+						TempName(slotPop),
+						GenContext.GetTypeName(boxedTyX)),
+					slotPush.SlotType);
 			}
 			/*else if (tyX.IsNullableType)
 			{
@@ -2582,6 +2595,7 @@ else
 							case Code.Bne_Un:
 							case Code.Bne_Un_S:
 							case Code.Ceq:
+							case Code.Cgt_Un:
 								return true;
 						}
 					}

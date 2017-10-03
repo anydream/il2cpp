@@ -1003,7 +1003,7 @@ namespace testcase
 	}
 
 	[CodeGen]
-	static class TestBoxing
+	static class TestBoxUnbox
 	{
 		public static int Entry()
 		{
