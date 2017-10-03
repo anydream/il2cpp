@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace BuildTheCode
 {
-	class Make
+	internal static class Make
 	{
 		public struct CompileUnit
 		{
@@ -38,30 +38,40 @@ namespace BuildTheCode
 			Action<string> onError,
 			out string outputFile)
 		{
-			string srcFile = GetRelativePath(unitSrcFile, srcDir);
-			string unitName = EscapePath(srcFile);
-
-			if (outputName == null)
-				outputName = unitName + ".bc";
-
-			outputFile = Path.Combine(outDir, outputName);
-			string depFile = hasDepFile ? Path.Combine(outDir, unitName + ".d") : null;
-			string hashFile = Path.Combine(outDir, unitName + ".hash");
-
-			if (!IsNeedCompile(srcFile, outputFile, depFile, hashFile))
+			try
 			{
-				onOutput(string.Format("Skipped: {0}", srcFile));
-				return false;
+				string srcFile = GetRelativePath(unitSrcFile, srcDir);
+				string unitName = EscapePath(srcFile);
+
+				if (outputName == null)
+					outputName = unitName + ".bc";
+
+				outputFile = Path.Combine(outDir, outputName);
+				string depFile = hasDepFile ? Path.Combine(outDir, unitName + ".d") : null;
+				string hashFile = Path.Combine(outDir, unitName + ".hash");
+
+				string concatArgs = srcFile + " -o " + outputFile + " " + (hasDepFile ? "-MD " : null) + unitArgs;
+
+				if (!IsNeedCompile(srcFile, outputFile, depFile, hashFile, concatArgs))
+				{
+					onOutput(string.Format("Skipped: {0}", srcFile));
+					return false;
+				}
+
+				RunCommand("clang", concatArgs, srcDir, onOutput, onError);
+
+				WriteHashFile(hashFile, srcFile, concatArgs);
+
+				onOutput(string.Format("Compiled: {0} -> {1}", srcFile, outputFile));
+
+				return true;
 			}
-
-			string prependArgs = srcFile + " -o " + outputFile + " " + (hasDepFile ? "-MD " : null);
-			RunCommand("clang", prependArgs + unitArgs, srcDir, onOutput, onError);
-
-			File.WriteAllBytes(hashFile, GetFileHash(srcFile));
-
-			onOutput(string.Format("Compiled: {0} -> {1}", srcFile, outputFile));
-
-			return true;
+			catch (Exception ex)
+			{
+				onError(ex.ToString());
+			}
+			outputFile = null;
+			return false;
 		}
 
 		public static List<string> Compile(
@@ -81,7 +91,7 @@ namespace BuildTheCode
 				{
 					bool result = Compile(
 						unit.SrcFile,
-						 unit.Arguments,
+						unit.Arguments,
 						null,
 						srcDir,
 						outDir,
@@ -104,8 +114,14 @@ namespace BuildTheCode
 			return objFiles;
 		}
 
-		private static bool IsNeedCompile(string srcFile, string objFile, string depFile, string hashFile)
+		private static bool IsNeedCompile(string srcFile, string objFile, string depFile, string hashFile, string command)
 		{
+			if (!ReadHashFile(hashFile, out var savedCmd, out var savedHash))
+				return true;
+
+			if (savedCmd != command)
+				return true;
+
 			if (!GetModifyTime(srcFile, out var srcMT))
 				return true;
 
@@ -113,7 +129,7 @@ namespace BuildTheCode
 				return true;
 
 			if (srcMT > objMT)
-				return IsHashChanged(srcFile, hashFile);
+				return IsHashChanged(srcFile, savedHash);
 
 			if (depFile != null)
 			{
@@ -154,7 +170,7 @@ namespace BuildTheCode
 
 			RunCommand("llvm-link", args, srcDir, onOutput, onError);
 
-			onOutput(string.Format("Linked {0}", linkFile));
+			onOutput(string.Format("Linked: {0}", linkFile));
 		}
 
 		private static bool IsNeedLink(List<string> objFiles, string linkFile)
@@ -170,14 +186,62 @@ namespace BuildTheCode
 			return false;
 		}
 
-		private static bool IsHashChanged(string srcFile, string hashFile)
+		private static void WriteHashFile(string hashFile, string srcFile, string command)
+		{
+			byte[] cmdBytes = Encoding.UTF8.GetBytes(command);
+			byte[] hashBytes = GetFileHash(srcFile);
+
+			using (MemoryStream ms = new MemoryStream())
+			{
+				using (BinaryWriter bw = new BinaryWriter(ms))
+				{
+					bw.Write(cmdBytes.Length);
+					bw.Write(cmdBytes);
+					bw.Write(hashBytes.Length);
+					bw.Write(hashBytes);
+
+					using (FileStream fs = File.Open(hashFile, FileMode.Create))
+						ms.WriteTo(fs);
+				}
+			}
+		}
+
+		private static bool ReadHashFile(string hashFile, out string command, out byte[] hashCode)
 		{
 			try
 			{
-				var savedHash = File.ReadAllBytes(hashFile);
-				var calcHash = GetFileHash(srcFile);
+				byte[] buf = File.ReadAllBytes(hashFile);
 
-				if (savedHash.SequenceEqual(calcHash))
+				using (MemoryStream ms = new MemoryStream(buf))
+				{
+					using (BinaryReader br = new BinaryReader(ms))
+					{
+						int cmdLen = br.ReadInt32();
+						if (cmdLen < 0 || cmdLen > br.BaseStream.Length - br.BaseStream.Position)
+							throw new IOException();
+						command = Encoding.UTF8.GetString(br.ReadBytes(cmdLen));
+						int hashLen = br.ReadInt32();
+						if (hashLen < 0 || hashLen > br.BaseStream.Length - br.BaseStream.Position)
+							throw new IOException();
+						hashCode = br.ReadBytes(hashLen);
+					}
+				}
+			}
+			catch (Exception)
+			{
+				command = null;
+				hashCode = null;
+				return false;
+			}
+			return true;
+		}
+
+		private static bool IsHashChanged(string srcFile, byte[] hashCode)
+		{
+			try
+			{
+				var calcHash = GetFileHash(srcFile);
+				if (calcHash.SequenceEqual(hashCode))
 					return false;
 			}
 			catch (IOException)
@@ -349,6 +413,10 @@ namespace BuildTheCode
 
 	class Program
 	{
+		static string OptLevel = "-O3";
+		static int GenOptCount = 6;
+		static int FinalOptCount = 2;
+
 		static void MakeIl2cpp(
 			string srcDir,
 			string outDir,
@@ -358,7 +426,7 @@ namespace BuildTheCode
 
 			// 编译生成的文件
 			var objFiles = Make.Compile(
-				Make.ToUnits(genFiles, "-O3 -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM"),
+				Make.ToUnits(genFiles, OptLevel + " -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM"),
 				null, outDir,
 				Console.WriteLine,
 				strErr =>
@@ -380,22 +448,21 @@ namespace BuildTheCode
 
 			// 优化
 			string lastOptFile = linkedFile;
-			int optCount = 6;
-			for (int i = 0; i < optCount; ++i)
+			for (int i = 0; i < GenOptCount; ++i)
 			{
-				bool isLast = i == optCount - 1;
+				bool isLast = i == GenOptCount - 1;
 
 				string optFile;
 				string args;
 				if (isLast)
 				{
 					optFile = "!opt_" + i + ".ll";
-					args = "-O3 -S -emit-llvm";
+					args = OptLevel + " -S -emit-llvm";
 				}
 				else
 				{
 					optFile = "!opt_" + i + ".bc";
-					args = "-O3 -c -emit-llvm";
+					args = OptLevel + " -c -emit-llvm";
 				}
 
 				Make.Compile(
@@ -414,7 +481,7 @@ namespace BuildTheCode
 			// 编译 GC
 			Make.Compile(
 				"bdwgc/extra/gc.c",
-				"-O3 -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include",
+				OptLevel + " -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include",
 				null,
 				null,
 				outDir,
@@ -425,7 +492,7 @@ namespace BuildTheCode
 
 			Make.Compile(
 				"il2cppGC.cpp",
-				"-O3 -c -emit-llvm -Wall -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM -Ibdwgc/include",
+				OptLevel + " -c -emit-llvm -Wall -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM -Ibdwgc/include",
 				null,
 				null,
 				outDir,
@@ -448,14 +515,13 @@ namespace BuildTheCode
 
 			// 最终优化
 			lastOptFile = linkedFile;
-			optCount = 2;
-			for (int i = 0; i < optCount; ++i)
+			for (int i = 0; i < FinalOptCount; ++i)
 			{
 				string optFile = "!opt_gc_" + i + ".bc";
 
 				Make.Compile(
 					lastOptFile,
-					"-O3 -c -emit-llvm",
+					OptLevel + " -c -emit-llvm",
 					optFile,
 					null,
 					outDir,
@@ -469,7 +535,7 @@ namespace BuildTheCode
 			// 生成可执行文件
 			Make.Compile(
 				lastOptFile,
-				"-O3",
+				OptLevel,
 				finalFile,
 				null,
 				outDir,
@@ -483,7 +549,8 @@ namespace BuildTheCode
 
 			if (File.Exists(finalFile))
 				File.Delete(finalFile);
-			File.Copy(outExeFile, finalFile);
+			if (File.Exists(outExeFile))
+				File.Copy(outExeFile, finalFile);
 		}
 
 		static void PatchFile(string file, string src, string dst)
@@ -504,10 +571,69 @@ namespace BuildTheCode
 			}
 		}
 
+		static List<string> ParseArgs(string[] args)
+		{
+			List<string> result = new List<string>();
+			for (int i = 0; i < args.Length; ++i)
+			{
+				string arg = args[i];
+				if (arg.StartsWith("-"))
+				{
+					string cmd = arg.Substring(1);
+					if (cmd.Length > 0)
+					{
+						if (cmd[0] == 'O')
+						{
+							OptLevel = arg;
+							continue;
+						}
+
+						string cmdArg = null;
+						int eq = cmd.IndexOf('=');
+						if (eq != -1)
+						{
+							cmd = cmd.Substring(0, eq);
+							cmdArg = cmd.Substring(eq + 1);
+						}
+						else if (i + 1 < args.Length)
+						{
+							cmdArg = args[i + 1];
+							++i;
+						}
+
+						if (cmd == "optcount")
+						{
+							if (!string.IsNullOrEmpty(cmdArg))
+								int.TryParse(cmdArg, out GenOptCount);
+							continue;
+						}
+						else if (cmd == "foptcount")
+						{
+							if (!string.IsNullOrEmpty(cmdArg))
+								int.TryParse(cmdArg, out FinalOptCount);
+							continue;
+						}
+					}
+					Console.WriteLine("Unknown command {0}", arg);
+				}
+				else
+					result.Add(arg);
+			}
+			return result;
+		}
+
 		static void Main(string[] args)
 		{
 			if (args.Length > 0)
-				MakeIl2cpp(".", "output", args.ToList());
+			{
+				var compileUnits = ParseArgs(args);
+				MakeIl2cpp(".", "output", compileUnits);
+			}
+			else
+			{
+				Console.WriteLine("Please run 'build.cmd' to compile");
+				Console.ReadKey();
+			}
 		}
 	}
 }
