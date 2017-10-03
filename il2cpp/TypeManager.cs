@@ -31,6 +31,8 @@ namespace il2cpp
 		}
 		private readonly Dictionary<TypeDef, VarianceGroup> VarianceMap = new Dictionary<TypeDef, VarianceGroup>();
 
+		// 运行时装箱类型原型
+		private TypeDef BoxedTypePrototype;
 		// 运行时一维数组原型
 		private TypeDef SZArrayPrototype;
 		// 运行时多维数组原型映射
@@ -492,6 +494,15 @@ namespace il2cpp
 				case OperandType.InlineType:
 					{
 						TypeX tyX = ResolveTypeDefOrRef((ITypeDefOrRef)inst.Operand, replacer);
+						switch (inst.OpCode.Code)
+						{
+							case Code.Box:
+							case Code.Unbox:
+							case Code.Unbox_Any:
+								ResolveBoxedType(tyX);
+								break;
+						}
+
 						inst.Operand = tyX;
 						return;
 					}
@@ -940,10 +951,8 @@ namespace il2cpp
 			return baseTyX.IsDerivedType(derivedTyX);
 		}
 
-		// 解析类型并添加到映射
-		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
+		private TypeX TryAddType(TypeX tyX)
 		{
-			TypeX tyX = ResolveTypeDefOrRefImpl(tyDefRef, replacer);
 			Debug.Assert(tyX != null);
 
 			// 尝试添加到类型映射
@@ -956,6 +965,13 @@ namespace il2cpp
 			ExpandType(tyX);
 
 			return tyX;
+		}
+
+		// 解析类型并添加到映射
+		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
+		{
+			TypeX tyX = ResolveTypeDefOrRefImpl(tyDefRef, replacer);
+			return TryAddType(tyX);
 		}
 
 		// 解析类型引用
@@ -1087,6 +1103,47 @@ namespace il2cpp
 			if (genArgs.IsCollectionValid())
 				metX.GenArgs = new List<TypeSig>(genArgs);
 			return AddMethod(metX);
+		}
+
+		private void ResolveBoxedType(TypeX valueTyX)
+		{
+			if (!valueTyX.IsValueType)
+				return;
+			if (valueTyX.BoxedType != null)
+				return;
+
+			TypeDef boxedTyDef = GetBoxedTypeDef();
+			TypeX tyX = new TypeX(boxedTyDef);
+			tyX.GenArgs = new List<TypeSig>() { valueTyX.GetTypeSig() };
+			tyX = TryAddType(tyX);
+
+			FieldX fldX = new FieldX(tyX, boxedTyDef.Fields[0]);
+			AddField(fldX);
+
+			valueTyX.BoxedType = tyX;
+		}
+
+		private TypeDef GetBoxedTypeDef()
+		{
+			if (BoxedTypePrototype != null)
+				return BoxedTypePrototype;
+
+			TypeDefUser tyDef = new TypeDefUser(
+				"il2cpprt",
+				"BoxedType",
+				Context.CorLibTypes.Object.ToTypeDefOrRef());
+			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.NonVariant, "T"));
+			var genArgT = new GenericVar(0, tyDef);
+			Context.CorLibModule.Types.Add(tyDef);
+
+			FieldDefUser fldDef = new FieldDefUser(
+				"value",
+				new FieldSig(genArgT),
+				FieldAttributes.Public);
+			tyDef.Fields.Add(fldDef);
+
+			BoxedTypePrototype = tyDef;
+			return BoxedTypePrototype;
 		}
 
 		private TypeX ResolveSZArrayType(SZArraySig szArySig, IGenericReplacer replacer)

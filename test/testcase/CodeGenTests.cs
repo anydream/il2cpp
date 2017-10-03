@@ -953,6 +953,42 @@ namespace testcase
 		}
 	}
 
+	[CodeGen]
+	static class TestBoxing
+	{
+		public static int Entry()
+		{
+			int val = 123;
+			object obj = (object)val;
+			if (obj is int)
+			{
+				int unbox = (int)obj;
+
+				if (unbox != 123)
+					return 1;
+			}
+			else
+				return 2;
+
+			if (obj is uint)
+				return 3;
+
+			uint val2 = 456;
+			obj = (object)val2;
+			if (obj is int)
+				return 4;
+
+			if (obj is uint unbox2)
+			{
+				if (unbox2 != 456)
+					return 5;
+			}
+			else return 6;
+
+			return 0;
+		}
+	}
+
 	static class TestRayTrace
 	{
 #if false
@@ -1864,6 +1900,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
+			TestBoxing.Entry();
 		}
 	}
 }

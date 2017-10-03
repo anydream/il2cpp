@@ -82,6 +82,9 @@ namespace il2cpp
 		public bool IsEnumType => EnumInfo != null;
 		public TypeSig EnumTypeSig => EnumInfo.EnumField.FieldType;
 
+		// 装箱类型
+		public TypeX BoxedType;
+
 		// 是否实例化过
 		public bool IsInstantiated;
 

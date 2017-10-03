@@ -1365,6 +1365,10 @@ else
 					GenNewobj(inst, (MethodX)operand);
 					return;
 
+				case Code.Box:
+					GenBox(inst, (TypeX)operand);
+					return;
+
 				case Code.Isinst:
 					GenIsinst(inst, (TypeX)operand);
 					return;
@@ -1966,19 +1970,61 @@ else
 			}
 		}
 
+		private void GenBox(InstInfo inst, TypeX tyX)
+		{
+			var slotPop = Pop();
+			var slotPush = Push(StackType.Obj);
+
+			if (tyX.IsValueType)
+			{
+				Debug.Assert(tyX.BoxedType != null);
+				TypeX boxedTyX = tyX.BoxedType;
+				RefTypeImpl(boxedTyX);
+
+				string strCode = GenAssign(
+					TempName(slotPush),
+					string.Format("IL2CPP_NEW(sizeof({0}), {1}, {2})",
+						GenContext.GetTypeName(boxedTyX),
+						GenContext.GetTypeID(boxedTyX),
+						GenContext.IsNoRefType(boxedTyX) ? "1" : "0"),
+					slotPush.SlotType);
+
+				strCode += "\n";
+
+				FieldX valueFldX = boxedTyX.Fields.First();
+				strCode += GenAssign(
+					string.Format("(({0}*){1})->{2}",
+						GenContext.GetTypeName(boxedTyX),
+						TempName(slotPush),
+						GenContext.GetFieldName(valueFldX)),
+					TempName(slotPop),
+					valueFldX.FieldType);
+
+				inst.InstCode = strCode;
+			}
+			/*else if (tyX.IsNullableType)
+			{
+				
+			}*/
+			else
+			{
+
+			}
+		}
+
 		private void GenIsinst(InstInfo inst, TypeX tyX)
 		{
 			var slotPop = Pop();
 			var slotPush = Push(StackType.Obj);
 
-			if (tyX.GetNameKey() == "System.Nullable`1")
+			if (tyX.IsValueType)
 			{
 				throw new NotImplementedException();
 			}
-			else if (tyX.IsValueType)
+			/*else if (tyX.IsNullableType)
 			{
-				throw new NotImplementedException();
-			}
+				
+			}*/
 			else
 			{
 				RefTypeImpl(tyX);
