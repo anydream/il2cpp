@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using dnlib.DotNet;
@@ -201,10 +202,22 @@ namespace il2cpp
 			return false;
 		}
 
-		public static bool IsValueType(TypeSig tySig)
+		public static bool IsEnumType(TypeSig tySig, out TypeSig enumTypeSig)
 		{
-			return tySig.ElementType == ElementType.ValueType ||
-				   tySig.ElementType == ElementType.GenericInst && tySig.IsValueType;
+			if (tySig.IsValueType)
+			{
+				TypeDef tyDef = tySig.ToTypeDefOrRef().ResolveTypeDef();
+				if (tyDef.BaseType.FullName == "System.Enum")
+				{
+					FieldDef fldDef = tyDef.Fields.FirstOrDefault(f => !f.IsStatic);
+					Debug.Assert(fldDef != null);
+					enumTypeSig = fldDef.FieldType;
+					return true;
+				}
+			}
+
+			enumTypeSig = null;
+			return false;
 		}
 
 		public static void TypeNameKey(

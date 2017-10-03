@@ -200,7 +200,7 @@ namespace il2cpp
 
 		private void RefValueTypeDecl(CompileUnit unit, TypeSig tySig)
 		{
-			if (!Helper.IsValueType(tySig))
+			if (!tySig.IsValueType)
 				return;
 
 			TypeX tyX = GenContext.GetTypeBySig(tySig);

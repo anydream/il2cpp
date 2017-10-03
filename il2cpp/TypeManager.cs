@@ -764,10 +764,10 @@ namespace il2cpp
 				if (tyX.BaseType.GetNameKey() == "System.Enum")
 				{
 					// 处理枚举类型
-					var fields = tyX.Def.Fields.Where(fldDef => !fldDef.IsStatic).ToList();
-					Debug.Assert(fields.Count == 1);
+					var fldDef = tyX.Def.Fields.FirstOrDefault(f => !f.IsStatic);
+					Debug.Assert(fldDef != null);
 
-					FieldX fldX = ResolveFieldDef(fields[0]);
+					FieldX fldX = ResolveFieldDef(fldDef);
 					tyX.EnumInfo = new EnumProperty { EnumField = fldX };
 				}
 			}

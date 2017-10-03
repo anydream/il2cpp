@@ -604,6 +604,12 @@ namespace testcase
 			EE
 		}
 
+		enum MyEnum2
+		{
+			FF = 26,
+			GG
+		}
+
 		class MyCls
 		{
 			public MyEnum enum1;
@@ -618,8 +624,16 @@ namespace testcase
 			return (MyEnumI8)enu;
 		}
 
+		static int Foo2(MyEnum2 enu)
+		{
+			return (int)enu;
+		}
+
 		public static int Entry()
 		{
+			if (Foo2(MyEnum2.GG) != 27)
+				return -1;
+
 			var cls = new MyCls();
 			if (cls.enum1 != 0)
 				return 1;
@@ -948,6 +962,41 @@ namespace testcase
 			if (catchNum != 13 ||
 				finallyNum != 6)
 				return 12;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestNullable
+	{
+		struct MyStru
+		{
+			public int fld;
+		}
+		public static int Entry()
+		{
+			float? nf = 1.0f;
+			float f = nf ?? 0;
+			if (f != 1.0f)
+				return 1;
+
+			nf = null;
+			f = nf ?? 0;
+			if (f != 0)
+				return 2;
+
+			MyStru? ns = null;
+			if (ns.HasValue)
+				return 3;
+
+			ns = new MyStru() { fld = 789 };
+			if (ns == null)
+				return 4;
+
+			MyStru s = ns.Value;
+			if (s.fld != 789)
+				return 5;
 
 			return 0;
 		}
@@ -1900,7 +1949,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestBoxing.Entry();
+			TestNullable.Entry();
 		}
 	}
 }

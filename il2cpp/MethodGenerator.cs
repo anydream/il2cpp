@@ -2290,10 +2290,10 @@ else
 
 			if (tySig.IsValueType)
 			{
-				TypeX tyX = GenContext.GetTypeBySig(tySig);
-				if (tyX.IsEnumType)
-					return ToStackType(tyX.EnumTypeSig);
+				if (Helper.IsEnumType(tySig, out var enumTySig))
+					return ToStackType(enumTySig);
 
+				TypeX tyX = GenContext.GetTypeBySig(tySig);
 				return new StackType(GenContext.GetTypeName(tyX));
 			}
 
@@ -2310,7 +2310,8 @@ else
 
 		private string CastType(TypeSig tySig)
 		{
-			if (Helper.IsValueType(tySig))
+			if (tySig.ElementType == ElementType.ValueType ||
+				tySig.ElementType == ElementType.GenericInst && tySig.IsValueType)
 				return null;
 			else
 				return '(' + GenContext.GetTypeName(tySig) + ')';
@@ -2330,7 +2331,7 @@ else
 
 		private void RefValueTypeDecl(TypeSig tySig)
 		{
-			if (Helper.IsValueType(tySig))
+			if (tySig.IsValueType)
 				RefTypeDecl(tySig);
 		}
 
@@ -2348,7 +2349,7 @@ else
 
 		private void RefValueTypeImpl(TypeSig tySig)
 		{
-			if (Helper.IsValueType(tySig))
+			if (tySig.IsValueType)
 				RefTypeImpl(tySig);
 		}
 

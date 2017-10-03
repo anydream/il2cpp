@@ -374,9 +374,8 @@ namespace il2cpp
 
 			if (tySig.IsValueType)
 			{
-				TypeX tyX = GetTypeBySig(tySig);
-				if (tyX.IsEnumType)
-					return GetTypeDefaultValue(tyX.EnumTypeSig);
+				if (Helper.IsEnumType(tySig, out var enumTySig))
+					return GetTypeDefaultValue(enumTySig);
 
 				return "{}";
 			}
@@ -434,12 +433,12 @@ namespace il2cpp
 				case ElementType.Array:
 				case ElementType.String:
 					{
+						if (Helper.IsEnumType(tySig, out var enumTySig))
+							return GetTypeName(enumTySig);
+
 						bool isValueType = tySig.IsValueType;
 						TypeX tyX = GetTypeBySig(tySig);
 						Debug.Assert(tyX != null);
-
-						if (tyX.IsEnumType)
-							return GetTypeName(tyX.EnumTypeSig);
 
 						return "struct " +
 							GetTypeName(tyX) +
