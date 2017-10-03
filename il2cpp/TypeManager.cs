@@ -1116,6 +1116,7 @@ namespace il2cpp
 			TypeX tyX = new TypeX(boxedTyDef);
 			tyX.GenArgs = new List<TypeSig>() { valueTyX.GetTypeSig() };
 			tyX = TryAddType(tyX);
+			tyX.IsInstantiated = true;
 
 			FieldX fldX = new FieldX(tyX, boxedTyDef.Fields[0]);
 			AddField(fldX);

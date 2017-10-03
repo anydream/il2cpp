@@ -1368,6 +1368,9 @@ else
 				case Code.Box:
 					GenBox(inst, (TypeX)operand);
 					return;
+				case Code.Unbox_Any:
+					GenUnbox(inst, (TypeX)operand);
+					return;
 
 				case Code.Isinst:
 					GenIsinst(inst, (TypeX)operand);
@@ -2013,6 +2016,36 @@ else
 			else
 			{
 
+			}
+		}
+
+		private void GenUnbox(InstInfo inst, TypeX tyX, bool isAddr = false)
+		{
+			var slotPop = Pop();
+			SlotInfo slotPush;
+			if (isAddr)
+				slotPush = Push(StackType.Ptr);
+			else
+				slotPush = Push(ToStackType(tyX.GetTypeSig()));
+
+			if (tyX.IsValueType)
+			{
+				TypeX boxedTyX = tyX.BoxedType;
+				Debug.Assert(boxedTyX != null);
+				RefTypeImpl(boxedTyX);
+
+				inst.InstCode = GenAssign(
+					TempName(slotPush),
+					string.Format("{0}(({1}*){2})->{3}",
+						isAddr ? "&" : null,
+						GenContext.GetTypeName(boxedTyX),
+						TempName(slotPop),
+						GenContext.GetFieldName(boxedTyX.Fields.First())),
+					slotPush.SlotType);
+			}
+			else
+			{
+				throw new NotImplementedException();
 			}
 		}
 
