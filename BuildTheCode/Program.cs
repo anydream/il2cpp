@@ -431,7 +431,7 @@ namespace BuildTheCode
 				Console.WriteLine,
 				strErr =>
 				{
-					Console.WriteLine("[CompileError] {0}", strErr);
+					Console.Error.WriteLine("[CompileError] {0}", strErr);
 				});
 
 			// 连接
@@ -443,7 +443,7 @@ namespace BuildTheCode
 				Console.WriteLine,
 				strErr =>
 				{
-					Console.WriteLine("[LinkError] {0}", strErr);
+					Console.Error.WriteLine("[LinkError] {0}", strErr);
 				});
 
 			// 优化
@@ -472,7 +472,7 @@ namespace BuildTheCode
 				  outDir,
 				  false,
 				  Console.WriteLine,
-				  Console.WriteLine,
+				  Console.Error.WriteLine,
 				  out lastOptFile);
 			}
 
@@ -487,7 +487,7 @@ namespace BuildTheCode
 				outDir,
 				true,
 				Console.WriteLine,
-				Console.WriteLine,
+				Console.Error.WriteLine,
 				out var outGCFile);
 
 			Make.Compile(
@@ -498,7 +498,7 @@ namespace BuildTheCode
 				outDir,
 				true,
 				Console.WriteLine,
-				Console.WriteLine,
+				Console.Error.WriteLine,
 				out var outGCHlpFile);
 
 			// 连接 GC
@@ -510,7 +510,7 @@ namespace BuildTheCode
 				Console.WriteLine,
 				strErr =>
 				{
-					Console.WriteLine("[LinkGCError] {0}", strErr);
+					Console.Error.WriteLine("[LinkGCError] {0}", strErr);
 				});
 
 			// 最终优化
@@ -527,7 +527,7 @@ namespace BuildTheCode
 					outDir,
 					false,
 					Console.WriteLine,
-					Console.WriteLine,
+					Console.Error.WriteLine,
 					out lastOptFile);
 			}
 
@@ -543,7 +543,7 @@ namespace BuildTheCode
 				Console.WriteLine,
 				strErr =>
 				{
-					Console.WriteLine("[FinalLink] {0}", strErr);
+					Console.Error.WriteLine("[FinalLink] {0}", strErr);
 				},
 				out var outExeFile);
 
@@ -567,7 +567,7 @@ namespace BuildTheCode
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex.Message);
+				Console.Error.WriteLine(ex.Message);
 			}
 		}
 
@@ -614,7 +614,7 @@ namespace BuildTheCode
 							continue;
 						}
 					}
-					Console.WriteLine("Unknown command {0}", arg);
+					Console.Error.WriteLine("Unknown command {0}", arg);
 				}
 				else
 					result.Add(arg);
@@ -624,6 +624,21 @@ namespace BuildTheCode
 
 		static void Main(string[] args)
 		{
+			try
+			{
+				Make.RunCommand("clang", "-v", null, null, null);
+			}
+			catch (System.ComponentModel.Win32Exception)
+			{
+				Console.Error.Write("Cannot find clang compiler,\nplease download it from ");
+				var oldColor = Console.ForegroundColor;
+				Console.ForegroundColor = ConsoleColor.Cyan;
+				Console.Error.WriteLine("http://releases.llvm.org/download.html");
+				Console.ForegroundColor = oldColor;
+				Console.ReadKey();
+				return;
+			}
+
 			if (args.Length > 0)
 			{
 				var compileUnits = ParseArgs(args);
@@ -631,7 +646,7 @@ namespace BuildTheCode
 			}
 			else
 			{
-				Console.WriteLine("Please run 'build.cmd' to compile");
+				Console.Error.WriteLine("Please run 'build.cmd' to compile");
 				Console.ReadKey();
 			}
 		}
