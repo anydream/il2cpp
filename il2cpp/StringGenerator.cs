@@ -83,19 +83,56 @@ namespace il2cpp
 		private string GenStringCode(List<string> strList, uint strTypeID)
 		{
 			CodePrinter prt = new CodePrinter();
+
 			foreach (string str in strList)
 			{
 				StringProp prop = StringMap[str];
 
+				string strAry = StringToArrayOrRaw(str, out bool isRaw);
+
 				prt.AppendFormatLine("// {0}", EscapeString(str));
-				prt.AppendFormatLine("struct {{ cls_Object obj; int32_t len; uint16_t str[{0}]; }} {1} {{ {{{2}}}, {3}, {4} }};",
+				prt.AppendFormatLine("struct {{ cls_Object obj; int32_t len; {5} str[{0}]; }} {1} {{ {{{2}}}, {3}, {4} }};",
 					str.Length + 1,
 					GetConstName(prop.ConstIndex),
 					strTypeID,
 					str.Length,
-					StringToArray(str));
+					strAry,
+					isRaw ? "char16_t" : "uint16_t");
 			}
 			return prt.ToString();
+		}
+
+		private static string StringToArrayOrRaw(string str, out bool isRaw)
+		{
+			isRaw = true;
+			StringBuilder sbRaw = new StringBuilder();
+			foreach (char c in str)
+			{
+				if (c >= 0x21 && c <= 0x7E)
+				{
+					switch (c)
+					{
+						case '\\':
+							sbRaw.Append("\\\\");
+							break;
+						case '"':
+							sbRaw.Append("\\\"");
+							break;
+						default:
+							sbRaw.Append(c);
+							break;
+					}
+				}
+				else
+				{
+					isRaw = false;
+					break;
+				}
+			}
+
+			if (isRaw)
+				return "u\"" + sbRaw + "\"";
+			return StringToArray(str);
 		}
 
 		private static string StringToArray(string str)

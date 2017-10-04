@@ -124,7 +124,14 @@ else
 					return true;
 				}
 			}
-
+			else if (typeName == "System.Environment")
+			{
+				if (metName == "GetResourceFromDefault")
+				{
+					prt.AppendLine("return arg_0;");
+					return true;
+				}
+			}
 			return false;
 		}
 	}

@@ -243,7 +243,31 @@ namespace testcase
 
 		public static int Entry()
 		{
-			string s = "hello,world";
+			string s = "asdf\\1234\"zxcv'!~";
+			if (s[4] != 0x5C)
+				return -1;
+			if (s[9] != 0x22)
+				return -2;
+			if (s[14] != 0x27)
+				return -3;
+
+			s = "0987\r\n!~";
+			if (s[4] != 0x0D)
+				return -4;
+			if (s[5] != 0x0A)
+				return -5;
+
+			s = "你好世界";
+			if (s[0] != 0x4F60)
+				return -6;
+			if (s[1] != 0x597D)
+				return -7;
+			if (s[2] != 0x4E16)
+				return -8;
+			if (s[3] != 0x754C)
+				return -9;
+
+			s = "hello,world";
 			if (s != "hello,world")
 				return 1;
 			if (s.Length != 11)
@@ -1011,7 +1035,7 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestNullable
 	{
 		struct MyStru
