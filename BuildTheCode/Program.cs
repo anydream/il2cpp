@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace BuildTheCode
 {
@@ -429,12 +428,14 @@ namespace BuildTheCode
 		static int GenOptCount = 6;
 		static int FinalOptCount = 2;
 
-		static void MakeIl2cpp(string workDir, string outDir, List<string> srcList)
+		static bool MakeIl2cpp(string workDir, string outDir, List<string> srcList)
 		{
+			HashSet<string> objList = new HashSet<string>();
 			Dictionary<string, CompileUnit> unitMap = new Dictionary<string, CompileUnit>();
 			foreach (string src in srcList)
 			{
 				string outFile = Path.Combine(outDir, src + ".bc");
+				objList.Add(outFile);
 
 				CompileUnit unit = new CompileUnit(
 					string.Format("clang {0} -o {1} {2} -MD -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM",
@@ -452,28 +453,62 @@ namespace BuildTheCode
 				unitMap.Add(src, unit);
 			}
 
-			foreach (var kv in unitMap)
-			{
-				var status = kv.Value.Invoke();
-				switch (status)
+			Parallel.ForEach(unitMap, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
+				kv =>
 				{
-					case ActionUnit.Status.Skipped:
-						Console.WriteLine("Skipped: {0}", kv.Key);
-						break;
-					case ActionUnit.Status.Completed:
-						Console.WriteLine("Compiled: {0}", kv.Key);
-						break;
-					case ActionUnit.Status.Error:
-						Console.Error.WriteLine("Error: {0}", kv.Key);
-						break;
-				}
+					var status = kv.Value.Invoke();
+					switch (status)
+					{
+						case ActionUnit.Status.Skipped:
+							Console.WriteLine("Skipped: {0}", kv.Key);
+							break;
+						case ActionUnit.Status.Completed:
+							Console.WriteLine("Compiled: {0}", kv.Key);
+							break;
+						case ActionUnit.Status.Error:
+							Console.Error.WriteLine("Error: {0}", kv.Key);
+							break;
+					}
+				});
+
+			string linkedFile = Path.Combine(outDir, "!linked.bc");
+			ActionUnit linkUnit = new ActionUnit(
+				string.Format("llvm-link -o {0} {1}",
+					linkedFile,
+					string.Join(" ", objList)),
+				workDir,
+				outDir,
+				linkedFile,
+				objList);
+
+			linkUnit.OnOutput = Console.WriteLine;
+			linkUnit.OnError = Console.Error.WriteLine;
+
+			var linkStatus = linkUnit.Invoke();
+			switch (linkStatus)
+			{
+				case ActionUnit.Status.Skipped:
+					Console.WriteLine("LinkSkipped: {0}", linkedFile);
+					break;
+				case ActionUnit.Status.Completed:
+					Console.WriteLine("LinkCompleted: {0}", linkedFile);
+					break;
+				case ActionUnit.Status.Error:
+					Console.Error.WriteLine("LinkError: {0}", linkedFile);
+					return false;
 			}
 
-			foreach (var kv in unitMap)
+			foreach (var unit in unitMap.Values)
 			{
-				if (kv.Value.UnitStatus == ActionUnit.Status.Completed)
-					kv.Value.CompletedUpdate();
+				if (unit.UnitStatus == ActionUnit.Status.Error)
+					return false;
 			}
+
+			linkUnit.CompletedUpdate();
+			foreach (var unit in unitMap.Values)
+				unit.CompletedUpdate();
+
+			return true;
 		}
 
 		static List<string> ParseArgs(string[] args)
