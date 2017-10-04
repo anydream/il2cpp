@@ -58,11 +58,24 @@ namespace BuildTheCode
 					return false;
 				}
 
-				RunCommand("clang", concatArgs, srcDir, onOutput, onError);
+				bool hasError = false;
+				RunCommand("clang", concatArgs, srcDir, onOutput,
+					strErr =>
+					{
+						if (!hasError && strErr.IndexOf("error") != -1)
+							hasError = true;
 
-				WriteHashFile(hashFile, srcFile, concatArgs);
+						if (hasError)
+							onError(strErr);
+						else
+							onOutput(strErr);
+					});
 
-				onOutput(string.Format("Compiled: {0} -> {1}", srcFile, outputFile));
+				if (!hasError)
+				{
+					WriteHashFile(hashFile, srcFile, concatArgs);
+					onOutput(string.Format("Compiled: {0} -> {1}", srcFile, outputFile));
+				}
 
 				return true;
 			}
