@@ -243,29 +243,31 @@ namespace test
 
 			Console.Write("Building");
 			bool hasBuildErr = false;
+			Action<string> actOutput = strOut =>
+			{
+				if (!hasBuildErr)
+				{
+					if (strOut.IndexOf("error") != -1)
+					{
+						Console.WriteLine();
+						hasBuildErr = true;
+					}
+					else if (strOut.IndexOf("Compiled:") != -1)
+						Console.Write(".");
+				}
+
+				if (hasBuildErr)
+				{
+					Console.Error.WriteLine("{0}", strOut);
+				}
+			};
+
 			RunCommand(
 				null,
 				"build.cmd",
 				genDir,
-				strOut =>
-				{
-					if (!hasBuildErr)
-					{
-						if (strOut.IndexOf("error") != -1)
-						{
-							Console.WriteLine();
-							hasBuildErr = true;
-						}
-						else if (strOut.IndexOf("Compiled:") != -1)
-							Console.Write(".");
-					}
-
-					if (hasBuildErr)
-					{
-						Console.WriteLine("! {0}", strOut);
-					}
-				},
-				Console.WriteLine);
+				actOutput,
+				actOutput);
 
 			string result = null;
 			if (!hasBuildErr)
@@ -277,7 +279,7 @@ namespace test
 					"final.exe",
 					genDir,
 					strOut => runOutput = strOut,
-					Console.WriteLine);
+					Console.Error.WriteLine);
 
 				Console.Write(" {0} ", runOutput);
 
