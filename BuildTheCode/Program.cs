@@ -429,10 +429,7 @@ namespace BuildTheCode
 				Make.ToUnits(genFiles, OptLevel + " -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM"),
 				null, outDir,
 				Console.WriteLine,
-				strErr =>
-				{
-					Console.Error.WriteLine("[CompileError] {0}", strErr);
-				});
+				Console.Error.WriteLine);
 
 			// 连接
 			string linkedFile = Path.Combine(outDir, "!linked.bc");
