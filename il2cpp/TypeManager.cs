@@ -235,7 +235,10 @@ namespace il2cpp
 			{
 				case Code.Ldstr:
 					if (!TypeMap.ContainsKey("String"))
-						ResolveTypeDefOrRef(Context.CorLibTypes.String.ToTypeDefOrRef(), null);
+					{
+						TypeX strTyX = ResolveTypeDefOrRef(Context.CorLibTypes.String.ToTypeDefOrRef(), null);
+						strTyX.IsInstantiated = true;
+					}
 					break;
 
 				case Code.Newarr:

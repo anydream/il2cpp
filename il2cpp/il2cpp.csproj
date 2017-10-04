@@ -55,6 +55,7 @@
     <Compile Include="MethodTable.cs" />
     <Compile Include="MethodX.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RuntimeInternals.cs" />
     <Compile Include="SharpZipLib\Checksum\Adler32.cs" />
     <Compile Include="SharpZipLib\Checksum\BZip2Crc.cs" />
     <Compile Include="SharpZipLib\Checksum\Crc32.cs" />

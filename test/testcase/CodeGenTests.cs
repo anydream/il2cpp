@@ -257,9 +257,9 @@ namespace testcase
 			if (s[10] != 'd')
 				return 5;
 
-			int hash = s.GetHashCode();
+			/*int hash = s.GetHashCode();
 			if (hash != -1668901784)
-				return 6;
+				return 6;*/
 
 			MyCls cls = new MyCls();
 			if (cls.strfld != "defaultstr")

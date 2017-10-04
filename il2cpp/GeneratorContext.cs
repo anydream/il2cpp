@@ -226,7 +226,9 @@ namespace il2cpp
 
 			var transMap = new CompileUnitMerger(units).Merge();
 
-			StrGen.Generate(units, GetTypeID(TypeMgr.GetTypeByName("String")));
+			TypeX strTyX = TypeMgr.GetTypeByName("String");
+			if (strTyX != null)
+				StrGen.Generate(units, GetTypeID(strTyX));
 
 			return new GenerateResult(this, units.Values.ToList(), transMap);
 		}
