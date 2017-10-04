@@ -1368,6 +1368,9 @@ else
 				case Code.Box:
 					GenBox(inst, (TypeX)operand);
 					return;
+				case Code.Unbox:
+					GenUnbox(inst, (TypeX)operand, true);
+					return;
 				case Code.Unbox_Any:
 					GenUnbox(inst, (TypeX)operand);
 					return;

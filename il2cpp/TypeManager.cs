@@ -635,14 +635,6 @@ namespace il2cpp
 			// 展开字段类型
 			fldX.FieldType = Helper.ReplaceGenericSig(fldX.Def.FieldType, replacer);
 
-			try
-			{
-				ResolveTypeDefOrRef(fldX.FieldType.ToTypeDefOrRef(), null);
-			}
-			catch (ArgumentOutOfRangeException)
-			{
-			}
-
 			return fldX;
 		}
 

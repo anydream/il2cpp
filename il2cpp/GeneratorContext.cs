@@ -260,7 +260,11 @@ namespace il2cpp
 				case ElementType.GenericInst:
 					if (tySig.IsValueType)
 					{
+						if (Helper.IsEnumType(tySig, out var enumTySig))
+							return GetTypeLayoutOrder(enumTySig);
+
 						TypeX tyX = GetTypeBySig(tySig);
+						Debug.Assert(tyX != null);
 						if (tyX.AccumOrderSize >= 0)
 							return tyX.AccumOrderSize;
 

@@ -967,7 +967,7 @@ namespace testcase
 		}
 	}
 
-	[CodeGen]
+	//[CodeGen]
 	static class TestNullable
 	{
 		struct MyStru
