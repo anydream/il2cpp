@@ -31,6 +31,9 @@
 #define IL2CPP_THROW(_ex)	throw il2cppException(_ex)
 
 struct cls_Object;
+
+struct il2cppDummy {};
+
 struct il2cppException
 {
 	cls_Object* ExceptionPtr;

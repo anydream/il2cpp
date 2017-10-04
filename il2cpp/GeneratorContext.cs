@@ -264,7 +264,9 @@ namespace il2cpp
 							return GetTypeLayoutOrder(enumTySig);
 
 						TypeX tyX = GetTypeBySig(tySig);
-						Debug.Assert(tyX != null);
+						if (tyX == null)
+							return 1;
+
 						if (tyX.AccumOrderSize >= 0)
 							return tyX.AccumOrderSize;
 
@@ -442,7 +444,13 @@ namespace il2cpp
 
 						bool isValueType = tySig.IsValueType;
 						TypeX tyX = GetTypeBySig(tySig);
-						Debug.Assert(tyX != null);
+						if (tyX == null)
+						{
+							if (isValueType)
+								return "il2cppDummy";
+							else
+								return "cls_Object*";
+						}
 
 						return "struct " +
 							GetTypeName(tyX) +
