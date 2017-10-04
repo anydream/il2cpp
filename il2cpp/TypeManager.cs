@@ -230,9 +230,14 @@ namespace il2cpp
 
 		private void ResolveOperand(InstInfo inst, IGenericReplacer replacer)
 		{
-			// 重定向数组指令
+			// 预处理指令
 			switch (inst.OpCode.Code)
 			{
+				case Code.Ldstr:
+					if (!TypeMap.ContainsKey("String"))
+						ResolveTypeDefOrRef(Context.CorLibTypes.String.ToTypeDefOrRef(), null);
+					break;
+
 				case Code.Newarr:
 					{
 						// newobj T[]::.ctor(int)

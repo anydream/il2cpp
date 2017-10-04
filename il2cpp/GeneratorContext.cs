@@ -66,6 +66,7 @@ namespace il2cpp
 		public string ImplCode;
 		public HashSet<string> DeclDepends = new HashSet<string>();
 		public HashSet<string> ImplDepends = new HashSet<string>();
+		public HashSet<string> StringDepends = new HashSet<string>();
 		public uint DependOrder;
 
 		public void Optimize(Dictionary<string, CompileUnit> unitMap)
@@ -85,6 +86,7 @@ namespace il2cpp
 			DeclDepends.UnionWith(unit.DeclDepends);
 			ImplCode += unit.ImplCode;
 			ImplDepends.UnionWith(unit.ImplDepends);
+			StringDepends.UnionWith(unit.StringDepends);
 		}
 
 		public bool IsEmpty()
@@ -101,7 +103,9 @@ namespace il2cpp
 		private static readonly HashSet<string> BridgeTypes = new HashSet<string>
 		{
 			"cls_Object",
-			"cls_System_Array"
+			"cls_String",
+			"cls_System_Array",
+			"cls_System_Exception"
 		};
 
 		public CompileUnitMerger(Dictionary<string, CompileUnit> units)
@@ -200,6 +204,7 @@ namespace il2cpp
 	internal class GeneratorContext
 	{
 		public readonly TypeManager TypeMgr;
+		public readonly StringGenerator StrGen = new StringGenerator();
 		private uint TypeIDCounter;
 
 		public GeneratorContext(TypeManager typeMgr)
@@ -219,9 +224,11 @@ namespace il2cpp
 				units.Add(unit.Name, unit);
 			}
 
-			var merger = new CompileUnitMerger(units);
-			var transMap = merger.Merge();
-			return new GenerateResult(this, merger.UnitMap.Values.ToList(), transMap);
+			var transMap = new CompileUnitMerger(units).Merge();
+
+			StrGen.Generate(units, GetTypeID(TypeMgr.GetTypeByName("String")));
+
+			return new GenerateResult(this, units.Values.ToList(), transMap);
 		}
 
 		public int GetTypeLayoutOrder(TypeSig tySig)

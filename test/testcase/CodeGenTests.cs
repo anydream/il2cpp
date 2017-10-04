@@ -229,6 +229,50 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static class TestString
+	{
+		class MyCls
+		{
+			public string strfld = "defaultstr";
+		}
+
+		private static string Foo(string s)
+		{
+			return s;
+		}
+
+		public static int Entry()
+		{
+			string s = "hello,world";
+			if (s != "hello,world")
+				return 1;
+			if (s.Length != 11)
+				return 2;
+
+			if (Foo(s) != s)
+				return 3;
+
+			if (s[0] != 'h')
+				return 4;
+			if (s[10] != 'd')
+				return 5;
+
+			int hash = s.GetHashCode();
+			if (hash != -1668901784)
+				return 6;
+
+			MyCls cls = new MyCls();
+			if (cls.strfld != "defaultstr")
+				return 7;
+			cls.strfld = "nice";
+			if (cls.strfld != "nice")
+				return 8;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
 	static class TestValueType
 	{
 		private static short sfldI2;
@@ -1949,7 +1993,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestNullable.Entry();
+			TestString.Entry();
 		}
 	}
 }

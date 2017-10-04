@@ -96,6 +96,7 @@
     <Compile Include="SharpZipLib\Zip\ZipInputStream.cs" />
     <Compile Include="SharpZipLib\Zip\ZipNameTransform.cs" />
     <Compile Include="SharpZipLib\Zip\ZipOutputStream.cs" />
+    <Compile Include="StringGenerator.cs" />
     <Compile Include="TypeGenerator.cs" />
     <Compile Include="TypeManager.cs" />
     <Compile Include="TypeX.cs" />

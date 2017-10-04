@@ -165,6 +165,7 @@ namespace il2cpp
 
 		public readonly HashSet<string> DeclDepends = new HashSet<string>();
 		public readonly HashSet<string> ImplDepends = new HashSet<string>();
+		public readonly HashSet<string> StringDepends = new HashSet<string>();
 		public string DeclCode;
 		public string ImplCode;
 
@@ -1164,6 +1165,10 @@ else
 					GenLdc(inst, StackType.R8, ((double)operand).ToString("R"));
 					return;
 
+				case Code.Ldstr:
+					GenLdstr(inst, (string)operand);
+					return;
+
 				case Code.Ldarg_0:
 					GenLdarg(inst, 0);
 					return;
@@ -1535,6 +1540,13 @@ else
 		{
 			var slotPush = Push(stype);
 			inst.InstCode = GenAssign(TempName(slotPush), val, stype);
+		}
+
+		private void GenLdstr(InstInfo inst, string str)
+		{
+			StringDepends.Add(str);
+			string constName = GenContext.StrGen.AddString(str);
+			GenLdc(inst, StackType.Obj, "&" + constName);
 		}
 
 		private void GenLdarg(InstInfo inst, int argID, bool isAddr = false)

@@ -130,6 +130,8 @@ namespace il2cpp
 
 				prtImpl.Append(metGen.ImplCode);
 				unit.ImplDepends.UnionWith(metGen.ImplDepends);
+
+				unit.StringDepends.UnionWith(metGen.StringDepends);
 			}
 
 			unit.DeclCode = prtDecl.ToString();
