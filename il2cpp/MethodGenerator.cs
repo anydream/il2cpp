@@ -708,7 +708,7 @@ namespace il2cpp
 				}
 			}
 			else
-				return RuntimeInternals.GenInternalMethod(CurrMethod, prt);
+				return RuntimeInternals.GenInternalMethod(CurrMethod, prt, GenContext);
 			
 			return false;
 		}

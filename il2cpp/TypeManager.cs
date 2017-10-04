@@ -237,6 +237,11 @@ namespace il2cpp
 					if (!TypeMap.ContainsKey("String"))
 					{
 						TypeX strTyX = ResolveTypeDefOrRef(Context.CorLibTypes.String.ToTypeDefOrRef(), null);
+						foreach (FieldDef fldDef in strTyX.Def.Fields)
+						{
+							if (!fldDef.IsStatic)
+								ResolveFieldDef(fldDef);
+						}
 						strTyX.IsInstantiated = true;
 					}
 					break;

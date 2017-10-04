@@ -88,7 +88,7 @@ namespace il2cpp
 				StringProp prop = StringMap[str];
 
 				prt.AppendFormatLine("// {0}", EscapeString(str));
-				prt.AppendFormatLine("struct {{ cls_Object obj; int len; uint16_t str[{0}]; }} {1} {{ {{{2}}}, {3}, {4} }};",
+				prt.AppendFormatLine("struct {{ cls_Object obj; int32_t len; uint16_t str[{0}]; }} {1} {{ {{{2}}}, {3}, {4} }};",
 					str.Length + 1,
 					GetConstName(prop.ConstIndex),
 					strTypeID,

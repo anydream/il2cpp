@@ -228,7 +228,7 @@ namespace il2cpp
 			if (layoutType == TypeAttributes.AutoLayout)
 			{
 				fields.Sort((lhs, rhs) =>
-					GenContext.GetTypeLayoutOrder(lhs.FieldType).CompareTo(GenContext.GetTypeLayoutOrder(rhs.FieldType)));
+					GenContext.GetTypeLayoutOrder(rhs.FieldType).CompareTo(GenContext.GetTypeLayoutOrder(lhs.FieldType)));
 			}
 			else if (layoutType == TypeAttributes.SequentialLayout)
 			{
