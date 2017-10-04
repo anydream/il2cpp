@@ -244,6 +244,7 @@ namespace testcase
 		public static int Entry()
 		{
 			string s = "asdf\\1234\"zxcv'!~";
+
 			if (s[4] != 0x5C)
 				return -1;
 			if (s[9] != 0x22)
@@ -266,6 +267,13 @@ namespace testcase
 				return -8;
 			if (s[3] != 0x754C)
 				return -9;
+			if (s.Length != 4)
+				return -10;
+
+			s = "";
+			object o = s.Length == 0 ? s : null;
+			if (!(o is string))
+				return -11;
 
 			s = "hello,world";
 			if (s != "hello,world")
