@@ -10,260 +10,9 @@ using System.Linq;
 
 namespace BuildTheCode
 {
-	internal static class Make
+	internal static class Helper
 	{
-		public struct CompileUnit
-		{
-			public string SrcFile;
-			public string Arguments;
-		}
-
-		public static List<CompileUnit> ToUnits(List<string> srcs, string arguments)
-		{
-			List<CompileUnit> units = new List<CompileUnit>();
-			foreach (string src in srcs)
-				units.Add(new CompileUnit { SrcFile = src, Arguments = arguments });
-
-			return units;
-		}
-
-		public static bool Compile(
-			string unitSrcFile,
-			string unitArgs,
-			string outputName,
-			string srcDir,
-			string outDir,
-			bool hasDepFile,
-			Action<string> onOutput,
-			Action<string> onError,
-			out string outputFile)
-		{
-			try
-			{
-				string srcFile = GetRelativePath(unitSrcFile, srcDir);
-				string unitName = EscapePath(srcFile);
-
-				if (outputName == null)
-					outputName = unitName + ".bc";
-
-				outputFile = Path.Combine(outDir, outputName);
-				string depFile = hasDepFile ? Path.Combine(outDir, unitName + ".d") : null;
-				string hashFile = Path.Combine(outDir, unitName + ".hash");
-
-				string concatArgs = srcFile + " -o " + outputFile + " " + (hasDepFile ? "-MD " : null) + unitArgs;
-
-				if (!IsNeedCompile(srcFile, outputFile, depFile, hashFile, concatArgs))
-				{
-					onOutput(string.Format("Skipped: {0}", srcFile));
-					return false;
-				}
-
-				bool hasError = false;
-				RunCommand("clang", concatArgs, srcDir, onOutput,
-					strErr =>
-					{
-						if (!hasError && strErr.IndexOf("error") != -1)
-							hasError = true;
-
-						if (hasError)
-							onError(strErr);
-						else
-							onOutput(strErr);
-					});
-
-				if (!hasError)
-				{
-					WriteHashFile(hashFile, srcFile, concatArgs);
-					onOutput(string.Format("Compiled: {0} -> {1}", srcFile, outputFile));
-				}
-
-				return true;
-			}
-			catch (Exception ex)
-			{
-				onError(ex.ToString());
-			}
-			outputFile = null;
-			return false;
-		}
-
-		public static List<string> Compile(
-			List<CompileUnit> units,
-			string srcDir,
-			string outDir,
-			Action<string> onOutput,
-			Action<string> onError)
-		{
-			Directory.CreateDirectory(outDir);
-
-			List<string> objFiles = new List<string>();
-
-			int compiled = 0;
-			Parallel.ForEach(units, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
-				unit =>
-				{
-					bool result = Compile(
-						unit.SrcFile,
-						unit.Arguments,
-						null,
-						srcDir,
-						outDir,
-						true,
-						onOutput,
-						onError,
-						out var outputFile);
-
-					lock (objFiles)
-					{
-						objFiles.Add(outputFile);
-					}
-
-					if (result)
-						Interlocked.Increment(ref compiled);
-				});
-
-			onOutput(string.Format("Compiled {0} of {1}", compiled, units.Count));
-
-			return objFiles;
-		}
-
-		private static bool IsNeedCompile(string srcFile, string objFile, string depFile, string hashFile, string command)
-		{
-			if (!ReadHashFile(hashFile, out var savedCmd, out var savedHash))
-				return true;
-
-			if (savedCmd != command)
-				return true;
-
-			if (!GetModifyTime(srcFile, out var srcMT))
-				return true;
-
-			if (!GetModifyTime(objFile, out var objMT))
-				return true;
-
-			if (srcMT > objMT)
-				return IsHashChanged(srcFile, savedHash);
-
-			if (depFile != null)
-			{
-				try
-				{
-					string depContent = File.ReadAllText(depFile);
-					var depLines = ParseDependsFile(depContent);
-
-					foreach (string hfile in depLines)
-					{
-						if (!GetModifyTime(hfile, out var hMT) || hMT > objMT)
-							return true;
-					}
-				}
-				catch (IOException)
-				{
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		public static void Link(
-			List<string> objFiles,
-			string linkFile,
-			string srcDir,
-			Action<string> onOutput,
-			Action<string> onError)
-		{
-			if (!IsNeedLink(objFiles, linkFile))
-			{
-				onOutput(string.Format("Skipped Linking {0}", linkFile));
-				return;
-			}
-
-			string args = "-o " + linkFile + " " + string.Join(" ", objFiles);
-
-			RunCommand("llvm-link", args, srcDir, onOutput, onError);
-
-			onOutput(string.Format("Linked: {0}", linkFile));
-		}
-
-		private static bool IsNeedLink(List<string> objFiles, string linkFile)
-		{
-			if (!GetModifyTime(linkFile, out var linkMT))
-				return true;
-
-			foreach (string objFile in objFiles)
-			{
-				if (!GetModifyTime(objFile, out var objMT) || objMT > linkMT)
-					return true;
-			}
-			return false;
-		}
-
-		private static void WriteHashFile(string hashFile, string srcFile, string command)
-		{
-			byte[] cmdBytes = Encoding.UTF8.GetBytes(command);
-			byte[] hashBytes = GetFileHash(srcFile);
-
-			using (MemoryStream ms = new MemoryStream())
-			{
-				using (BinaryWriter bw = new BinaryWriter(ms))
-				{
-					bw.Write(cmdBytes.Length);
-					bw.Write(cmdBytes);
-					bw.Write(hashBytes.Length);
-					bw.Write(hashBytes);
-
-					using (FileStream fs = File.Open(hashFile, FileMode.Create))
-						ms.WriteTo(fs);
-				}
-			}
-		}
-
-		private static bool ReadHashFile(string hashFile, out string command, out byte[] hashCode)
-		{
-			try
-			{
-				byte[] buf = File.ReadAllBytes(hashFile);
-
-				using (MemoryStream ms = new MemoryStream(buf))
-				{
-					using (BinaryReader br = new BinaryReader(ms))
-					{
-						int cmdLen = br.ReadInt32();
-						if (cmdLen < 0 || cmdLen > br.BaseStream.Length - br.BaseStream.Position)
-							throw new IOException();
-						command = Encoding.UTF8.GetString(br.ReadBytes(cmdLen));
-						int hashLen = br.ReadInt32();
-						if (hashLen < 0 || hashLen > br.BaseStream.Length - br.BaseStream.Position)
-							throw new IOException();
-						hashCode = br.ReadBytes(hashLen);
-					}
-				}
-			}
-			catch (Exception)
-			{
-				command = null;
-				hashCode = null;
-				return false;
-			}
-			return true;
-		}
-
-		private static bool IsHashChanged(string srcFile, byte[] hashCode)
-		{
-			try
-			{
-				var calcHash = GetFileHash(srcFile);
-				if (calcHash.SequenceEqual(hashCode))
-					return false;
-			}
-			catch (IOException)
-			{
-			}
-			return true;
-		}
-
-		private static byte[] GetFileHash(string file)
+		public static byte[] GetFileHash(string file)
 		{
 			try
 			{
@@ -277,8 +26,82 @@ namespace BuildTheCode
 			}
 			catch (IOException)
 			{
-				return new byte[0];
+				return null;
 			}
+		}
+
+		public static DateTime? GetModifyTime(string path)
+		{
+			if (!File.Exists(path))
+			{
+				return null;
+			}
+			return File.GetLastWriteTimeUtc(path);
+		}
+
+		public static bool GetDependFiles(string dfile, out List<string> depFiles)
+		{
+			try
+			{
+				string dcontent = File.ReadAllText(dfile);
+				depFiles = ParseDependFiles(dcontent);
+				return true;
+			}
+			catch (IOException)
+			{
+				depFiles = null;
+				return false;
+			}
+		}
+
+		private static List<string> ParseDependFiles(string input)
+		{
+			input = input.Replace("\r", null);
+
+			List<string> output = new List<string>();
+			StringBuilder sb = new StringBuilder();
+
+			void AddOutput(string s)
+			{
+				if (s.Length > 0)
+					output.Add(s);
+			}
+
+			for (int i = 0, sz = input.Length; i < sz; ++i)
+			{
+				char ch = input[i];
+				if (ch == '\\' && i + 1 < sz)
+				{
+					char chNext = input[i + 1];
+					if (chNext == '\\' ||
+						chNext == ' ')
+					{
+						sb.Append(chNext);
+						++i;
+						continue;
+					}
+					else if (chNext == '\n')
+					{
+						AddOutput(sb.ToString());
+						sb.Clear();
+						++i;
+						continue;
+					}
+				}
+				else if (ch == '\n' || ch == ' ')
+				{
+					AddOutput(sb.ToString());
+					sb.Clear();
+					continue;
+				}
+				sb.Append(ch);
+			}
+
+			if (sb.Length > 0)
+				AddOutput(sb.ToString());
+
+			output.RemoveRange(0, 2);
+			return output;
 		}
 
 		public static void RunCommand(
@@ -338,246 +161,318 @@ namespace BuildTheCode
 			if (isWait)
 				pSpawn.WaitForExit();
 		}
+	}
 
-		private static List<string> ParseDependsFile(string input)
+	internal class ActionUnit
+	{
+		public readonly string Command;
+		public readonly string WorkDir;
+		public readonly string OutDir;
+		public readonly string TargetFile;
+		public readonly HashSet<string> DependFiles = new HashSet<string>();
+		public Action<string> OnOutput;
+		public Action<string> OnError;
+
+		public enum Status
 		{
-			input = input.Replace("\r", null);
-
-			List<string> output = new List<string>();
-			StringBuilder sb = new StringBuilder();
-
-			void AddOutput(string s)
-			{
-				if (s.Length > 0)
-					output.Add(s);
-			}
-
-			for (int i = 0, sz = input.Length; i < sz; ++i)
-			{
-				char ch = input[i];
-				if (ch == '\\' && i + 1 < sz)
-				{
-					char chNext = input[i + 1];
-					if (chNext == '\\' ||
-						chNext == ' ')
-					{
-						sb.Append(chNext);
-						++i;
-						continue;
-					}
-					else if (chNext == '\n')
-					{
-						AddOutput(sb.ToString());
-						sb.Clear();
-						++i;
-						continue;
-					}
-				}
-				else if (ch == '\n' || ch == ' ')
-				{
-					AddOutput(sb.ToString());
-					sb.Clear();
-					continue;
-				}
-				sb.Append(ch);
-			}
-
-			if (sb.Length > 0)
-				AddOutput(sb.ToString());
-
-			output.RemoveRange(0, 2);
-			return output;
+			Skipped,
+			Completed,
+			Error
 		}
 
-		private static bool GetModifyTime(string path, out DateTime tm)
-		{
-			if (!File.Exists(path))
-			{
-				tm = DateTime.MaxValue;
-				return false;
-			}
+		public Status UnitStatus { get; protected set; } = Status.Skipped;
 
-			tm = File.GetLastWriteTimeUtc(path);
-			return true;
+		protected DateTime? TargetModifyTime;
+
+		public ActionUnit(
+			string cmd,
+			string workDir, string outDir,
+			string target, HashSet<string> depFiles)
+		{
+			Command = cmd;
+			WorkDir = Path.GetFullPath(workDir);
+			Directory.SetCurrentDirectory(WorkDir);
+
+			OutDir = Path.GetFullPath(outDir);
+			Directory.CreateDirectory(outDir);
+
+			TargetFile = Path.GetFullPath(target);
+			foreach (string dep in depFiles)
+				DependFiles.Add(Path.GetFullPath(dep));
 		}
 
-		private static string GetRelativePath(string path, string relativeTo)
+		public Status Invoke()
 		{
-			string fullPath = Path.GetFullPath(path);
+			TargetModifyTime = Helper.GetModifyTime(TargetFile);
+			ExpandDepends();
 
-			if (string.IsNullOrEmpty(relativeTo))
-				relativeTo = ".";
+			if (!IsNeedDoAction())
+				return UnitStatus = Status.Skipped;
 
-			string fullRelative = Path.GetFullPath(relativeTo + '/');
-			if (fullPath.Length >= fullRelative.Length)
-				return fullPath.Substring(fullRelative.Length);
+			if (DoAction())
+				return UnitStatus = Status.Completed;
+
+			return UnitStatus = Status.Error;
+		}
+
+		public void CompletedUpdate()
+		{
+			UpdateCommand();
+			foreach (string dep in DependFiles)
+				UpdateHash(dep);
+		}
+
+		protected virtual bool DoAction()
+		{
+			bool isError = false;
+			Helper.RunCommand(
+				null,
+				Command,
+				WorkDir,
+				OnOutput,
+				strErr =>
+				{
+					isError = true;
+					OnError(strErr);
+				});
+
+			return !isError;
+		}
+
+		protected virtual bool IsNeedDoAction()
+		{
+			if (IsCommandChanged())
+				return true;
+
+			foreach (string dep in DependFiles)
+			{
+				if (IsFileChanged(dep))
+					return true;
+			}
+
+			return false;
+		}
+
+		protected virtual bool IsCommandChanged()
+		{
+			string savedCmd = ReadSavedCommand();
+			if (savedCmd == null)
+				return true;
+
+			if (savedCmd != Command)
+				return true;
+
+			return false;
+		}
+
+		protected virtual string ReadSavedCommand()
+		{
+			string cmdFile = GetCommandFilePath();
+
+			try
+			{
+				return Encoding.UTF8.GetString(File.ReadAllBytes(cmdFile));
+			}
+			catch (IOException)
+			{
+				return null;
+			}
+		}
+
+		protected virtual void UpdateCommand()
+		{
+			string cmdFile = GetCommandFilePath();
+
+			try
+			{
+				File.WriteAllBytes(cmdFile, Encoding.UTF8.GetBytes(Command));
+			}
+			catch (IOException)
+			{
+			}
+		}
+
+		protected virtual string GetCommandFilePath()
+		{
+			string fname = Path.GetFileName(TargetFile);
+			return Path.Combine(OutDir, fname + ".comd");
+		}
+
+		protected virtual bool IsFileChanged(string path)
+		{
+			if (TargetModifyTime == null)
+				return true;
+
+			var mt = Helper.GetModifyTime(path);
+			if (mt == null)
+				return true;
+
+			if (mt > TargetModifyTime && IsHashChanged(path))
+				return true;
+
+			return false;
+		}
+
+		protected virtual bool IsHashChanged(string path)
+		{
+			byte[] savedHash = ReadSavedHash(path);
+			if (savedHash == null)
+				return true;
+
+			byte[] calcHash = Helper.GetFileHash(path);
+			if (calcHash == null)
+				return true;
+
+			if (!savedHash.SequenceEqual(calcHash))
+				return true;
+
+			return false;
+		}
+
+		protected virtual byte[] ReadSavedHash(string path)
+		{
+			string hashFile = GetHashFilePath(path);
+
+			try
+			{
+				return File.ReadAllBytes(hashFile);
+			}
+			catch (IOException)
+			{
+				return null;
+			}
+		}
+
+		protected virtual void UpdateHash(string path)
+		{
+			byte[] hashBytes = Helper.GetFileHash(path);
+			string hashFile = GetHashFilePath(path);
+
+			try
+			{
+				File.WriteAllBytes(hashFile, hashBytes);
+			}
+			catch (IOException)
+			{
+			}
+		}
+
+		protected virtual string GetHashFilePath(string path)
+		{
+			if (path.StartsWith(WorkDir))
+			{
+				string fname = Path.GetFileName(path);
+				return Path.Combine(OutDir, fname + ".hash");
+			}
 			else
-				return path;
+			{
+				string fname = Path.GetFileName(path);
+				return Path.Combine(OutDir, fname + "_" + path.GetHashCode().ToString("X") + ".dhash");
+			}
 		}
 
-		private static string EscapePath(string path)
+		protected virtual void ExpandDepends()
 		{
-			path = path.Replace('/', '$');
-			path = path.Replace('\\', '$');
-			path = path.Replace(':', '#');
-			return path;
 		}
 	}
 
-	class Program
+	internal class CompileUnit : ActionUnit
+	{
+		public CompileUnit(
+			string cmd,
+			string workDir, string outDir,
+			string target, HashSet<string> depFiles)
+			: base(cmd, workDir, outDir, target, depFiles)
+		{
+		}
+
+		protected override bool DoAction()
+		{
+			bool isError = false;
+			Helper.RunCommand(
+				null,
+				Command,
+				WorkDir,
+				OnOutput,
+				strErr =>
+				{
+					if (!isError && strErr.IndexOf("error") != -1)
+						isError = true;
+
+					if (isError)
+						OnError(strErr);
+					else
+						OnOutput(strErr);
+				});
+
+			return !isError;
+		}
+
+		protected override void ExpandDepends()
+		{
+			HashSet<string> depSet = new HashSet<string>();
+			foreach (string dep in DependFiles)
+			{
+				string dfile = Path.Combine(OutDir, Path.GetFileName(dep) + ".d");
+
+				if (Helper.GetDependFiles(dfile, out var depFiles))
+					depSet.UnionWith(depFiles);
+			}
+			foreach (string dep in depSet)
+				DependFiles.Add(Path.GetFullPath(dep));
+		}
+	}
+
+	static class Program
 	{
 		static string OptLevel = "-O3";
 		static int GenOptCount = 6;
 		static int FinalOptCount = 2;
 
-		static void MakeIl2cpp(
-			string srcDir,
-			string outDir,
-			List<string> genFiles)
+		static void MakeIl2cpp(string workDir, string outDir, List<string> srcList)
 		{
-			Directory.SetCurrentDirectory(srcDir);
-
-			// 编译生成的文件
-			var objFiles = Make.Compile(
-				Make.ToUnits(genFiles, OptLevel + " -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM"),
-				null, outDir,
-				Console.WriteLine,
-				Console.Error.WriteLine);
-
-			// 连接
-			string linkedFile = Path.Combine(outDir, "!linked.bc");
-			Make.Link(
-				objFiles,
-				linkedFile,
-				null,
-				Console.WriteLine,
-				strErr =>
-				{
-					Console.Error.WriteLine("[LinkError] {0}", strErr);
-				});
-
-			// 优化
-			string lastOptFile = linkedFile;
-			for (int i = 0; i < GenOptCount; ++i)
+			Dictionary<string, CompileUnit> unitMap = new Dictionary<string, CompileUnit>();
+			foreach (string src in srcList)
 			{
-				bool isLast = i == GenOptCount - 1;
+				string outFile = Path.Combine(outDir, src + ".bc");
 
-				string optFile;
-				string args;
-				if (isLast)
-				{
-					optFile = "!opt_" + i + ".ll";
-					args = OptLevel + " -S -emit-llvm";
-				}
-				else
-				{
-					optFile = "!opt_" + i + ".bc";
-					args = OptLevel + " -c -emit-llvm";
-				}
-
-				Make.Compile(
-				  lastOptFile, args,
-				  optFile,
-				  null,
-				  outDir,
-				  false,
-				  Console.WriteLine,
-				  Console.Error.WriteLine,
-				  out lastOptFile);
-			}
-
-			PatchFile(lastOptFile, "@calloc", "@_il2cpp_GC_PatchCalloc");
-
-			// 编译 GC
-			Make.Compile(
-				"bdwgc/extra/gc.c",
-				OptLevel + " -c -emit-llvm -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include",
-				null,
-				null,
-				outDir,
-				true,
-				Console.WriteLine,
-				Console.Error.WriteLine,
-				out var outGCFile);
-
-			Make.Compile(
-				"il2cppGC.cpp",
-				OptLevel + " -c -emit-llvm -Wall -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM -Ibdwgc/include",
-				null,
-				null,
-				outDir,
-				true,
-				Console.WriteLine,
-				Console.Error.WriteLine,
-				out var outGCHlpFile);
-
-			// 连接 GC
-			linkedFile = Path.Combine(outDir, "!linked_gc.bc");
-			Make.Link(
-				new List<string> { lastOptFile, outGCFile, outGCHlpFile },
-				linkedFile,
-				null,
-				Console.WriteLine,
-				strErr =>
-				{
-					Console.Error.WriteLine("[LinkGCError] {0}", strErr);
-				});
-
-			// 最终优化
-			lastOptFile = linkedFile;
-			for (int i = 0; i < FinalOptCount; ++i)
-			{
-				string optFile = "!opt_gc_" + i + ".bc";
-
-				Make.Compile(
-					lastOptFile,
-					OptLevel + " -c -emit-llvm",
-					optFile,
-					null,
+				CompileUnit unit = new CompileUnit(
+					string.Format("clang {0} -o {1} {2} -MD -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM",
+						src,
+						outFile,
+						OptLevel),
+					workDir,
 					outDir,
-					false,
-					Console.WriteLine,
-					Console.Error.WriteLine,
-					out lastOptFile);
+					outFile,
+					new HashSet<string> { src });
+
+				unit.OnOutput = Console.WriteLine;
+				unit.OnError = Console.Error.WriteLine;
+
+				unitMap.Add(src, unit);
 			}
 
-			string finalFile = "final.exe";
-			// 生成可执行文件
-			Make.Compile(
-				lastOptFile,
-				OptLevel,
-				finalFile,
-				null,
-				outDir,
-				false,
-				Console.WriteLine,
-				strErr =>
+			foreach (var kv in unitMap)
+			{
+				var status = kv.Value.Invoke();
+				switch (status)
 				{
-					Console.Error.WriteLine("[FinalLink] {0}", strErr);
-				},
-				out var outExeFile);
-
-			if (File.Exists(finalFile))
-				File.Delete(finalFile);
-			if (File.Exists(outExeFile))
-				File.Copy(outExeFile, finalFile);
-		}
-
-		static void PatchFile(string file, string src, string dst)
-		{
-			try
-			{
-				string content = File.ReadAllText(file, Encoding.UTF8);
-				if (content.IndexOf(src, StringComparison.Ordinal) == -1)
-					return;
-
-				content = content.Replace(src, dst);
-				var buf = Encoding.UTF8.GetBytes(content);
-				File.WriteAllBytes(file, buf);
+					case ActionUnit.Status.Skipped:
+						Console.WriteLine("Skipped: {0}", kv.Key);
+						break;
+					case ActionUnit.Status.Completed:
+						Console.WriteLine("Compiled: {0}", kv.Key);
+						break;
+					case ActionUnit.Status.Error:
+						Console.Error.WriteLine("Error: {0}", kv.Key);
+						break;
+				}
 			}
-			catch (Exception ex)
+
+			foreach (var kv in unitMap)
 			{
-				Console.Error.WriteLine(ex.Message);
+				if (kv.Value.UnitStatus == ActionUnit.Status.Completed)
+					kv.Value.CompletedUpdate();
 			}
 		}
 
@@ -636,7 +531,7 @@ namespace BuildTheCode
 		{
 			try
 			{
-				Make.RunCommand("clang", "-v", null, null, null);
+				Helper.RunCommand("clang", "-v", null, null, null);
 			}
 			catch (System.ComponentModel.Win32Exception)
 			{
