@@ -53,6 +53,26 @@ namespace BuildTheCode
 			}
 		}
 
+		public static bool PatchTextFile(string file, string src, string dst)
+		{
+			try
+			{
+				string content = File.ReadAllText(file, Encoding.UTF8);
+				if (content.IndexOf(src, StringComparison.Ordinal) == -1)
+					return true;
+
+				content = content.Replace(src, dst);
+				var buf = Encoding.UTF8.GetBytes(content);
+				File.WriteAllBytes(file, buf);
+
+				return true;
+			}
+			catch (Exception)
+			{
+				return false;
+			}
+		}
+
 		private static List<string> ParseDependFiles(string input)
 		{
 			input = input.Replace("\r", null);
@@ -422,37 +442,143 @@ namespace BuildTheCode
 		}
 	}
 
-	static class Program
+	internal class Maker
 	{
-		static string OptLevel = "-O3";
-		static int GenOptCount = 6;
-		static int FinalOptCount = 2;
+		public string OptLevel = "-O3";
+		public int GenOptCount = 6;
+		public int FinalOptCount = 2;
 
-		static bool MakeIl2cpp(string workDir, string outDir, List<string> srcList)
+		public readonly string WorkDir;
+		public readonly string OutDir;
+
+		public Maker(string workDir, string outDir)
 		{
-			HashSet<string> objList = new HashSet<string>();
+			WorkDir = workDir;
+			OutDir = outDir;
+		}
+
+		public void Invoke(HashSet<string> srcFiles)
+		{
 			Dictionary<string, CompileUnit> unitMap = new Dictionary<string, CompileUnit>();
-			foreach (string src in srcList)
+			HashSet<string> objSet = new HashSet<string>();
+
+			// 编译生成的文件
+			foreach (string srcFile in srcFiles)
 			{
-				string outFile = Path.Combine(outDir, src + ".bc");
-				objList.Add(outFile);
+				AddCompileUnit(unitMap, objSet, srcFile,
+					"-Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM");
+			}
+			ParallelCompile(unitMap);
 
-				CompileUnit unit = new CompileUnit(
-					string.Format("clang {0} -o {1} {2} -MD -c -emit-llvm -Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM",
-						src,
-						outFile,
-						OptLevel),
-					workDir,
-					outDir,
-					outFile,
-					new HashSet<string> { src });
+			// 链接
+			string linkedFile = Linking("!linked.bc", objSet);
+			if (linkedFile == null)
+				return;
 
-				unit.OnOutput = Console.WriteLine;
-				unit.OnError = Console.Error.WriteLine;
+			unitMap.Clear();
+			objSet.Clear();
 
-				unitMap.Add(src, unit);
+			// 优化
+			string optedFile = Optimizing(linkedFile, null, GenOptCount, true);
+			if (optedFile == null)
+				return;
+
+			// 替换实现
+			if (!Helper.PatchTextFile(optedFile, "@calloc", "@_il2cpp_GC_PatchCalloc"))
+				return;
+
+			// 编译 GC
+			AddCompileUnit(unitMap, objSet,
+				"bdwgc/extra/gc.c",
+				"-D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include");
+			AddCompileUnit(unitMap, objSet,
+				"il2cppGC.cpp",
+				"-Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include");
+			ParallelCompile(unitMap);
+
+			// 链接 GC
+			objSet.Add(optedFile);
+			linkedFile = Linking("!linked_gc.bc", objSet);
+			if (linkedFile == null)
+				return;
+
+			unitMap.Clear();
+			objSet.Clear();
+
+			// 最终优化
+			optedFile = Optimizing(linkedFile, "gc_", FinalOptCount, false);
+			if (optedFile == null)
+				return;
+
+			// 生成目标文件
+			string finalObj = "final.o";
+			CompileUnit finalCompile = new CompileUnit(
+				string.Format("clang {0} -o {1} {2} -c",
+					optedFile,
+					finalObj,
+					OptLevel),
+				WorkDir,
+				OutDir,
+				finalObj,
+				new HashSet<string> { optedFile });
+
+			finalCompile.OnOutput = Console.WriteLine;
+			finalCompile.OnError = Console.Error.WriteLine;
+
+			if (finalCompile.Invoke() == ActionUnit.Status.Completed)
+			{
+				finalCompile.CompletedUpdate();
+				Console.WriteLine("Object file generated.");
 			}
 
+			// 生成可执行文件
+			string finalExe = "final.exe";
+			finalCompile = new CompileUnit(
+			   string.Format("clang {0} -o {1} {2}",
+				   finalObj,
+				   finalExe,
+				   OptLevel),
+			   WorkDir,
+			   OutDir,
+			   finalExe,
+			   new HashSet<string> { finalObj });
+
+			finalCompile.OnOutput = Console.WriteLine;
+			finalCompile.OnError = Console.Error.WriteLine;
+
+			if (finalCompile.Invoke() == ActionUnit.Status.Completed)
+				finalCompile.CompletedUpdate();
+
+			Console.WriteLine("Compile finished.");
+		}
+
+		private void AddCompileUnit(
+			Dictionary<string, CompileUnit> unitMap,
+			HashSet<string> objSet,
+			string srcFile,
+			string cflags)
+		{
+			string outFile = Path.Combine(OutDir, EscapePath(srcFile) + ".bc");
+			objSet.Add(outFile);
+
+			CompileUnit compUnit = new CompileUnit(
+				string.Format("clang {0} -o {1} {2} -MD -c -emit-llvm " + cflags,
+					srcFile,
+					outFile,
+					OptLevel),
+				WorkDir,
+				OutDir,
+				outFile,
+				new HashSet<string> { srcFile });
+
+			compUnit.OnOutput = Console.WriteLine;
+			compUnit.OnError = Console.Error.WriteLine;
+
+			unitMap.Add(srcFile, compUnit);
+		}
+
+		private void ParallelCompile(Dictionary<string, CompileUnit> unitMap)
+		{
 			Parallel.ForEach(unitMap, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
 				kv =>
 				{
@@ -471,15 +597,24 @@ namespace BuildTheCode
 					}
 				});
 
-			string linkedFile = Path.Combine(outDir, "!linked.bc");
+			foreach (var unit in unitMap.Values)
+			{
+				if (unit.UnitStatus == ActionUnit.Status.Completed)
+					unit.CompletedUpdate();
+			}
+		}
+
+		private string Linking(string outName, HashSet<string> objSet)
+		{
+			string outFile = Path.Combine(OutDir, outName);
 			ActionUnit linkUnit = new ActionUnit(
 				string.Format("llvm-link -o {0} {1}",
-					linkedFile,
-					string.Join(" ", objList)),
-				workDir,
-				outDir,
-				linkedFile,
-				objList);
+					outFile,
+					string.Join(" ", objSet)),
+				WorkDir,
+				OutDir,
+				outFile,
+				objSet);
 
 			linkUnit.OnOutput = Console.WriteLine;
 			linkUnit.OnError = Console.Error.WriteLine;
@@ -488,28 +623,88 @@ namespace BuildTheCode
 			switch (linkStatus)
 			{
 				case ActionUnit.Status.Skipped:
-					Console.WriteLine("LinkSkipped: {0}", linkedFile);
+					Console.WriteLine("LinkSkipped: {0}", outFile);
 					break;
 				case ActionUnit.Status.Completed:
-					Console.WriteLine("LinkCompleted: {0}", linkedFile);
+					linkUnit.CompletedUpdate();
+					Console.WriteLine("LinkCompleted: {0}", outFile);
 					break;
 				case ActionUnit.Status.Error:
-					Console.Error.WriteLine("LinkError: {0}", linkedFile);
-					return false;
+					Console.Error.WriteLine("LinkError: {0}", outFile);
+					return null;
 			}
 
-			foreach (var unit in unitMap.Values)
-			{
-				if (unit.UnitStatus == ActionUnit.Status.Error)
-					return false;
-			}
-
-			linkUnit.CompletedUpdate();
-			foreach (var unit in unitMap.Values)
-				unit.CompletedUpdate();
-
-			return true;
+			return outFile;
 		}
+
+		private string Optimizing(string lastOptFile, string outNamePostfix, int optCount, bool isLastText)
+		{
+			for (int i = 0; i < optCount; ++i)
+			{
+				string strExt;
+				string strFlag;
+
+				if (!isLastText || i != optCount - 1)
+				{
+					strExt = ".bc";
+					strFlag = "-c";
+				}
+				else
+				{
+					strExt = ".ll";
+					strFlag = "-S";
+				}
+
+				string optFile = Path.Combine(OutDir, "!opt_" + outNamePostfix + i + strExt);
+
+				CompileUnit optUnit = new CompileUnit(
+					string.Format("clang {0} -o {1} {2} {3} -emit-llvm",
+						lastOptFile,
+						optFile,
+						OptLevel,
+						strFlag),
+					WorkDir,
+					OutDir,
+					optFile,
+					new HashSet<string> { lastOptFile });
+
+				optUnit.OnOutput = Console.WriteLine;
+				optUnit.OnError = Console.Error.WriteLine;
+
+				var status = optUnit.Invoke();
+				switch (status)
+				{
+					case ActionUnit.Status.Skipped:
+						Console.WriteLine("OptSkipped: {0}", lastOptFile);
+						break;
+					case ActionUnit.Status.Completed:
+						optUnit.CompletedUpdate();
+						Console.WriteLine("OptCompleted: {0}", lastOptFile);
+						break;
+					case ActionUnit.Status.Error:
+						Console.Error.WriteLine("OptError: {0}", lastOptFile);
+						return null;
+				}
+
+				lastOptFile = optFile;
+			}
+
+			return lastOptFile;
+		}
+
+		private static string EscapePath(string path)
+		{
+			return path.Replace('/', '$')
+				.Replace('\\', '$')
+				.Replace(':', '#');
+		}
+	}
+
+	static class Program
+	{
+		static string OptLevel = "-O3";
+		static int GenOptCount = 6;
+		static int FinalOptCount = 2;
 
 		static List<string> ParseArgs(string[] args)
 		{
@@ -581,8 +776,10 @@ namespace BuildTheCode
 
 			if (args.Length > 0)
 			{
-				var compileUnits = ParseArgs(args);
-				MakeIl2cpp(".", "output", compileUnits);
+				var srcFiles = ParseArgs(args);
+
+				var make = new Maker(".", "output");
+				make.Invoke(new HashSet<string>(srcFiles));
 			}
 			else
 			{
