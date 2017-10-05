@@ -790,6 +790,9 @@ namespace BuildTheCode
 				var srcFiles = ParseArgs(args);
 
 				var make = new Maker(".", "output");
+				make.OptLevel = OptLevel;
+				make.GenOptCount = GenOptCount;
+				make.FinalOptCount = FinalOptCount;
 				make.Invoke(new HashSet<string>(srcFiles));
 			}
 			else
