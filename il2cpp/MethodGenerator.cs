@@ -709,7 +709,7 @@ namespace il2cpp
 			}
 			else
 				return RuntimeInternals.GenInternalMethod(CurrMethod, prt, GenContext);
-			
+
 			return false;
 		}
 
@@ -1906,71 +1906,107 @@ namespace il2cpp
 			var slotPop = Pop();
 			var slotPush = Push(StackType.Obj);
 
+			CodePrinter prt = new CodePrinter();
+
+			FieldX fldNullableValue = null;
+			if (tyX.IsNullableType)
+			{
+				FieldX fldHasValue = tyX.Fields.FirstOrDefault(fldX => fldX.Def.FieldType.ElementType == ElementType.Boolean);
+				fldNullableValue = tyX.Fields.FirstOrDefault(fldX => fldX.Def.FieldType.ElementType == ElementType.Var);
+
+				prt.AppendFormatLine("if ({0}.{1})",
+					TempName(slotPop),
+					GenContext.GetFieldName(fldHasValue));
+				prt.AppendLine("{");
+				++prt.Indents;
+
+				tyX = tyX.NullableType;
+				Debug.Assert(tyX.IsValueType);
+			}
+
 			if (tyX.IsValueType)
 			{
 				TypeX boxedTyX = tyX.BoxedType;
 				Debug.Assert(boxedTyX != null);
 				RefTypeImpl(boxedTyX);
 
-				string strCode = GenAssign(
+				prt.AppendLine(GenAssign(
 					TempName(slotPush),
 					string.Format("IL2CPP_NEW(sizeof({0}), {1}, {2})",
 						GenContext.GetTypeName(boxedTyX),
 						GenContext.GetTypeID(boxedTyX),
 						GenContext.IsNoRefType(boxedTyX) ? "1" : "0"),
-					slotPush.SlotType);
+					slotPush.SlotType));
 
-				strCode += "\n";
+				string rhs;
+				if (fldNullableValue != null)
+				{
+					rhs = string.Format("{0}.{1}",
+						TempName(slotPop),
+						GenContext.GetFieldName(fldNullableValue));
+				}
+				else
+					rhs = TempName(slotPop);
 
 				FieldX valueFldX = boxedTyX.Fields.First();
-				strCode += GenAssign(
+				prt.AppendLine(GenAssign(
 					string.Format("(({0}*){1})->{2}",
 						GenContext.GetTypeName(boxedTyX),
 						TempName(slotPush),
 						GenContext.GetFieldName(valueFldX)),
-					TempName(slotPop),
-					valueFldX.FieldType);
-
-				inst.InstCode = strCode;
+					rhs,
+					valueFldX.FieldType));
 			}
-			/*else if (tyX.IsNullableType)
-			{
-				
-			}*/
 			else
 			{
-
+				// 引用类型不做处理
 			}
+
+			if (fldNullableValue != null)
+			{
+				--prt.Indents;
+				prt.AppendLine("}\nelse");
+				++prt.Indents;
+				prt.AppendLine(GenAssign(
+					TempName(slotPush),
+					"nullptr",
+					slotPush.SlotType));
+				--prt.Indents;
+			}
+
+			inst.InstCode = prt.ToString();
 		}
 
 		private void GenUnbox(InstInfo inst, TypeX tyX, bool isAddr = false)
 		{
 			var slotPop = Pop();
+
+			if (tyX.IsNullableType)
+			{
+				tyX = tyX.NullableType;
+				Debug.Assert(tyX != null);
+			}
+
+			Debug.Assert(tyX.IsValueType);
+
 			SlotInfo slotPush;
 			if (isAddr)
 				slotPush = Push(StackType.Ptr);
 			else
 				slotPush = Push(ToStackType(tyX.GetTypeSig()));
 
-			if (tyX.IsValueType)
-			{
-				TypeX boxedTyX = tyX.BoxedType;
-				Debug.Assert(boxedTyX != null);
-				RefTypeImpl(boxedTyX);
+			tyX = tyX.BoxedType;
+			Debug.Assert(tyX != null);
+			RefTypeImpl(tyX);
 
-				inst.InstCode = GenAssign(
-					TempName(slotPush),
-					string.Format("{0}(({1}*){2})->{3}",
-						isAddr ? "&" : null,
-						GenContext.GetTypeName(boxedTyX),
-						TempName(slotPop),
-						GenContext.GetFieldName(boxedTyX.Fields.First())),
-					slotPush.SlotType);
-			}
-			else
-			{
-				throw new NotImplementedException();
-			}
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				string.Format("{0}(({1}*){2})->{3}",
+					isAddr ? "&" : null,
+					GenContext.GetTypeName(tyX),
+					TempName(slotPop),
+					GenContext.GetFieldName(tyX.Fields.First())),
+				slotPush.SlotType);
 		}
 
 		private void GenIsinst(InstInfo inst, TypeX tyX)
@@ -1978,34 +2014,26 @@ namespace il2cpp
 			var slotPop = Pop();
 			var slotPush = Push(StackType.Obj);
 
+			if (tyX.IsNullableType)
+			{
+				tyX = tyX.NullableType;
+				Debug.Assert(tyX != null);
+				Debug.Assert(tyX.IsValueType);
+			}
+
 			if (tyX.IsValueType)
 			{
-				TypeX boxedTyX = tyX.BoxedType;
-				Debug.Assert(boxedTyX != null);
-				RefTypeImpl(boxedTyX);
-
-				inst.InstCode = GenAssign(
-					TempName(slotPush),
-					string.Format("(({0} && istype_{1}({0}->TypeID)) ? {0} : 0)",
-						TempName(slotPop),
-						GenContext.GetTypeName(boxedTyX)),
-					slotPush.SlotType);
+				tyX = tyX.BoxedType;
+				Debug.Assert(tyX != null);
 			}
-			/*else if (tyX.IsNullableType)
-			{
-				
-			}*/
-			else
-			{
-				RefTypeImpl(tyX);
 
-				inst.InstCode = GenAssign(
-					TempName(slotPush),
-					string.Format("(({0} && istype_{1}({0}->TypeID)) ? {0} : 0)",
-						TempName(slotPop),
-						GenContext.GetTypeName(tyX)),
-					slotPush.SlotType);
-			}
+			RefTypeImpl(tyX);
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				string.Format("(({0} && istype_{1}({0}->TypeID)) ? {0} : nullptr)",
+					TempName(slotPop),
+					GenContext.GetTypeName(tyX)),
+				slotPush.SlotType);
 		}
 
 		private void GenLdfld(InstInfo inst, FieldX fldX, bool isAddr = false)

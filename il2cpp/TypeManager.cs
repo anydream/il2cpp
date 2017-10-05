@@ -40,6 +40,8 @@ namespace il2cpp
 
 		// 对象终结器虚调用是否已经生成
 		private bool IsVCallFinalizerGenerated;
+		// 字符串对象是否已经解析
+		private bool IsStringTypeResolved;
 
 		public TypeManager(Il2cppContext context)
 		{
@@ -234,15 +236,23 @@ namespace il2cpp
 			switch (inst.OpCode.Code)
 			{
 				case Code.Ldstr:
-					if (!TypeMap.ContainsKey("String"))
+					// 解析 System.String 类型
+					if (!IsStringTypeResolved)
 					{
-						TypeX strTyX = ResolveTypeDefOrRef(Context.CorLibTypes.String.ToTypeDefOrRef(), null);
-						foreach (FieldDef fldDef in strTyX.Def.Fields)
+						IsStringTypeResolved = true;
+						if (!TypeMap.ContainsKey("String"))
 						{
-							if (!fldDef.IsStatic)
-								ResolveFieldDef(fldDef);
+							TypeX strTyX = ResolveTypeDefOrRef(Context.CorLibTypes.String.ToTypeDefOrRef(), null);
+							foreach (FieldDef fldDef in strTyX.Def.Fields)
+							{
+								if (!fldDef.IsStatic)
+								{
+									FieldX fldX = new FieldX(strTyX, fldDef);
+									AddField(fldX);
+								}
+							}
+							strTyX.IsInstantiated = true;
 						}
-						strTyX.IsInstantiated = true;
 					}
 					break;
 
@@ -512,7 +522,30 @@ namespace il2cpp
 							case Code.Box:
 							case Code.Unbox:
 							case Code.Unbox_Any:
-								ResolveBoxedType(tyX);
+							case Code.Isinst:
+								if (tyX.IsValueType)
+								{
+									if (tyX.IsNullableType)
+									{
+										if (tyX.NullableType == null)
+										{
+											// 解析可空类型的所有字段
+											foreach (FieldDef fldDef in tyX.Def.Fields)
+											{
+												if (!fldDef.IsStatic)
+												{
+													FieldX fldX = new FieldX(tyX, fldDef);
+													AddField(fldX);
+												}
+											}
+
+											tyX.NullableType = ResolveTypeDefOrRef(tyX.GenArgs[0].ToTypeDefOrRef(), null);
+											ResolveBoxedType(tyX.NullableType);
+										}
+									}
+									else
+										ResolveBoxedType(tyX);
+								}
 								break;
 						}
 

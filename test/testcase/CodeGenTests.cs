@@ -1074,6 +1074,15 @@ namespace testcase
 			if (s.fld != 789)
 				return 5;
 
+			bool res = nf is float;
+			if (res)
+				return 6;
+
+			nf = 78.9f;
+			res = nf is float;
+			if (!res)
+				return 7;
+
 			return 0;
 		}
 	}
@@ -2025,7 +2034,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestString.Entry();
+			TestNullable.Entry();
 		}
 	}
 }

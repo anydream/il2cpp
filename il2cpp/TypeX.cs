@@ -38,6 +38,8 @@ namespace il2cpp
 		public readonly TypeDef Def;
 		// 是否为值类型
 		public bool IsValueType => Def.IsValueType;
+		// 是否为可空类型
+		public readonly bool IsNullableType;
 
 		// 唯一名称
 		private string NameKey;
@@ -84,6 +86,8 @@ namespace il2cpp
 
 		// 装箱类型
 		public TypeX BoxedType;
+		// 可空类型原型
+		public TypeX NullableType;
 
 		// 是否实例化过
 		public bool IsInstantiated;
@@ -105,6 +109,9 @@ namespace il2cpp
 		public TypeX(TypeDef tyDef)
 		{
 			Def = tyDef;
+
+			if (Def.FullName == "System.Nullable`1")
+				IsNullableType = true;
 		}
 
 		public override string ToString()
