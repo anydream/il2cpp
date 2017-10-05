@@ -1518,7 +1518,7 @@ namespace il2cpp
 			}
 
 			--prt.Indents;
-			prt.AppendLine("}");
+			prt.Append("}");
 
 			inst.InstCode = prt.ToString();
 		}
