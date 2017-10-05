@@ -1949,7 +1949,7 @@ namespace il2cpp
 					rhs = TempName(slotPop);
 
 				FieldX valueFldX = boxedTyX.Fields.First();
-				prt.AppendLine(GenAssign(
+				prt.Append(GenAssign(
 					string.Format("(({0}*){1})->{2}",
 						GenContext.GetTypeName(boxedTyX),
 						TempName(slotPush),
@@ -1965,9 +1965,9 @@ namespace il2cpp
 			if (fldNullableValue != null)
 			{
 				--prt.Indents;
-				prt.AppendLine("}\nelse");
+				prt.AppendLine("\n}\nelse");
 				++prt.Indents;
-				prt.AppendLine(GenAssign(
+				prt.Append(GenAssign(
 					TempName(slotPush),
 					"nullptr",
 					slotPush.SlotType));

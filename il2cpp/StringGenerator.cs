@@ -70,7 +70,7 @@ namespace il2cpp
 				prop.UnitIndex = CurrUnitIndex;
 				CurrAccLength += str.Length;
 
-				if (CurrAccLength > 30000)
+				if (CurrAccLength > 3000)
 				{
 					CurrAccLength = 0;
 					++CurrUnitIndex;
