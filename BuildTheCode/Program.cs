@@ -514,50 +514,12 @@ namespace BuildTheCode
 
 			// 生成目标文件
 			string finalObj = "final.o";
-			CompileUnit finalCompile = new CompileUnit(
-				string.Format("clang {0} -o {1} {2} -c",
-					optedFile,
-					finalObj,
-					OptLevel),
-				WorkDir,
-				OutDir,
-				finalObj,
-				new HashSet<string> { optedFile });
-
-			finalCompile.OnOutput = Console.WriteLine;
-			finalCompile.OnError = Console.Error.WriteLine;
-
-			var status = finalCompile.Invoke();
-			if (status == ActionUnit.Status.Completed)
-			{
-				finalCompile.CompletedUpdate();
-				Console.WriteLine("Object file generated.");
-			}
-			else if (status == ActionUnit.Status.Error)
+			if (!FinalLinking(finalObj, optedFile, "-c"))
 				return;
 
 			// 生成可执行文件
 			string finalExe = "final.exe";
-			finalCompile = new CompileUnit(
-			   string.Format("clang {0} -o {1} {2}",
-				   finalObj,
-				   finalExe,
-				   OptLevel),
-			   WorkDir,
-			   OutDir,
-			   finalExe,
-			   new HashSet<string> { finalObj });
-
-			finalCompile.OnOutput = Console.WriteLine;
-			finalCompile.OnError = Console.Error.WriteLine;
-
-			status = finalCompile.Invoke();
-			if (status == ActionUnit.Status.Completed)
-			{
-				finalCompile.CompletedUpdate();
-				Console.WriteLine("Executable generated.");
-			}
-			else if (status == ActionUnit.Status.Error)
+			if (!FinalLinking(finalExe, finalObj, null))
 				return;
 
 			Console.WriteLine("Compile finished.");
@@ -608,19 +570,16 @@ namespace BuildTheCode
 					}
 				});
 
+			bool hasError = false;
 			foreach (var unit in unitMap.Values)
 			{
 				if (unit.UnitStatus == ActionUnit.Status.Completed)
 					unit.CompletedUpdate();
+				else if (unit.UnitStatus == ActionUnit.Status.Error)
+					hasError = true;
 			}
 
-			foreach (var unit in unitMap.Values)
-			{
-				if (unit.UnitStatus == ActionUnit.Status.Error)
-					return false;
-			}
-
-			return true;
+			return !hasError;
 		}
 
 		private string Linking(string outName, HashSet<string> objSet)
@@ -709,6 +668,39 @@ namespace BuildTheCode
 			}
 
 			return lastOptFile;
+		}
+
+		private bool FinalLinking(string outFile, string inFile, string cflags)
+		{
+			CompileUnit finalCompile = new CompileUnit(
+				string.Format("clang {0} -o {1} {2} {3}",
+					inFile,
+					outFile,
+					OptLevel,
+					cflags),
+				WorkDir,
+				OutDir,
+				outFile,
+				new HashSet<string> { inFile });
+
+			finalCompile.OnOutput = Console.WriteLine;
+			finalCompile.OnError = Console.Error.WriteLine;
+
+			var status = finalCompile.Invoke();
+			switch (status)
+			{
+				case ActionUnit.Status.Skipped:
+					Console.WriteLine("FinalSkipped: {0}", outFile);
+					break;
+				case ActionUnit.Status.Completed:
+					finalCompile.CompletedUpdate();
+					Console.WriteLine("FinalCompleted: {0}", outFile);
+					break;
+				case ActionUnit.Status.Error:
+					Console.Error.WriteLine("FinalError: {0}", outFile);
+					return false;
+			}
+			return true;
 		}
 
 		private static string EscapePath(string path)
