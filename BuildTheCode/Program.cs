@@ -468,7 +468,8 @@ namespace BuildTheCode
 				AddCompileUnit(unitMap, objSet, srcFile,
 					"-Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM");
 			}
-			ParallelCompile(unitMap);
+			if (!ParallelCompile(unitMap))
+				return;
 
 			// 链接
 			string linkedFile = Linking("!linked.bc", objSet);
@@ -494,7 +495,8 @@ namespace BuildTheCode
 			AddCompileUnit(unitMap, objSet,
 				"il2cppGC.cpp",
 				"-Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include");
-			ParallelCompile(unitMap);
+			if (!ParallelCompile(unitMap))
+				return;
 
 			// 链接 GC
 			objSet.Add(optedFile);
@@ -525,11 +527,14 @@ namespace BuildTheCode
 			finalCompile.OnOutput = Console.WriteLine;
 			finalCompile.OnError = Console.Error.WriteLine;
 
-			if (finalCompile.Invoke() == ActionUnit.Status.Completed)
+			var status = finalCompile.Invoke();
+			if (status == ActionUnit.Status.Completed)
 			{
 				finalCompile.CompletedUpdate();
 				Console.WriteLine("Object file generated.");
 			}
+			else if (status == ActionUnit.Status.Error)
+				return;
 
 			// 生成可执行文件
 			string finalExe = "final.exe";
@@ -546,8 +551,14 @@ namespace BuildTheCode
 			finalCompile.OnOutput = Console.WriteLine;
 			finalCompile.OnError = Console.Error.WriteLine;
 
-			if (finalCompile.Invoke() == ActionUnit.Status.Completed)
+			status = finalCompile.Invoke();
+			if (status == ActionUnit.Status.Completed)
+			{
 				finalCompile.CompletedUpdate();
+				Console.WriteLine("Executable generated.");
+			}
+			else if (status == ActionUnit.Status.Error)
+				return;
 
 			Console.WriteLine("Compile finished.");
 		}
@@ -577,7 +588,7 @@ namespace BuildTheCode
 			unitMap.Add(srcFile, compUnit);
 		}
 
-		private void ParallelCompile(Dictionary<string, CompileUnit> unitMap)
+		private bool ParallelCompile(Dictionary<string, CompileUnit> unitMap)
 		{
 			Parallel.ForEach(unitMap, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount },
 				kv =>
@@ -602,6 +613,14 @@ namespace BuildTheCode
 				if (unit.UnitStatus == ActionUnit.Status.Completed)
 					unit.CompletedUpdate();
 			}
+
+			foreach (var unit in unitMap.Values)
+			{
+				if (unit.UnitStatus == ActionUnit.Status.Error)
+					return false;
+			}
+
+			return true;
 		}
 
 		private string Linking(string outName, HashSet<string> objSet)
