@@ -225,6 +225,10 @@ namespace il2cpp
 
 			var layoutType = CurrType.Def.Layout;
 
+			string typeName = CurrType.GetNameKey();
+			if (typeName == "String" || typeName == "System.Array")
+				layoutType = TypeAttributes.SequentialLayout;
+
 			if (layoutType == TypeAttributes.AutoLayout)
 			{
 				fields.Sort((lhs, rhs) =>

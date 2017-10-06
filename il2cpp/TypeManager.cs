@@ -1171,6 +1171,7 @@ namespace il2cpp
 				"il2cpprt",
 				"BoxedType",
 				Context.CorLibTypes.Object.ToTypeDefOrRef());
+			tyDef.Layout = TypeAttributes.SequentialLayout;
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.NonVariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);
 			Context.CorLibModule.Types.Add(tyDef);
@@ -1233,6 +1234,7 @@ namespace il2cpp
 				"il2cpprt",
 				"SZArray",
 				Context.CorLibTypes.GetTypeRef("System", "Array"));
+			tyDef.Layout = TypeAttributes.SequentialLayout;
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);
 			tyDef.Interfaces.Add(MakeInterfaceImpl("System.Collections.Generic", "IList`1", genArgT));
@@ -1283,6 +1285,7 @@ namespace il2cpp
 				"il2cpprt",
 				"MDArray" + rank,
 				Context.CorLibTypes.GetTypeRef("System", "Array"));
+			tyDef.Layout = TypeAttributes.SequentialLayout;
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);
 			Context.CorLibModule.Types.Add(tyDef);
