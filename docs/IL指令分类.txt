@@ -49,7 +49,7 @@ Code.Stsfld:
 // 载入空
 Code.Ldnull:
 
-// 载入字面值
+// 载入常量
 Code.Ldc_I4_M1:
 Code.Ldc_I4_0:
 Code.Ldc_I4_1:
@@ -67,25 +67,20 @@ Code.Ldc_R4:
 Code.Ldc_R8:
 Code.Ldstr:
 
-// 载入地址
+// 载入指向的数据
 Code.Ldind_I1:
-Code.Ldind_U1:
 Code.Ldind_I2:
-Code.Ldind_U2:
 Code.Ldind_I4:
-Code.Ldind_U4:
 Code.Ldind_I8:
+Code.Ldind_U1:
+Code.Ldind_U2:
+Code.Ldind_U4:
 Code.Ldind_I:
 Code.Ldind_R4:
 Code.Ldind_R8:
 Code.Ldind_Ref:
 
-// 载入函数指针
-Code.Ldftn:
-Code.Ldvirtftn:
-
-// 设置地址
-Code.Stind_Ref:
+// 设置指向的数据
 Code.Stind_I1:
 Code.Stind_I2:
 Code.Stind_I4:
@@ -93,12 +88,17 @@ Code.Stind_I8:
 Code.Stind_R4:
 Code.Stind_R8:
 Code.Stind_I:
+Code.Stind_Ref:
+
+// 载入函数指针
+Code.Ldftn:
+Code.Ldvirtftn:
 
 // 函数调用
-Code.Jmp:
 Code.Call:
 Code.Calli:
 Code.Callvirt:
+Code.Jmp:
 
 // 函数返回
 Code.Ret:
@@ -132,7 +132,7 @@ Code.Blt_Un:
 Code.Blt_Un_S:
 Code.Switch:
 
-// 功能
+// 调试中断
 Code.Break:
 
 // 运算
@@ -178,6 +178,16 @@ Code.Conv_R8:
 Code.Conv_I:
 Code.Conv_U:
 Code.Conv_R_Un:
+Code.Conv_Ovf_I1:
+Code.Conv_Ovf_I2:
+Code.Conv_Ovf_I4:
+Code.Conv_Ovf_I8:
+Code.Conv_Ovf_U1:
+Code.Conv_Ovf_U2:
+Code.Conv_Ovf_U4:
+Code.Conv_Ovf_U8:
+Code.Conv_Ovf_I:
+Code.Conv_Ovf_U:
 Code.Conv_Ovf_I1_Un:
 Code.Conv_Ovf_I2_Un:
 Code.Conv_Ovf_I4_Un:
@@ -188,44 +198,36 @@ Code.Conv_Ovf_U4_Un:
 Code.Conv_Ovf_U8_Un:
 Code.Conv_Ovf_I_Un:
 Code.Conv_Ovf_U_Un:
-Code.Conv_Ovf_I1:
-Code.Conv_Ovf_U1:
-Code.Conv_Ovf_I2:
-Code.Conv_Ovf_U2:
-Code.Conv_Ovf_I4:
-Code.Conv_Ovf_U4:
-Code.Conv_Ovf_I8:
-Code.Conv_Ovf_U8:
-Code.Conv_Ovf_I:
-Code.Conv_Ovf_U:
 
 // 值类型操作
-Code.Cpobj:
+Code.Initobj:
 Code.Ldobj:
 Code.Stobj:
-Code.Initobj:
-Code.Cpblk:
-Code.Initblk:
+Code.Cpobj:
 Code.Sizeof:
+Code.Initblk:
+Code.Cpblk:
 Code.Localloc:
 
-// 引用类型
+// 创建对象
 Code.Newobj:
+
+// 类型转换
 Code.Castclass:
 Code.Isinst:
 
-// 装箱
+// 装拆箱
 Code.Box:
 Code.Unbox:
 Code.Unbox_Any:
 
 // 异常
 Code.Throw:
-Code.Endfinally:
+Code.Rethrow:
 Code.Leave:
 Code.Leave_S:
 Code.Endfilter:
-Code.Rethrow:
+Code.Endfinally:
 
 // 数组
 Code.Newarr:
@@ -233,31 +235,47 @@ Code.Ldlen:
 
 Code.Ldelema:
 Code.Ldelem_I1:
-Code.Ldelem_U1:
 Code.Ldelem_I2:
-Code.Ldelem_U2:
 Code.Ldelem_I4:
-Code.Ldelem_U4:
 Code.Ldelem_I8:
-Code.Ldelem_I:
+Code.Ldelem_U1:
+Code.Ldelem_U2:
+Code.Ldelem_U4:
 Code.Ldelem_R4:
 Code.Ldelem_R8:
+Code.Ldelem_I:
 Code.Ldelem_Ref:
 Code.Ldelem:
 
-Code.Stelem_I:
 Code.Stelem_I1:
 Code.Stelem_I2:
 Code.Stelem_I4:
 Code.Stelem_I8:
 Code.Stelem_R4:
 Code.Stelem_R8:
+Code.Stelem_I:
 Code.Stelem_Ref:
 Code.Stelem:
 
 // 任意引用
 Code.Refanyval:
-Code.Mkrefany:
 Code.Refanytype:
+Code.Mkrefany:
 
+// 反射
 Code.Ldtoken:
+
+// 限定前缀
+Code.Constrained:
+
+// 只读前缀
+Code.Readonly:
+
+// 易变引用前缀
+Code.Volatile:
+
+// 尾调用前缀
+Code.Tailcall:
+
+// 未对齐前缀
+Code.Unaligned:
