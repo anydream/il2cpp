@@ -1985,6 +1985,12 @@ namespace il2cpp
 
 		private void GenUnbox(InstInfo inst, TypeX tyX, bool isAddr = false)
 		{
+			if (!isAddr && !tyX.IsValueType)
+			{
+				GenCastclass(inst, tyX);
+				return;
+			}
+
 			var slotPop = Pop();
 
 			// if (!poped) throw NullReferenceException
