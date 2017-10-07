@@ -216,8 +216,9 @@ Code.Newobj:
 Code.Castclass:
 	if (operand is nullable)
 		operand = operand.NullableElem;
-	boxedType = operand.BoxedType;
-	if (poped == null || istype_BoxedType(poped))
+	if (operand.IsValueType)
+		operand = operand.BoxedType;
+	if (poped == null || poped is operand)
 		pushed = poped;
 	else
 		throw InvalidCastException;
@@ -225,8 +226,9 @@ Code.Castclass:
 Code.Isinst:
 	if (operand is nullable)
 		operand = operand.NullableElem;
-	boxedType = operand.BoxedType;
-	pushed = (poped && istype_BoxedType(poped)) ? poped : null;
+	if (operand.IsValueType)
+		operand = operand.BoxedType;
+	pushed = (poped && poped is operand) ? poped : null;
 
 // 装拆箱
 Code.Box:
@@ -254,25 +256,26 @@ Code.Box:
 		pushed = poped;
 
 Code.Unbox:
+	if (!poped)
+		throw NullReferenceException;
 	if (operand.IsValueType)
 	{
 		if (operand is nullable)
-		{
-			pushed = &poped.value;
-		}
+			boxedType = operand.NullableElem.BoxedType;
 		else
-		{
-			if (poped && poped is operand.BoxedType)
-				pushed = &poped->value;
-			else
-				throw NullReferenceException;
-		}
+			boxedType = operand.BoxedType;
+
+		if (poped is boxedType)
+			pushed = &poped->value;
+		else
+			throw InvalidCastException;
 	}
-	else
-		throw TypeLoadException;
 
 Code.Unbox_Any:
-	pushed = *Unbox
+	if (operand.IsValueType)
+		pushed = *Unbox
+	else
+		Castclass
 
 // 异常
 Code.Throw:

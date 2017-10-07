@@ -1292,6 +1292,9 @@ namespace il2cpp
 				case Code.Isinst:
 					GenIsinst(inst, (TypeX)operand);
 					return;
+				case Code.Castclass:
+					GenCastclass(inst, (TypeX)operand);
+					return;
 
 				case Code.Ldfld:
 					GenLdfld(inst, (FieldX)operand);
@@ -1906,36 +1909,36 @@ namespace il2cpp
 			var slotPop = Pop();
 			var slotPush = Push(StackType.Obj);
 
-			CodePrinter prt = new CodePrinter();
-
-			FieldX fldNullableValue = null;
-			if (tyX.IsNullableType)
-			{
-				FieldX fldHasValue = tyX.Fields.FirstOrDefault(fldX => fldX.Def.FieldType.ElementType == ElementType.Boolean);
-				fldNullableValue = tyX.Fields.FirstOrDefault(fldX => fldX.Def.FieldType.ElementType == ElementType.Var);
-
-				prt.AppendFormatLine("if ({0}.{1})",
-					TempName(slotPop),
-					GenContext.GetFieldName(fldHasValue));
-				prt.AppendLine("{");
-				++prt.Indents;
-
-				tyX = tyX.NullableElem;
-				Debug.Assert(tyX.IsValueType);
-			}
-
 			if (tyX.IsValueType)
 			{
-				TypeX boxedTyX = tyX.BoxedType;
-				Debug.Assert(boxedTyX != null);
-				RefTypeImpl(boxedTyX);
+				CodePrinter prt = new CodePrinter();
+
+				FieldX fldNullableValue = null;
+				if (tyX.IsNullableType)
+				{
+					FieldX fldHasValue = tyX.Fields.FirstOrDefault(fldX => fldX.Def.FieldType.ElementType == ElementType.Boolean);
+					fldNullableValue = tyX.Fields.FirstOrDefault(fldX => fldX.Def.FieldType.ElementType == ElementType.Var);
+
+					prt.AppendFormatLine("if ({0}.{1})",
+						TempName(slotPop),
+						GenContext.GetFieldName(fldHasValue));
+					prt.AppendLine("{");
+					++prt.Indents;
+
+					tyX = tyX.NullableElem;
+					Debug.Assert(tyX.IsValueType);
+				}
+
+				tyX = tyX.BoxedType;
+				Debug.Assert(tyX != null);
+				RefTypeImpl(tyX);
 
 				prt.AppendLine(GenAssign(
 					TempName(slotPush),
 					string.Format("IL2CPP_NEW(sizeof({0}), {1}, {2})",
-						GenContext.GetTypeName(boxedTyX),
-						GenContext.GetTypeID(boxedTyX),
-						GenContext.IsNoRefType(boxedTyX) ? "1" : "0"),
+						GenContext.GetTypeName(tyX),
+						GenContext.GetTypeID(tyX),
+						GenContext.IsNoRefType(tyX) ? "1" : "0"),
 					slotPush.SlotType));
 
 				string rhs;
@@ -1948,38 +1951,43 @@ namespace il2cpp
 				else
 					rhs = TempName(slotPop);
 
-				FieldX valueFldX = boxedTyX.Fields.First();
+				FieldX fldBoxedValue = tyX.Fields.First();
 				prt.Append(GenAssign(
 					string.Format("(({0}*){1})->{2}",
-						GenContext.GetTypeName(boxedTyX),
+						GenContext.GetTypeName(tyX),
 						TempName(slotPush),
-						GenContext.GetFieldName(valueFldX)),
+						GenContext.GetFieldName(fldBoxedValue)),
 					rhs,
-					valueFldX.FieldType));
+					fldBoxedValue.FieldType));
+
+				if (fldNullableValue != null)
+				{
+					--prt.Indents;
+					prt.AppendLine("\n}\nelse");
+					++prt.Indents;
+					prt.Append(GenAssign(
+						TempName(slotPush),
+						"nullptr",
+						slotPush.SlotType));
+					--prt.Indents;
+				}
+
+				inst.InstCode = prt.ToString();
 			}
 			else
 			{
-				// 引用类型不做处理
-			}
-
-			if (fldNullableValue != null)
-			{
-				--prt.Indents;
-				prt.AppendLine("\n}\nelse");
-				++prt.Indents;
-				prt.Append(GenAssign(
+				inst.InstCode = GenAssign(
 					TempName(slotPush),
-					"nullptr",
-					slotPush.SlotType));
-				--prt.Indents;
+					TempName(slotPop),
+					slotPush.SlotType);
 			}
-
-			inst.InstCode = prt.ToString();
 		}
 
 		private void GenUnbox(InstInfo inst, TypeX tyX, bool isAddr = false)
 		{
 			var slotPop = Pop();
+
+			// if (!poped) throw NullReferenceException
 
 			if (tyX.IsNullableType)
 			{
@@ -1999,14 +2007,19 @@ namespace il2cpp
 			Debug.Assert(tyX != null);
 			RefTypeImpl(tyX);
 
-			inst.InstCode = GenAssign(
-				TempName(slotPush),
-				string.Format("{0}(({1}*){2})->{3}",
-					isAddr ? "&" : null,
-					GenContext.GetTypeName(tyX),
-					TempName(slotPop),
-					GenContext.GetFieldName(tyX.Fields.First())),
-				slotPush.SlotType);
+			inst.InstCode = string.Format(
+				"if (istype_{1}({0}->TypeID)) {2}\n" +
+				"// else throw InvalidCastException;",
+				TempName(slotPop),
+				GenContext.GetTypeName(tyX),
+				GenAssign(
+					TempName(slotPush),
+					string.Format("{0}(({1}*){2})->{3}",
+						isAddr ? "&" : null,
+						GenContext.GetTypeName(tyX),
+						TempName(slotPop),
+						GenContext.GetFieldName(tyX.Fields.First())),
+					slotPush.SlotType));
 		}
 
 		private void GenIsinst(InstInfo inst, TypeX tyX)
@@ -2034,6 +2047,36 @@ namespace il2cpp
 					TempName(slotPop),
 					GenContext.GetTypeName(tyX)),
 				slotPush.SlotType);
+		}
+
+		private void GenCastclass(InstInfo inst, TypeX tyX)
+		{
+			var slotPop = Pop();
+			var slotPush = Push(StackType.Obj);
+
+			if (tyX.IsNullableType)
+			{
+				tyX = tyX.NullableElem;
+				Debug.Assert(tyX != null);
+				Debug.Assert(tyX.IsValueType);
+			}
+
+			if (tyX.IsValueType)
+			{
+				tyX = tyX.BoxedType;
+				Debug.Assert(tyX != null);
+			}
+
+			RefTypeImpl(tyX);
+			inst.InstCode = string.Format(
+				"if ({0} == nullptr || istype_{1}({0}->TypeID)) {2}\n" +
+				"// else throw InvalidCastException;",
+				TempName(slotPop),
+				GenContext.GetTypeName(tyX),
+				GenAssign(
+					TempName(slotPush),
+					TempName(slotPop),
+					slotPush.SlotType));
 		}
 
 		private void GenLdfld(InstInfo inst, FieldX fldX, bool isAddr = false)
