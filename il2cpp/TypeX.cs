@@ -87,7 +87,7 @@ namespace il2cpp
 		// 装箱类型
 		public TypeX BoxedType;
 		// 可空类型原型
-		public TypeX NullableType;
+		public TypeX NullableElem;
 
 		// 是否实例化过
 		public bool IsInstantiated;

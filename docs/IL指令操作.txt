@@ -1,0 +1,293 @@
+﻿// 栈操作
+Code.Nop:
+Code.Dup:
+Code.Pop:
+
+// 载入参数
+Code.Ldarg_0:
+Code.Ldarg_1:
+Code.Ldarg_2:
+Code.Ldarg_3:
+Code.Ldarg:
+Code.Ldarg_S:
+Code.Ldarga:
+Code.Ldarga_S:
+Code.Arglist:
+
+// 设置参数
+Code.Starg:
+Code.Starg_S:
+
+// 载入临时变量
+Code.Ldloc_0:
+Code.Ldloc_1:
+Code.Ldloc_2:
+Code.Ldloc_3:
+Code.Ldloc:
+Code.Ldloc_S:
+Code.Ldloca:
+Code.Ldloca_S:
+
+// 设置临时变量
+Code.Stloc_0:
+Code.Stloc_1:
+Code.Stloc_2:
+Code.Stloc_3:
+Code.Stloc:
+Code.Stloc_S:
+
+// 载入字段
+Code.Ldfld:
+Code.Ldflda:
+Code.Ldsfld:
+Code.Ldsflda:
+
+// 设置字段
+Code.Stfld:
+Code.Stsfld:
+
+// 载入空
+Code.Ldnull:
+
+// 载入常量
+Code.Ldc_I4_M1:
+Code.Ldc_I4_0:
+Code.Ldc_I4_1:
+Code.Ldc_I4_2:
+Code.Ldc_I4_3:
+Code.Ldc_I4_4:
+Code.Ldc_I4_5:
+Code.Ldc_I4_6:
+Code.Ldc_I4_7:
+Code.Ldc_I4_8:
+Code.Ldc_I4_S:
+Code.Ldc_I4:
+Code.Ldc_I8:
+Code.Ldc_R4:
+Code.Ldc_R8:
+Code.Ldstr:
+
+// 载入指向的数据
+Code.Ldind_I1:
+Code.Ldind_I2:
+Code.Ldind_I4:
+Code.Ldind_I8:
+Code.Ldind_U1:
+Code.Ldind_U2:
+Code.Ldind_U4:
+Code.Ldind_I:
+Code.Ldind_R4:
+Code.Ldind_R8:
+Code.Ldind_Ref:
+
+// 设置指向的数据
+Code.Stind_I1:
+Code.Stind_I2:
+Code.Stind_I4:
+Code.Stind_I8:
+Code.Stind_R4:
+Code.Stind_R8:
+Code.Stind_I:
+Code.Stind_Ref:
+
+// 载入函数指针
+Code.Ldftn:
+Code.Ldvirtftn:
+
+// 函数调用
+Code.Call:
+Code.Calli:
+Code.Callvirt:
+Code.Jmp:
+
+// 函数返回
+Code.Ret:
+
+// 跳转
+Code.Br:
+Code.Br_S:
+Code.Brfalse:
+Code.Brfalse_S:
+Code.Brtrue:
+Code.Brtrue_S:
+Code.Beq:
+Code.Beq_S:
+Code.Bge:
+Code.Bge_S:
+Code.Bgt:
+Code.Bgt_S:
+Code.Ble:
+Code.Ble_S:
+Code.Blt:
+Code.Blt_S:
+Code.Bne_Un:
+Code.Bne_Un_S:
+Code.Bge_Un:
+Code.Bge_Un_S:
+Code.Bgt_Un:
+Code.Bgt_Un_S:
+Code.Ble_Un:
+Code.Ble_Un_S:
+Code.Blt_Un:
+Code.Blt_Un_S:
+Code.Switch:
+
+// 调试中断
+Code.Break:
+
+// 运算
+Code.Add:
+Code.Add_Ovf:
+Code.Add_Ovf_Un:
+Code.Sub:
+Code.Sub_Ovf:
+Code.Sub_Ovf_Un:
+Code.Mul:
+Code.Mul_Ovf:
+Code.Mul_Ovf_Un:
+Code.Div:
+Code.Div_Un:
+Code.Rem:
+Code.Rem_Un:
+Code.And:
+Code.Or:
+Code.Xor:
+Code.Shl:
+Code.Shr:
+Code.Shr_Un:
+Code.Neg:
+Code.Not:
+Code.Ceq:
+Code.Cgt:
+Code.Cgt_Un:
+Code.Clt:
+Code.Clt_Un:
+Code.Ckfinite:
+
+// 数值转换
+Code.Conv_I1:
+Code.Conv_I2:
+Code.Conv_I4:
+Code.Conv_I8:
+Code.Conv_U1:
+Code.Conv_U2:
+Code.Conv_U4:
+Code.Conv_U8:
+Code.Conv_R4:
+Code.Conv_R8:
+Code.Conv_I:
+Code.Conv_U:
+Code.Conv_R_Un:
+Code.Conv_Ovf_I1:
+Code.Conv_Ovf_I2:
+Code.Conv_Ovf_I4:
+Code.Conv_Ovf_I8:
+Code.Conv_Ovf_U1:
+Code.Conv_Ovf_U2:
+Code.Conv_Ovf_U4:
+Code.Conv_Ovf_U8:
+Code.Conv_Ovf_I:
+Code.Conv_Ovf_U:
+Code.Conv_Ovf_I1_Un:
+Code.Conv_Ovf_I2_Un:
+Code.Conv_Ovf_I4_Un:
+Code.Conv_Ovf_I8_Un:
+Code.Conv_Ovf_U1_Un:
+Code.Conv_Ovf_U2_Un:
+Code.Conv_Ovf_U4_Un:
+Code.Conv_Ovf_U8_Un:
+Code.Conv_Ovf_I_Un:
+Code.Conv_Ovf_U_Un:
+
+// 值类型操作
+Code.Initobj:
+Code.Ldobj:
+Code.Stobj:
+Code.Cpobj:
+Code.Sizeof:
+Code.Initblk:
+Code.Cpblk:
+Code.Localloc:
+
+// 创建对象
+Code.Newobj:
+
+// 类型转换
+Code.Castclass:
+	if (operand is nullable)
+		operand = operand.NullableElem;
+	boxedType = operand.BoxedType;
+	if (poped == null || istype_BoxedType(poped))
+		pushed = poped;
+	else
+		throw InvalidCastException;
+
+Code.Isinst:
+	if (operand is nullable)
+		operand = operand.NullableElem;
+	boxedType = operand.BoxedType;
+	pushed = (poped && istype_BoxedType(poped)) ? poped : null;
+
+// 装拆箱
+Code.Box:
+Code.Unbox:
+Code.Unbox_Any:
+
+// 异常
+Code.Throw:
+Code.Rethrow:
+Code.Leave:
+Code.Leave_S:
+Code.Endfilter:
+Code.Endfinally:
+
+// 数组
+Code.Newarr:
+Code.Ldlen:
+
+Code.Ldelema:
+Code.Ldelem_I1:
+Code.Ldelem_I2:
+Code.Ldelem_I4:
+Code.Ldelem_I8:
+Code.Ldelem_U1:
+Code.Ldelem_U2:
+Code.Ldelem_U4:
+Code.Ldelem_R4:
+Code.Ldelem_R8:
+Code.Ldelem_I:
+Code.Ldelem_Ref:
+Code.Ldelem:
+
+Code.Stelem_I1:
+Code.Stelem_I2:
+Code.Stelem_I4:
+Code.Stelem_I8:
+Code.Stelem_R4:
+Code.Stelem_R8:
+Code.Stelem_I:
+Code.Stelem_Ref:
+Code.Stelem:
+
+// 任意引用
+Code.Refanyval:
+Code.Refanytype:
+Code.Mkrefany:
+
+// 反射
+Code.Ldtoken:
+
+// 限定前缀
+Code.Constrained:
+
+// 只读前缀
+Code.Readonly:
+
+// 易变引用前缀
+Code.Volatile:
+
+// 尾调用前缀
+Code.Tailcall:
+
+// 未对齐前缀
+Code.Unaligned:

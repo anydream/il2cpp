@@ -1920,7 +1920,7 @@ namespace il2cpp
 				prt.AppendLine("{");
 				++prt.Indents;
 
-				tyX = tyX.NullableType;
+				tyX = tyX.NullableElem;
 				Debug.Assert(tyX.IsValueType);
 			}
 
@@ -1983,7 +1983,7 @@ namespace il2cpp
 
 			if (tyX.IsNullableType)
 			{
-				tyX = tyX.NullableType;
+				tyX = tyX.NullableElem;
 				Debug.Assert(tyX != null);
 			}
 
@@ -2016,7 +2016,7 @@ namespace il2cpp
 
 			if (tyX.IsNullableType)
 			{
-				tyX = tyX.NullableType;
+				tyX = tyX.NullableElem;
 				Debug.Assert(tyX != null);
 				Debug.Assert(tyX.IsValueType);
 			}

@@ -523,11 +523,12 @@ namespace il2cpp
 							case Code.Unbox:
 							case Code.Unbox_Any:
 							case Code.Isinst:
+							case Code.Castclass:
 								if (tyX.IsValueType)
 								{
 									if (tyX.IsNullableType)
 									{
-										if (tyX.NullableType == null)
+										if (tyX.NullableElem == null)
 										{
 											// 解析可空类型的所有字段
 											foreach (FieldDef fldDef in tyX.Def.Fields)
@@ -539,8 +540,8 @@ namespace il2cpp
 												}
 											}
 
-											tyX.NullableType = ResolveTypeDefOrRef(tyX.GenArgs[0].ToTypeDefOrRef(), null);
-											ResolveBoxedType(tyX.NullableType);
+											tyX.NullableElem = ResolveTypeDefOrRef(tyX.GenArgs[0].ToTypeDefOrRef(), null);
+											ResolveBoxedType(tyX.NullableElem);
 										}
 									}
 									else
