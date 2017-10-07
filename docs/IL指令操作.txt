@@ -230,8 +230,49 @@ Code.Isinst:
 
 // 装拆箱
 Code.Box:
+	if (operand.IsValueType)
+	{
+		if (operand is nullable)
+		{
+			boxedType = operand.NullableElem.BoxedType;
+			if (poped.HasValue)
+			{
+				pushed = new boxedType;
+				pushed->value = poped.Value;
+			}
+			else
+				pushed = null;
+		}
+		else
+		{
+			boxedType = operand.BoxedType;
+			pushed = new boxedType;
+			pushed->value = poped;
+		}
+	}
+	else
+		pushed = poped;
+
 Code.Unbox:
+	if (operand.IsValueType)
+	{
+		if (operand is nullable)
+		{
+			pushed = &poped.value;
+		}
+		else
+		{
+			if (poped && poped is operand.BoxedType)
+				pushed = &poped->value;
+			else
+				throw NullReferenceException;
+		}
+	}
+	else
+		throw TypeLoadException;
+
 Code.Unbox_Any:
+	pushed = *Unbox
 
 // 异常
 Code.Throw:
