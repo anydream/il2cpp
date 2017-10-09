@@ -137,19 +137,23 @@ namespace BuildTheCode
 				arguments = "/c " + arguments;
 			}
 
+			var si = new ProcessStartInfo
+			{
+				WorkingDirectory = workDir,
+				FileName = program,
+				Arguments = arguments,
+				CreateNoWindow = true,
+				RedirectStandardOutput = true,
+				RedirectStandardError = true,
+				RedirectStandardInput = true,
+				UseShellExecute = false
+			};
+			// 此环境变量会破坏 clang 定位到正确的头文件目录
+			si.EnvironmentVariables.Remove("VCInstallDir");
+
 			Process pSpawn = new Process
 			{
-				StartInfo =
-				{
-					WorkingDirectory = workDir,
-					FileName = program,
-					Arguments = arguments,
-					CreateNoWindow = true,
-					RedirectStandardOutput = true,
-					RedirectStandardError = true,
-					RedirectStandardInput = true,
-					UseShellExecute = false
-				}
+				StartInfo = si
 			};
 
 			if (onOutput != null)
