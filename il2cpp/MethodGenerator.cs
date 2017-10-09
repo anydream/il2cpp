@@ -1194,7 +1194,7 @@ namespace il2cpp
 				case Code.Cgt_Un:
 				case Code.Clt:
 				case Code.Clt_Un:
-					GenLdc(inst, StackType.I4, '(' + GenCompareCond(inst.OpCode) + ')');
+					GenLdc(inst, StackType.I4, '(' + GenCompareCond(inst.OpCode) + " ? 1 : 0)");
 					return;
 
 				case Code.Conv_I1:
@@ -1677,12 +1677,11 @@ namespace il2cpp
 
 		private static string GenCompare(bool neg, string lhs, string op, string rhs, string cast)
 		{
-			string boolToInt = " ? 1 : 0";
 			if (cast != null)
 				cast = '(' + cast + ')';
 			if (neg)
-				return "!(" + cast + lhs + ' ' + op + ' ' + cast + rhs + ')' + boolToInt;
-			return cast + lhs + ' ' + op + ' ' + cast + rhs + boolToInt;
+				return "!(" + cast + lhs + ' ' + op + ' ' + cast + rhs + ')';
+			return cast + lhs + ' ' + op + ' ' + cast + rhs;
 		}
 
 		private string GenBoolCond(bool b)
