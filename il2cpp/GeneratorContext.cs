@@ -102,10 +102,24 @@ namespace il2cpp
 		public readonly Dictionary<string, CompileUnit> UnitMap;
 		private static readonly HashSet<string> BridgeTypes = new HashSet<string>
 		{
+			"stru_SByte",
+			"stru_Byte",
+			"stru_Int16",
+			"stru_UInt16",
+			"stru_Int32",
+			"stru_UInt32",
+			"stru_Int64",
+			"stru_UInt64",
+			"stru_Single",
+			"stru_Double",
+			"stru_IntPtr",
+			"stru_UIntPtr",
+
 			"cls_Object",
 			"cls_String",
 			"cls_System_Array",
-			"cls_System_Exception"
+			"cls_System_Exception",
+			"cls_System_Runtime_Serialization_SafeSerializationManager"
 		};
 
 		public CompileUnitMerger(Dictionary<string, CompileUnit> units)
@@ -176,7 +190,7 @@ namespace il2cpp
 
 		private bool IsUnitFull(CompileUnit unit)
 		{
-#if true
+#if false
 			return !unit.IsEmpty();
 #else
 			return unit.DeclCode.Length > 30000 ||
