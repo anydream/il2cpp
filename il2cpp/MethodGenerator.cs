@@ -1626,6 +1626,9 @@ namespace il2cpp
 			{
 				castType = slotLhs.SlotType.GetUnsignedTypeName();
 				Debug.Assert(castType == slotRhs.SlotType.GetUnsignedTypeName());
+
+				if (castType != null)
+					isUn = false;
 			}
 			else
 			{

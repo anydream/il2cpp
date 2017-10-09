@@ -1659,7 +1659,7 @@ namespace testcase
 
 		static double M_PI = 3.141592653589793238462643;
 
-		public class RandomLCG
+		public struct RandomLCG
 		{
 			uint mSeed;
 
@@ -1856,7 +1856,7 @@ namespace testcase
 			return ret;
 		}
 
-		public static unsafe Vec radiance(ref Ray r, int depth, RandomLCG rand)
+		public static unsafe Vec radiance(ref Ray r, int depth, ref RandomLCG rand)
 		{
 			double t;                               // distance to intersection
 			Sphere* obj = intersect(ref r, out t);
@@ -1898,7 +1898,7 @@ namespace testcase
 						Vec d = (u.Mul(MathCos(r1)).Mul(r2s).Add(ref tmp2).Add(ref tmp3)).Norm();
 
 						var tmp4 = new Ray(ref x, ref d);
-						var tmp5 = radiance(ref tmp4, newDepth, rand);
+						var tmp5 = radiance(ref tmp4, newDepth, ref rand);
 						var tmp6 = f.Mul(ref tmp5);
 						return obj->e.Add(ref tmp6);
 					}
@@ -1907,7 +1907,7 @@ namespace testcase
 						var tmp8 = n.Mul(2 * (n.Dot(ref r.d)));
 						var tmp9 = r.d.Sub(ref tmp8);
 						var tmp7 = new Ray(ref x, ref tmp9);
-						var tmp10 = radiance(ref tmp7, newDepth, rand);
+						var tmp10 = radiance(ref tmp7, newDepth, ref rand);
 						var tmp11 = f.Mul(ref tmp10);
 						return obj->e.Add(ref tmp11);
 					}
@@ -1925,7 +1925,7 @@ namespace testcase
 
 						if (cos2t < 0) // Total internal reflection
 						{
-							var tmp12 = radiance(ref reflRay, newDepth, rand);
+							var tmp12 = radiance(ref reflRay, newDepth, ref rand);
 							var tmp13 = f.Mul(ref tmp12);
 							return obj->e.Add(ref tmp13);
 						}
@@ -1948,18 +1948,18 @@ namespace testcase
 							{
 								// Russian roulette and splitting for selecting reflection and/or refraction
 								if (rand.NextNumber() < P)
-									result = radiance(ref reflRay, newDepth, rand).Mul(RP);
+									result = radiance(ref reflRay, newDepth, ref rand).Mul(RP);
 								else
 								{
 									var tmp15 = new Ray(ref x, ref tdir);
-									result = radiance(ref tmp15, newDepth, rand).Mul(TP);
+									result = radiance(ref tmp15, newDepth, ref rand).Mul(TP);
 								}
 							}
 							else
 							{
 								var tmp16 = new Ray(ref x, ref tdir);
-								var tmp17 = radiance(ref tmp16, newDepth, rand).Mul(Tr);
-								result = radiance(ref reflRay, newDepth, rand).Mul(Re).Add(ref tmp17);
+								var tmp17 = radiance(ref tmp16, newDepth, ref rand).Mul(Tr);
+								result = radiance(ref reflRay, newDepth, ref rand).Mul(Re).Add(ref tmp17);
 							}
 
 							var tmp18 = f.Mul(ref result);
@@ -2017,7 +2017,7 @@ namespace testcase
 								var tmp5 = cam.o.Add(ref tmp4);
 								var tmp6 = d.Norm();
 								var tmp7 = new Ray(ref tmp5, ref tmp6);
-								var tmp8 = radiance(ref tmp7, 0, rand).Mul(1.0 / samps);
+								var tmp8 = radiance(ref tmp7, 0, ref rand).Mul(1.0 / samps);
 								r = r.Add(ref tmp8);
 							}
 							var tmp9 = new Vec(clamp(r.x), clamp(r.y), clamp(r.z)).Mul(.25);
