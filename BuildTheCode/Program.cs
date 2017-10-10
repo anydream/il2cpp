@@ -241,6 +241,7 @@ namespace BuildTheCode
 		public void CompletedUpdate()
 		{
 			UpdateCommand();
+			ExpandDepends();
 			foreach (string dep in DependFiles)
 				UpdateHash(dep);
 		}
