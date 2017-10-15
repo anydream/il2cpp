@@ -540,7 +540,7 @@ namespace BuildTheCode
 			objSet.Add(outFile);
 
 			CompileUnit compUnit = new CompileUnit(
-				string.Format("clang {0} -o {1} {2} -MD -c -emit-llvm " + cflags,
+				string.Format("clang {0} -o {1} {2} -MD -c -flto " + cflags,
 					srcFile,
 					outFile,
 					OptLevel),
@@ -641,7 +641,7 @@ namespace BuildTheCode
 				string optFile = Path.Combine(OutDir, "!opt_" + outNamePostfix + i + strExt);
 
 				CompileUnit optUnit = new CompileUnit(
-					string.Format("clang {0} -o {1} {2} {3} -emit-llvm",
+					string.Format("clang {0} -o {1} {2} {3} -flto",
 						lastOptFile,
 						optFile,
 						OptLevel,
@@ -678,7 +678,7 @@ namespace BuildTheCode
 		private bool FinalLinking(string outFile, string inFile, string cflags)
 		{
 			CompileUnit finalCompile = new CompileUnit(
-				string.Format("clang {0} -o {1} {2} {3}",
+				string.Format("clang {0} -o {1} {2} {3} -flto",
 					inFile,
 					outFile,
 					OptLevel,
@@ -778,10 +778,11 @@ namespace BuildTheCode
 			try
 			{
 				Helper.RunCommand("clang", "-v", null, null, null);
+				Helper.RunCommand("llvm-link", "--help", null, null, null);
 			}
 			catch (System.ComponentModel.Win32Exception)
 			{
-				Console.Error.Write("Cannot find clang compiler,\nplease download it from ");
+				Console.Error.Write("Cannot find clang toolchain,\nplease download it from ");
 				var oldColor = Console.ForegroundColor;
 				Console.ForegroundColor = ConsoleColor.Cyan;
 				Console.Error.WriteLine("http://releases.llvm.org/download.html");
