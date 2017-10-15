@@ -11,7 +11,7 @@ namespace BuildTheCode
 {
 	internal static class Helper
 	{
-		public static bool IsOutputCommand = false;
+		public static bool IsPrintCommand = false;
 
 		public static byte[] GetFileHash(string file)
 		{
@@ -139,9 +139,9 @@ namespace BuildTheCode
 				arguments = "/c " + arguments;
 			}
 
-			if (IsOutputCommand)
+			if (IsPrintCommand)
 			{
-				string cmd = string.Format("{0} {1}", program, arguments);
+				string cmd = string.Format("> {0} {1}", program, arguments);
 				Console.WriteLine(cmd);
 			}
 
@@ -746,6 +746,11 @@ namespace BuildTheCode
 							OptLevel = arg;
 							continue;
 						}
+						else if (cmd == "print-cmd")
+						{
+							Helper.IsPrintCommand = true;
+							continue;
+						}
 
 						string cmdArg = null;
 						int eq = cmd.IndexOf('=');
@@ -771,10 +776,6 @@ namespace BuildTheCode
 							if (!string.IsNullOrEmpty(cmdArg))
 								int.TryParse(cmdArg, out FinalOptCount);
 							continue;
-						}
-						else if (cmd == "v")
-						{
-							Helper.IsOutputCommand = true;
 						}
 					}
 					Console.Error.WriteLine("Unknown command {0}", arg);
