@@ -11,6 +11,8 @@ namespace BuildTheCode
 {
 	internal static class Helper
 	{
+		public static bool IsOutputCommand = false;
+
 		public static byte[] GetFileHash(string file)
 		{
 			try
@@ -137,11 +139,10 @@ namespace BuildTheCode
 				arguments = "/c " + arguments;
 			}
 
-			string cmd = string.Format("{0} {1}\r\n", program, arguments);
-			using (FileStream fs = File.Open("build.log", FileMode.Append))
+			if (IsOutputCommand)
 			{
-				byte[] buf = Encoding.UTF8.GetBytes(cmd);
-				fs.Write(buf, 0, buf.Length);
+				string cmd = string.Format("{0} {1}", program, arguments);
+				Console.WriteLine(cmd);
 			}
 
 			var si = new ProcessStartInfo
@@ -770,6 +771,10 @@ namespace BuildTheCode
 							if (!string.IsNullOrEmpty(cmdArg))
 								int.TryParse(cmdArg, out FinalOptCount);
 							continue;
+						}
+						else if (cmd == "v")
+						{
+							Helper.IsOutputCommand = true;
 						}
 					}
 					Console.Error.WriteLine("Unknown command {0}", arg);
