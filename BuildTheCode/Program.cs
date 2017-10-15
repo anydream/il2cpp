@@ -678,7 +678,7 @@ namespace BuildTheCode
 		private bool FinalLinking(string outFile, string inFile, string cflags)
 		{
 			CompileUnit finalCompile = new CompileUnit(
-				string.Format("clang {0} -o {1} {2} {3} -flto",
+				string.Format("clang {0} -o {1} {2} {3} -flto -fuse-ld=lld -Wno-unused-command-line-argument",
 					inFile,
 					outFile,
 					OptLevel,
