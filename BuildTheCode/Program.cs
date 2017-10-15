@@ -738,6 +738,7 @@ namespace BuildTheCode
 				string arg = args[i];
 				if (arg.StartsWith("-"))
 				{
+					int currI = i;
 					string cmd = arg.Substring(1);
 					if (cmd.Length > 0)
 					{
@@ -778,6 +779,7 @@ namespace BuildTheCode
 							continue;
 						}
 					}
+					i = currI;
 					Console.Error.WriteLine("Unknown command {0}", arg);
 				}
 				else
