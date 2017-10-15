@@ -137,6 +137,13 @@ namespace BuildTheCode
 				arguments = "/c " + arguments;
 			}
 
+			string cmd = string.Format("{0} {1}\r\n", program, arguments);
+			using (FileStream fs = File.Open("build.log", FileMode.Append))
+			{
+				byte[] buf = Encoding.UTF8.GetBytes(cmd);
+				fs.Write(buf, 0, buf.Length);
+			}
+
 			var si = new ProcessStartInfo
 			{
 				WorkingDirectory = workDir,
