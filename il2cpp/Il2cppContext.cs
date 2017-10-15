@@ -66,10 +66,10 @@ namespace il2cpp
 			return new GeneratorContext(TypeMgr).Generate();
 		}
 
-		public static void SaveToFolder(string folder, List<CompileUnit> units)
+		public static void SaveToFolder(string folder, List<CompileUnit> units, HashSet<string> addUnitNames)
 		{
 			Directory.CreateDirectory(folder);
-			List<string> unitNames = new List<string>();
+			HashSet<string> unitNames = new HashSet<string>(addUnitNames);
 			foreach (var unit in units)
 			{
 				if (!string.IsNullOrEmpty(unit.DeclCode))

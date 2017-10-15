@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -213,32 +214,37 @@ namespace test
 			elapsedMS = sw.ElapsedMilliseconds;
 			Console.Write("Gen({0}ms) ", elapsedMS);
 
-			var mainUnit = new CompileUnit();
-			genResult.UnitList.Add(mainUnit);
-			mainUnit.Name = "main";
-			string metName = genResult.GetMethodName(metDef, out var metUnitName);
-			mainUnit.ImplDepends.Add(metUnitName);
-			mainUnit.ImplCode =
-				"#include <stdio.h>\n" +
-				"#include <time.h>\n" +
-				"#include <string>\n\n" +
-				"int main()\n" +
-				"{\n" +
-				"	il2cpp_Init();\n" +
-				"	auto start = clock();\n" +
-				"	auto result = " + metName + "();\n" +
-				"	auto elapsed = clock() - start;\n" +
-				"	printf(\"Result(%s), %ldms\", std::to_string(result).c_str(), elapsed);\n" +
-				"	return 0;\n" +
-				"}\n";
-
-			genResult.GenerateIncludes();
-
 			string validatedName = ValidatePath(testName);
 			string genDir = Path.Combine(imageDir, "../../gen/", validatedName);
+
+			// 生成入口测试代码
+			if (!File.Exists(Path.Combine(genDir, "main.cpp")))
+			{
+				var mainUnit = new CompileUnit();
+				genResult.UnitList.Add(mainUnit);
+				mainUnit.Name = "main";
+				string metName = genResult.GetMethodName(metDef, out var metUnitName);
+				mainUnit.ImplDepends.Add(metUnitName);
+				mainUnit.ImplCode =
+					"#include <stdio.h>\n" +
+					"#include <time.h>\n" +
+					"#include <string>\n\n" +
+					"int main()\n" +
+					"{\n" +
+					"	il2cpp_Init();\n" +
+					"	auto start = clock();\n" +
+					"	auto result = " + metName + "();\n" +
+					"	auto elapsed = clock() - start;\n" +
+					"	printf(\"Result(%s), %ldms\", std::to_string(result).c_str(), elapsed);\n" +
+					"	return 0;\n" +
+					"}\n";
+			}
+
+			genResult.GenerateIncludes();
 			Il2cppContext.SaveToFolder(
 				genDir,
-				genResult.UnitList);
+				genResult.UnitList,
+				new HashSet<string> { "main" });
 			genDir = Path.GetFullPath(genDir);
 
 			Console.Write("Building");
