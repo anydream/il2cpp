@@ -190,6 +190,8 @@ namespace il2cpp
 
 		private bool IsUnitFull(CompileUnit unit)
 		{
+			// 生成一个 .cpp 文件比什么 LTO 都好使
+			return false;
 #if false
 			return !unit.IsEmpty();
 #else
