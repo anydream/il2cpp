@@ -473,7 +473,7 @@ namespace il2cpp
 
 				GenExHandlerStart(inst, prt);
 
-#if true
+#if DEBUG
 				prt.AppendLine("// " + inst);
 #endif
 
