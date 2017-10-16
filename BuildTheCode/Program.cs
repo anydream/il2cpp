@@ -485,7 +485,7 @@ namespace BuildTheCode
 				return;
 
 			// 链接
-			string linkedFile = Linking("!linked.bc", objSet);
+			string linkedFile = Linking("!linked.ll", "-S", objSet);
 			if (linkedFile == null)
 				return;
 
@@ -513,7 +513,7 @@ namespace BuildTheCode
 
 			// 链接 GC
 			objSet.Add(optedFile);
-			linkedFile = Linking("!linked_gc.bc", objSet);
+			linkedFile = Linking("!linked_gc.ll", "-S", objSet);
 			if (linkedFile == null)
 				return;
 
@@ -595,12 +595,13 @@ namespace BuildTheCode
 			return !hasError;
 		}
 
-		private string Linking(string outName, HashSet<string> objSet)
+		private string Linking(string outName, string flags, HashSet<string> objSet)
 		{
 			string outFile = Path.Combine(OutDir, outName);
 			ActionUnit linkUnit = new ActionUnit(
-				string.Format("llvm-link -o {0} {1}",
+				string.Format("llvm-link -o {0} {1} {2}",
 					outFile,
+					flags,
 					string.Join(" ", objSet)),
 				WorkDir,
 				OutDir,
@@ -630,24 +631,16 @@ namespace BuildTheCode
 
 		private string Optimizing(string lastOptFile, string outNamePostfix, int optCount, bool isLastText)
 		{
+			var strExt = ".ll";
+			var strFlag = "-S";
+
 			for (int i = 0; i < optCount; ++i)
 			{
-				string strExt;
-				string strFlag;
-
-				if (!isLastText || i != optCount - 1)
-				{
-					strExt = ".bc";
-					strFlag = "-c";
-				}
-				else
-				{
-					strExt = ".ll";
-					strFlag = "-S";
-				}
+				// 注释掉待优化文件的 attributes 以防止破优化
+				if (!Helper.PatchTextFile(lastOptFile, "attributes #", ";"))
+					return null;
 
 				string optFile = Path.Combine(OutDir, "!opt_" + outNamePostfix + i + strExt);
-
 				CompileUnit optUnit = new CompileUnit(
 					string.Format("clang {0} -o {1} {2} {3} -flto",
 						lastOptFile,
