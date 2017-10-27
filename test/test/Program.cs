@@ -289,7 +289,8 @@ namespace test
 
 				Console.Write(" {0} ", runOutput);
 
-				result = GetRunResult(runOutput);
+				if (runOutput != null)
+					result = GetRunResult(runOutput);
 			}
 
 			if (result == "0")
