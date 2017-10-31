@@ -156,7 +156,7 @@ namespace il2cpp
 
 		private static string GetConstName(int idx)
 		{
-			return "il2cppConstStr_" + idx;
+			return "il2cppStr_" + idx;
 		}
 
 		private static string GetUnitName(int idx)
