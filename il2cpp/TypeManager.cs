@@ -409,7 +409,42 @@ namespace il2cpp
 					}
 			}
 
-			switch (inst.OpCode.OperandType)
+			var operType = inst.OpCode.OperandType;
+			if (operType == OperandType.InlineTok)
+			{
+				switch (inst.Operand)
+				{
+					case MemberRef memRef:
+						if (memRef.IsMethodRef)
+							operType = OperandType.InlineMethod;
+						else
+						{
+							Debug.Assert(memRef.IsFieldRef);
+							operType = OperandType.InlineField;
+						}
+						break;
+
+					case MethodDef _:
+					case MethodSpec _:
+						operType = OperandType.InlineMethod;
+						break;
+
+					case FieldDef _:
+						operType = OperandType.InlineField;
+						break;
+
+					case TypeDef _:
+					case TypeRef _:
+					case TypeSpec _:
+						operType = OperandType.InlineType;
+						break;
+
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+
+			switch (operType)
 			{
 				case OperandType.InlineMethod:
 					{
