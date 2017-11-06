@@ -699,12 +699,12 @@ namespace il2cpp
 			Debug.Assert(memRef.IsMethodRef);
 
 			TypeX declType = ResolveTypeDefOrRef(memRef.DeclaringType, replacer);
-			MethodDef metDef = memRef.ResolveMethod();
 
-			if (metDef == null)
-				metDef = declType.Def.FindMethod(memRef.Name, memRef.MethodSig);
+			MethodDef metDef = declType.Def.FindMethod(memRef.Name, memRef.MethodSig);
 			if (metDef == null)
 				metDef = declType.Def.FindMethod(memRef.Name);
+			if (metDef == null)
+				metDef = memRef.ResolveMethod();
 			if (metDef == null)
 				throw new NotImplementedException();
 
