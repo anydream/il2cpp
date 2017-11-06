@@ -12,8 +12,6 @@
    - [TestCase2]C
    - String
    - [TestCase2]Logger
-   - System.ValueType
-   - Char
 
 [class [TestCase2]C] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
@@ -57,6 +55,7 @@
    - [TestCase2]C
 
 [class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Instantiated
  - Base: Object
  - Interfaces:
    - System.IComparable
@@ -67,6 +66,7 @@
    - System.Collections.Generic.IEnumerable`1<Char>
    - System.IEquatable`1<String>
  - Fields:
+   - m_stringLength|Int32|81, m_stringLength|Int32, Private NotSerialized 
    - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
  - Methods:
    - op_Inequality|Boolean(String,String)|0|896, op_Inequality|Boolean(String,String)|0, Public Static HideBySig SpecialName Managed None
@@ -77,7 +77,6 @@
 [class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
-   - Char
 
 [class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
@@ -86,7 +85,6 @@
 [class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
-   - Char
 
 [class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
@@ -113,26 +111,4 @@
  - Base: Object
  - Methods:
    - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
-
-[struct Char] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
- - Base: System.ValueType
- - Interfaces:
-   - System.IComparable
-   - System.IConvertible
-   - System.IComparable`1<Char>
-   - System.IEquatable`1<Char>
-
-[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
- - Base: Object
- - DerivedTypes:
-   - Char
-
-[class System.IComparable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
- - Variances: Contravariant 
- - DerivedTypes:
-   - Char
-
-[class System.IEquatable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - Char
 

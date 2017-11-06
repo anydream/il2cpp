@@ -8,6 +8,7 @@
  - DerivedTypes:
    - [dev10_468712]ConsoleApplicationVB.Module1
    - [dev10_468712]ConsoleApplicationVB.C`1<String>
+   - String
    - [dev10_468712]Logger
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
@@ -36,6 +37,54 @@
  - Methods:
    - f|Void<System.Exception>()|30|746, f|Void<System.Exception>([dev10_468712]ConsoleApplicationVB.ICovariant`1<Object>)|30 = 0, Public Virtual NewSlot CheckAccessOnOverride Abstract Managed None
      - [dev10_468712]ConsoleApplicationVB.C`1<String> -> f|Void<System.Exception>()|30|366, f|Void<System.Exception>([dev10_468712]ConsoleApplicationVB.C`1<String>)|30
+
+[class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - System.IComparable
+   - System.ICloneable
+   - System.IConvertible
+   - System.Collections.IEnumerable
+   - System.IComparable`1<String>
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - System.IEquatable`1<String>
+ - Fields:
+   - m_stringLength|Int32|81, m_stringLength|Int32, Private NotSerialized 
+   - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
+
+[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - String
+
+[class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - System.Collections.IEnumerable
+ - Variances: Covariant 
+ - DerivedTypes:
+   - String
+
+[class System.IEquatable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
 
 [class [dev10_468712]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

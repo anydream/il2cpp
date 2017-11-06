@@ -10,8 +10,6 @@
    - [testcase]group2.Base`2<Int32,Single>
    - [testcase]group2.Derived`2<Single,Int32>
    - [testcase]group2.DerivedX2`1<Single>
-   - System.ValueType
-   - Single
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
@@ -53,39 +51,4 @@
 [class [testcase]group2.Inf`2<Single,Int32>] NotPublic AutoLayout Interface Abstract AnsiClass 
  - Methods:
    - Foo|Void(!0,!1)|20|5C6, Foo|Void([testcase]group2.Inf`2<Single,Int32>,Single,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
-
-[struct Single] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
- - Base: System.ValueType
- - Interfaces:
-   - System.IComparable
-   - System.IFormattable
-   - System.IConvertible
-   - System.IComparable`1<Single>
-   - System.IEquatable`1<Single>
-
-[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
- - Base: Object
- - DerivedTypes:
-   - Single
-
-[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - Single
-
-[class System.IFormattable] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - Single
-
-[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - Single
-
-[class System.IComparable`1<Single>] Public AutoLayout Interface Abstract AnsiClass 
- - Variances: Contravariant 
- - DerivedTypes:
-   - Single
-
-[class System.IEquatable`1<Single>] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - Single
 

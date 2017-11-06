@@ -9,11 +9,9 @@
  - DerivedTypes:
    - [HelloWorld]HelloWorld
    - [HelloWorld]A
+   - String
    - [HelloWorld]B
    - [HelloWorld]Logger
-   - String
-   - System.ValueType
-   - Char
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
@@ -64,6 +62,59 @@
      - [HelloWorld]A -> Print|String(Int32)|20|1C6, Print|String([HelloWorld]A,Int32)|20
    - Print|String(!1)|20|5C6, Print|String([HelloWorld]J2`2<Int32,Int32>,Int32)|20 = 0, Public Virtual HideBySig NewSlot Abstract Managed None
      - [HelloWorld]A -> Print|String(Int32)|20|1C6, Print|String([HelloWorld]A,Int32)|20
+
+[class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - System.IComparable
+   - System.ICloneable
+   - System.IConvertible
+   - System.Collections.IEnumerable
+   - System.IComparable`1<String>
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - System.IEquatable`1<String>
+ - Fields:
+   - m_stringLength|Int32|81, m_stringLength|Int32, Private NotSerialized 
+   - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
+ - Methods:
+   - op_Equality|Boolean(String,String)|0|896, op_Equality|Boolean(String,String)|0, Public Static HideBySig SpecialName Managed None
+   - Equals|Boolean(String,String)|0|96, Equals|Boolean(String,String)|0, Public Static HideBySig Managed None
+   - get_Length|Int32()|20|886, get_Length|Int32(String)|20, Public HideBySig SpecialName IL, InternalCall Getter
+   - EqualsHelper|Boolean(String,String)|0|91, EqualsHelper|Boolean(String,String)|0, Private Static HideBySig Managed None
+
+[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - String
+
+[class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - System.Collections.IEnumerable
+ - Variances: Covariant 
+ - DerivedTypes:
+   - String
+
+[class System.IEquatable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
 
 [class [HelloWorld]B] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
@@ -117,79 +168,4 @@
  - Base: Object
  - Methods:
    - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
-
-[class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
- - Base: Object
- - Interfaces:
-   - System.IComparable
-   - System.ICloneable
-   - System.IConvertible
-   - System.Collections.IEnumerable
-   - System.IComparable`1<String>
-   - System.Collections.Generic.IEnumerable`1<Char>
-   - System.IEquatable`1<String>
- - Fields:
-   - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
- - Methods:
-   - op_Equality|Boolean(String,String)|0|896, op_Equality|Boolean(String,String)|0, Public Static HideBySig SpecialName Managed None
-   - Equals|Boolean(String,String)|0|96, Equals|Boolean(String,String)|0, Public Static HideBySig Managed None
-   - get_Length|Int32()|20|886, get_Length|Int32(String)|20, Public HideBySig SpecialName IL, InternalCall Getter
-   - EqualsHelper|Boolean(String,String)|0|91, EqualsHelper|Boolean(String,String)|0, Private Static HideBySig Managed None
-
-[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - String
-   - Char
-
-[class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - String
-
-[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - String
-   - Char
-
-[class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - System.Collections.Generic.IEnumerable`1<Char>
-   - String
-
-[class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
- - Variances: Contravariant 
- - DerivedTypes:
-   - String
-
-[class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
- - Interfaces:
-   - System.Collections.IEnumerable
- - Variances: Covariant 
- - DerivedTypes:
-   - String
-
-[class System.IEquatable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - String
-
-[struct Char] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
- - Base: System.ValueType
- - Interfaces:
-   - System.IComparable
-   - System.IConvertible
-   - System.IComparable`1<Char>
-   - System.IEquatable`1<Char>
-
-[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
- - Base: Object
- - DerivedTypes:
-   - Char
-
-[class System.IComparable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
- - Variances: Contravariant 
- - DerivedTypes:
-   - Char
-
-[class System.IEquatable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - Char
 

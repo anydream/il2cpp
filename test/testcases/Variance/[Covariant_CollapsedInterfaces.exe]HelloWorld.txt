@@ -16,8 +16,6 @@
    - [HelloWorld]B
    - [HelloWorld]C
    - [HelloWorld]XBA
-   - System.ValueType
-   - Char
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
@@ -27,6 +25,7 @@
    - WriteLine|Void(String)|0|16, WriteLine|Void(String)|0, Public Static Managed None
 
 [class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Instantiated
  - Base: Object
  - Interfaces:
    - System.IComparable
@@ -37,6 +36,7 @@
    - System.Collections.Generic.IEnumerable`1<Char>
    - System.IEquatable`1<String>
  - Fields:
+   - m_stringLength|Int32|81, m_stringLength|Int32, Private NotSerialized 
    - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
  - Methods:
    - op_Equality|Boolean(String,String)|0|896, op_Equality|Boolean(String,String)|0, Public Static HideBySig SpecialName Managed None
@@ -47,7 +47,6 @@
 [class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
-   - Char
 
 [class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
@@ -56,7 +55,6 @@
 [class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
-   - Char
 
 [class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
@@ -151,26 +149,4 @@
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XBA)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Print|String([HelloWorld]B)|20|1E6, Print|String([HelloWorld]XBA,[HelloWorld]B)|20, Public Final Virtual HideBySig NewSlot Managed None
-
-[struct Char] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
- - Base: System.ValueType
- - Interfaces:
-   - System.IComparable
-   - System.IConvertible
-   - System.IComparable`1<Char>
-   - System.IEquatable`1<Char>
-
-[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
- - Base: Object
- - DerivedTypes:
-   - Char
-
-[class System.IComparable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
- - Variances: Contravariant 
- - DerivedTypes:
-   - Char
-
-[class System.IEquatable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - Char
 

@@ -18,11 +18,11 @@
    - [HelloWorld]XIBC_2
    - [HelloWorld]XICB_1
    - [HelloWorld]XICB_2
-   - System.ValueType
-   - Char
    - [HelloWorld]B
    - [HelloWorld]C
+   - System.ValueType
    - Int32
+   - il2cpprt.BoxedType<Int32>
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
@@ -33,6 +33,7 @@
    - WriteLine|Void(String,Object,Object)|0|16, WriteLine|Void(String,Object,Object)|0, Public Static Managed None
 
 [class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Instantiated
  - Base: Object
  - Interfaces:
    - System.IComparable
@@ -43,6 +44,7 @@
    - System.Collections.Generic.IEnumerable`1<Char>
    - System.IEquatable`1<String>
  - Fields:
+   - m_stringLength|Int32|81, m_stringLength|Int32, Private NotSerialized 
    - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
  - Methods:
    - op_Equality|Boolean(String,String)|0|896, op_Equality|Boolean(String,String)|0, Public Static HideBySig SpecialName Managed None
@@ -53,7 +55,6 @@
 [class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
-   - Char
    - Int32
 
 [class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
@@ -63,7 +64,6 @@
 [class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - String
-   - Char
    - Int32
 
 [class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
@@ -174,29 +174,6 @@
    - .ctor|Void()|20|1886, .ctor|Void([HelloWorld]XICB_2)|20, Public HideBySig SpecialName RTSpecialName Managed None
    - Print|[HelloWorld]B(Int32)|20|1E6, Print|[HelloWorld]B([HelloWorld]XICB_2,Int32)|20, Public Final Virtual HideBySig NewSlot Managed None
 
-[struct Char] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
- - Base: System.ValueType
- - Interfaces:
-   - System.IComparable
-   - System.IConvertible
-   - System.IComparable`1<Char>
-   - System.IEquatable`1<Char>
-
-[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
- - Base: Object
- - DerivedTypes:
-   - Char
-   - Int32
-
-[class System.IComparable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
- - Variances: Contravariant 
- - DerivedTypes:
-   - Char
-
-[class System.IEquatable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
- - DerivedTypes:
-   - Char
-
 [class [HelloWorld]B] NotPublic AutoLayout AnsiClass BeforeFieldInit 
  - Instantiated
  - Base: [HelloWorld]A
@@ -220,6 +197,11 @@
    - System.IComparable`1<Int32>
    - System.IEquatable`1<Int32>
 
+[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
+ - Base: Object
+ - DerivedTypes:
+   - Int32
+
 [class System.IFormattable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - Int32
@@ -232,4 +214,10 @@
 [class System.IEquatable`1<Int32>] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
    - Int32
+
+[class il2cpprt.BoxedType<Int32>] NotPublic SequentialLayout AnsiClass 
+ - Instantiated
+ - Base: Object
+ - Fields:
+   - value|!0|6, value|Int32, Public 
 

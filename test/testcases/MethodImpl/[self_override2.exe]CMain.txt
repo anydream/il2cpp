@@ -8,6 +8,7 @@
  - DerivedTypes:
    - [self_override2]CMain
    - [self_override2]MyBar
+   - String
    - [self_override2]Logger
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
@@ -20,6 +21,54 @@
    - DoBar|Int32()|20|1C6, DoBar|Int32([self_override2]MyBar)|20 = 0, Public Virtual HideBySig NewSlot Managed None
      - [self_override2]MyBar -> DoSelfBar|Int32()|20|1C6, DoSelfBar|Int32([self_override2]MyBar)|20
    - DoSelfBar|Int32()|20|1C6, DoSelfBar|Int32([self_override2]MyBar)|20, Public Virtual HideBySig NewSlot Managed None
+
+[class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
+ - Interfaces:
+   - System.IComparable
+   - System.ICloneable
+   - System.IConvertible
+   - System.Collections.IEnumerable
+   - System.IComparable`1<String>
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - System.IEquatable`1<String>
+ - Fields:
+   - m_stringLength|Int32|81, m_stringLength|Int32, Private NotSerialized 
+   - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
+
+[class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - String
+
+[class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - Variances: Contravariant 
+ - DerivedTypes:
+   - String
+
+[class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - System.Collections.IEnumerable
+ - Variances: Covariant 
+ - DerivedTypes:
+   - String
+
+[class System.IEquatable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
 
 [class [self_override2]Logger] Public AutoLayout AnsiClass BeforeFieldInit 
  - Base: Object

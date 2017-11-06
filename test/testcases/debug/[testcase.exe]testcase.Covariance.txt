@@ -9,8 +9,7 @@
  - DerivedTypes:
    - [testcase]testcase.Covariance
    - [testcase]testcase.Covariance/X`1<Object>
-   - System.ValueType
-   - Int32
+   - String
  - Methods:
    - .ctor|Void()|20|1886, .ctor|Void(Object)|20, Public HideBySig SpecialName RTSpecialName Managed None
 
@@ -32,40 +31,53 @@
  - DerivedTypes:
    - [testcase]testcase.Covariance/X`1<Object>
 
-[struct Int32] Public SequentialLayout Sealed Serializable AnsiClass BeforeFieldInit 
- - Base: System.ValueType
+[class String] Public AutoLayout Sealed Serializable AnsiClass BeforeFieldInit 
+ - Instantiated
+ - Base: Object
  - Interfaces:
    - System.IComparable
-   - System.IFormattable
+   - System.ICloneable
    - System.IConvertible
-   - System.IComparable`1<Int32>
-   - System.IEquatable`1<Int32>
-
-[class System.ValueType] Public AutoLayout Abstract Serializable AnsiClass BeforeFieldInit 
- - Base: Object
- - DerivedTypes:
-   - Int32
+   - System.Collections.IEnumerable
+   - System.IComparable`1<String>
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - System.IEquatable`1<String>
+ - Fields:
+   - m_stringLength|Int32|81, m_stringLength|Int32, Private NotSerialized 
+   - m_firstChar|Char|81, m_firstChar|Char, Private NotSerialized 
 
 [class System.IComparable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - Int32
+   - String
 
-[class System.IFormattable] Public AutoLayout Interface Abstract AnsiClass 
+[class System.ICloneable] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - Int32
+   - String
 
 [class System.IConvertible] Public AutoLayout Interface Abstract AnsiClass 
  - DerivedTypes:
-   - Int32
+   - String
 
-[class System.IComparable`1<Int32>] Public AutoLayout Interface Abstract AnsiClass 
+[class System.Collections.IEnumerable] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - System.Collections.Generic.IEnumerable`1<Char>
+   - String
+
+[class System.IComparable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
  - Variances: Contravariant 
  - DerivedTypes:
-   - Int32
+   - String
 
-[class System.IEquatable`1<Int32>] Public AutoLayout Interface Abstract AnsiClass 
+[class System.Collections.Generic.IEnumerable`1<Char>] Public AutoLayout Interface Abstract AnsiClass 
+ - Interfaces:
+   - System.Collections.IEnumerable
+ - Variances: Covariant 
  - DerivedTypes:
-   - Int32
+   - String
+
+[class System.IEquatable`1<String>] Public AutoLayout Interface Abstract AnsiClass 
+ - DerivedTypes:
+   - String
 
 [class [testcase]testcase.Covariance/I`1<String>] NestedPrivate AutoLayout Interface Abstract AnsiClass 
  - Variances: Contravariant 
