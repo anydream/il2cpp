@@ -1191,7 +1191,7 @@ namespace il2cpp
 		{
 			TypeSig elemType = szArySig.Next;
 
-			TypeX tyX = new TypeX(GetSZArrayPrototype(szArySig));
+			TypeX tyX = new TypeX(GetSZArrayPrototype());
 			tyX.GenArgs = new List<TypeSig>() { Helper.ReplaceGenericSig(elemType, replacer) };
 			tyX.ArrayInfo = new ArrayProperty() { IsSZArray = true, Rank = 1, Sizes = null, LowerBounds = null };
 			return tyX;
@@ -1207,7 +1207,7 @@ namespace il2cpp
 			return tyX;
 		}
 
-		private TypeDef GetSZArrayPrototype(SZArraySig szArySig)
+		private TypeDef GetSZArrayPrototype()
 		{
 			if (SZArrayPrototype != null)
 				return SZArrayPrototype;
