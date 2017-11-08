@@ -1026,6 +1026,13 @@ namespace il2cpp
 					inst.InstCode = GenCall((MethodX)operand, PrefixVMet);
 					return;
 
+				case Code.Ldftn:
+					GenLdftn(inst, (MethodX)operand);
+					return;
+				case Code.Ldvirtftn:
+					GenLdftn(inst, (MethodX)operand, true);
+					return;
+
 				case Code.Ldnull:
 					GenLdc(inst, StackType.Obj, "nullptr");
 					return;
@@ -1408,6 +1415,10 @@ namespace il2cpp
 				case Code.Leave_S:
 					GenLeave(inst, (int)operand);
 					return;
+
+				/*case Code.Ldtoken:
+					GenLdc(inst, StackType.Obj, "nullptr");
+					return;*/
 
 				case Code.Newarr:
 				case Code.Ldlen:
@@ -1844,6 +1855,29 @@ namespace il2cpp
 			}
 			else
 				return sb.ToString() + ';';
+		}
+
+		private void GenLdftn(InstInfo inst, MethodX metX, bool isVirt = false)
+		{
+			RefTypeImpl(metX.DeclType);
+
+			if (isVirt)
+			{
+				var slotPop = Pop();
+				var slotPush = Push(StackType.Ptr);
+
+				string metName = string.Format(
+					"{0}({1}->TypeID)",
+					GenContext.GetMethodName(metX, PrefixVFtn),
+					TempName(slotPop));
+				inst.InstCode = GenAssign(TempName(slotPush), metName, slotPush.SlotType);
+			}
+			else
+			{
+				var slotPush = Push(StackType.Ptr);
+				string metName = GenContext.GetMethodName(metX, PrefixMet);
+				inst.InstCode = GenAssign(TempName(slotPush), '&' + metName, slotPush.SlotType);
+			}
 		}
 
 		private void GenNewobj(InstInfo inst, MethodX metX)
