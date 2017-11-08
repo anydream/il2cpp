@@ -313,6 +313,15 @@ namespace testcase
 		{
 			public int fldI4;
 			public double fldR8;
+
+			public MyStru(ref MyStru other)
+			{
+				fldI4 = 0;
+				fldR8 = 0;
+
+				fldI4 += other.fldI4;
+				fldR8 += other.fldR8;
+			}
 		}
 
 		class MyCls
@@ -339,6 +348,13 @@ namespace testcase
 			os = rs;
 			rs.fldI8 -= s.fldI8;
 			return rs;
+		}
+
+		private static bool TestInPlace()
+		{
+			MyStru v1 = new MyStru() { fldI4 = 123, fldR8 = 456 };
+			MyStru v2 = new MyStru(ref v1);
+			return v2.fldI4 == 123 && v2.fldR8 == 456;
 		}
 
 		public static int Entry()
@@ -378,6 +394,9 @@ namespace testcase
 
 			if (sfldI2 != 26)
 				return 13;
+
+			if (!TestInPlace())
+				return 14;
 
 			return 0;
 		}
@@ -1119,6 +1138,102 @@ namespace testcase
 			}
 			else return 6;
 
+			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestInPlace
+	{
+		class Cls
+		{
+			public int fld1, fld2;
+
+			public Cls()
+			{
+			}
+
+			public Cls(Cls other)
+			{
+				fld1 = 0;
+				fld2 = 0;
+				fld1 += other.fld1;
+				fld2 += other.fld2;
+			}
+		}
+
+		public static int Entry()
+		{
+			Cls cls = new Cls() { fld1 = 123, fld2 = 456 };
+			cls = new Cls(cls);
+			if (cls.fld1 != 123 || cls.fld2 != 456)
+				return 1;
+			return 0;
+		}
+	}
+
+	//[CodeGen]
+	static class TestDelegate
+	{
+		delegate int FooFunc(int a, int b);
+
+		class Cls
+		{
+			public int num;
+			public int Foo(int a, int b)
+			{
+				return (a - b) * num;
+			}
+		}
+
+		interface Inf
+		{
+			int Foo(int a, int b);
+		}
+
+		class ClsA : Inf
+		{
+			public int num;
+			public int Foo(int a, int b)
+			{
+				return a + b + num;
+			}
+		}
+
+		class ClsB : Inf
+		{
+			public int num;
+			public int Foo(int a, int b)
+			{
+				return a - b - num;
+			}
+		}
+
+		public static int Entry()
+		{
+			var cls = new Cls() { num = 34 };
+			FooFunc pfn = cls.Foo;
+			int result = pfn(789, 734);
+			if (result != 1870)
+				return 1;
+
+			Inf inf = new ClsA();
+			inf = new ClsB() { num = 99 };
+			pfn = inf.Foo;
+			result = pfn(132, 119);
+			if (result != -86)
+				return 2;
+
+			return 0;
+		}
+	}
+
+	//[CodeGen]
+	static class TestReflection
+	{
+		public static int Entry()
+		{
+			var mets = typeof(TestReflection).GetMethods();
 			return 0;
 		}
 	}
@@ -2034,7 +2149,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestNullable.Entry();
+			TestInPlace.Entry();
 		}
 	}
 }
