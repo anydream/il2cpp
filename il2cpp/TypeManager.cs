@@ -872,6 +872,9 @@ namespace il2cpp
 			if (tyX.Variances != null)
 				return;
 
+			if (!tyX.HasGenArgs)
+				return;
+
 			if (VarianceMap.TryGetValue(tyX.Def, out var vgroup))
 			{
 				if (vgroup != null)
@@ -956,6 +959,7 @@ namespace il2cpp
 		private bool TryLinkVariance(TypeX baseTyX, TypeX derivedTyX)
 		{
 			Debug.Assert(baseTyX.Variances == derivedTyX.Variances);
+			Debug.Assert(baseTyX.GenArgs.Count == derivedTyX.GenArgs.Count);
 
 			if (baseTyX.IsDerivedType(derivedTyX))
 				return true;
