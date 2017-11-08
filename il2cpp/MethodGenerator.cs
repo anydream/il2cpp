@@ -1880,23 +1880,48 @@ namespace il2cpp
 			}
 		}
 
+		private static bool ShiftRight(SlotInfo[] ary)
+		{
+			int len = ary.Length;
+			if (len > 1)
+			{
+				SlotInfo last = ary[len - 1];
+				for (int i = 0; i < len - 1; ++i)
+				{
+					ary[i + 1] = ary[i];
+				}
+				ary[0] = last;
+				return true;
+			}
+			return false;
+		}
+
 		private void GenNewobj(InstInfo inst, MethodX metX)
 		{
 			TypeX tyX = metX.DeclType;
 
-			var ctorArgs = Pop(metX.ParamTypes.Count - 1);
-
 			if (tyX.IsValueType)
 			{
 				var slotPush = Push(ToStackType(tyX.GetTypeSig()));
-				var ctorList = new List<SlotInfo>();
-				ctorList.Add(slotPush);
-				ctorList.AddRange(ctorArgs);
-				inst.InstCode = GenCall(metX, PrefixMet, ctorList, true);
+				var ctorArgs = Pop(metX.ParamTypes.Count);
+				bool isReorder = ShiftRight(ctorArgs);
+
+				var ctorList = new List<SlotInfo>(ctorArgs);
+				string strCode = GenCall(metX, PrefixMet, ctorList, true);
+
+				var slotRet = Push(slotPush.SlotType);
+				if (isReorder)
+					strCode += '\n' + GenAssign(TempName(slotRet), TempName(slotPush), (TypeSig)null);
+
+				inst.InstCode = strCode;
+
+				--PushCount;
 			}
 			else
 			{
 				var slotPush = Push(StackType.Obj);
+				var ctorArgs = Pop(metX.ParamTypes.Count);
+				bool isReorder = ShiftRight(ctorArgs);
 
 				string strAddSize = null;
 				if (tyX.IsArrayType)
@@ -1908,15 +1933,16 @@ namespace il2cpp
 						GenContext.GetTypeName(elemType));
 
 					uint rank = tyX.ArrayInfo.Rank;
-					if (rank == ctorArgs.Length)
+					int argLen = ctorArgs.Length - 1;
+					if (rank == argLen)
 					{
 						for (int i = 0; i < rank; ++i)
-							strAddSize += " * " + TempName(ctorArgs[i]);
+							strAddSize += " * " + TempName(ctorArgs[i + 1]);
 					}
-					else if (rank * 2 == ctorArgs.Length)
+					else if (rank * 2 == argLen)
 					{
 						for (int i = 0; i < rank; ++i)
-							strAddSize += " * " + TempName(ctorArgs[i * 2 + 1]);
+							strAddSize += " * " + TempName(ctorArgs[i * 2 + 1 + 1]);
 					}
 					else
 						throw new ArgumentOutOfRangeException();
@@ -1931,12 +1957,16 @@ namespace il2cpp
 						GenContext.IsNoRefType(tyX) ? "1" : "0"),
 					slotPush.SlotType);
 
-				var ctorList = new List<SlotInfo>();
-				ctorList.Add(slotPush);
-				ctorList.AddRange(ctorArgs);
+				var ctorList = new List<SlotInfo>(ctorArgs);
 				strCode += '\n' + GenCall(metX, PrefixMet, ctorList);
 
+				var slotRet = Push(StackType.Obj);
+				if (isReorder)
+					strCode += '\n' + GenAssign(TempName(slotRet), TempName(slotPush), (TypeSig)null);
+
 				inst.InstCode = strCode;
+
+				--PushCount;
 			}
 		}
 
