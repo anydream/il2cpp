@@ -790,12 +790,18 @@ namespace BuildTheCode
 			}
 			catch (System.ComponentModel.Win32Exception)
 			{
-				Console.Error.Write("Cannot find clang toolchain,\nplease download it from ");
+				Console.Error.Write("error: Cannot find clang toolchain,\nplease download it from ");
 				var oldColor = Console.ForegroundColor;
 				Console.ForegroundColor = ConsoleColor.Cyan;
 				Console.Error.WriteLine("http://releases.llvm.org/download.html");
 				Console.ForegroundColor = oldColor;
-				Console.ReadKey();
+				try
+				{
+					Console.ReadKey();
+				}
+				catch
+				{
+				}
 				return;
 			}
 
@@ -811,7 +817,7 @@ namespace BuildTheCode
 			}
 			else
 			{
-				Console.Error.WriteLine("Please run 'build.cmd' to compile");
+				Console.Error.WriteLine("error: Please run 'build.cmd' to compile");
 				Console.ReadKey();
 			}
 		}
