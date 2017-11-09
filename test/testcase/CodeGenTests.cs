@@ -81,6 +81,41 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static unsafe class TestTypeSig
+	{
+		class Cls
+		{
+			public byte* ptr;
+		}
+
+		static byte* Foo(byte* p)
+		{
+			return p;
+		}
+
+		public static int Entry()
+		{
+			byte b = 12;
+			byte* p = &b;
+			byte* p2 = Foo(p);
+			Cls cls = new Cls() { ptr = p2 };
+			if (*cls.ptr != 12)
+				return 1;
+
+			byte*[] ary = new byte*[10];
+			ary[0] = p;
+			++*ary[0];
+			if (*ary[0] != 13)
+				return 2;
+
+			if (b != 13)
+				return 3;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
 	static class TestStaticCctor
 	{
 		class MyCls

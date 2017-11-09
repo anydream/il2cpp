@@ -1020,7 +1020,16 @@ namespace il2cpp
 			if (baseSig.IsValueType)
 				return false;
 
+			// 指针类型, 不存在转换
+			if (baseSig.IsPointer || derivedSig.IsPointer)
+				return false;
+
 			//! 数组类型
+			if (baseElemType == ElementType.SZArray || baseElemType == ElementType.Array ||
+				derivedElemType == ElementType.SZArray || derivedElemType == ElementType.Array)
+			{
+				throw new NotImplementedException();
+			}
 
 			// 解析并判断其他类型
 			var baseTyX = ResolveTypeDefOrRef(baseSig.ToTypeDefOrRef(), null);
