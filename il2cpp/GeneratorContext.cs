@@ -619,7 +619,7 @@ namespace il2cpp
 				   ch == '_';
 		}
 
-		private static string NameHash(int hashCode)
+		public static string NameHash(int hashCode)
 		{
 			return ToRadix((uint)hashCode, (uint)DigMap.Length);
 		}

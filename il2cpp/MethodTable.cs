@@ -370,18 +370,6 @@ namespace il2cpp
 			expEntryMap[entry] = new TableMethodImpl(impl, level);
 		}
 
-		private static bool IsBaseType(TypeDef currType, TypeDef baseType)
-		{
-			TypeDef currBase = currType.BaseType?.ResolveTypeDef();
-			if (currBase != null)
-			{
-				if (currBase == baseType)
-					return true;
-				return IsBaseType(currBase, baseType);
-			}
-			return false;
-		}
-
 		private TableMethodPair ExpandMethodPair(TableMethodPair metPair, MethodTable expMetTable, IGenericReplacer replacer)
 		{
 			if (metPair == null)

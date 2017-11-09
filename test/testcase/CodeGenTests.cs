@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
@@ -250,6 +251,29 @@ namespace testcase
 			}
 		}
 
+		struct StruA : Inf
+		{
+			public int num;
+
+			public StruA(int n)
+			{
+				num = n;
+			}
+			public int Foo()
+			{
+				return num;
+			}
+		}
+
+		struct StruB<T> : Inf
+		{
+			public T num;
+			public int Foo()
+			{
+				return 1234;
+			}
+		}
+
 		private static int Bla(Inf inf)
 		{
 			return inf.Foo();
@@ -259,6 +283,14 @@ namespace testcase
 		{
 			if (Bla(new ClsB()) - Bla(new ClsA()) != 333)
 				return 1;
+			if (Bla(new StruA()) != 789)
+				return 2;
+			Inf inf = new StruA(789);
+			if (inf.Foo() != 789)
+				return 3;
+			inf = new StruB<int>();
+			if (inf.Foo() != 1234)
+				return 4;
 			return 0;
 		}
 	}
@@ -1258,6 +1290,23 @@ namespace testcase
 			result = pfn(132, 119);
 			if (result != -86)
 				return 2;
+
+			return 0;
+		}
+	}
+
+	//[CodeGen]
+	static class TestContainer
+	{
+		public static int Entry()
+		{
+			List<int> ilst = new List<int>() { 1, 2, 3 };
+			ilst.Add(123);
+			ilst.Add(456);
+
+			int sum = 0;
+			foreach (int n in ilst)
+				sum += n;
 
 			return 0;
 		}
