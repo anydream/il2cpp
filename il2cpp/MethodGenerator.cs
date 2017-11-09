@@ -1023,7 +1023,7 @@ namespace il2cpp
 					inst.InstCode = GenCall((MethodX)operand);
 					return;
 				case Code.Callvirt:
-					inst.InstCode = GenCall((MethodX)operand, PrefixVMet);
+					inst.InstCode = GenCall((MethodX)operand, true);
 					return;
 
 				case Code.Ldftn:
@@ -1820,9 +1820,11 @@ namespace il2cpp
 				inst.InstCode = "return;";
 		}
 
-		private string GenCall(MethodX metX, string prefix = PrefixMet, List<SlotInfo> slotArgs = null, bool isArg0ValueType = false)
+		private string GenCall(MethodX metX, bool isVirt = false, List<SlotInfo> slotArgs = null, bool isArg0ValueType = false)
 		{
 			RefTypeImpl(metX.DeclType);
+
+			string prefix = isVirt ? PrefixVMet : PrefixMet;
 
 			StringBuilder sb = new StringBuilder();
 			sb.Append(GenContext.GetMethodName(metX, prefix));
@@ -1907,7 +1909,7 @@ namespace il2cpp
 				bool isReorder = ShiftRight(ctorArgs);
 
 				var ctorList = new List<SlotInfo>(ctorArgs);
-				string strCode = GenCall(metX, PrefixMet, ctorList, true);
+				string strCode = GenCall(metX, false, ctorList, true);
 
 				var slotRet = Push(slotPush.SlotType);
 				if (isReorder)
@@ -1958,7 +1960,7 @@ namespace il2cpp
 					slotPush.SlotType);
 
 				var ctorList = new List<SlotInfo>(ctorArgs);
-				strCode += '\n' + GenCall(metX, PrefixMet, ctorList);
+				strCode += '\n' + GenCall(metX, false, ctorList);
 
 				var slotRet = Push(StackType.Obj);
 				if (isReorder)
