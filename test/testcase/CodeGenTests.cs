@@ -251,11 +251,11 @@ namespace testcase
 			}
 		}
 
-		struct StruA : Inf
+		struct Stru : Inf
 		{
 			public int num;
 
-			public StruA(int n)
+			public Stru(int n)
 			{
 				num = n;
 			}
@@ -265,12 +265,33 @@ namespace testcase
 			}
 		}
 
-		struct StruB<T> : Inf
+		interface Inf<T>
+		{
+			T Foo(T t);
+		}
+
+		struct StruA<T> : Inf<T>
+		{
+			public T Foo(T t)
+			{
+				return t;
+			}
+		}
+
+		struct StruB<T> : Inf<T>
 		{
 			public T num;
-			public int Foo()
+			public T Foo(T t)
 			{
-				return 1234;
+				return num;
+			}
+		}
+
+		struct StruC : Inf<int>
+		{
+			public int Foo(int t)
+			{
+				return t * 2;
 			}
 		}
 
@@ -279,18 +300,30 @@ namespace testcase
 			return inf.Foo();
 		}
 
+		private static T Bla2<T>(Inf<T> inf, T t)
+		{
+			return inf.Foo(t);
+		}
+
 		public static int Entry()
 		{
 			if (Bla(new ClsB()) - Bla(new ClsA()) != 333)
 				return 1;
-			if (Bla(new StruA()) != 789)
+			if (Bla(new Stru(789)) != 789)
 				return 2;
-			Inf inf = new StruA(789);
+			Inf inf = new Stru(789);
 			if (inf.Foo() != 789)
 				return 3;
-			inf = new StruB<int>();
-			if (inf.Foo() != 1234)
+
+			if (Bla2(new StruA<int>(), 123) != 123)
 				return 4;
+			var bb = new StruB<int>();
+			bb.num = 456;
+			if (Bla2(bb, 123) != 456)
+				return 5;
+			if (Bla2(new StruC(), 123) != 246)
+				return 6;
+
 			return 0;
 		}
 	}
@@ -2233,7 +2266,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestInPlace.Entry();
+			TestCallVirt.Entry();
 		}
 	}
 }
