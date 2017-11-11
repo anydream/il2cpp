@@ -1904,16 +1904,25 @@ namespace il2cpp
 
 				if (ConstrainedType.IsValueType)
 				{
-					Debug.Assert(metX.DeclType != ConstrainedType);
+					if (ConstrainedType.GetMethod(metX.GetNameKey(), out var implMetX))
+					{
+						// 如果约束类型已实现该方法, 则转换为 call
+						isVirt = false;
+						metX = implMetX;
+					}
+					else
+					{
+						Debug.Assert(metX.DeclType != ConstrainedType);
 
-					var slotSelf = GetStackSlot(numArgs);
-					slotRepSelf = MakeSlotInfo(StackType.Obj, TypeStack.Count);
-					strPreCode = GenBoxImpl(
-						ConstrainedType,
-						string.Format("*({0}*){1}",
-							 GenContext.GetTypeName(ConstrainedType),
-							 TempName(slotSelf)),
-						slotRepSelf) + '\n';
+						var slotSelf = GetStackSlot(numArgs);
+						slotRepSelf = MakeSlotInfo(StackType.Obj, TypeStack.Count);
+						strPreCode = GenBoxImpl(
+							ConstrainedType,
+							string.Format("*({0}*){1}",
+								 GenContext.GetTypeName(ConstrainedType),
+								 TempName(slotSelf)),
+							slotRepSelf) + '\n';
+					}
 				}
 				else
 				{
