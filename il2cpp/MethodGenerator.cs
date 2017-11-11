@@ -497,7 +497,7 @@ namespace il2cpp
 
 		private void GenerateVFtn()
 		{
-			if (!CurrMethod.IsVirtual)
+			if (!CurrMethod.IsVirtual || CurrMethod.DeclType.IsValueType)
 				return;
 
 			CodePrinter prt = new CodePrinter();
@@ -555,7 +555,7 @@ namespace il2cpp
 
 		private void GenerateVMet()
 		{
-			if (!CurrMethod.IsVirtual)
+			if (!CurrMethod.IsVirtual || CurrMethod.DeclType.IsValueType)
 				return;
 
 			CodePrinter prt = new CodePrinter();
@@ -595,7 +595,7 @@ namespace il2cpp
 		private void GenerateWrap()
 		{
 			TypeX boxedTyX = CurrMethod.DeclType.BoxedType;
-			if (boxedTyX == null || !CurrMethod.IsVirtual)
+			if (!CurrMethod.IsVirtual || boxedTyX == null)
 				return;
 
 			CodePrinter prt = new CodePrinter();
