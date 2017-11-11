@@ -514,6 +514,9 @@ namespace il2cpp
 
 		public uint GetTypeID(TypeX tyX)
 		{
+			if (tyX.HasBoxedType)
+				return GetTypeID(tyX.BoxedType);
+
 			if (tyX.GeneratedTypeID != 0)
 				return tyX.GeneratedTypeID;
 

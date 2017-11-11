@@ -1198,6 +1198,7 @@ namespace il2cpp
 				return;
 			if (valueTyX.BoxedType != null)
 				return;
+			valueTyX.IsInstantiated = true;
 
 			TypeDef boxedTyDef = GetBoxedTypeDef();
 			TypeX tyX = new TypeX(boxedTyDef);

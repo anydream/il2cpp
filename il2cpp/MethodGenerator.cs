@@ -236,7 +236,7 @@ namespace il2cpp
 			return idx;
 		}
 
-		private void GenFuncDef(CodePrinter prt, string prefix)
+		private void GenFuncDef(CodePrinter prt, string prefix, TypeSig arg0Type = null)
 		{
 			// 函数签名
 			prt.AppendFormat("{0} {1}(",
@@ -249,8 +249,15 @@ namespace il2cpp
 				if (i != 0)
 					prt.Append(", ");
 
-				var argType = CurrMethod.ParamTypes[i];
-				RefValueTypeDecl(argType);
+				TypeSig argType;
+				if (i == 0 && arg0Type != null)
+					argType = arg0Type;
+				else
+				{
+					argType = CurrMethod.ParamTypes[i];
+					RefValueTypeDecl(argType);
+				}
+
 				prt.AppendFormat("{0} {1}",
 					GenContext.GetTypeName(argType),
 					ArgName(i));
@@ -279,6 +286,7 @@ namespace il2cpp
 		public void Generate()
 		{
 			GenerateMet();
+			GenerateWrap();
 			GenerateVFtn();
 			GenerateVMet();
 		}
@@ -524,7 +532,8 @@ namespace il2cpp
 						implMetX.GetReplacedNameKey());
 					prt.AppendFormatLine("case {0}: return (void*)&{1};",
 						GenContext.GetTypeID(implMetX.DeclType),
-						GenContext.GetMethodName(implMetX, PrefixMet));
+						GenContext.GetMethodName(implMetX,
+							implMetX.DeclType.HasBoxedType ? PrefixWrap : PrefixMet));
 				}
 
 				--prt.Indents;
@@ -568,6 +577,42 @@ namespace il2cpp
 			{
 				if (i != 0)
 					prt.Append(", ");
+				prt.Append(ArgName(i));
+			}
+
+			prt.AppendLine(");");
+
+			--prt.Indents;
+			prt.AppendLine("}");
+
+			ImplCode += prt;
+		}
+
+		private void GenerateWrap()
+		{
+			TypeX boxedTyX = CurrMethod.DeclType.BoxedType;
+			if (boxedTyX == null || !CurrMethod.IsVirtual)
+				return;
+
+			CodePrinter prt = new CodePrinter();
+
+			GenFuncDef(prt, PrefixWrap, boxedTyX.GetThisTypeSig());
+			DeclCode += prt + ";\n";
+
+			prt.AppendLine("\n{");
+			++prt.Indents;
+
+			if (CurrMethod.ReturnType.ElementType != ElementType.Void)
+				prt.Append("return ");
+
+			prt.AppendFormat("{0}(&{1}->{2}",
+				GenContext.GetMethodName(CurrMethod, PrefixMet),
+				ArgName(0),
+				GenContext.GetFieldName(boxedTyX.Fields.First()));
+
+			for (int i = 1, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+			{
+				prt.Append(", ");
 				prt.Append(ArgName(i));
 			}
 
@@ -2521,6 +2566,7 @@ namespace il2cpp
 		}
 
 		private const string PrefixMet = "met_";
+		private const string PrefixWrap = "wrap_";
 		private const string PrefixVMet = "vmet_";
 		private const string PrefixVFtn = "vftn_";
 

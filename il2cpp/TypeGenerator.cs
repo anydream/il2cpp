@@ -24,12 +24,15 @@ namespace il2cpp
 			// 重排字段
 			var fields = LayoutFields(out var sfields);
 
+			string nameKey = CurrType.GetNameKey();
+			bool currIsObject = nameKey == "Object";
+
 			// 生成类结构
 			CodePrinter prtDecl = new CodePrinter();
 
 			if (!CurrType.IsEnumType)
 			{
-				prtDecl.AppendFormatLine("// {0}", CurrType.GetNameKey());
+				prtDecl.AppendFormatLine("// {0}", nameKey);
 				var baseType = CurrType.BaseType;
 
 				// 值类型不继承任何基类
@@ -73,8 +76,7 @@ namespace il2cpp
 				}
 				else
 				{
-					string nameKey = CurrType.GetNameKey();
-					if (nameKey == "Object")
+					if (currIsObject)
 					{
 						prtDecl.AppendLine("uint32_t TypeID;");
 					}
@@ -102,7 +104,7 @@ namespace il2cpp
 			CodePrinter prtImpl = new CodePrinter();
 
 			// 生成类型判断函数
-			GenerateIsType(prtDecl, prtImpl);
+			GenerateIsType(prtDecl, prtImpl, currIsObject);
 
 			// 生成静态字段
 			foreach (var sfldX in sfields)
@@ -140,7 +142,7 @@ namespace il2cpp
 			return unit;
 		}
 
-		private void GenerateIsType(CodePrinter prtDecl, CodePrinter prtImpl)
+		private void GenerateIsType(CodePrinter prtDecl, CodePrinter prtImpl, bool currIsObject)
 		{
 			if (CurrType.IsValueType)
 				return;
@@ -162,7 +164,10 @@ namespace il2cpp
 			foreach (var derTyX in derivedRange)
 			{
 				// 跳过不分配在堆上的类型
-				if (!derTyX.IsInstantiated || derTyX.IsValueType || derTyX.Def.IsInterface)
+				if (!derTyX.IsInstantiated || derTyX.Def.IsInterface)
+					continue;
+				// 如果当前类型是 object, 则跳过值类型
+				if (currIsObject && derTyX.IsValueType)
 					continue;
 				derTypes.Add(derTyX);
 			}

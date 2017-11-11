@@ -265,6 +265,28 @@ namespace testcase
 			}
 		}
 
+		private static int Bla(Inf inf)
+		{
+			return inf.Foo();
+		}
+
+		public static int Entry()
+		{
+			if (Bla(new ClsB()) - Bla(new ClsA()) != 333)
+				return 1;
+			if (Bla(new Stru(789)) != 789)
+				return 2;
+			Inf inf = new Stru(789);
+			if (inf.Foo() != 789)
+				return 3;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestCallVirtStru
+	{
 		interface Inf<T>
 		{
 			T Foo(T t);
@@ -272,13 +294,19 @@ namespace testcase
 
 		struct StruA<T> : Inf<T>
 		{
+			public T num;
+
+			public StruA(T n)
+			{
+				num = n;
+			}
 			public T Foo(T t)
 			{
-				return t;
+				return num;
 			}
 		}
 
-		struct StruB<T> : Inf<T>
+		class ClsB<T> : Inf<T>
 		{
 			public T num;
 			public T Foo(T t)
@@ -295,9 +323,12 @@ namespace testcase
 			}
 		}
 
-		private static int Bla(Inf inf)
+		class ClsD : Inf<int>
 		{
-			return inf.Foo();
+			public int Foo(int t)
+			{
+				return t * 3;
+			}
 		}
 
 		private static T Bla2<T>(Inf<T> inf, T t)
@@ -307,22 +338,16 @@ namespace testcase
 
 		public static int Entry()
 		{
-			if (Bla(new ClsB()) - Bla(new ClsA()) != 333)
+			if (Bla2(new StruA<int>(123), 123) != 123)
 				return 1;
-			if (Bla(new Stru(789)) != 789)
-				return 2;
-			Inf inf = new Stru(789);
-			if (inf.Foo() != 789)
-				return 3;
-
-			if (Bla2(new StruA<int>(), 123) != 123)
-				return 4;
-			var bb = new StruB<int>();
+			var bb = new ClsB<int>();
 			bb.num = 456;
 			if (Bla2(bb, 123) != 456)
-				return 5;
+				return 2;
 			if (Bla2(new StruC(), 123) != 246)
-				return 6;
+				return 3;
+			if (Bla2(new ClsD(), 124) != 372)
+				return 4;
 
 			return 0;
 		}
@@ -2266,7 +2291,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestCallVirt.Entry();
+			TestCallVirtStru.Entry();
 		}
 	}
 }
