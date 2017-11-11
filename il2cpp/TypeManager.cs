@@ -1199,11 +1199,9 @@ namespace il2cpp
 			if (valueTyX.BoxedType != null)
 				return;
 
-			TypeDef boxedTyDef = MakeBoxedTypeDef(valueTyX);
+			TypeDef boxedTyDef = GetBoxedTypeDef();
 			TypeX tyX = new TypeX(boxedTyDef);
-			if (valueTyX.GenArgs.IsCollectionValid())
-				tyX.GenArgs = new List<TypeSig>(valueTyX.GenArgs);
-
+			tyX.GenArgs = new List<TypeSig>() { valueTyX.GetTypeSig() };
 			tyX = TryAddType(tyX);
 			tyX.IsInstantiated = true;
 
@@ -1213,67 +1211,28 @@ namespace il2cpp
 			valueTyX.BoxedType = tyX;
 		}
 
-		private TypeDef MakeBoxedTypeDef(TypeX valueTyX)
+		private TypeDef GetBoxedTypeDef()
 		{
-			TypeDef protoDef = valueTyX.Def;
+			if (BoxedTypePrototype != null)
+				return BoxedTypePrototype;
 
 			TypeDefUser tyDef = new TypeDefUser(
 				"il2cpprt",
-				"Boxed_" + GeneratorContext.NameHash(protoDef.FullName.GetHashCode()) + '_' +
-				protoDef.Name,
+				"BoxedType",
 				Context.CorLibTypes.Object.ToTypeDefOrRef());
 			tyDef.Layout = TypeAttributes.SequentialLayout;
-			if (protoDef.HasGenericParameters)
-			{
-				foreach (var genParam in protoDef.GenericParameters)
-					tyDef.GenericParameters.Add(new GenericParamUser(genParam.Number, genParam.Flags, genParam.Name));
-			}
-			if (protoDef.HasInterfaces)
-			{
-				foreach (var inf in protoDef.Interfaces)
-					tyDef.Interfaces.Add(inf);
-			}
+			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.NonVariant, "T"));
+			var genArgT = new GenericVar(0, tyDef);
 			Context.CorLibModule.Types.Add(tyDef);
 
 			FieldDefUser fldDef = new FieldDefUser(
 				"value",
-				new FieldSig(valueTyX.GetTypeSig()),
+				new FieldSig(genArgT),
 				FieldAttributes.Public);
 			tyDef.Fields.Add(fldDef);
 
-			foreach (var protoMetDef in protoDef.Methods)
-			{
-				if (!protoMetDef.IsVirtual)
-					continue;
-				Debug.Assert(!protoMetDef.IsStatic && !protoMetDef.IsConstructor);
-
-				MethodDefUser metDef = new MethodDefUser(
-					protoMetDef.Name,
-					protoMetDef.MethodSig,
-					protoMetDef.Attributes);
-
-				var body = metDef.Body = new CilBody();
-				var insts = body.Instructions;
-				insts.Add(OpCodes.Ldarg_0.ToInstruction());
-				insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
-
-				for (int i = 1, sz = metDef.Parameters.Count; i < sz; ++i)
-				{
-					insts.Add(OpCodes.Ldarg.ToInstruction(
-						metDef.Parameters[i]));
-				}
-
-				insts.Add(OpCodes.Call.ToInstruction(protoMetDef));
-
-				if (protoMetDef.HasReturnType)
-					insts.Add(OpCodes.Ret.ToInstruction());
-
-				body.UpdateInstructionOffsets();
-
-				tyDef.Methods.Add(metDef);
-			}
-
-			return tyDef;
+			BoxedTypePrototype = tyDef;
+			return BoxedTypePrototype;
 		}
 
 		private TypeX ResolveSZArrayType(SZArraySig szArySig, IGenericReplacer replacer)
