@@ -1353,6 +1353,30 @@ namespace testcase
 		}
 	}
 
+	[CodeGen]
+	static class TestConstrained
+	{
+		struct Stru
+		{
+			public int num;
+			public override int GetHashCode()
+			{
+				return 1234 + num;
+			}
+		}
+
+		public static int Entry()
+		{
+			Stru s = new Stru();
+			s.num = 4567;
+			int code = s.GetHashCode();
+			if (code != 5801)
+				return 1;
+
+			return 0;
+		}
+	}
+
 	//[CodeGen]
 	static class TestContainer
 	{
@@ -2291,7 +2315,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestCallVirtStru.Entry();
+			TestConstrained.Entry();
 		}
 	}
 }

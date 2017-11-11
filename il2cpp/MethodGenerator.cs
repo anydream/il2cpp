@@ -181,6 +181,13 @@ namespace il2cpp
 			CurrMethod = metX;
 		}
 
+		private SlotInfo MakeSlotInfo(StackType stype, int sidx)
+		{
+			SlotInfo slot = new SlotInfo(stype, sidx);
+			AddSlotMap(slot);
+			return slot;
+		}
+
 		private SlotInfo Push(StackType stype)
 		{
 			SlotInfo slot = new SlotInfo(stype, TypeStack.Count);
@@ -210,6 +217,12 @@ namespace il2cpp
 		{
 			Debug.Assert(TypeStack.Count > 0);
 			return new SlotInfo(TypeStack.Peek(), TypeStack.Count - 1);
+		}
+
+		private SlotInfo GetStackSlot(int slot)
+		{
+			Debug.Assert(slot > 0);
+			return new SlotInfo(TypeStack.ElementAt(slot - 1), TypeStack.Count - slot);
 		}
 
 		private void AddBranch(int target)
@@ -1880,6 +1893,10 @@ namespace il2cpp
 
 		private string GenCall(MethodX metX, bool isVirt = false, List<SlotInfo> slotArgs = null, bool isArg0ValueType = false)
 		{
+			int numArgs = metX.ParamTypes.Count;
+			string strPreCode = null;
+			SlotInfo slotRepSelf = null;
+
 			if (ConstrainedType != null)
 			{
 				if (!isVirt)
@@ -1887,12 +1904,27 @@ namespace il2cpp
 
 				if (ConstrainedType.IsValueType)
 				{
-					// 检查约束类型是否实现了调用方法
-					var findedMet = ConstrainedType.Def.FindMethod(metX.Def.Name, metX.Def.MethodSig);
-					if (findedMet == null)
-					{
+					Debug.Assert(metX.DeclType != ConstrainedType);
 
-					}
+					var slotSelf = GetStackSlot(numArgs);
+					slotRepSelf = MakeSlotInfo(StackType.Obj, TypeStack.Count);
+					strPreCode = GenBoxImpl(
+						ConstrainedType,
+						string.Format("*({0}*){1}",
+							 GenContext.GetTypeName(ConstrainedType),
+							 TempName(slotSelf)),
+						slotRepSelf) + '\n';
+				}
+				else
+				{
+					var slotSelf = GetStackSlot(numArgs);
+					slotRepSelf = MakeSlotInfo(StackType.Obj, TypeStack.Count);
+					strPreCode = GenAssign(
+						TempName(slotRepSelf),
+						string.Format("*({0}*){1}",
+							StackType.Obj.GetTypeName(),
+							TempName(slotSelf)),
+						(TypeSig)null) + '\n';
 				}
 			}
 
@@ -1905,10 +1937,10 @@ namespace il2cpp
 			sb.Append('(');
 
 			if (slotArgs == null)
-			{
-				int numArgs = metX.ParamTypes.Count;
 				slotArgs = Pop(numArgs).ToList();
-			}
+
+			if (slotRepSelf != null)
+				slotArgs[0] = slotRepSelf;
 
 			for (int i = 0, sz = slotArgs.Count; i < sz; ++i)
 			{
@@ -1927,10 +1959,10 @@ namespace il2cpp
 			if (metX.ReturnType.ElementType != ElementType.Void)
 			{
 				var slotPush = Push(ToStackType(metX.ReturnType));
-				return GenAssign(TempName(slotPush), sb.ToString(), slotPush.SlotType);
+				return strPreCode + GenAssign(TempName(slotPush), sb.ToString(), slotPush.SlotType);
 			}
 			else
-				return sb.ToString() + ';';
+				return strPreCode + sb.ToString() + ';';
 		}
 
 		private void GenLdftn(InstInfo inst, MethodX metX, bool isVirt = false)
@@ -2050,7 +2082,11 @@ namespace il2cpp
 		{
 			var slotPop = Pop();
 			var slotPush = Push(StackType.Obj);
+			inst.InstCode = GenBoxImpl(tyX, TempName(slotPop), slotPush);
+		}
 
+		private string GenBoxImpl(TypeX tyX, string strPop, SlotInfo slotPush)
+		{
 			if (tyX.IsValueType)
 			{
 				CodePrinter prt = new CodePrinter();
@@ -2062,7 +2098,7 @@ namespace il2cpp
 					fldNullableValue = tyX.Fields.FirstOrDefault(fldX => fldX.Def.FieldType.ElementType == ElementType.Var);
 
 					prt.AppendFormatLine("if ({0}.{1})",
-						TempName(slotPop),
+						strPop,
 						GenContext.GetFieldName(fldHasValue));
 					prt.AppendLine("{");
 					++prt.Indents;
@@ -2087,11 +2123,11 @@ namespace il2cpp
 				if (fldNullableValue != null)
 				{
 					rhs = string.Format("{0}.{1}",
-						TempName(slotPop),
+						strPop,
 						GenContext.GetFieldName(fldNullableValue));
 				}
 				else
-					rhs = TempName(slotPop);
+					rhs = strPop;
 
 				FieldX fldBoxedValue = tyX.Fields.First();
 				prt.Append(GenAssign(
@@ -2114,13 +2150,13 @@ namespace il2cpp
 					--prt.Indents;
 				}
 
-				inst.InstCode = prt.ToString();
+				return prt.ToString();
 			}
 			else
 			{
-				inst.InstCode = GenAssign(
+				return GenAssign(
 					TempName(slotPush),
-					TempName(slotPop),
+					strPop,
 					slotPush.SlotType);
 			}
 		}

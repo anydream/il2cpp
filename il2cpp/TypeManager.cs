@@ -559,6 +559,7 @@ namespace il2cpp
 							case Code.Unbox_Any:
 							case Code.Isinst:
 							case Code.Castclass:
+							case Code.Constrained:
 								if (tyX.IsValueType)
 								{
 									if (tyX.IsNullableType)
