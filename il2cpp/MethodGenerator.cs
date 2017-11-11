@@ -526,14 +526,18 @@ namespace il2cpp
 
 				foreach (MethodX implMetX in implMets)
 				{
-					RefTypeImpl(implMetX.DeclType);
+					var declTyX = implMetX.DeclType;
+					RefTypeImpl(declTyX);
 
 					prt.AppendFormatLine("// {0}",
 						implMetX.GetReplacedNameKey());
 					prt.AppendFormatLine("case {0}: return (void*)&{1};",
-						GenContext.GetTypeID(implMetX.DeclType),
+						GenContext.GetTypeID(declTyX),
 						GenContext.GetMethodName(implMetX,
-							implMetX.DeclType.HasBoxedType ? PrefixWrap : PrefixMet));
+							declTyX.HasBoxedType ? PrefixWrap : PrefixMet));
+
+					// 如果是值类型则必须存在装箱类型
+					Debug.Assert(declTyX.HasBoxedType || !declTyX.IsValueType);
 				}
 
 				--prt.Indents;
