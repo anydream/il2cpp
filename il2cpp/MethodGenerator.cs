@@ -163,6 +163,9 @@ namespace il2cpp
 		private readonly Dictionary<int, int> LeaveMap = new Dictionary<int, int>();
 		private int LeaveCount;
 
+		// 约束类型
+		private TypeX ConstrainedType;
+
 		public readonly HashSet<string> DeclDepends = new HashSet<string>();
 		public readonly HashSet<string> ImplDepends = new HashSet<string>();
 		public readonly HashSet<string> StringDepends = new HashSet<string>();
@@ -944,6 +947,9 @@ namespace il2cpp
 			var opCode = inst.OpCode;
 			var operand = inst.Operand;
 
+			if (opCode.Code != Code.Constrained)
+				ConstrainedType = null;
+
 			switch (opCode.StackBehaviourPop)
 			{
 				case StackBehaviour.Pop0:
@@ -1073,6 +1079,9 @@ namespace il2cpp
 					return;
 				case Code.Callvirt:
 					inst.InstCode = GenCall((MethodX)operand, true);
+					return;
+				case Code.Constrained:
+					ConstrainedType = (TypeX)operand;
 					return;
 
 				case Code.Ldftn:
@@ -1871,6 +1880,22 @@ namespace il2cpp
 
 		private string GenCall(MethodX metX, bool isVirt = false, List<SlotInfo> slotArgs = null, bool isArg0ValueType = false)
 		{
+			if (ConstrainedType != null)
+			{
+				if (!isVirt)
+					throw new TypeLoadException();
+
+				if (ConstrainedType.IsValueType)
+				{
+					// 检查约束类型是否实现了调用方法
+					var findedMet = ConstrainedType.Def.FindMethod(metX.Def.Name, metX.Def.MethodSig);
+					if (findedMet == null)
+					{
+
+					}
+				}
+			}
+
 			RefTypeImpl(metX.DeclType);
 
 			string prefix = isVirt ? PrefixVMet : PrefixMet;
@@ -1893,9 +1918,9 @@ namespace il2cpp
 				var argType = metX.ParamTypes[i];
 
 				sb.AppendFormat("{0}{1}{2}",
-					CastType(argType),
-					isArg0ValueType && i == 0 ? "&" : null,
-					TempName(slotArgs[i]));
+				CastType(argType),
+								isArg0ValueType && i == 0 ? "&" : null,
+								TempName(slotArgs[i]));
 			}
 			sb.Append(')');
 
