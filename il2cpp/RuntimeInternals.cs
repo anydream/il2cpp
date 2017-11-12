@@ -132,6 +132,14 @@ else
 					return true;
 				}
 			}
+			else if (typeName == "System.ValueType")
+			{
+				if (metName == "GetHashCode")
+				{
+					prt.AppendLine("return (int32_t)0x14AE055C;");
+					return true;
+				}
+			}
 			else if (typeName == "System.Runtime.CompilerServices.RuntimeHelpers")
 			{
 				if (metName == "GetHashCode")
