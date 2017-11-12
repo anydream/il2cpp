@@ -1426,9 +1426,64 @@ namespace testcase
 				new Stru2 { aa = 456, bb = 123 }.GetHashCode())
 				return 9;
 
-			/*code = "abcd".GetHashCode();
-			if (code != 1594742810)
-				return 5;*/
+			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestNoRef
+	{
+		class NoRefCls
+		{
+			public int aa = 1;
+			public float bb = 1;
+		}
+
+		class RefCls
+		{
+			public int aa = 1;
+			public string bb = "test";
+		}
+
+		class RefCls2
+		{
+			public int aa = 1;
+			public NoRefCls bb = new NoRefCls();
+		}
+
+		struct NoRefStru
+		{
+			public int aa;
+			public float bb;
+		}
+
+		struct NoRefStru2
+		{
+			public int aa;
+			public NoRefStru bb;
+		}
+
+		struct RefStru
+		{
+			public int aa;
+			public string bb;
+		}
+
+		struct RefStru2
+		{
+			public int aa;
+			public RefStru bb;
+		}
+
+		public static int Entry()
+		{
+			var a = new NoRefCls();
+			var b = new RefCls();
+			var c = new RefCls2();
+			object d = new NoRefStru() { aa = 1, bb = 2 };
+			object e = new NoRefStru2() { aa = 1, bb = new NoRefStru() };
+			object f = new RefStru() { aa = 1, bb = "test2" };
+			object g = new RefStru2() { aa = 1, bb = new RefStru() };
 
 			return 0;
 		}

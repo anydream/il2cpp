@@ -315,65 +315,47 @@ namespace il2cpp
 			}
 		}
 
+		private bool RefToTypeIsNoRef(TypeX tyX)
+		{
+			if (tyX.IsValueType)
+				return IsNoRefType(tyX);
+			return false;
+		}
+
 		public bool IsNoRefType(TypeX tyX)
 		{
 			if (tyX == null)
 				return true;
 
-			if (tyX.NoRefFlag == 0)
+			if (tyX.NoRefFlag != 0)
+				return tyX.NoRefFlag == 1;
+
+			if (tyX.IsArrayType)
 			{
-				if (tyX.IsArrayType)
+				// 数组取决于其元素类型的属性
+				Debug.Assert(tyX.HasGenArgs && tyX.GenArgs.Count == 1);
+				TypeX elemType = GetTypeBySig(tyX.GenArgs[0]);
+				tyX.NoRefFlag = (byte)(RefToTypeIsNoRef(elemType) ? 1 : 2);
+			}
+			else
+			{
+				tyX.NoRefFlag = 1;
+				// 检查对象的字段
+				foreach (var fldX in tyX.Fields)
 				{
-					// 数组取决于其元素类型的属性
-					Debug.Assert(tyX.HasGenArgs && tyX.GenArgs.Count == 1);
-					TypeX elemType = GetTypeBySig(tyX.GenArgs[0]);
-					tyX.NoRefFlag = (byte)(IsNoRefType(elemType) ? 1 : 2);
-				}
-				else
-				{
-					var elemType = tyX.Def.ToTypeSig().ElementType;
-					switch (elemType)
+					if (fldX.IsStatic)
+						continue;
+
+					TypeX fldType = GetTypeBySig(fldX.FieldType);
+					if (!RefToTypeIsNoRef(fldType))
 					{
-						case ElementType.Boolean:
-						case ElementType.Char:
-						case ElementType.I1:
-						case ElementType.I2:
-						case ElementType.I4:
-						case ElementType.I8:
-						case ElementType.U1:
-						case ElementType.U2:
-						case ElementType.U4:
-						case ElementType.U8:
-						case ElementType.I:
-						case ElementType.U:
-						case ElementType.R4:
-						case ElementType.R8:
-						case ElementType.String:
-							// 内置值类型不包含引用
-							tyX.NoRefFlag = 1;
-							break;
-
-						default:
-							{
-								tyX.NoRefFlag = 1;
-								// 检查对象的字段
-								foreach (var fldX in tyX.Fields)
-								{
-									if (fldX.IsStatic)
-										continue;
-
-									if (!IsNoRefType(GetTypeBySig(fldX.FieldType)))
-									{
-										// 存在包含引用的字段
-										tyX.NoRefFlag = 2;
-										break;
-									}
-								}
-								break;
-							}
+						// 存在包含引用的字段
+						tyX.NoRefFlag = 2;
+						break;
 					}
 				}
 			}
+
 			return tyX.NoRefFlag == 1;
 		}
 
