@@ -136,7 +136,8 @@ else
 			{
 				if (metName == "GetHashCode")
 				{
-					prt.AppendLine("return (int32_t)((uintptr_t)arg_0 ^ ((uintptr_t)arg_0 >> 32));");
+					prt.AppendLine("uintptr_t val = (uintptr_t)arg_0;");
+					prt.AppendLine("return (int32_t)val ^ (int32_t)(val >> 32);");
 					return true;
 				}
 			}

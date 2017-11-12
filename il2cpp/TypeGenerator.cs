@@ -126,7 +126,12 @@ namespace il2cpp
 				var metGen = new MethodGenerator(GenContext, metX);
 				metGen.Generate();
 
-				prtDecl.AppendFormatLine("// {0} -> {1}", metX.DeclType.GetNameKey(), metX.GetReplacedNameKey());
+				prtDecl.AppendFormatLine("// {0}{1}{2} -> {3}",
+					metX.Def.HasBody ? null : "extern ",
+					metX.Def.IsInternalCall ? "internalcall " : null,
+					metX.DeclType.GetNameKey(),
+					metX.GetReplacedNameKey());
+
 				prtDecl.Append(metGen.DeclCode);
 				unit.DeclDepends.UnionWith(metGen.DeclDepends);
 

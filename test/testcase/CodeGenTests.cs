@@ -1373,6 +1373,25 @@ namespace testcase
 			if (code != 5801)
 				return 1;
 
+			int numi4 = 123;
+			code = numi4.GetHashCode();
+			if (code != 123)
+				return 2;
+
+			float numr4 = 1.23f;
+			code = numr4.GetHashCode();
+			if (code != 1067282596)
+				return 3;
+
+			double numr8 = 1.23;
+			code = numr8.GetHashCode();
+			if (code != 1158867386)
+				return 4;
+
+			/*code = "abcd".GetHashCode();
+			if (code != 1594742810)
+				return 5;*/
+
 			return 0;
 		}
 	}
