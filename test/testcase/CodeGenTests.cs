@@ -1365,6 +1365,18 @@ namespace testcase
 			}
 		}
 
+		struct Stru2
+		{
+			public int aa;
+			public int bb;
+		}
+
+		struct Stru3
+		{
+			public Stru2 aa;
+			public int bb;
+		}
+
 		public static int Entry()
 		{
 			Stru s = new Stru();
@@ -1387,6 +1399,32 @@ namespace testcase
 			code = numr8.GetHashCode();
 			if (code != 1158867386)
 				return 4;
+
+			if (new Stru2 { aa = 123, bb = 456 }.GetHashCode() !=
+				new Stru2 { aa = 123, bb = 456 }.GetHashCode())
+				return 5;
+
+			if (new Stru2 { aa = 124, bb = 456 }.GetHashCode() ==
+				new Stru2 { aa = 123, bb = 456 }.GetHashCode())
+				return 6;
+
+			code = new Stru2 { aa = 123, bb = 457 }.GetHashCode();
+			int code2 = new Stru2 { aa = 123, bb = 456 }.GetHashCode();
+			if (code == code2)
+				return 7;
+
+			Stru2 stru = new Stru2();
+			stru.aa = 789;
+			stru.bb = 321;
+
+			Stru3 stru2 = new Stru3();
+			stru2.aa = stru;
+			if (stru2.GetHashCode() == stru.GetHashCode())
+				return 8;
+
+			if (new Stru2 { aa = 123, bb = 456 }.GetHashCode() ==
+				new Stru2 { aa = 456, bb = 123 }.GetHashCode())
+				return 9;
 
 			/*code = "abcd".GetHashCode();
 			if (code != 1594742810)

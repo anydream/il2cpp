@@ -863,6 +863,61 @@ namespace il2cpp
 
 			// 更新子类集合
 			tyX.UpdateDerivedTypes();
+
+			if (tyX.IsValueType)
+			{
+				// 值类型补齐 GetHashCode
+				if (tyX.Def.FindMethod("GetHashCode") == null)
+				{
+					var objMet = Context.CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("GetHashCode");
+					MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
+					tyX.Def.Methods.Add(metDef);
+
+					var body = metDef.Body = new CilBody();
+					var insts = body.Instructions;
+
+					insts.Add(OpCodes.Ldc_I4.ToInstruction(0x14AE055C));
+
+					List<FieldDef> fldList = new List<FieldDef>(tyX.Def.Fields);
+					fldList.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
+					bool last = false;
+					foreach (var fldDef in fldList)
+					{
+						if (last)
+						{
+							insts.Add(OpCodes.Dup.ToInstruction());
+							insts.Add(OpCodes.Ldc_I4_5.ToInstruction());
+							insts.Add(OpCodes.Shl.ToInstruction());
+							insts.Add(OpCodes.Add.ToInstruction());
+						}
+						last = true;
+
+						bool isBreak = false;
+
+						insts.Add(OpCodes.Ldarg_0.ToInstruction());
+						if (fldDef.FieldType.IsValueType)
+						{
+							insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
+							insts.Add(OpCodes.Constrained.ToInstruction(fldDef.FieldType.ToTypeDefOrRef()));
+						}
+						else
+						{
+							insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+							isBreak = true;
+						}
+						insts.Add(OpCodes.Callvirt.ToInstruction(objMet));
+						insts.Add(OpCodes.Xor.ToInstruction());
+
+						if (isBreak)
+							break;
+					}
+
+					insts.Add(OpCodes.Ret.ToInstruction());
+					insts.UpdateInstructionOffsets();
+
+					ResolveMethodDef(metDef);
+				}
+			}
 		}
 
 		private void TryAddVariance(TypeX tyX)
