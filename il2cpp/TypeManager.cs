@@ -871,6 +871,7 @@ namespace il2cpp
 				{
 					var objMet = Context.CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("GetHashCode");
 					MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
+					metDef.IsReuseSlot = true;
 					tyX.Def.Methods.Add(metDef);
 
 					var body = metDef.Body = new CilBody();
@@ -892,8 +893,6 @@ namespace il2cpp
 						}
 						last = true;
 
-						bool isBreak = false;
-
 						insts.Add(OpCodes.Ldarg_0.ToInstruction());
 						if (fldDef.FieldType.IsValueType)
 						{
@@ -903,13 +902,9 @@ namespace il2cpp
 						else
 						{
 							insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
-							isBreak = true;
 						}
 						insts.Add(OpCodes.Callvirt.ToInstruction(objMet));
 						insts.Add(OpCodes.Xor.ToInstruction());
-
-						if (isBreak)
-							break;
 					}
 
 					insts.Add(OpCodes.Ret.ToInstruction());
