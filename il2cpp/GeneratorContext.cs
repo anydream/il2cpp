@@ -147,6 +147,7 @@ namespace il2cpp
 			{
 				if (BridgeTypes.Contains(unit.Name))
 				{
+					bridgeUnit.DeclCode += "#define IL2CPP_BRIDGE_HAS_" + unit.Name + '\n';
 					bridgeUnit.Append(unit);
 					transMap[unit.Name] = bridgeUnit.Name;
 				}

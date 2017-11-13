@@ -91,7 +91,7 @@ void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 	}
 }
 
-#if defined(IL2CPP_BRIDGE_HAS_ARRAY)
+#if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
 int32_t il2cpp_ArrayLength(cls_System_Array* ary)
 {
 	if (ary->Rank == 0)
