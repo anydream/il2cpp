@@ -138,6 +138,17 @@ namespace il2cpp
 			return NameKey;
 		}
 
+		public string GetRawNameKey()
+		{
+			if (IsArrayType)
+			{
+				StringBuilder sb = new StringBuilder();
+				Helper.TypeNameKey(sb, Def, GenArgs);
+				return sb.ToString();
+			}
+			return null;
+		}
+
 		public TypeSig GetTypeSig()
 		{
 			if (IsArrayType)

@@ -639,7 +639,7 @@ namespace testcase
 		public static long Entry()
 		{
 			long sum = 0;
-			for (int i = 0; i < 9991234; ++i)
+			for (int i = 0; i < 91234; ++i)
 				sum += TestSZArray.Entry();
 			return sum;
 		}
@@ -819,7 +819,7 @@ namespace testcase
 					sum2 = (sum2 << 1) + sary2[i, j].aa;
 				}
 			}
-			
+
 			if (sum2 != 35456)
 				return 33;
 
@@ -833,12 +833,62 @@ namespace testcase
 		public static long Entry()
 		{
 			long sum = 0;
-			for (int i = 0; i < 9991234; ++i)
+			for (int i = 0; i < 91234; ++i)
 				sum += TestMDArray.Entry();
 			return sum;
 		}
 	}
 
+	[CodeGen]
+	static class TestArrayInterface
+	{
+		public static int Entry()
+		{
+			int[] ary = new int[10];
+			for (int i = 0; i < ary.Length; ++i)
+			{
+				ary[i] = (i + 2) * (i + 1);
+			}
+			IList<int> ilst = ary;
+
+			bool ro = ilst.IsReadOnly;
+			if (!ro)
+				return 1;
+
+			var enu = ilst.GetEnumerator();
+			int sum = 0;
+			while (enu.MoveNext())
+			{
+				sum += enu.Current;
+			}
+			if (sum != 440)
+				return 2;
+
+			int[] ary2 = new int[11];
+			ilst.CopyTo(ary2, 1);
+			foreach (int item in ary2)
+			{
+				sum += item;
+			}
+			if (sum != 880)
+				return 3;
+
+			int cnt = ilst.Count;
+			if (cnt != 10)
+				return 4;
+
+			ilst[9] = 123;
+			int val = ilst[9];
+			if (val != 123)
+				return 5;
+
+			bool con = ilst.Contains(123);
+			if (!con)
+				return 6;
+
+			return 0;
+		}
+	}
 
 	[CodeGen]
 	static class TestValueTypeArray
@@ -1568,6 +1618,40 @@ namespace testcase
 
 			if (sum != 585)
 				return 1;
+
+			if (ilst.Count != 5)
+				return 2;
+
+			if (ilst[0] != 1 || ilst[4] != 456)
+				return 3;
+
+			ilst.Clear();
+			if (ilst.Count != 0)
+				return 4;
+
+			ilst.Insert(0, 99);
+			ilst.Insert(0, 88);
+			ilst.Insert(0, 77);
+
+			if (ilst[0] != 77 || ilst[1] != 88 || ilst[2] != 99)
+				return 5;
+
+			ilst.InsertRange(1, new[] { 11, 22 });
+			if (ilst[0] != 77 || ilst[1] != 11 || ilst[2] != 22 || ilst[3] != 88 || ilst[4] != 99)
+				return 6;
+
+			if (ilst.IndexOf(99) != 4)
+				return 9;
+			if (ilst.LastIndexOf(11) != 1)
+				return 10;
+
+			ilst.RemoveRange(1, 3);
+			if (ilst[0] != 77 || ilst[1] != 99)
+				return 7;
+
+			ilst.RemoveRange(0, 2);
+			if (ilst.Count != 0)
+				return 8;
 
 			return 0;
 		}
@@ -2494,7 +2578,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestMDArray.Entry();
+			TestArrayInterface.Entry();
 		}
 	}
 }

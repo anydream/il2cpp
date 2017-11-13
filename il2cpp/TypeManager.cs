@@ -15,6 +15,7 @@ namespace il2cpp
 
 		// 实例类型映射
 		private readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
+		private readonly Dictionary<string, TypeX> RawTypeMap = new Dictionary<string, TypeX>();
 		public Dictionary<string, TypeX>.ValueCollection Types => TypeMap.Values;
 		// 方法表映射
 		private readonly Dictionary<string, MethodTable> MethodTableMap = new Dictionary<string, MethodTable>();
@@ -62,6 +63,9 @@ namespace il2cpp
 		{
 			if (TypeMap.TryGetValue(name, out var tyX))
 				return tyX;
+
+			if (RawTypeMap.TryGetValue(name, out var tyXRaw))
+				return tyXRaw;
 
 			return null;
 		}
@@ -1095,7 +1099,12 @@ namespace il2cpp
 			string nameKey = tyX.GetNameKey();
 			if (TypeMap.TryGetValue(nameKey, out var otyX))
 				return otyX;
+
 			TypeMap.Add(nameKey, tyX);
+
+			string rawNameKey = tyX.GetRawNameKey();
+			if (rawNameKey != null)
+				RawTypeMap.Add(rawNameKey, tyX);
 
 			// 展开类型
 			ExpandType(tyX);
@@ -1373,6 +1382,82 @@ namespace il2cpp
 				MethodSig.CreateInstance(new ByRefSig(genArgT), Context.CorLibTypes.Int32),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
+			tyDef.Methods.Add(metDef);
+
+			var hlpClsDef = Context.CorLibTypes.GetTypeRef("System", "SZArrayHelper").Resolve();
+
+			MethodAttributes metAttr =
+				MethodAttributes.Public |
+				MethodAttributes.HideBySig |
+				MethodAttributes.ReuseSlot |
+				MethodAttributes.Virtual;
+
+			var retType = new GenericInstSig(
+				(ClassOrValueTypeSig)Context.CorLibTypes.GetTypeRef("System.Collections.Generic", "IEnumerator`1").ToTypeSig(),
+				genArgT);
+			metDef = new MethodDefUser(
+				"GetEnumerator",
+				MethodSig.CreateInstance(retType), metAttr);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"IndexOf",
+				MethodSig.CreateInstance(Context.CorLibTypes.Int32, genArgT), metAttr);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"Insert",
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, genArgT), metAttr);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"RemoveAt",
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32), metAttr);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"get_Item",
+				MethodSig.CreateInstance(genArgT, Context.CorLibTypes.Int32), metAttr | MethodAttributes.SpecialName);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"set_Item",
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, genArgT), metAttr | MethodAttributes.SpecialName);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"Add",
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, genArgT), metAttr);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"Clear",
+				MethodSig.CreateInstance(Context.CorLibTypes.Void), metAttr);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"Contains",
+				MethodSig.CreateInstance(Context.CorLibTypes.Boolean, genArgT), metAttr);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"CopyTo",
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, new SZArraySig(genArgT), Context.CorLibTypes.Int32), metAttr);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"Remove",
+				MethodSig.CreateInstance(Context.CorLibTypes.Boolean, genArgT), metAttr);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"get_Count",
+				MethodSig.CreateInstance(Context.CorLibTypes.Int32), metAttr | MethodAttributes.SpecialName);
+			tyDef.Methods.Add(metDef);
+
+			metDef = new MethodDefUser(
+				"get_IsReadOnly",
+				MethodSig.CreateInstance(Context.CorLibTypes.Boolean), metAttr | MethodAttributes.SpecialName);
 			tyDef.Methods.Add(metDef);
 
 			return tyDef;
