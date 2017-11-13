@@ -90,3 +90,29 @@ void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 			abort();
 	}
 }
+
+int32_t il2cpp_ArrayLength(cls_System_Array* arg_0)
+{
+	if (arg_0->Rank == 0)
+		return ((int32_t*)&arg_0[1])[0];
+	else
+	{
+		int32_t length = 1;
+		for (int32_t i = 0, sz = arg_0->Rank; i < sz; ++i)
+			length *= ((int32_t*)&arg_0[1])[i * 2 + 1];
+		return length;
+	}
+}
+
+int64_t il2cpp_ArrayLongLength(cls_System_Array* arg_0)
+{
+	if (arg_0->Rank == 0)
+		return ((int32_t*)&arg_0[1])[0];
+	else
+	{
+		int64_t length = 1;
+		for (int32_t i = 0, sz = arg_0->Rank; i < sz; ++i)
+			length *= ((int32_t*)&arg_0[1])[i * 2 + 1];
+		return length;
+	}
+}

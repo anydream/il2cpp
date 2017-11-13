@@ -22,7 +22,7 @@
 #define IL2CPP_UNLIKELY(x)					x
 #endif
 
-#define IL2CPP_ASSERT		assert
+#define IL2CPP_ASSERT(_x)	if (!(_x)) abort()
 #define IL2CPP_UNREACHABLE	abort
 #define IL2CPP_MEMCPY		memcpy
 #define IL2CPP_NEW			il2cpp_New
@@ -53,3 +53,7 @@ double il2cpp_Remainder(double numer, double denom);
 void il2cpp_Yield();
 uintptr_t il2cpp_ThreadID();
 void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
+
+struct cls_System_Array;
+int32_t il2cpp_ArrayLength(cls_System_Array* arg_0);
+int64_t il2cpp_ArrayLongLength(cls_System_Array* arg_0);
