@@ -48,30 +48,14 @@ return arg_0->Rank;");
 				else if (metName == "get_Length")
 				{
 					prt.AppendLine(
-						@"if (arg_0->Rank == 0)
-	return ((int32_t*)&arg_0[1])[0];
-else
-{
-	int32_t length = 1;
-	for (int32_t i = 0, sz = arg_0->Rank; i < sz; ++i)
-		length *= ((int32_t*)&arg_0[1])[i * 2 + 1];
-	return length;
-}");
+						@"return il2cpp_ArrayLength(arg_0);");
 
 					return true;
 				}
 				else if (metName == "get_LongLength")
 				{
 					prt.AppendLine(
-						@"if (arg_0->Rank == 0)
-	return ((int32_t*)&arg_0[1])[0];
-else
-{
-	int64_t length = 1;
-	for (int32_t i = 0, sz = arg_0->Rank; i < sz; ++i)
-		length *= ((int32_t*)&arg_0[1])[i * 2 + 1];
-	return length;
-}");
+						@"return il2cpp_ArrayLongLength(arg_0);");
 
 					return true;
 				}
@@ -126,14 +110,7 @@ else
 				else if (metName == "Copy")
 				{
 					prt.AppendLine(
-						@"int32_t elemSize = arg_2->ElemSize;
-int32_t rank = arg_2->Rank;
-IL2CPP_ASSERT(elemSize == arg_0->ElemSize);
-IL2CPP_ASSERT(rank == arg_0->Rank);
-int32_t dataOffset = rank == 0 ? sizeof(int32_t) : rank * sizeof(int32_t) * 2;
-void* dstPtr = (uint8_t*)&arg_2[1] + dataOffset + elemSize * arg_3;
-void* srcPtr = (uint8_t*)&arg_0[1] + dataOffset + elemSize * arg_1;
-IL2CPP_MEMCPY(dstPtr, srcPtr, elemSize * arg_4);");
+						@"il2cpp_ArrayCopy(arg_0, arg_1, arg_2, arg_3, arg_4);");
 
 					return true;
 				}

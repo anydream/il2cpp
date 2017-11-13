@@ -530,6 +530,12 @@ namespace testcase
 	[CodeGen]
 	static class TestSZArray
 	{
+		struct Stru
+		{
+			public int aa;
+			public double bb;
+		}
+
 		public static int Entry()
 		{
 			float[] fary = new float[10];
@@ -606,6 +612,22 @@ namespace testcase
 
 			if (!sum.IsEquals(65586.9f))
 				return 16;
+
+			Stru[] sary1 = new Stru[5];
+			for (int i = 0; i < sary1.Length; ++i)
+			{
+				sary1[i].aa = 100 + i;
+				sary1[i].bb = (i + 9) / 100.0;
+			}
+			Stru[] sary2 = new Stru[10];
+			Array.Copy(sary1, 1, sary2, 4, 4);
+			for (int i = 4, j = 1; j < sary1.Length; ++i, ++j)
+			{
+				if (sary2[i].aa != sary1[j].aa)
+					return 17;
+				if (sary2[i].bb != sary1[j].bb)
+					return 18;
+			}
 
 			return 0;
 		}
@@ -2430,7 +2452,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestConstrained.Entry();
+			TestSZArray.Entry();
 		}
 	}
 }

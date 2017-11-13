@@ -46,7 +46,7 @@ struct il2cppException
 void il2cpp_Init();
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
-void il2cpp_CheckRange(int32_t lowerBound, int32_t length, int32_t index);
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
 float il2cpp_Remainder(float numer, float denom);
 double il2cpp_Remainder(double numer, double denom);
 
@@ -55,5 +55,6 @@ uintptr_t il2cpp_ThreadID();
 void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
 
 struct cls_System_Array;
-int32_t il2cpp_ArrayLength(cls_System_Array* arg_0);
-int64_t il2cpp_ArrayLongLength(cls_System_Array* arg_0);
+int32_t il2cpp_ArrayLength(cls_System_Array* ary);
+int64_t il2cpp_ArrayLongLength(cls_System_Array* ary);
+void il2cpp_ArrayCopy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen);

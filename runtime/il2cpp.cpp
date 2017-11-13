@@ -37,10 +37,10 @@ void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef)
 	return obj;
 }
 
-void il2cpp_CheckRange(int32_t lowerBound, int32_t length, int32_t index)
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 {
 	if (index < lowerBound || index >= lowerBound + length)
-		abort();
+		IL2CPP_UNREACHABLE();
 }
 
 float il2cpp_Remainder(float numer, float denom)
@@ -87,32 +87,61 @@ void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 				il2cpp_Yield();
 		}
 		else if (onceFlag != 1)
-			abort();
+			IL2CPP_UNREACHABLE();
 	}
 }
 
-int32_t il2cpp_ArrayLength(cls_System_Array* arg_0)
+int32_t il2cpp_ArrayLength(cls_System_Array* ary)
 {
-	if (arg_0->Rank == 0)
-		return ((int32_t*)&arg_0[1])[0];
+	if (ary->Rank == 0)
+		return ((int32_t*)&ary[1])[0];
 	else
 	{
 		int32_t length = 1;
-		for (int32_t i = 0, sz = arg_0->Rank; i < sz; ++i)
-			length *= ((int32_t*)&arg_0[1])[i * 2 + 1];
+		for (int32_t i = 0, sz = ary->Rank; i < sz; ++i)
+			length *= ((int32_t*)&ary[1])[i * 2 + 1];
 		return length;
 	}
 }
 
-int64_t il2cpp_ArrayLongLength(cls_System_Array* arg_0)
+int64_t il2cpp_ArrayLongLength(cls_System_Array* ary)
 {
-	if (arg_0->Rank == 0)
-		return ((int32_t*)&arg_0[1])[0];
+	if (ary->Rank == 0)
+		return ((int32_t*)&ary[1])[0];
 	else
 	{
 		int64_t length = 1;
-		for (int32_t i = 0, sz = arg_0->Rank; i < sz; ++i)
-			length *= ((int32_t*)&arg_0[1])[i * 2 + 1];
+		for (int32_t i = 0, sz = ary->Rank; i < sz; ++i)
+			length *= ((int32_t*)&ary[1])[i * 2 + 1];
 		return length;
 	}
+}
+
+static void CheckCopyRange(int64_t lowerBound, int64_t length, int64_t index, int64_t copyLen)
+{
+	if (index < lowerBound || index >= lowerBound + length)
+		IL2CPP_UNREACHABLE();
+
+	index += copyLen;
+	if (index < lowerBound || index > lowerBound + length)
+		IL2CPP_UNREACHABLE();
+}
+
+void il2cpp_ArrayCopy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen)
+{
+	int32_t elemSize = dstAry->ElemSize;
+	int32_t rank = dstAry->Rank;
+	IL2CPP_ASSERT(elemSize == srcAry->ElemSize);
+	IL2CPP_ASSERT(rank == srcAry->Rank);
+
+	int64_t srcLen = il2cpp_ArrayLongLength(srcAry);
+	int64_t dstLen = il2cpp_ArrayLongLength(dstAry);
+	CheckCopyRange(0, srcLen, srcIdx, copyLen);
+	CheckCopyRange(0, dstLen, dstIdx, copyLen);
+
+	int32_t dataOffset = rank == 0 ? sizeof(int32_t) : rank * sizeof(int32_t) * 2;
+	void* srcPtr = (uint8_t*)&srcAry[1] + dataOffset + elemSize * srcIdx;
+	void* dstPtr = (uint8_t*)&dstAry[1] + dataOffset + elemSize * dstIdx;
+
+	IL2CPP_MEMCPY(dstPtr, srcPtr, elemSize * copyLen);
 }
