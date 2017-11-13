@@ -555,7 +555,7 @@ namespace il2cpp
 
 				case OperandType.InlineType:
 					{
-						TypeX tyX = ResolveTypeDefOrRef((ITypeDefOrRef)inst.Operand, replacer);
+						TypeX tyX = ResolveTypeDefOrRef((ITypeDefOrRef)inst.Operand, replacer, true);
 						switch (inst.OpCode.Code)
 						{
 							case Code.Box:
@@ -590,7 +590,10 @@ namespace il2cpp
 								break;
 						}
 
-						inst.Operand = tyX;
+						// ldtoken 保留原始类型
+						if (inst.OpCode.Code != Code.Ldtoken)
+							inst.Operand = tyX;
+
 						return;
 					}
 
@@ -831,8 +834,12 @@ namespace il2cpp
 			}
 		}
 
-		private void ExpandType(TypeX tyX)
+		private void ExpandType(TypeX tyX, bool skipTokenExpand)
 		{
+			// 跳过不存在泛型实参的泛型类型
+			if (skipTokenExpand && !tyX.HasGenArgs && tyX.Def.HasGenericParameters)
+				return;
+
 			IGenericReplacer replacer = new GenericReplacer(tyX, null);
 
 			// 解析基类
@@ -898,14 +905,28 @@ namespace il2cpp
 						last = true;
 
 						insts.Add(OpCodes.Ldarg_0.ToInstruction());
+
+						MemberRef fldRef = null;
+						TypeSig tyGenInstSig = tyX.GetGenericInstSig();
+						if (tyGenInstSig != null)
+						{
+							fldRef = new MemberRefUser(fldDef.Module, fldDef.Name, fldDef.FieldSig, new TypeSpecUser(tyGenInstSig));
+						}
+
 						if (fldDef.FieldType.IsValueType)
 						{
-							insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
+							if (fldRef != null)
+								insts.Add(OpCodes.Ldflda.ToInstruction(fldRef));
+							else
+								insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
 							insts.Add(OpCodes.Constrained.ToInstruction(fldDef.FieldType.ToTypeDefOrRef()));
 						}
 						else
 						{
-							insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+							if (fldRef != null)
+								insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+							else
+								insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
 						}
 						insts.Add(OpCodes.Callvirt.ToInstruction(objMet));
 						insts.Add(OpCodes.Xor.ToInstruction());
@@ -1094,7 +1115,7 @@ namespace il2cpp
 			return baseTyX.IsDerivedType(derivedTyX);
 		}
 
-		private TypeX TryAddType(TypeX tyX)
+		private TypeX TryAddType(TypeX tyX, bool skipTokenExpand = false)
 		{
 			Debug.Assert(tyX != null);
 
@@ -1110,16 +1131,16 @@ namespace il2cpp
 				RawTypeMap.Add(rawNameKey, tyX);
 
 			// 展开类型
-			ExpandType(tyX);
+			ExpandType(tyX, skipTokenExpand);
 
 			return tyX;
 		}
 
 		// 解析类型并添加到映射
-		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
+		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer, bool skipTokenExpand = false)
 		{
 			TypeX tyX = ResolveTypeDefOrRefImpl(tyDefRef, replacer);
-			return TryAddType(tyX);
+			return TryAddType(tyX, skipTokenExpand);
 		}
 
 		// 解析类型引用
@@ -1173,6 +1194,9 @@ namespace il2cpp
 
 				case GenericMVar genMVar:
 					return ResolveTypeSigImpl(Helper.ReplaceGenericSig(genMVar, replacer), null);
+
+				case PtrSig ptrSig:
+					return ResolveTypeDefOrRefImpl(Context.CorLibTypes.IntPtr.ToTypeDefOrRef(), null);
 
 				default:
 					throw new ArgumentOutOfRangeException();

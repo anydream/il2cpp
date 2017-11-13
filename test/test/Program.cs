@@ -195,15 +195,9 @@ namespace test
 
 			var sw = new Stopwatch();
 			sw.Start();
-			string exceptionMsg = null;
-			try
-			{
-				context.Resolve();
-			}
-			catch (TypeLoadException ex)
-			{
-				exceptionMsg = ex.Message;
-			}
+
+			context.Resolve();
+
 			sw.Stop();
 			long elapsedMS = sw.ElapsedMilliseconds;
 			Console.Write("Res({0}ms) ", elapsedMS);

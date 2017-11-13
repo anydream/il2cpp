@@ -183,6 +183,18 @@ namespace il2cpp
 			return thisSig;
 		}
 
+		public GenericInstSig GetGenericInstSig()
+		{
+			if (!Def.HasGenericParameters)
+				return null;
+
+			List<TypeSig> genParams = new List<TypeSig>();
+			for (int i = 0; i < Def.GenericParameters.Count; ++i)
+				genParams.Add(new GenericVar(i, Def));
+
+			return new GenericInstSig((ClassOrValueTypeSig)Def.ToTypeSig(), genParams);
+		}
+
 		public bool IsDerivedType(TypeX tyX)
 		{
 			return DerivedTypes.Contains(tyX);
