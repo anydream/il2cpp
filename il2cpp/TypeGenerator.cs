@@ -26,9 +26,13 @@ namespace il2cpp
 
 			string nameKey = CurrType.GetNameKey();
 			bool currIsObject = nameKey == "Object";
+			bool currIsArray = nameKey == "System.Array";
 
 			// 生成类结构
 			CodePrinter prtDecl = new CodePrinter();
+
+			if (currIsArray)
+				prtDecl.AppendLine("#define IL2CPP_BRIDGE_HAS_ARRAY");
 
 			if (!CurrType.IsEnumType)
 			{
@@ -80,7 +84,7 @@ namespace il2cpp
 					{
 						prtDecl.AppendLine("uint32_t TypeID;");
 					}
-					else if (nameKey == "System.Array")
+					else if (currIsArray)
 					{
 						prtDecl.AppendLine("int32_t ElemSize;");
 						prtDecl.AppendLine("int32_t Rank;");

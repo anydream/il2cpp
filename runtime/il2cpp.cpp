@@ -91,6 +91,7 @@ void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 	}
 }
 
+#if defined(IL2CPP_BRIDGE_HAS_ARRAY)
 int32_t il2cpp_ArrayLength(cls_System_Array* ary)
 {
 	if (ary->Rank == 0)
@@ -145,3 +146,4 @@ void il2cpp_ArrayCopy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array
 
 	IL2CPP_MEMCPY(dstPtr, srcPtr, elemSize * copyLen);
 }
+#endif
