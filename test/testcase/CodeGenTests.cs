@@ -648,6 +648,22 @@ namespace testcase
 	[CodeGen]
 	static class TestMDArray
 	{
+		struct Stru
+		{
+			public int aa;
+			public double bb;
+
+			public static bool operator ==(Stru lhs, Stru rhs)
+			{
+				return lhs.aa == rhs.aa &&
+					lhs.bb == rhs.bb;
+			}
+			public static bool operator !=(Stru lhs, Stru rhs)
+			{
+				return !(lhs == rhs);
+			}
+		}
+
 		public static int Entry()
 		{
 			float[,] fary = new float[2, 3];
@@ -780,6 +796,32 @@ namespace testcase
 				if (n != ++num)
 					return 31;
 			}
+
+			Stru[,] sary1 = new Stru[3, 4];
+			for (int i = 0; i < sary1.GetLength(0); ++i)
+			{
+				for (int j = 0; j < sary1.GetLength(1); ++j)
+				{
+					sary1[i, j] = new Stru { aa = j * 3 - i * 2, bb = (double)i / (j + 1) };
+				}
+			}
+			Stru[,] sary2 = new Stru[4, 5];
+			Array.Copy(sary1, 5, sary2, 6, 7);
+
+			if (sary2[1, 1] != sary1[1, 1])
+				return 32;
+
+			int sum2 = 0;
+			for (int i = 0; i < sary2.GetLength(0); ++i)
+			{
+				for (int j = 0; j < sary2.GetLength(1); ++j)
+				{
+					sum2 = (sum2 << 1) + sary2[i, j].aa;
+				}
+			}
+			
+			if (sum2 != 35456)
+				return 33;
 
 			return 0;
 		}
@@ -2452,7 +2494,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestSZArray.Entry();
+			TestMDArray.Entry();
 		}
 	}
 }
