@@ -842,9 +842,18 @@ namespace testcase
 	[CodeGen]
 	static class TestArrayInterface
 	{
+		class MyCls
+		{
+			public int aa;
+		}
+
 		public static int Entry()
 		{
-			int[] ary = new int[10];
+			MyCls[] cary = new MyCls[10];
+			IList<object> olst = cary;
+			olst[4] = new object();
+
+			/*int[] ary = new int[10];
 			for (int i = 0; i < ary.Length; ++i)
 			{
 				ary[i] = (i + 2) * (i + 1);
@@ -884,7 +893,7 @@ namespace testcase
 
 			bool con = ilst.Contains(123);
 			if (!con)
-				return 6;
+				return 6;*/
 
 			return 0;
 		}
@@ -1603,7 +1612,7 @@ namespace testcase
 		}
 	}
 
-	[CodeGen]
+	//[CodeGen]
 	static class TestContainer
 	{
 		public static int Entry()

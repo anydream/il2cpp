@@ -1413,92 +1413,27 @@ namespace il2cpp
 
 			TypeDef hlpClsDef = Context.CorLibTypes.GetTypeRef("System", "SZArrayHelper").Resolve();
 
-			MethodAttributes metAttr =
-				MethodAttributes.Public |
-				MethodAttributes.HideBySig |
-				MethodAttributes.ReuseSlot |
-				MethodAttributes.Virtual;
+			foreach (var hlpMetDef in hlpClsDef.Methods)
+			{
+				if (hlpMetDef.IsStatic || hlpMetDef.IsConstructor)
+					continue;
 
-			var retType = new GenericInstSig(
-				(ClassOrValueTypeSig)Context.CorLibTypes.GetTypeRef("System.Collections.Generic", "IEnumerator`1").ToTypeSig(),
-				genArgT);
-			metDef = new MethodDefUser(
-				"GetEnumerator",
-				MethodSig.CreateInstance(retType), metAttr);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
+				MethodX hlpMetX = new MethodX(new TypeX(hlpClsDef), hlpMetDef);
+				hlpMetX.GenArgs = new List<TypeSig>() { genArgT };
+				IGenericReplacer replacer = new GenericReplacer(null, hlpMetX);
 
-			metDef = new MethodDefUser(
-				"IndexOf",
-				MethodSig.CreateInstance(Context.CorLibTypes.Int32, genArgT), metAttr);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
+				var hlpSig = hlpMetDef.MethodSig;
 
-			metDef = new MethodDefUser(
-				"Insert",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, genArgT), metAttr);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
+				metDef = new MethodDefUser(
+					hlpMetDef.Name,
+					new MethodSig(CallingConvention.HasThis, 0,
+						Helper.ReplaceGenericSig(hlpSig.RetType, replacer),
+						Helper.ReplaceGenericSigList(hlpSig.Params, replacer)),
+					MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot);
 
-			metDef = new MethodDefUser(
-				"RemoveAt",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32), metAttr);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
-
-			metDef = new MethodDefUser(
-				"get_Item",
-				MethodSig.CreateInstance(genArgT, Context.CorLibTypes.Int32), metAttr | MethodAttributes.SpecialName);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
-
-			metDef = new MethodDefUser(
-				"set_Item",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, genArgT), metAttr | MethodAttributes.SpecialName);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
-
-			metDef = new MethodDefUser(
-				"Add",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, genArgT), metAttr);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
-
-			metDef = new MethodDefUser(
-				"Clear",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void), metAttr);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
-
-			metDef = new MethodDefUser(
-				"Contains",
-				MethodSig.CreateInstance(Context.CorLibTypes.Boolean, genArgT), metAttr);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
-
-			metDef = new MethodDefUser(
-				"CopyTo",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, new SZArraySig(genArgT), Context.CorLibTypes.Int32), metAttr);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
-
-			metDef = new MethodDefUser(
-				"Remove",
-				MethodSig.CreateInstance(Context.CorLibTypes.Boolean, genArgT), metAttr);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
-
-			metDef = new MethodDefUser(
-				"get_Count",
-				MethodSig.CreateInstance(Context.CorLibTypes.Int32), metAttr | MethodAttributes.SpecialName);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
-
-			metDef = new MethodDefUser(
-				"get_IsReadOnly",
-				MethodSig.CreateInstance(Context.CorLibTypes.Boolean), metAttr | MethodAttributes.SpecialName);
-			tyDef.Methods.Add(metDef);
-			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
+				tyDef.Methods.Add(metDef);
+				CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT, replacer);
+			}
 
 			return tyDef;
 		}
@@ -1581,16 +1516,12 @@ namespace il2cpp
 		}
 
 		// 复制方法实现到 SZArray
-		private void CopyMethodImplForSZArray(MethodDef aryMetDef, TypeDef hlpClsDef, GenericVar genArgT)
+		private void CopyMethodImplForSZArray(MethodDef aryMetDef, TypeDef hlpClsDef, GenericVar genArgT, IGenericReplacer replacer)
 		{
 			MethodDef hlpMetDef = hlpClsDef.FindMethod(aryMetDef.Name);
 			Debug.Assert(hlpMetDef.HasBody);
 			var hlpBody = hlpMetDef.Body;
 			var body = aryMetDef.Body = new CilBody();
-
-			MethodX hlpMetX = new MethodX(new TypeX(hlpClsDef), hlpMetDef);
-			hlpMetX.GenArgs = new List<TypeSig>() { genArgT };
-			IGenericReplacer replacer = new GenericReplacer(null, hlpMetX);
 
 			foreach (var loc in hlpBody.Variables)
 			{
