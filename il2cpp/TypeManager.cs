@@ -1077,11 +1077,14 @@ namespace il2cpp
 			if (baseSig.IsPointer || derivedSig.IsPointer)
 				return false;
 
-			//! 数组类型
+			// 数组类型
 			if (baseElemType == ElementType.SZArray || baseElemType == ElementType.Array ||
 				derivedElemType == ElementType.SZArray || derivedElemType == ElementType.Array)
 			{
-				throw new NotImplementedException();
+				if (baseElemType != derivedElemType)
+					return false;
+
+				return IsDerivedType(baseSig.Next, derivedSig.Next);
 			}
 
 			// 解析并判断其他类型
@@ -1384,7 +1387,7 @@ namespace il2cpp
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
 
-			var hlpClsDef = Context.CorLibTypes.GetTypeRef("System", "SZArrayHelper").Resolve();
+			TypeDef hlpClsDef = Context.CorLibTypes.GetTypeRef("System", "SZArrayHelper").Resolve();
 
 			MethodAttributes metAttr =
 				MethodAttributes.Public |
@@ -1399,66 +1402,79 @@ namespace il2cpp
 				"GetEnumerator",
 				MethodSig.CreateInstance(retType), metAttr);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"IndexOf",
 				MethodSig.CreateInstance(Context.CorLibTypes.Int32, genArgT), metAttr);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"Insert",
 				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, genArgT), metAttr);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"RemoveAt",
 				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32), metAttr);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"get_Item",
 				MethodSig.CreateInstance(genArgT, Context.CorLibTypes.Int32), metAttr | MethodAttributes.SpecialName);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"set_Item",
 				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, genArgT), metAttr | MethodAttributes.SpecialName);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"Add",
 				MethodSig.CreateInstance(Context.CorLibTypes.Void, genArgT), metAttr);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"Clear",
 				MethodSig.CreateInstance(Context.CorLibTypes.Void), metAttr);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"Contains",
 				MethodSig.CreateInstance(Context.CorLibTypes.Boolean, genArgT), metAttr);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"CopyTo",
 				MethodSig.CreateInstance(Context.CorLibTypes.Void, new SZArraySig(genArgT), Context.CorLibTypes.Int32), metAttr);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"Remove",
 				MethodSig.CreateInstance(Context.CorLibTypes.Boolean, genArgT), metAttr);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"get_Count",
 				MethodSig.CreateInstance(Context.CorLibTypes.Int32), metAttr | MethodAttributes.SpecialName);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			metDef = new MethodDefUser(
 				"get_IsReadOnly",
 				MethodSig.CreateInstance(Context.CorLibTypes.Boolean), metAttr | MethodAttributes.SpecialName);
 			tyDef.Methods.Add(metDef);
+			CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT);
 
 			return tyDef;
 		}
@@ -1538,6 +1554,116 @@ namespace il2cpp
 			return new InterfaceImplUser(
 				new TypeSpecUser(
 					new GenericInstSig((ClassOrValueTypeSig)Context.CorLibTypes.GetTypeRef(ns, name).ToTypeSig(), genArg)));
+		}
+
+		// 复制方法实现到 SZArray
+		private void CopyMethodImplForSZArray(MethodDef aryMetDef, TypeDef hlpClsDef, GenericVar genArgT)
+		{
+			MethodDef hlpMetDef = hlpClsDef.FindMethod(aryMetDef.Name);
+			Debug.Assert(hlpMetDef.HasBody);
+			var hlpBody = hlpMetDef.Body;
+			var body = aryMetDef.Body = new CilBody();
+
+			MethodX hlpMetX = new MethodX(new TypeX(hlpClsDef), hlpMetDef);
+			hlpMetX.GenArgs = new List<TypeSig>() { genArgT };
+			IGenericReplacer replacer = new GenericReplacer(null, hlpMetX);
+
+			foreach (var loc in hlpBody.Variables)
+			{
+				body.Variables.Add(new Local(Helper.ReplaceGenericSig(loc.Type, replacer)));
+			}
+
+			var offsetMap = new Dictionary<uint, int>();
+
+			for (int i = 0; i < hlpBody.Instructions.Count; ++i)
+			{
+				Instruction inst = hlpBody.Instructions[i];
+				offsetMap[inst.Offset] = i;
+
+				var operand = inst.Operand;
+				switch (inst.OpCode.OperandType)
+				{
+					case OperandType.InlineBrTarget:
+					case OperandType.ShortInlineBrTarget:
+					case OperandType.InlineSwitch:
+						if (operand is Instruction targetInst)
+						{
+							operand = targetInst.Offset;
+						}
+						else
+						{
+							Instruction[] targetInsts = operand as Instruction[];
+							uint[] targets = new uint[targetInsts.Length];
+							for (int j = 0; j < targetInsts.Length; ++j)
+								targets[j] = targetInsts[j].Offset;
+
+							operand = targets;
+						}
+						break;
+				}
+
+				body.Instructions.Add(new Instruction(inst.OpCode, operand));
+			}
+
+			for (int i = 0; i < body.Instructions.Count; ++i)
+			{
+				Instruction inst = body.Instructions[i];
+
+				var operand = inst.Operand;
+				switch (inst.OpCode.OperandType)
+				{
+					case OperandType.InlineBrTarget:
+					case OperandType.ShortInlineBrTarget:
+					case OperandType.InlineSwitch:
+						if (operand is uint target)
+						{
+							operand = body.Instructions[offsetMap[target]];
+						}
+						else
+						{
+							uint[] targets = operand as uint[];
+							Instruction[] targetInsts = new Instruction[targets.Length];
+							for (int j = 0; j < targets.Length; ++j)
+								targetInsts[j] = body.Instructions[offsetMap[targets[j]]];
+
+							operand = targetInsts;
+						}
+						break;
+				}
+
+				if (operand is TypeSpec typeSpec)
+				{
+					operand = new TypeSpecUser(Helper.ReplaceGenericSig(typeSpec.TypeSig, replacer));
+				}
+				else if (operand is MemberRef memRef)
+				{
+					if (memRef.Class is TypeSpec tySpec)
+					{
+						tySpec = new TypeSpecUser(Helper.ReplaceGenericSig(tySpec.TypeSig, replacer));
+						if (memRef.IsMethodRef)
+							operand = new MemberRefUser(memRef.Module, memRef.Name, memRef.MethodSig, tySpec);
+						else
+							operand = new MemberRefUser(memRef.Module, memRef.Name, memRef.FieldSig, tySpec);
+					}
+				}
+				else if (operand is MethodSpec metSpec)
+				{
+					if (metSpec.Name == "UnsafeCast")
+					{
+						inst.OpCode = OpCodes.Nop;
+						inst.Operand = null;
+						continue;
+					}
+					else
+					{
+						operand = new MethodSpecUser(metSpec.Method, new GenericInstMethodSig(genArgT));
+					}
+				}
+
+				inst.Operand = operand;
+			}
+
+			body.UpdateInstructionOffsets();
 		}
 
 		private static void SetAllTypeSig(TypeSig[] sigList, TypeSig sig)
