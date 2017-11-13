@@ -527,9 +527,15 @@ namespace il2cpp
 			prt.AppendLine("\n{");
 			++prt.Indents;
 
-			HashSet<MethodX> implSet = CurrMethod.OverrideImpls;
-			if (!implSet.IsCollectionValid() && !CurrMethod.IsSkipProcessing)
-				implSet = new HashSet<MethodX>() { CurrMethod };
+			HashSet<MethodX> implSet =
+				CurrMethod.OverrideImpls != null ?
+				new HashSet<MethodX>(CurrMethod.OverrideImpls) :
+				new HashSet<MethodX>();
+
+			if (CurrMethod.IsSkipProcessing)
+				implSet.Remove(CurrMethod);
+			else
+				implSet.Add(CurrMethod);
 
 			if (implSet.IsCollectionValid())
 			{

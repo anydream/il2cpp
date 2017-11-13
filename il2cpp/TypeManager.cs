@@ -909,8 +909,6 @@ namespace il2cpp
 
 					insts.Add(OpCodes.Ret.ToInstruction());
 					insts.UpdateInstructionOffsets();
-
-					ResolveMethodDef(metDef);
 				}
 			}
 		}

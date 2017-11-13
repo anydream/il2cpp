@@ -317,6 +317,9 @@ namespace il2cpp
 
 		private bool RefToTypeIsNoRef(TypeX tyX)
 		{
+			if (tyX == null)
+				return true;
+
 			if (tyX.IsValueType)
 				return IsNoRefType(tyX);
 			return false;

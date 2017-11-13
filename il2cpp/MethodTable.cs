@@ -434,8 +434,11 @@ namespace il2cpp
 					continue;
 				}
 
-				Debug.Assert(lastRid == 0 || lastRid < metDef.Rid);
-				lastRid = metDef.Rid;
+				if (metDef.Rid != 0)
+				{
+					Debug.Assert(lastRid == 0 || lastRid < metDef.Rid);
+					lastRid = metDef.Rid;
+				}
 
 				// 获得方法签名
 				Helper.MethodDefNameKey(sb, metDef, null);
