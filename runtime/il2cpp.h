@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 #if defined(__clang__) || defined(__GNUC__)
@@ -22,6 +23,8 @@
 #endif
 
 #define IL2CPP_ASSERT		assert
+#define IL2CPP_UNREACHABLE	abort
+#define IL2CPP_MEMCPY		memcpy
 #define IL2CPP_NEW			il2cpp_New
 #define IL2CPP_CHECK_RANGE	il2cpp_CheckRange
 #define IL2CPP_REMAINDER	il2cpp_Remainder

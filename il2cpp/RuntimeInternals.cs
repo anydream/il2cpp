@@ -123,6 +123,20 @@ else
 
 					return true;
 				}
+				else if (metName == "Copy")
+				{
+					prt.AppendLine(
+						@"int32_t elemSize = arg_2->ElemSize;
+int32_t rank = arg_2->Rank;
+IL2CPP_ASSERT(elemSize == arg_0->ElemSize);
+IL2CPP_ASSERT(rank == arg_0->Rank);
+int32_t dataOffset = rank == 0 ? sizeof(int32_t) : rank * sizeof(int32_t) * 2;
+void* dstPtr = (uint8_t*)&arg_2[1] + dataOffset + elemSize * arg_3;
+void* srcPtr = (uint8_t*)&arg_0[1] + dataOffset + elemSize * arg_1;
+IL2CPP_MEMCPY(dstPtr, srcPtr, elemSize * arg_4);");
+
+					return true;
+				}
 			}
 			else if (typeName == "System.Environment")
 			{

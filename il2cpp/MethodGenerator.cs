@@ -376,6 +376,7 @@ namespace il2cpp
 			if (instList == null)
 			{
 				// 生成内部实现
+				Debug.Assert(!CurrMethod.Def.HasBody);
 				return GenerateRuntimeImpl(prt);
 			}
 
@@ -566,7 +567,7 @@ namespace il2cpp
 				prt.AppendLine("}");
 			}
 
-			prt.AppendLine("abort();");
+			prt.AppendLine("IL2CPP_UNREACHABLE();");
 			prt.AppendLine("return nullptr;");
 
 			--prt.Indents;
@@ -883,7 +884,7 @@ namespace il2cpp
 							--prt.Indents;
 							prt.AppendLine("}");
 						}
-						prt.AppendLine("abort();");
+						prt.AppendLine("IL2CPP_UNREACHABLE();");
 					}
 					else
 					{

@@ -1489,7 +1489,7 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestContainer
 	{
 		public static int Entry()
@@ -1501,6 +1501,9 @@ namespace testcase
 			int sum = 0;
 			foreach (int n in ilst)
 				sum += n;
+
+			if (sum != 585)
+				return 1;
 
 			return 0;
 		}
