@@ -82,6 +82,7 @@ namespace il2cpp
 					}
 					else if (nameKey == "System.Array")
 					{
+						prtDecl.AppendLine("int32_t ElemSize;");
 						prtDecl.AppendLine("int32_t Rank;");
 					}
 				}

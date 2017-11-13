@@ -665,6 +665,10 @@ namespace il2cpp
 
 				if (metName == ".ctor")
 				{
+					prt.AppendFormatLine("{0}->ElemSize = sizeof({1});",
+						ArgName(0),
+						GenContext.GetTypeName(elemType));
+
 					if (isSZArray)
 					{
 						prt.AppendFormatLine("{0}->Rank = 0;\n{0}->Length = {1};",
