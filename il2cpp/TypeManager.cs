@@ -555,45 +555,80 @@ namespace il2cpp
 
 				case OperandType.InlineType:
 					{
-						TypeX tyX = ResolveTypeDefOrRef((ITypeDefOrRef)inst.Operand, replacer, true);
-						switch (inst.OpCode.Code)
-						{
-							case Code.Box:
-							case Code.Unbox:
-							case Code.Unbox_Any:
-							case Code.Isinst:
-							case Code.Castclass:
-							case Code.Constrained:
-								if (tyX.IsValueType)
-								{
-									if (tyX.IsNullableType)
-									{
-										if (tyX.NullableElem == null)
-										{
-											// 解析可空类型的所有字段
-											foreach (FieldDef fldDef in tyX.Def.Fields)
-											{
-												if (!fldDef.IsStatic)
-												{
-													FieldX fldX = new FieldX(tyX, fldDef);
-													AddField(fldX);
-												}
-											}
+						ITypeDefOrRef tyDefRef = (ITypeDefOrRef)inst.Operand;
+						bool isKeepToken = false;
 
-											tyX.NullableElem = ResolveTypeDefOrRef(tyX.GenArgs[0].ToTypeDefOrRef(), null);
-											ResolveBoxedType(tyX.NullableElem);
-										}
-									}
-									else
-										ResolveBoxedType(tyX);
+						// 无法解析的类型保持原始形态
+						switch (tyDefRef)
+						{
+							case TypeDef tyDef:
+								if (tyDef.HasGenericParameters)
+									isKeepToken = true;
+								break;
+
+							case TypeRef tyRef:
+								if (tyRef.Resolve().HasGenericParameters)
+									isKeepToken = true;
+								break;
+
+							case TypeSpec tySpec:
+								switch (tySpec.TypeSig)
+								{
+									case TypeDefOrRefSig _:
+									case GenericInstSig _:
+									case SZArraySig _:
+									case ArraySig _:
+									case GenericVar _:
+									case GenericMVar _:
+										break;
+
+									default:
+										isKeepToken = true;
+										break;
 								}
 								break;
 						}
 
-						// ldtoken 保留原始类型
-						if (inst.OpCode.Code != Code.Ldtoken)
-							inst.Operand = tyX;
+						if (!isKeepToken)
+						{
+							TypeX tyX = ResolveTypeDefOrRef(tyDefRef, replacer);
 
+							switch (inst.OpCode.Code)
+							{
+								case Code.Box:
+								case Code.Unbox:
+								case Code.Unbox_Any:
+								case Code.Isinst:
+								case Code.Castclass:
+								case Code.Constrained:
+									if (tyX.IsValueType)
+									{
+										if (tyX.IsNullableType)
+										{
+											if (tyX.NullableElem == null)
+											{
+												// 解析可空类型的所有字段
+												foreach (FieldDef fldDef in tyX.Def.Fields)
+												{
+													if (!fldDef.IsStatic)
+													{
+														FieldX fldX = new FieldX(tyX, fldDef);
+														AddField(fldX);
+													}
+												}
+
+												tyX.NullableElem = ResolveTypeDefOrRef(tyX.GenArgs[0].ToTypeDefOrRef(), null);
+												ResolveBoxedType(tyX.NullableElem);
+											}
+										}
+										else
+											ResolveBoxedType(tyX);
+									}
+									break;
+							}
+
+							inst.Operand = tyX;
+						}
 						return;
 					}
 
@@ -834,12 +869,8 @@ namespace il2cpp
 			}
 		}
 
-		private void ExpandType(TypeX tyX, bool skipTokenExpand)
+		private void ExpandType(TypeX tyX)
 		{
-			// 跳过不存在泛型实参的泛型类型
-			if (skipTokenExpand && !tyX.HasGenArgs && tyX.Def.HasGenericParameters)
-				return;
-
 			IGenericReplacer replacer = new GenericReplacer(tyX, null);
 
 			// 解析基类
@@ -1115,7 +1146,7 @@ namespace il2cpp
 			return baseTyX.IsDerivedType(derivedTyX);
 		}
 
-		private TypeX TryAddType(TypeX tyX, bool skipTokenExpand = false)
+		private TypeX TryAddType(TypeX tyX)
 		{
 			Debug.Assert(tyX != null);
 
@@ -1131,16 +1162,16 @@ namespace il2cpp
 				RawTypeMap.Add(rawNameKey, tyX);
 
 			// 展开类型
-			ExpandType(tyX, skipTokenExpand);
+			ExpandType(tyX);
 
 			return tyX;
 		}
 
 		// 解析类型并添加到映射
-		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer, bool skipTokenExpand = false)
+		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
 		{
 			TypeX tyX = ResolveTypeDefOrRefImpl(tyDefRef, replacer);
-			return TryAddType(tyX, skipTokenExpand);
+			return TryAddType(tyX);
 		}
 
 		// 解析类型引用
@@ -1194,9 +1225,6 @@ namespace il2cpp
 
 				case GenericMVar genMVar:
 					return ResolveTypeSigImpl(Helper.ReplaceGenericSig(genMVar, replacer), null);
-
-				case PtrSig ptrSig:
-					return ResolveTypeDefOrRefImpl(Context.CorLibTypes.IntPtr.ToTypeDefOrRef(), null);
 
 				default:
 					throw new ArgumentOutOfRangeException();
