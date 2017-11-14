@@ -48,69 +48,42 @@ return arg_0->Rank;");
 				else if (metName == "get_Length")
 				{
 					prt.AppendLine(
-						@"return il2cpp_ArrayLength(arg_0);");
+						@"return il2cpp_Array__GetLength(arg_0);");
 
 					return true;
 				}
 				else if (metName == "get_LongLength")
 				{
 					prt.AppendLine(
-						@"return il2cpp_ArrayLongLength(arg_0);");
+						@"return il2cpp_Array__GetLongLength(arg_0);");
 
 					return true;
 				}
 				else if (metName == "GetLength")
 				{
 					prt.AppendLine(
-						@"if (arg_0->Rank == 0)
-{
-	IL2CPP_CHECK_RANGE(0, 1, arg_1);
-	return ((int32_t*)&arg_0[1])[0];
-}
-else
-{
-	IL2CPP_CHECK_RANGE(0, arg_0->Rank, arg_1);
-	return ((int32_t*)&arg_0[1])[arg_1 * 2 + 1];
-}");
+						@"return il2cpp_Array__GetLength(arg_0, arg_1);");
 
 					return true;
 				}
 				else if (metName == "GetLowerBound")
 				{
 					prt.AppendLine(
-						@"if (arg_0->Rank == 0)
-{
-	IL2CPP_CHECK_RANGE(0, 1, arg_1);
-	return 0;
-}
-else
-{
-	IL2CPP_CHECK_RANGE(0, arg_0->Rank, arg_1);
-	return ((int32_t*)&arg_0[1])[arg_1 * 2];
-}");
+						@"return il2cpp_Array__GetLowerBound(arg_0, arg_1);");
 
 					return true;
 				}
 				else if (metName == "GetUpperBound")
 				{
 					prt.AppendLine(
-						@"if (arg_0->Rank == 0)
-{
-	IL2CPP_CHECK_RANGE(0, 1, arg_1);
-	return ((int32_t*)&arg_0[1])[0] - 1;
-}
-else
-{
-	IL2CPP_CHECK_RANGE(0, arg_0->Rank, arg_1);
-	return ((int32_t*)&arg_0[1])[arg_1 * 2] + ((int32_t*)&arg_0[1])[arg_1 * 2 + 1] - 1;
-}");
+						@"return il2cpp_Array__GetUpperBound(arg_0, arg_1);");
 
 					return true;
 				}
 				else if (metName == "Copy")
 				{
 					prt.AppendLine(
-						@"il2cpp_ArrayCopy(arg_0, arg_1, arg_2, arg_3, arg_4);");
+						@"il2cpp_Array__Copy(arg_0, arg_1, arg_2, arg_3, arg_4);");
 
 					return true;
 				}

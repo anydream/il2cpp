@@ -92,7 +92,7 @@ void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 }
 
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
-int32_t il2cpp_ArrayLength(cls_System_Array* ary)
+int32_t il2cpp_Array__GetLength(cls_System_Array* ary)
 {
 	if (ary->Rank == 0)
 		return ((int32_t*)&ary[1])[0];
@@ -105,7 +105,7 @@ int32_t il2cpp_ArrayLength(cls_System_Array* ary)
 	}
 }
 
-int64_t il2cpp_ArrayLongLength(cls_System_Array* ary)
+int64_t il2cpp_Array__GetLongLength(cls_System_Array* ary)
 {
 	if (ary->Rank == 0)
 		return ((int32_t*)&ary[1])[0];
@@ -115,6 +115,49 @@ int64_t il2cpp_ArrayLongLength(cls_System_Array* ary)
 		for (int32_t i = 0, sz = ary->Rank; i < sz; ++i)
 			length *= ((int32_t*)&ary[1])[i * 2 + 1];
 		return length;
+	}
+}
+
+int32_t il2cpp_Array__GetLength(cls_System_Array* ary, int32_t dim)
+{
+	if (ary->Rank == 0)
+	{
+		IL2CPP_CHECK_RANGE(0, 1, dim);
+		return ((int32_t*)&ary[1])[0];
+	}
+	else
+	{
+		IL2CPP_CHECK_RANGE(0, ary->Rank, dim);
+		return ((int32_t*)&ary[1])[dim * 2 + 1];
+	}
+}
+
+int32_t il2cpp_Array__GetLowerBound(cls_System_Array* ary, int32_t dim)
+{
+	if (ary->Rank == 0)
+	{
+		IL2CPP_CHECK_RANGE(0, 1, dim);
+		return 0;
+	}
+	else
+	{
+		IL2CPP_CHECK_RANGE(0, ary->Rank, dim);
+		return ((int32_t*)&ary[1])[dim * 2];
+	}
+}
+
+int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, int32_t dim)
+{
+	if (ary->Rank == 0)
+	{
+		IL2CPP_CHECK_RANGE(0, 1, dim);
+		return ((int32_t*)&ary[1])[0] - 1;
+	}
+	else
+	{
+		IL2CPP_CHECK_RANGE(0, ary->Rank, dim);
+		int32_t* pBound = (int32_t*)&ary[1];
+		return pBound[dim * 2] + pBound[dim * 2 + 1] - 1;
 	}
 }
 
@@ -128,15 +171,15 @@ static void CheckCopyRange(int64_t lowerBound, int64_t length, int64_t index, in
 		IL2CPP_UNREACHABLE();
 }
 
-void il2cpp_ArrayCopy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen)
+void il2cpp_Array__Copy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen)
 {
 	int32_t elemSize = dstAry->ElemSize;
 	int32_t rank = dstAry->Rank;
 	IL2CPP_ASSERT(elemSize == srcAry->ElemSize);
 	IL2CPP_ASSERT(rank == srcAry->Rank);
 
-	int64_t srcLen = il2cpp_ArrayLongLength(srcAry);
-	int64_t dstLen = il2cpp_ArrayLongLength(dstAry);
+	int64_t srcLen = il2cpp_Array__GetLongLength(srcAry);
+	int64_t dstLen = il2cpp_Array__GetLongLength(dstAry);
 	CheckCopyRange(0, srcLen, srcIdx, copyLen);
 	CheckCopyRange(0, dstLen, dstIdx, copyLen);
 

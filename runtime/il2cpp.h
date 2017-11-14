@@ -55,6 +55,9 @@ uintptr_t il2cpp_ThreadID();
 void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
 
 struct cls_System_Array;
-int32_t il2cpp_ArrayLength(cls_System_Array* ary);
-int64_t il2cpp_ArrayLongLength(cls_System_Array* ary);
-void il2cpp_ArrayCopy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen);
+int32_t il2cpp_Array__GetLength(cls_System_Array* ary);
+int64_t il2cpp_Array__GetLongLength(cls_System_Array* ary);
+int32_t il2cpp_Array__GetLength(cls_System_Array* ary, int32_t dim);
+int32_t il2cpp_Array__GetLowerBound(cls_System_Array* ary, int32_t dim);
+int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, int32_t dim);
+void il2cpp_Array__Copy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen);
