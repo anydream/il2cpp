@@ -1418,21 +1418,8 @@ namespace il2cpp
 				if (hlpMetDef.IsStatic || hlpMetDef.IsConstructor)
 					continue;
 
-				MethodX hlpMetX = new MethodX(new TypeX(hlpClsDef), hlpMetDef);
-				hlpMetX.GenArgs = new List<TypeSig>() { genArgT };
-				IGenericReplacer replacer = new GenericReplacer(null, hlpMetX);
-
-				var hlpSig = hlpMetDef.MethodSig;
-
-				metDef = new MethodDefUser(
-					hlpMetDef.Name,
-					new MethodSig(CallingConvention.HasThis, 0,
-						Helper.ReplaceGenericSig(hlpSig.RetType, replacer),
-						Helper.ReplaceGenericSigList(hlpSig.Params, replacer)),
-					MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot);
-
-				tyDef.Methods.Add(metDef);
-				CopyMethodImplForSZArray(metDef, hlpClsDef, genArgT, replacer);
+				MethodDef aryMetDef = CopyMethodImplForSZArray(hlpClsDef, hlpMetDef, genArgT);
+				tyDef.Methods.Add(aryMetDef);
 			}
 
 			return tyDef;
@@ -1516,9 +1503,21 @@ namespace il2cpp
 		}
 
 		// 复制方法实现到 SZArray
-		private void CopyMethodImplForSZArray(MethodDef aryMetDef, TypeDef hlpClsDef, GenericVar genArgT, IGenericReplacer replacer)
+		private MethodDef CopyMethodImplForSZArray(TypeDef hlpClsDef, MethodDef hlpMetDef, GenericVar genArgT)
 		{
-			MethodDef hlpMetDef = hlpClsDef.FindMethod(aryMetDef.Name);
+			MethodX hlpMetX = new MethodX(new TypeX(hlpClsDef), hlpMetDef);
+			hlpMetX.GenArgs = new List<TypeSig>() { genArgT };
+			IGenericReplacer replacer = new GenericReplacer(null, hlpMetX);
+
+			var hlpSig = hlpMetDef.MethodSig;
+
+			MethodDef aryMetDef = new MethodDefUser(
+				hlpMetDef.Name,
+				new MethodSig(CallingConvention.HasThis, 0,
+					Helper.ReplaceGenericSig(hlpSig.RetType, replacer),
+					Helper.ReplaceGenericSigList(hlpSig.Params, replacer)),
+				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.NewSlot);
+
 			Debug.Assert(hlpMetDef.HasBody);
 			var hlpBody = hlpMetDef.Body;
 			var body = aryMetDef.Body = new CilBody();
@@ -1619,6 +1618,8 @@ namespace il2cpp
 			}
 
 			body.UpdateInstructionOffsets();
+
+			return aryMetDef;
 		}
 
 		private static void SetAllTypeSig(TypeSig[] sigList, TypeSig sig)
