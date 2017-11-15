@@ -277,6 +277,7 @@ namespace il2cpp
 				case ElementType.ByRef:
 				case ElementType.Object:
 				case ElementType.Class:
+				case ElementType.TypedByRef:
 				case ElementType.SZArray:
 				case ElementType.Array:
 				case ElementType.String:
@@ -445,6 +446,7 @@ namespace il2cpp
 
 				case ElementType.Class:
 				case ElementType.ValueType:
+				case ElementType.TypedByRef:
 				case ElementType.GenericInst:
 				case ElementType.SZArray:
 				case ElementType.Array:
@@ -471,9 +473,16 @@ namespace il2cpp
 				case ElementType.Pinned:
 					return GetTypeName(tySig.Next);
 
-				default:
-					throw new NotImplementedException(tySig.ElementType.ToString());
+				case ElementType.CModReqd:
+					{
+						CModReqdSig modReqdSig = (CModReqdSig)tySig;
+						if (modReqdSig.Modifier.FullName == "System.Runtime.CompilerServices.IsVolatile")
+							return "volatile " + GetTypeName(tySig.Next);
+					}
+					break;
 			}
+
+			throw new NotImplementedException(tySig.ElementType.ToString());
 		}
 
 		public string GetTypeName(TypeX tyX)

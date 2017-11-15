@@ -544,6 +544,8 @@ namespace il2cpp
 				++prt.Indents;
 
 				List<MethodX> implMets = new List<MethodX>(implSet);
+				// 删除所有不包含装箱类型的值类型
+				implMets.RemoveAll(met => met.DeclType.IsValueType && !met.DeclType.HasBoxedType);
 				implMets.Sort((lhs, rhs) =>
 					GenContext.GetTypeID(lhs.DeclType).CompareTo(GenContext.GetTypeID(rhs.DeclType)));
 
@@ -1083,6 +1085,10 @@ namespace il2cpp
 
 			switch (opCode.Code)
 			{
+				case Code.Readonly:
+				case Code.Volatile:
+				case Code.Tailcall:
+				case Code.Unaligned:
 				case Code.Nop:
 					return;
 
@@ -1498,9 +1504,9 @@ namespace il2cpp
 					GenLeave(inst, (int)operand);
 					return;
 
-				/*case Code.Ldtoken:
+				case Code.Ldtoken:
 					GenLdc(inst, StackType.Obj, "nullptr");
-					return;*/
+					return;
 
 				case Code.Newarr:
 				case Code.Ldlen:
@@ -2531,6 +2537,10 @@ namespace il2cpp
 
 				case ElementType.ByRef:
 					return StackType.Ref;
+
+				case ElementType.CModReqd:
+					Debug.Assert(((CModReqdSig)tySig).Modifier.FullName == "System.Runtime.CompilerServices.IsVolatile");
+					return ToStackType(tySig.Next);
 			}
 
 			if (tySig.IsValueType)

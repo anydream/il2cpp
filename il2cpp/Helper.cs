@@ -103,6 +103,7 @@ namespace il2cpp
 			{
 				case ElementType.Class:
 				case ElementType.ValueType:
+				case ElementType.TypedByRef:
 					return tySig;
 
 				case ElementType.Ptr:
@@ -354,6 +355,7 @@ namespace il2cpp
 			{
 				case ElementType.Class:
 				case ElementType.ValueType:
+				case ElementType.TypedByRef:
 					ClassSigName(sb, tySig);
 					return;
 
