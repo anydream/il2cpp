@@ -230,8 +230,10 @@ namespace il2cpp
 			}
 
 			// IList<T> 和 T[] 的赋值
+			string fullName = entryTyX.Def.FullName;
 			if (IsSZArray &&
-				entryTyX.Def.FullName == "System.Collections.Generic.IList`1")
+				(fullName == "System.Collections.Generic.IList`1" ||
+				 fullName == "System.Collections.Generic.ICollection`1"))
 			{
 				MethodDef entryMetDef = entryPair.Item2;
 

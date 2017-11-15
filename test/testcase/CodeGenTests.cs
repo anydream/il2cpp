@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace testcase
 {
@@ -842,9 +843,50 @@ namespace testcase
 	[CodeGen]
 	static class TestArrayInterface
 	{
+		class Cls
+		{
+			public int num;
+		}
+
+		private static void FailCase()
+		{
+			{
+				object[] oary = new Cls[10];
+				object obj1 = oary[5];
+				IList<object> olst = oary;
+				object obj2 = olst[5];
+			}
+
+			{
+				IList<object>[] cary = new Cls[2][];
+				object obj3 = cary[0]?[0];
+				var olst2 = new IList<object>[10];
+				object obj4 = olst2[9];
+			}
+
+			{
+				object[] oary = new Cls[10];
+				object obj1 = oary[5];
+				ICollection<object> olst = oary;
+				object obj2 = olst.Count;
+			}
+
+			{
+				ICollection<object>[] cary = new Cls[2][];
+				var obj3 = cary[0]?.Count;
+				var olst2 = new ICollection<object>[10];
+				var obj4 = olst2[9]?.Count;
+			}
+		}
+
 		public static int Entry()
 		{
-			int[] ary = new int[10];
+			FailCase();
+
+			/*IList<int> ilst = new int[10];
+			ilst.Contains(123);*/
+
+			/*int[] ary = new int[10];
 			for (int i = 0; i < ary.Length; ++i)
 			{
 				ary[i] = (i + 2) * (i + 1);
@@ -880,7 +922,7 @@ namespace testcase
 			ilst[9] = 123;
 			int val = ilst[9];
 			if (val != 123)
-				return 5;
+				return 5;*/
 
 			/*bool con = ilst.Contains(123);
 			if (!con)

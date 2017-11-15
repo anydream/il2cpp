@@ -1134,7 +1134,9 @@ namespace il2cpp
 				baseElemType == ElementType.GenericInst)
 			{
 				GenericInstSig genInst = (GenericInstSig)baseSig;
-				if (genInst.GenericType.FullName == "System.Collections.Generic.IList`1")
+				string fullName = genInst.GenericType.FullName;
+				if (fullName == "System.Collections.Generic.IList`1" ||
+				    fullName == "System.Collections.Generic.ICollection`1")
 				{
 					Debug.Assert(genInst.GenericArguments.Count == 1);
 					return IsDerivedType(genInst.GenericArguments[0], derivedSig.Next);
