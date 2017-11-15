@@ -1129,12 +1129,30 @@ namespace il2cpp
 			if (baseSig.IsPointer || derivedSig.IsPointer)
 				return false;
 
+			// IList<T> 和 T[] 的转换
+			if (derivedElemType == ElementType.SZArray &&
+				baseElemType == ElementType.GenericInst)
+			{
+				GenericInstSig genInst = (GenericInstSig)baseSig;
+				if (genInst.GenericType.FullName == "System.Collections.Generic.IList`1")
+				{
+					Debug.Assert(genInst.GenericArguments.Count == 1);
+					return IsDerivedType(genInst.GenericArguments[0], derivedSig.Next);
+				}
+			}
+
 			// 数组类型
 			if (baseElemType == ElementType.SZArray || baseElemType == ElementType.Array ||
 				derivedElemType == ElementType.SZArray || derivedElemType == ElementType.Array)
 			{
 				if (baseElemType != derivedElemType)
 					return false;
+
+				if (baseElemType == ElementType.Array)
+				{
+					if (((ArraySig)baseSig).Rank != ((ArraySig)derivedSig).Rank)
+						return false;
+				}
 
 				return IsDerivedType(baseSig.Next, derivedSig.Next);
 			}
