@@ -25,6 +25,7 @@
 #define IL2CPP_ASSERT(_x)	if (!(_x)) abort()
 #define IL2CPP_UNREACHABLE	abort
 #define IL2CPP_MEMCPY		memcpy
+#define IL2CPP_MEMSET		memset
 #define IL2CPP_NEW			il2cpp_New
 #define IL2CPP_CHECK_RANGE	il2cpp_CheckRange
 #define IL2CPP_REMAINDER	il2cpp_Remainder
@@ -47,6 +48,7 @@ void il2cpp_Init();
 
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);
 float il2cpp_Remainder(float numer, float denom);
 double il2cpp_Remainder(double numer, double denom);
 
@@ -61,3 +63,4 @@ int32_t il2cpp_Array__GetLength(cls_System_Array* ary, int32_t dim);
 int32_t il2cpp_Array__GetLowerBound(cls_System_Array* ary, int32_t dim);
 int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, int32_t dim);
 void il2cpp_Array__Copy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen);
+void il2cpp_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLen);

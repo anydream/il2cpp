@@ -87,6 +87,13 @@ return arg_0->Rank;");
 
 					return true;
 				}
+				else if (metName == "Clear")
+				{
+					prt.AppendLine(
+						@"il2cpp_Array__Clear(arg_0, arg_1, arg_2);");
+
+					return true;
+				}
 			}
 			else if (typeName == "System.Environment")
 			{

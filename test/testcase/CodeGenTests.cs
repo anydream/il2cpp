@@ -1645,7 +1645,7 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestContainer
 	{
 		public static int Entry()
@@ -1682,10 +1682,10 @@ namespace testcase
 			if (ilst[0] != 77 || ilst[1] != 11 || ilst[2] != 22 || ilst[3] != 88 || ilst[4] != 99)
 				return 6;
 
-			if (ilst.IndexOf(99) != 4)
+			/*if (ilst.IndexOf(99) != 4)
 				return 9;
 			if (ilst.LastIndexOf(11) != 1)
-				return 10;
+				return 10;*/
 
 			ilst.RemoveRange(1, 3);
 			if (ilst[0] != 77 || ilst[1] != 99)

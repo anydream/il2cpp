@@ -43,6 +43,15 @@ void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 		IL2CPP_UNREACHABLE();
 }
 
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen)
+{
+	il2cpp_CheckRange(lowerBound, length, index);
+
+	index += rangeLen;
+	if (index < lowerBound || index > lowerBound + length)
+		IL2CPP_UNREACHABLE();
+}
+
 float il2cpp_Remainder(float numer, float denom)
 {
 	return remainderf(numer, denom);
@@ -161,16 +170,6 @@ int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, int32_t dim)
 	}
 }
 
-static void CheckCopyRange(int64_t lowerBound, int64_t length, int64_t index, int64_t copyLen)
-{
-	if (index < lowerBound || index >= lowerBound + length)
-		IL2CPP_UNREACHABLE();
-
-	index += copyLen;
-	if (index < lowerBound || index > lowerBound + length)
-		IL2CPP_UNREACHABLE();
-}
-
 void il2cpp_Array__Copy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen)
 {
 	int32_t elemSize = dstAry->ElemSize;
@@ -180,8 +179,8 @@ void il2cpp_Array__Copy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Arr
 
 	int64_t srcLen = il2cpp_Array__GetLongLength(srcAry);
 	int64_t dstLen = il2cpp_Array__GetLongLength(dstAry);
-	CheckCopyRange(0, srcLen, srcIdx, copyLen);
-	CheckCopyRange(0, dstLen, dstIdx, copyLen);
+	il2cpp_CheckRange(0, srcLen, srcIdx, copyLen);
+	il2cpp_CheckRange(0, dstLen, dstIdx, copyLen);
 
 	int32_t dataOffset = rank == 0 ? sizeof(int32_t) : rank * sizeof(int32_t) * 2;
 	void* srcPtr = (uint8_t*)&srcAry[1] + dataOffset + elemSize * srcIdx;
@@ -189,4 +188,18 @@ void il2cpp_Array__Copy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Arr
 
 	IL2CPP_MEMCPY(dstPtr, srcPtr, elemSize * copyLen);
 }
+
+void il2cpp_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLen)
+{
+	int32_t elemSize = ary->ElemSize;
+	int32_t rank = ary->Rank;
+	int64_t aryLen = il2cpp_Array__GetLongLength(ary);
+	il2cpp_CheckRange(0, aryLen, idx, clearLen);
+
+	int32_t dataOffset = rank == 0 ? sizeof(int32_t) : rank * sizeof(int32_t) * 2;
+	void* ptr = (uint8_t*)&ary[1] + dataOffset + elemSize * idx;
+
+	IL2CPP_MEMSET(ptr, 0, elemSize * clearLen);
+}
+
 #endif
