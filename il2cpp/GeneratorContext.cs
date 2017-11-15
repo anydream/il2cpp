@@ -563,7 +563,16 @@ namespace il2cpp
 				string prefix = fldX.IsStatic ? "sfld_" : "fld_";
 
 				if (!fldX.DeclType.HasGenArgs && fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
-					strName = prefix + fldX.Def.Name;
+				{
+					string middle = null;
+					if (fldX.IsStatic)
+					{
+						middle = GetNameWithGen(fldX.DeclType.Def.Name, fldX.DeclType.GenArgs) +
+							"__";
+					}
+
+					strName = prefix + middle + fldX.Def.Name;
+				}
 				else
 				{
 					string middle = null;
