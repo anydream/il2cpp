@@ -1099,7 +1099,7 @@ namespace il2cpp
 			return true;
 		}
 
-		private bool IsDerivedType(TypeSig baseSig, TypeSig derivedSig)
+		public bool IsDerivedType(TypeSig baseSig, TypeSig derivedSig)
 		{
 			// 类型相同则允许转换
 			if (TypeEqualityComparer.Instance.Equals(baseSig, derivedSig))
@@ -1129,7 +1129,7 @@ namespace il2cpp
 			if (baseSig.IsPointer || derivedSig.IsPointer)
 				return false;
 
-			// IList<T> 和 T[] 的转换
+			// IList<T> 和 T[] 的赋值
 			if (derivedElemType == ElementType.SZArray &&
 				baseElemType == ElementType.GenericInst)
 			{

@@ -77,6 +77,7 @@ namespace il2cpp
 	internal class VirtualTable
 	{
 		private readonly string Name;
+		private readonly bool IsSZArray;
 		// 入口实现映射
 		private readonly Dictionary<TypeMethodPair, TypeMethodImpl> EntryMap =
 			new Dictionary<TypeMethodPair, TypeMethodImpl>();
@@ -91,9 +92,10 @@ namespace il2cpp
 		private readonly Dictionary<TypeMethodPair, TypeMethodPair> CachedMap =
 			new Dictionary<TypeMethodPair, TypeMethodPair>();
 
-		public VirtualTable(MethodTable mtable)
+		public VirtualTable(MethodTable mtable, bool isSZArray)
 		{
 			Name = mtable.GetNameKey();
+			IsSZArray = isSZArray;
 
 			foreach (var kv in mtable.EntryMap)
 			{
@@ -134,6 +136,7 @@ namespace il2cpp
 		}
 
 		public void QueryCallVirt(
+			TypeManager typeMgr,
 			TypeX entryTyX,
 			MethodDef entryDef,
 			out TypeX implTyX,
@@ -142,7 +145,7 @@ namespace il2cpp
 			var entryPair = new TypeMethodPair(entryTyX, entryDef);
 			if (!CachedMap.TryGetValue(entryPair, out var implPair))
 			{
-				QueryCallVirtImpl(entryPair, out implPair);
+				QueryCallVirtImpl(typeMgr, entryPair, out implPair);
 				CachedMap[entryPair] = implPair;
 			}
 			implTyX = implPair.Item1;
@@ -150,6 +153,7 @@ namespace il2cpp
 		}
 
 		private void QueryCallVirtImpl(
+			TypeManager typeMgr,
 			TypeMethodPair entryPair,
 			out TypeMethodPair implPair)
 		{
@@ -159,7 +163,7 @@ namespace il2cpp
 				if (NewSlotEntryMap.TryGetValue(entryPair.Item2, out var newSlotPair))
 					entryPair = newSlotPair;
 
-				QueryEntryMap(entryPair, out implPair);
+				QueryEntryMap(typeMgr, entryPair, out implPair);
 
 				if (NewSlotEntryMap.TryGetValue(implPair.Item2, out newSlotPair) &&
 					!entryPair.Equals(newSlotPair))
@@ -178,6 +182,7 @@ namespace il2cpp
 		}
 
 		private void QueryEntryMap(
+			TypeManager typeMgr,
 			TypeMethodPair entryPair,
 			out TypeMethodPair implPair)
 		{
@@ -213,6 +218,47 @@ namespace il2cpp
 						{
 							lastImpl = currImpl;
 							lastLevel = currLevel;
+						}
+					}
+				}
+
+				if (lastImpl != null)
+				{
+					implPair = lastImpl;
+					return;
+				}
+			}
+
+			// IList<T> 和 T[] 的赋值
+			if (IsSZArray &&
+				entryTyX.Def.FullName == "System.Collections.Generic.IList`1")
+			{
+				MethodDef entryMetDef = entryPair.Item2;
+
+				TypeMethodPair lastImpl = null;
+				uint lastLevel = 0;
+
+				foreach (var kv in EntryMap)
+				{
+					TypeX keyTyX = kv.Key.Item1;
+					MethodDef keyMetDef = kv.Key.Item2;
+
+					if (keyMetDef == entryMetDef)
+					{
+						Debug.Assert(entryTyX.GenArgs.Count == keyTyX.GenArgs.Count);
+						var baseSig = entryTyX.GenArgs[0];
+						var derivedSig = keyTyX.GenArgs[0];
+
+						if (typeMgr.IsDerivedType(baseSig, derivedSig))
+						{
+							TypeMethodPair currImpl = kv.Value.MethodPair;
+							uint currLevel = kv.Value.Level;
+
+							if (lastImpl == null || lastLevel < currLevel)
+							{
+								lastImpl = currImpl;
+								lastLevel = currLevel;
+							}
 						}
 					}
 				}

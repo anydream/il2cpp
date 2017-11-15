@@ -283,7 +283,7 @@ namespace il2cpp
 			else
 				mtable = typeMgr.ResolveMethodTableDefRef(Def);
 
-			VTable = new VirtualTable(mtable);
+			VTable = new VirtualTable(mtable, IsArrayType && ArrayInfo.IsSZArray);
 		}
 
 		public bool QueryCallReplace(
@@ -304,7 +304,7 @@ namespace il2cpp
 			out MethodDef implDef)
 		{
 			ResolveVTable(typeMgr);
-			VTable.QueryCallVirt(entryTyX, entryDef, out implTyX, out implDef);
+			VTable.QueryCallVirt(typeMgr, entryTyX, entryDef, out implTyX, out implDef);
 		}
 
 		public TypeX FindBaseType(TypeDef tyDef)
