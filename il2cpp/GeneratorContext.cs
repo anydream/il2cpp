@@ -94,6 +94,11 @@ namespace il2cpp
 			return DeclCode == null && ImplCode == null ||
 				   DeclCode?.Length == 0 && ImplCode?.Length == 0;
 		}
+
+		public override string ToString()
+		{
+			return Name;
+		}
 	}
 
 	internal class CompileUnitMerger
@@ -102,24 +107,10 @@ namespace il2cpp
 		public readonly Dictionary<string, CompileUnit> UnitMap;
 		private static readonly HashSet<string> BridgeTypes = new HashSet<string>
 		{
-			"stru_SByte",
-			"stru_Byte",
-			"stru_Int16",
-			"stru_UInt16",
-			"stru_Int32",
-			"stru_UInt32",
-			"stru_Int64",
-			"stru_UInt64",
-			"stru_Single",
-			"stru_Double",
-			"stru_IntPtr",
-			"stru_UIntPtr",
-
 			"cls_Object",
 			"cls_String",
 			"cls_System_Array",
 			"cls_System_Exception",
-			"cls_System_Runtime_Serialization_SafeSerializationManager"
 		};
 
 		public CompileUnitMerger(Dictionary<string, CompileUnit> units)
@@ -141,23 +132,42 @@ namespace il2cpp
 			bridgeUnit.Name = "il2cppBridge";
 			UnitMap.Add(bridgeUnit.Name, bridgeUnit);
 
-			CompileUnit currUnit = NewUnit();
-
-			foreach (var unit in sortedUnits)
+			// 收集桥接代码的所有依赖项
+			List<CompileUnit> tmpList = new List<CompileUnit>();
+			for (; ; )
 			{
-				if (BridgeTypes.Contains(unit.Name))
+				bool changed = false;
+				foreach (var unit in sortedUnits)
 				{
-					bridgeUnit.DeclCode += "#define IL2CPP_BRIDGE_HAS_" + unit.Name + '\n';
-					bridgeUnit.Append(unit);
-					transMap[unit.Name] = bridgeUnit.Name;
+					if (BridgeTypes.Contains(unit.Name) ||
+						bridgeUnit.DeclDepends.Contains(unit.Name))
+					{
+						bridgeUnit.DeclCode += "#define IL2CPP_BRIDGE_HAS_" + unit.Name + '\n';
+						bridgeUnit.Append(unit);
+						transMap[unit.Name] = bridgeUnit.Name;
+						changed = true;
+					}
+					else
+						tmpList.Add(unit);
+				}
+
+				if (changed)
+				{
+					sortedUnits = tmpList;
+					tmpList = new List<CompileUnit>();
 				}
 				else
-				{
-					currUnit.Append(unit);
-					transMap[unit.Name] = currUnit.Name;
-					if (IsUnitFull(currUnit))
-						currUnit = NewUnit();
-				}
+					break;
+			}
+
+			CompileUnit currUnit = NewUnit();
+			foreach (var unit in sortedUnits)
+			{
+				Debug.Assert(!bridgeUnit.DeclDepends.Contains(unit.Name));
+				currUnit.Append(unit);
+				transMap[unit.Name] = currUnit.Name;
+				if (IsUnitFull(currUnit))
+					currUnit = NewUnit();
 			}
 
 			if (currUnit.IsEmpty())

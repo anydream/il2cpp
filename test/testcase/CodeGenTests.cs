@@ -848,7 +848,7 @@ namespace testcase
 			public int num;
 		}
 
-		private static void FailCase()
+		private static void FailCases()
 		{
 			{
 				object[] oary = new Cls[10];
@@ -881,12 +881,9 @@ namespace testcase
 
 		public static int Entry()
 		{
-			FailCase();
+			FailCases();
 
-			/*IList<int> ilst = new int[10];
-			ilst.Contains(123);*/
-
-			/*int[] ary = new int[10];
+			int[] ary = new int[10];
 			for (int i = 0; i < ary.Length; ++i)
 			{
 				ary[i] = (i + 2) * (i + 1);
@@ -922,11 +919,14 @@ namespace testcase
 			ilst[9] = 123;
 			int val = ilst[9];
 			if (val != 123)
-				return 5;*/
+				return 5;
 
 			/*bool con = ilst.Contains(123);
 			if (!con)
 				return 6;*/
+
+			/*IList<int> ilst = new int[10];
+			ilst.Contains(123);*/
 
 			return 0;
 		}
