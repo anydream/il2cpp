@@ -591,14 +591,7 @@ namespace il2cpp
 											if (tyX.NullableElem == null)
 											{
 												// 解析可空类型的所有字段
-												foreach (FieldDef fldDef in tyX.Def.Fields)
-												{
-													if (!fldDef.IsStatic)
-													{
-														FieldX fldX = new FieldX(tyX, fldDef);
-														AddField(fldX);
-													}
-												}
+												ResolveAllFields(tyX);
 
 												tyX.NullableElem = ResolveTypeDefOrRef(tyX.GenArgs[0].ToTypeDefOrRef(), null);
 												ResolveBoxedType(tyX.NullableElem);
