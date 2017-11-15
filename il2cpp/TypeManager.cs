@@ -240,24 +240,7 @@ namespace il2cpp
 			switch (inst.OpCode.Code)
 			{
 				case Code.Ldstr:
-					// 解析 System.String 类型
-					if (!IsStringTypeResolved)
-					{
-						IsStringTypeResolved = true;
-						if (!TypeMap.ContainsKey("String"))
-						{
-							TypeX strTyX = ResolveTypeDefOrRef(Context.CorLibTypes.String.ToTypeDefOrRef(), null);
-							foreach (FieldDef fldDef in strTyX.Def.Fields)
-							{
-								if (!fldDef.IsStatic)
-								{
-									FieldX fldX = new FieldX(strTyX, fldDef);
-									AddField(fldX);
-								}
-							}
-							strTyX.IsInstantiated = true;
-						}
-					}
+					ResolveStringType();
 					break;
 
 				case Code.Newarr:
@@ -967,6 +950,11 @@ namespace il2cpp
 					insts.UpdateInstructionOffsets();
 				}
 			}
+
+			if (tyX.Def.FullName == "System.String")
+			{
+				ResolveAllFields(tyX);
+			}
 		}
 
 		private void TryAddVariance(TypeX tyX)
@@ -1136,7 +1124,7 @@ namespace il2cpp
 				GenericInstSig genInst = (GenericInstSig)baseSig;
 				string fullName = genInst.GenericType.FullName;
 				if (fullName == "System.Collections.Generic.IList`1" ||
-				    fullName == "System.Collections.Generic.ICollection`1")
+					fullName == "System.Collections.Generic.ICollection`1")
 				{
 					Debug.Assert(genInst.GenericArguments.Count == 1);
 					return IsDerivedType(genInst.GenericArguments[0], derivedSig.Next);
@@ -1323,6 +1311,32 @@ namespace il2cpp
 			if (genArgs.IsCollectionValid())
 				metX.GenArgs = new List<TypeSig>(genArgs);
 			return AddMethod(metX);
+		}
+
+		private void ResolveAllFields(TypeX tyX)
+		{
+			foreach (FieldDef fldDef in tyX.Def.Fields)
+			{
+				if (fldDef.IsStatic)
+					continue;
+
+				FieldX fldX = new FieldX(tyX, fldDef);
+				AddField(fldX);
+			}
+		}
+
+		private void ResolveStringType()
+		{
+			// 解析 System.String 类型
+			if (!IsStringTypeResolved)
+			{
+				IsStringTypeResolved = true;
+				if (!TypeMap.ContainsKey("String"))
+				{
+					TypeX strTyX = ResolveTypeDefOrRef(Context.CorLibTypes.String.ToTypeDefOrRef(), null);
+					strTyX.IsInstantiated = true;
+				}
+			}
 		}
 
 		private void ResolveBoxedType(TypeX valueTyX)
