@@ -1420,10 +1420,11 @@ namespace il2cpp
 
 		private TypeDef MakeSZArrayDef()
 		{
+			var arrayTyRef = Context.CorLibTypes.GetTypeRef("System", "Array");
 			TypeDefUser tyDef = new TypeDefUser(
 				"il2cpprt",
 				"SZArray",
-				Context.CorLibTypes.GetTypeRef("System", "Array"));
+				arrayTyRef);
 			tyDef.Layout = TypeAttributes.SequentialLayout;
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);
@@ -1476,6 +1477,14 @@ namespace il2cpp
 				MethodDef aryMetDef = CopyMethodImplForSZArray(hlpClsDef, hlpMetDef, genArgT);
 				tyDef.Methods.Add(aryMetDef);
 			}
+
+			// 补齐 CopyTo(Array,int)
+			metDef = new MethodDefUser(
+				"CopyTo",
+				MethodSig.CreateInstance(Context.CorLibTypes.Void, arrayTyRef.ToTypeSig(), Context.CorLibTypes.Int32),
+				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.ReuseSlot);
+			metDef.Body = tyDef.FindMethod("CopyTo").Body;
+			tyDef.Methods.Add(metDef);
 
 			return tyDef;
 		}
