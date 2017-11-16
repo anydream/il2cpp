@@ -28,7 +28,7 @@ namespace testcase
 			return abs < prec;
 		}
 	}
-
+	
 	static class HelloWorld
 	{
 		public static int Entry()
@@ -77,6 +77,18 @@ namespace testcase
 		{
 			long res = Fib(26);
 			if (res != 121393)
+				return 1;
+			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestConstStatic
+	{
+		private const int num = 123;
+		public static int Entry()
+		{
+			if (42 + num * num != 15171)
 				return 1;
 			return 0;
 		}
