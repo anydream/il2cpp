@@ -109,7 +109,7 @@ int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)
 
 int32_t il2cpp_Array__GetLength(cls_System_Array* ary)
 {
-	if (ary->Rank == 0)
+	if (IL2CPP_LIKELY(ary->Rank == 0))
 		return ((int32_t*)&ary[1])[0];
 	else
 	{
@@ -122,7 +122,7 @@ int32_t il2cpp_Array__GetLength(cls_System_Array* ary)
 
 int64_t il2cpp_Array__GetLongLength(cls_System_Array* ary)
 {
-	if (ary->Rank == 0)
+	if (IL2CPP_LIKELY(ary->Rank == 0))
 		return ((int32_t*)&ary[1])[0];
 	else
 	{
@@ -135,7 +135,7 @@ int64_t il2cpp_Array__GetLongLength(cls_System_Array* ary)
 
 int32_t il2cpp_Array__GetLength(cls_System_Array* ary, int32_t dim)
 {
-	if (ary->Rank == 0)
+	if (IL2CPP_LIKELY(ary->Rank == 0))
 	{
 		IL2CPP_CHECK_RANGE(0, 1, dim);
 		return ((int32_t*)&ary[1])[0];
@@ -149,7 +149,7 @@ int32_t il2cpp_Array__GetLength(cls_System_Array* ary, int32_t dim)
 
 int32_t il2cpp_Array__GetLowerBound(cls_System_Array* ary, int32_t dim)
 {
-	if (ary->Rank == 0)
+	if (IL2CPP_LIKELY(ary->Rank == 0))
 	{
 		IL2CPP_CHECK_RANGE(0, 1, dim);
 		return 0;
@@ -163,7 +163,7 @@ int32_t il2cpp_Array__GetLowerBound(cls_System_Array* ary, int32_t dim)
 
 int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, int32_t dim)
 {
-	if (ary->Rank == 0)
+	if (IL2CPP_LIKELY(ary->Rank == 0))
 	{
 		IL2CPP_CHECK_RANGE(0, 1, dim);
 		return ((int32_t*)&ary[1])[0] - 1;

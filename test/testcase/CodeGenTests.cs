@@ -28,7 +28,7 @@ namespace testcase
 			return abs < prec;
 		}
 	}
-	
+
 	static class HelloWorld
 	{
 		public static int Entry()
@@ -85,10 +85,13 @@ namespace testcase
 	[CodeGen]
 	static class TestConstStatic
 	{
-		private const int num = 123;
+		class SCls
+		{
+			public const int num = 1230 / 10;
+		}
 		public static int Entry()
 		{
-			if (42 + num * num != 15171)
+			if (42 + SCls.num * SCls.num != 15171)
 				return 1;
 			return 0;
 		}
@@ -551,6 +554,17 @@ namespace testcase
 
 		public static int Entry()
 		{
+			int[] iary = new int[10];
+			for (int i = 0; i < iary.Length; ++i)
+				iary[i] = (i + 1) * (i + 3);
+
+			int isum = 0;
+			for (int i = 0; i < iary.Length; ++i)
+				isum += iary[i];
+
+			if (isum != 495)
+				return -1;
+
 			float[] fary = new float[10];
 
 			var rank = fary.Rank;
@@ -2632,7 +2646,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestArrayInterface.Entry();
+			TestSZArray.Entry();
 		}
 	}
 }
