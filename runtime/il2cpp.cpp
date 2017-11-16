@@ -101,6 +101,12 @@ void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 }
 
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
+int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)
+{
+	IL2CPP_ASSERT(ary->Rank == 0);
+	return ((int32_t*)&ary[1])[0];
+}
+
 int32_t il2cpp_Array__GetLength(cls_System_Array* ary)
 {
 	if (ary->Rank == 0)

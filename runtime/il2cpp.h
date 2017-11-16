@@ -22,17 +22,17 @@
 #define IL2CPP_UNLIKELY(x)					x
 #endif
 
-#define IL2CPP_ASSERT(_x)	if (!(_x)) abort()
-#define IL2CPP_UNREACHABLE	abort
-#define IL2CPP_MEMCPY		memcpy
-#define IL2CPP_MEMSET		memset
-#define IL2CPP_NEW			il2cpp_New
-#define IL2CPP_CHECK_RANGE	il2cpp_CheckRange
-#define IL2CPP_REMAINDER	il2cpp_Remainder
+#define IL2CPP_ASSERT(_x)		if (!(_x)) abort()
+#define IL2CPP_UNREACHABLE		abort
+#define IL2CPP_MEMCPY			memcpy
+#define IL2CPP_MEMSET			memset
+#define IL2CPP_NEW				il2cpp_New
+#define IL2CPP_CHECK_RANGE		il2cpp_CheckRange
+#define IL2CPP_REMAINDER		il2cpp_Remainder
+#define IL2CPP_SZARRAY_LEN(_x)	il2cpp_SZArray__LoadLength((cls_System_Array*)(_x))
 
-#define IL2CPP_CALL_ONCE	il2cpp_CallOnce
-
-#define IL2CPP_THROW(_ex)	throw il2cppException(_ex)
+#define IL2CPP_CALL_ONCE		il2cpp_CallOnce
+#define IL2CPP_THROW(_ex)		throw il2cppException(_ex)
 
 struct cls_Object;
 
@@ -57,6 +57,7 @@ uintptr_t il2cpp_ThreadID();
 void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
 
 struct cls_System_Array;
+int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary);
 int32_t il2cpp_Array__GetLength(cls_System_Array* ary);
 int64_t il2cpp_Array__GetLongLength(cls_System_Array* ary);
 int32_t il2cpp_Array__GetLength(cls_System_Array* ary, int32_t dim);

@@ -256,18 +256,6 @@ namespace il2cpp
 						break;
 					}
 
-				case Code.Ldlen:
-					{
-						// call int Array::get_Length()
-						inst.OpCode = OpCodes.Call;
-						inst.Operand = new MemberRefUser(
-							Context.CorLibModule,
-							"get_Length",
-							MethodSig.CreateInstance(Context.CorLibTypes.Int32),
-							Context.CorLibTypes.GetTypeRef("System", "Array"));
-						break;
-					}
-
 				case Code.Ldelema:
 					{
 						// call T& T[]::Address(int)

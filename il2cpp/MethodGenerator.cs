@@ -1370,6 +1370,10 @@ namespace il2cpp
 					GenShiftOp(inst, " >> ");
 					return;
 
+				case Code.Ldlen:
+					GenLdlen(inst);
+					return;
+
 				case Code.Newobj:
 					GenNewobj(inst, (MethodX)operand);
 					return;
@@ -1509,7 +1513,6 @@ namespace il2cpp
 					return;
 
 				case Code.Newarr:
-				case Code.Ldlen:
 				case Code.Ldelema:
 				case Code.Ldelem_I1:
 				case Code.Ldelem_U1:
@@ -1893,6 +1896,18 @@ namespace il2cpp
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
 				'(' + TempName(op1) + op + TempName(op2) + ')',
+				slotPush.SlotType);
+		}
+
+		private void GenLdlen(InstInfo inst)
+		{
+			var slotPop = Pop();
+			var slotPush = Push(StackType.I4);
+
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				string.Format("IL2CPP_SZARRAY_LEN({0})",
+					TempName(slotPop)),
 				slotPush.SlotType);
 		}
 
