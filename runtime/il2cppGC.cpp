@@ -28,5 +28,6 @@ extern "C" void* _il2cpp_GC_PatchCalloc(uintptr_t nelem, uintptr_t sz)
 		return il2cpp_GC_Alloc(sz);
 	else
 		IL2CPP_TRAP();
+	return nullptr;
 }
 #endif

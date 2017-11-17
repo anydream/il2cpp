@@ -171,7 +171,9 @@ namespace test
 			if (typeDef.HasCustomAttributes)
 			{
 				var attr = typeDef.CustomAttributes[0];
-				if (attr.AttributeType.Name == "CodeGenAttribute")
+				if (attr.AttributeType.Name == "CodeGenAttribute"
+					)
+				//&& typeDef.Name == "TestInstExceptions")
 				{
 					return typeDef.FindMethod("Entry");
 				}
@@ -247,12 +249,16 @@ namespace test
 			{
 				if (!hasBuildErr)
 				{
+					if (strOut.IndexOf("warning") != -1)
+					{
+						Console.WriteLine("{0}", strOut);
+					}
 					if (strOut.IndexOf("error") != -1)
 					{
 						Console.WriteLine();
 						hasBuildErr = true;
 					}
-					else if (strOut.IndexOf("Compiled:") != -1)
+					else if (strOut.IndexOf(":") != -1)
 						Console.Write(".");
 				}
 
