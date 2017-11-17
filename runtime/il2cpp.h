@@ -31,6 +31,7 @@
 #define IL2CPP_NEW				il2cpp_New
 #define IL2CPP_CHECK_RANGE		il2cpp_CheckRange
 #define IL2CPP_REMAINDER		il2cpp_Remainder
+#define IL2CPP_CKFINITE			il2cpp_Ckfinite
 #define IL2CPP_SZARRAY_LEN(_x)	il2cpp_SZArray__LoadLength((cls_System_Array*)(_x))
 
 #define IL2CPP_CALL_ONCE		il2cpp_CallOnce
@@ -53,6 +54,8 @@ void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);
 float il2cpp_Remainder(float numer, float denom);
 double il2cpp_Remainder(double numer, double denom);
+float il2cpp_Ckfinite(float num);
+double il2cpp_Ckfinite(double num);
 
 void il2cpp_Yield();
 uintptr_t il2cpp_ThreadID();

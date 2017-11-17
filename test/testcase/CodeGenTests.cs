@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+using testInsts;
 
 namespace testcase
 {
@@ -1370,6 +1368,31 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static class TestInstExceptions
+	{
+		static bool TestCkfinite()
+		{
+			try
+			{
+				TestInstructions.TestCkfinite();
+			}
+			catch (ArithmeticException ae)
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public static int Entry()
+		{
+			if (!TestCkfinite())
+				return 1;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
 	static class TestNullable
 	{
 		struct MyStru
@@ -2646,7 +2669,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestSZArray.Entry();
+			TestInstExceptions.Entry();
 		}
 	}
 }

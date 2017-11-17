@@ -1356,6 +1356,9 @@ namespace il2cpp
 				case Code.Neg:
 					GenUnaryOp(inst, "-");
 					return;
+				case Code.Ckfinite:
+					GenCkfinite(inst);
+					return;
 
 				case Code.Add_Ovf:
 					return;
@@ -1861,6 +1864,18 @@ namespace il2cpp
 					TempName(op2),
 					op1.SlotType.GetUnsignedTypeName(),
 					op2.SlotType.GetUnsignedTypeName()),
+				slotPush.SlotType);
+		}
+
+		private void GenCkfinite(InstInfo inst)
+		{
+			var slotPop = Pop();
+			var slotPush = Push(slotPop.SlotType);
+			Debug.Assert(slotPop.SlotType.Kind == StackTypeKind.R4 || slotPop.SlotType.Kind == StackTypeKind.R8);
+
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				"IL2CPP_CKFINITE(" + TempName(slotPop) + ')',
 				slotPush.SlotType);
 		}
 

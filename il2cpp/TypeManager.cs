@@ -32,6 +32,9 @@ namespace il2cpp
 		}
 		private readonly Dictionary<TypeDef, VarianceGroup> VarianceMap = new Dictionary<TypeDef, VarianceGroup>();
 
+		private TypeDef ThrowHelperType;
+		private HashSet<string> ResolvedExceptions = new HashSet<string>();
+
 		// 运行时装箱类型原型
 		private TypeDef BoxedTypePrototype;
 		// 运行时一维数组原型
@@ -55,6 +58,8 @@ namespace il2cpp
 			VCallEntries.Clear();
 			PendingMethods.Clear();
 			VarianceMap.Clear();
+			ThrowHelperType = null;
+			ResolvedExceptions.Clear();
 			SZArrayPrototype = null;
 			MDArrayProtoMap.Clear();
 		}
@@ -232,6 +237,16 @@ namespace il2cpp
 			}
 
 			metX.InstList = instList;
+		}
+
+		private void ResolveOpCodeException(Code opCode)
+		{
+			switch (opCode)
+			{
+				case Code.Ckfinite:
+					ResolveExceptionType("ArithmeticException");
+					return;
+			}
 		}
 
 		private void ResolveOperand(InstInfo inst, IGenericReplacer replacer)
@@ -496,7 +511,7 @@ namespace il2cpp
 						}
 
 						inst.Operand = resMetX;
-						return;
+						break;
 					}
 
 				case OperandType.InlineField:
@@ -521,7 +536,7 @@ namespace il2cpp
 						}
 
 						inst.Operand = resFldX;
-						return;
+						break;
 					}
 
 				case OperandType.InlineType:
@@ -593,14 +608,16 @@ namespace il2cpp
 
 							inst.Operand = tyX;
 						}
-						return;
+						break;
 					}
 
 				case OperandType.InlineSig:
 					{
-						return;
+						throw new NotImplementedException();
 					}
 			}
+
+			ResolveOpCodeException(inst.OpCode.Code);
 		}
 
 		private void GenStaticCctor(TypeX tyX)
@@ -1547,13 +1564,6 @@ namespace il2cpp
 			return tyDef;
 		}
 
-		private InterfaceImpl MakeInterfaceImpl(string ns, string name, TypeSig genArg)
-		{
-			return new InterfaceImplUser(
-				new TypeSpecUser(
-					new GenericInstSig((ClassOrValueTypeSig)Context.CorLibTypes.GetTypeRef(ns, name).ToTypeSig(), genArg)));
-		}
-
 		// 复制方法实现到 SZArray
 		private MethodDef CopyMethodImplForSZArray(TypeDef hlpClsDef, MethodDef hlpMetDef, GenericVar genArgT)
 		{
@@ -1672,6 +1682,60 @@ namespace il2cpp
 			body.UpdateInstructionOffsets();
 
 			return aryMetDef;
+		}
+
+		private void ResolveExceptionType(string exName)
+		{
+			if (!ResolvedExceptions.Contains(exName))
+			{
+				ResolvedExceptions.Add(exName);
+				ResolveExceptionTypeImpl(exName);
+			}
+		}
+
+		private void ResolveExceptionTypeImpl(string exName)
+		{
+			if (ThrowHelperType == null)
+			{
+				TypeDef tyDef = new TypeDefUser(
+					"il2cpprt",
+					"ThrowHelper",
+					Context.CorLibTypes.Object.TypeRef);
+				Context.CorLibModule.Types.Add(tyDef);
+				ThrowHelperType = tyDef;
+			}
+
+			string metName = "Throw_" + exName;
+			if (ThrowHelperType.FindMethod(metName) == null)
+			{
+				TypeDef exDef = Context.CorLibTypes.GetTypeRef("System", exName).Resolve();
+				Debug.Assert(
+					exDef != null &&
+					exDef.BaseType.Name.Contains("Exception"));
+				MethodDef exDefCtor = exDef.FindDefaultConstructor();
+				Debug.Assert(exDefCtor != null);
+
+				MethodDef metDef = new MethodDefUser(
+					metName,
+					MethodSig.CreateStatic(Context.CorLibTypes.Void),
+					MethodAttributes.Public | MethodAttributes.Static);
+				ThrowHelperType.Methods.Add(metDef);
+
+				var body = metDef.Body = new CilBody();
+				var insts = body.Instructions;
+				insts.Add(OpCodes.Newobj.ToInstruction(exDefCtor));
+				insts.Add(OpCodes.Throw.ToInstruction());
+				body.UpdateInstructionOffsets();
+
+				ResolveMethodDef(metDef);
+			}
+		}
+
+		private InterfaceImpl MakeInterfaceImpl(string ns, string name, TypeSig genArg)
+		{
+			return new InterfaceImplUser(
+				new TypeSpecUser(
+					new GenericInstSig((ClassOrValueTypeSig)Context.CorLibTypes.GetTypeRef(ns, name).ToTypeSig(), genArg)));
 		}
 
 		private static void SetAllTypeSig(TypeSig[] sigList, TypeSig sig)

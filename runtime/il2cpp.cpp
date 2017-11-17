@@ -62,6 +62,20 @@ double il2cpp_Remainder(double numer, double denom)
 	return remainder(numer, denom);
 }
 
+float il2cpp_Ckfinite(float num)
+{
+	if (IL2CPP_UNLIKELY(isfinite(num)))
+		met_4ObKN3_ThrowHelper__Throw_ArithmeticException();
+	return num;
+}
+
+double il2cpp_Ckfinite(double num)
+{
+	if (IL2CPP_UNLIKELY(isfinite(num)))
+		met_4ObKN3_ThrowHelper__Throw_ArithmeticException();
+	return num;
+}
+
 void il2cpp_Yield()
 {
 #if defined(_WIN32)
@@ -206,6 +220,6 @@ void il2cpp_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLen)
 	void* ptr = (uint8_t*)&ary[1] + dataOffset + elemSize * idx;
 
 	IL2CPP_MEMSET(ptr, 0, elemSize * clearLen);
-}
+	}
 
 #endif
