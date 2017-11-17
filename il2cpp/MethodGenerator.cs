@@ -2749,9 +2749,9 @@ namespace il2cpp
 			if (float.IsNaN(num))
 				return "IL2CPP_NANF";
 			else if (float.IsPositiveInfinity(num))
-				return "IL2CPP_POS_INFF";
+				return "IL2CPP_POS_INF";
 			else if (float.IsNegativeInfinity(num))
-				return "IL2CPP_NEG_INFF";
+				return "IL2CPP_NEG_INF";
 			else
 				return AddFloatPostfix(num.ToString("R"));
 		}
@@ -2761,9 +2761,9 @@ namespace il2cpp
 			if (double.IsNaN(num))
 				return "IL2CPP_NAND";
 			else if (double.IsPositiveInfinity(num))
-				return "IL2CPP_POS_INFD";
+				return "IL2CPP_POS_INF";
 			else if (double.IsNegativeInfinity(num))
-				return "IL2CPP_NEG_INFD";
+				return "IL2CPP_NEG_INF";
 			else
 				return num.ToString("R");
 		}
