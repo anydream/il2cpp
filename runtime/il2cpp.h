@@ -5,6 +5,10 @@
 #include <string.h>
 #include <assert.h>
 
+#ifndef __has_builtin
+#define __has_builtin(_x) 0
+#endif
+
 #if defined(__clang__) || defined(__GNUC__)
 #define GNU_LIKE
 #elif defined(_MSC_VER)
@@ -29,8 +33,8 @@
 #define IL2CPP_POS_INF			(1E+300 * 1E+300)
 #define IL2CPP_NEG_INF			(-IL2CPP_POS_INF)
 
-#define IL2CPP_ASSERT(_x)		if (!(_x)) abort()
-#define IL2CPP_UNREACHABLE		abort
+#define IL2CPP_TRAP				il2cpp_Trap
+#define IL2CPP_ASSERT(_x)		if (!(_x)) IL2CPP_TRAP()
 #define IL2CPP_MEMCPY			memcpy
 #define IL2CPP_MEMSET			memset
 #define IL2CPP_NEW				il2cpp_New
@@ -69,6 +73,7 @@ inline double il2cpp_NaND()
 	return *(double*)&n;
 }
 
+void il2cpp_Trap();
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);
 float il2cpp_Remainder(float numer, float denom);

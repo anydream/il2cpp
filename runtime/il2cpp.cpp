@@ -71,14 +71,23 @@ void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 				il2cpp_Yield();
 		}
 		else if (onceFlag != 1)
-			IL2CPP_UNREACHABLE();
+			IL2CPP_TRAP();
 	}
+}
+
+void il2cpp_Trap()
+{
+#if __has_builtin(__builtin_trap)
+	__builtin_trap();
+#else
+	abort();
+#endif
 }
 
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 {
 	if (index < lowerBound || index >= lowerBound + length)
-		IL2CPP_UNREACHABLE();
+		IL2CPP_TRAP();
 }
 
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen)
@@ -87,7 +96,7 @@ void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_
 
 	index += rangeLen;
 	if (index < lowerBound || index > lowerBound + length)
-		IL2CPP_UNREACHABLE();
+		IL2CPP_TRAP();
 }
 
 float il2cpp_Remainder(float numer, float denom)

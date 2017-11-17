@@ -1,6 +1,5 @@
-﻿#include <stdlib.h>
-#include <string.h>
-#include <gc.h>
+﻿#include <gc.h>
+#include "il2cpp.h"
 #include "il2cppGC.h"
 
 void il2cpp_GC_Init()
@@ -28,6 +27,6 @@ extern "C" void* _il2cpp_GC_PatchCalloc(uintptr_t nelem, uintptr_t sz)
 	else if (nelem == 1 && sz != 1)
 		return il2cpp_GC_Alloc(sz);
 	else
-		abort();
+		IL2CPP_TRAP();
 }
 #endif
