@@ -1163,10 +1163,10 @@ namespace il2cpp
 					GenLdc(inst, StackType.I8, operand.ToString());
 					return;
 				case Code.Ldc_R4:
-					GenLdc(inst, StackType.R4, AddFloatPostfix(((float)operand).ToString("R")));
+					GenLdc(inst, StackType.R4, RealToString((float)operand));
 					return;
 				case Code.Ldc_R8:
-					GenLdc(inst, StackType.R8, ((double)operand).ToString("R"));
+					GenLdc(inst, StackType.R8, RealToString((double)operand));
 					return;
 
 				case Code.Ldstr:
@@ -2742,6 +2742,30 @@ namespace il2cpp
 				return str + 'f';
 			else
 				return str + ".0f";
+		}
+
+		private static string RealToString(float num)
+		{
+			if (float.IsNaN(num))
+				return "nan";
+			else if (float.IsPositiveInfinity(num))
+				return "+inf";
+			else if (float.IsNegativeInfinity(num))
+				return "-inf";
+			else
+				return AddFloatPostfix(num.ToString("R"));
+		}
+
+		private static string RealToString(double num)
+		{
+			if (double.IsNaN(num))
+				return "nan";
+			else if (double.IsPositiveInfinity(num))
+				return "+inf";
+			else if (double.IsNegativeInfinity(num))
+				return "-inf";
+			else
+				return num.ToString("R");
 		}
 
 		private const string PrefixMet = "met_";
