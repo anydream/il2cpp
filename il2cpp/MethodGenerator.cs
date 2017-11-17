@@ -1344,11 +1344,30 @@ namespace il2cpp
 				case Code.Div:
 					GenBinOp(inst, " / ");
 					return;
+				case Code.Div_Un:
+					GenBinOp(inst, " / ", true);
+					return;
 				case Code.Rem:
 					GenRem(inst);
 					return;
+				case Code.Rem_Un:
+					GenRemUn(inst);
+					return;
 				case Code.Neg:
 					GenUnaryOp(inst, "-");
+					return;
+
+				case Code.Add_Ovf:
+					return;
+				case Code.Add_Ovf_Un:
+					return;
+				case Code.Sub_Ovf:
+					return;
+				case Code.Sub_Ovf_Un:
+					return;
+				case Code.Mul_Ovf:
+					return;
+				case Code.Mul_Ovf_Un:
 					return;
 
 				case Code.And:
@@ -1820,7 +1839,29 @@ namespace il2cpp
 			}
 		}
 
-		private void GenBinOp(InstInfo inst, string op)
+		private void GenRemUn(InstInfo inst)
+		{
+			var slotPops = Pop(2);
+			var op1 = slotPops[0];
+			var op2 = slotPops[1];
+
+			if (!IsBinaryOpValid(op1.SlotType.Kind, op2.SlotType.Kind, out var retType, inst.OpCode.Code))
+				throw new InvalidOperationException();
+			Debug.Assert(retType != StackTypeKind.R4 && retType != StackTypeKind.R8);
+
+			var slotPush = Push(new StackType(retType));
+
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				string.Format("({0} - {1} * (({2}){0} / ({3}){1}))",
+					TempName(op1),
+					TempName(op2),
+					op1.SlotType.GetUnsignedTypeName(),
+					op2.SlotType.GetUnsignedTypeName()),
+				slotPush.SlotType);
+		}
+
+		private void GenBinOp(InstInfo inst, string op, bool isUnsigned = false)
 		{
 			var slotPops = Pop(2);
 			var op1 = slotPops[0];
@@ -1832,7 +1873,12 @@ namespace il2cpp
 			var slotPush = Push(new StackType(retType));
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				'(' + TempName(op1) + op + TempName(op2) + ')',
+				string.Format("({0}{1} {2} {3}{4})",
+					isUnsigned ? '(' + op1.SlotType.GetUnsignedTypeName() + ')' : null,
+					TempName(op1),
+					op,
+					isUnsigned ? '(' + op2.SlotType.GetUnsignedTypeName() + ')' : null,
+					TempName(op2)),
 				slotPush.SlotType);
 		}
 
