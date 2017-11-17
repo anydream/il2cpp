@@ -1156,11 +1156,13 @@ namespace il2cpp
 					return;
 
 				case Code.Ldc_I4_S:
+					GenLdc(inst, StackType.I4, ((sbyte)operand).ToString());
+					return;
 				case Code.Ldc_I4:
-					GenLdc(inst, StackType.I4, operand.ToString());
+					GenLdc(inst, StackType.I4, IntToString((int)operand));
 					return;
 				case Code.Ldc_I8:
-					GenLdc(inst, StackType.I8, operand.ToString());
+					GenLdc(inst, StackType.I8, IntToString((long)operand));
 					return;
 				case Code.Ldc_R4:
 					GenLdc(inst, StackType.R4, RealToString((float)operand));
@@ -2742,6 +2744,20 @@ namespace il2cpp
 				return str + 'f';
 			else
 				return str + ".0f";
+		}
+
+		private static string IntToString(int num)
+		{
+			string dec = num.ToString();
+			string hex = "0x" + num.ToString("X");
+			return dec.Length < hex.Length ? dec : hex;
+		}
+
+		private static string IntToString(long num)
+		{
+			string dec = num.ToString();
+			string hex = "0x" + num.ToString("X");
+			return dec.Length < hex.Length ? dec : hex;
 		}
 
 		private static string RealToString(float num)
