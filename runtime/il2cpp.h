@@ -16,12 +16,12 @@
 
 #ifdef GNU_LIKE
 #define IL2CPP_ATOMIC_CAS(_dst, _cmp, _new)	__sync_val_compare_and_swap(_dst, _cmp, _new)
-#define IL2CPP_LIKELY(x)					__builtin_expect((x), 1)
-#define IL2CPP_UNLIKELY(x)					__builtin_expect((x), 0)
+#define IL2CPP_LIKELY(_x)					__builtin_expect((_x), 1)
+#define IL2CPP_UNLIKELY(_x)					__builtin_expect((_x), 0)
 #else
 #define IL2CPP_ATOMIC_CAS(_dst, _cmp, _new)	_InterlockedCompareExchange8((volatile char*)_dst, _new, _cmp)
-#define IL2CPP_LIKELY(x)					x
-#define IL2CPP_UNLIKELY(x)					x
+#define IL2CPP_LIKELY(_x)					_x
+#define IL2CPP_UNLIKELY(_x)					_x
 #endif
 
 #define IL2CPP_NANF				il2cpp_NaNF()
