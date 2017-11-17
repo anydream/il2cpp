@@ -1370,23 +1370,94 @@ namespace testcase
 	[CodeGen]
 	static class TestInstExceptions
 	{
-		static bool TestCkfinite()
+		static int TestCkfinite()
 		{
+			bool ok = false;
 			try
 			{
-				TestInstructions.TestCkfinite();
+				TestInstructions.CkfiniteNaN();
 			}
-			catch (ArithmeticException ae)
+			catch (ArithmeticException)
 			{
-				return true;
+				ok = true;
 			}
-			return false;
+
+			if (!ok)
+				return 1;
+
+			ok = false;
+			try
+			{
+				TestInstructions.CkfiniteNaND();
+			}
+			catch (ArithmeticException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 2;
+
+			ok = false;
+			try
+			{
+				TestInstructions.CkfinitePosInf();
+			}
+			catch (ArithmeticException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 3;
+
+			ok = false;
+			try
+			{
+				TestInstructions.CkfinitePosInfD();
+			}
+			catch (ArithmeticException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 4;
+
+			ok = false;
+			try
+			{
+				TestInstructions.CkfiniteNegInf();
+			}
+			catch (ArithmeticException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 5;
+
+			ok = false;
+			try
+			{
+				TestInstructions.CkfiniteNegInfD();
+			}
+			catch (ArithmeticException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 6;
+
+			return 0;
 		}
 
 		public static int Entry()
 		{
-			if (!TestCkfinite())
-				return 1;
+			int res = TestCkfinite();
+			if (res != 0)
+				return res;
 
 			return 0;
 		}
