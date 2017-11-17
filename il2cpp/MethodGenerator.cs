@@ -2778,6 +2778,83 @@ namespace il2cpp
 			return false;
 		}
 
+		private static bool IsOverflowOpValid(StackTypeKind op1, StackTypeKind op2, out StackTypeKind retType, Code code)
+		{
+			retType = StackTypeKind.I4;
+			switch (op1)
+			{
+				case StackTypeKind.I4:
+					switch (op2)
+					{
+						case StackTypeKind.I4:
+							retType = StackTypeKind.I4;
+							return true;
+
+						case StackTypeKind.Ptr:
+							retType = StackTypeKind.Ptr;
+							return true;
+
+						case StackTypeKind.Ref:
+							if (code == Code.Add_Ovf_Un)
+							{
+								retType = StackTypeKind.Ref;
+								return true;
+							}
+							break;
+					}
+					return false;
+
+				case StackTypeKind.I8:
+					if (op2 == StackTypeKind.I8)
+					{
+						retType = StackTypeKind.I8;
+						return true;
+					}
+					return false;
+
+				case StackTypeKind.Ptr:
+					switch (op2)
+					{
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							retType = StackTypeKind.Ptr;
+							return true;
+
+						case StackTypeKind.Ref:
+							if (code == Code.Add_Ovf_Un)
+							{
+								retType = StackTypeKind.Ref;
+								return true;
+							}
+							break;
+					}
+					return false;
+
+				case StackTypeKind.Ref:
+					switch (op2)
+					{
+						case StackTypeKind.I4:
+						case StackTypeKind.Ptr:
+							if (code == Code.Add_Ovf_Un || code == Code.Sub_Ovf_Un)
+							{
+								retType = StackTypeKind.Ref;
+								return true;
+							}
+							break;
+
+						case StackTypeKind.Ref:
+							if (code == Code.Sub_Ovf_Un)
+							{
+								retType = StackTypeKind.Ptr;
+								return true;
+							}
+							break;
+					}
+					return false;
+			}
+			return false;
+		}
+
 		private static bool IsBinaryCompareValid(StackTypeKind op1, StackTypeKind op2, Code code)
 		{
 			switch (op1)
