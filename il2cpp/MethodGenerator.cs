@@ -1388,6 +1388,9 @@ namespace il2cpp
 				case Code.Shr:
 					GenShiftOp(inst, " >> ");
 					return;
+				case Code.Shr_Un:
+					GenShiftOp(inst, " >> ", true);
+					return;
 
 				case Code.Ldlen:
 					GenLdlen(inst);
@@ -1882,6 +1885,27 @@ namespace il2cpp
 				slotPush.SlotType);
 		}
 
+		private void GenShiftOp(InstInfo inst, string op, bool isUnsigned = false)
+		{
+			var slotPops = Pop(2);
+			var op1 = slotPops[0];
+			var op2 = slotPops[1];
+
+			if (!IsShiftOpValid(op1.SlotType.Kind, op2.SlotType.Kind, out var retType))
+				throw new InvalidOperationException();
+
+			var slotPush = Push(new StackType(retType));
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				string.Format("({0}{1} {2} {3}{4})",
+					isUnsigned ? '(' + op1.SlotType.GetUnsignedTypeName() + ')' : null,
+					TempName(op1),
+					op,
+					isUnsigned ? '(' + op2.SlotType.GetUnsignedTypeName() + ')' : null,
+					TempName(op2)),
+				slotPush.SlotType);
+		}
+
 		private void GenUnaryOp(InstInfo inst, string op)
 		{
 			var slotPop = Pop();
@@ -1926,22 +1950,6 @@ namespace il2cpp
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
 				op + TempName(slotPop),
-				slotPush.SlotType);
-		}
-
-		private void GenShiftOp(InstInfo inst, string op)
-		{
-			var slotPops = Pop(2);
-			var op1 = slotPops[0];
-			var op2 = slotPops[1];
-
-			if (!IsShiftOpValid(op1.SlotType.Kind, op2.SlotType.Kind, out var retType))
-				throw new InvalidOperationException();
-
-			var slotPush = Push(new StackType(retType));
-			inst.InstCode = GenAssign(
-				TempName(slotPush),
-				'(' + TempName(op1) + op + TempName(op2) + ')',
 				slotPush.SlotType);
 		}
 
