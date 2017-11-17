@@ -62,16 +62,64 @@ double il2cpp_Remainder(double numer, double denom)
 	return remainder(numer, denom);
 }
 
+static int16_t il2cpp_fdtest(float *ptr)
+{
+	if ((*((uint16_t*)ptr + 1) & 0x7F80) == 0x7F80)
+	{
+		if (*((uint16_t*)ptr + 1) & 0x7F || *(uint16_t*)ptr)
+			return 2;
+		else
+			return 1;
+	}
+	else if (*((uint16_t*)ptr + 1) & 0x7FFF || *(uint16_t*)ptr)
+	{
+		if (*((uint16_t*)ptr + 1) & 0x7F80)
+			return -1;
+		else
+			return -2;
+	}
+	return 0;
+}
+
+static int16_t il2cpp_dtest(double *ptr)
+{
+	if ((*((uint16_t*)ptr + 3) & 0x7FF0) == 0x7FF0)
+	{
+		if (*((uint16_t*)ptr + 3) & 0xF || *(uint32_t*)((char*)ptr + 2) || *(uint16_t*)ptr)
+			return 2;
+		else
+			return 1;
+	}
+	else if (*((uint16_t*)ptr + 3) & 0x7FFF || *(uint32_t*)((char*)ptr + 2) || *(uint16_t*)ptr)
+	{
+		if (*((uint16_t*)ptr + 3) & 0x7FF0)
+			return -1;
+		else
+			return -2;
+	}
+	return 0;
+}
+
+static bool il2cpp_isfinite(float num)
+{
+	return il2cpp_fdtest(&num) <= 0;
+}
+
+static bool il2cpp_isfinite(double num)
+{
+	return il2cpp_dtest(&num) <= 0;
+}
+
 float il2cpp_Ckfinite(float num)
 {
-	if (IL2CPP_UNLIKELY(!isfinite(num)))
+	if (IL2CPP_UNLIKELY(!il2cpp_isfinite(num)))
 		met_4ObKN3_ThrowHelper__Throw_ArithmeticException();
 	return num;
 }
 
 double il2cpp_Ckfinite(double num)
 {
-	if (IL2CPP_UNLIKELY(!isfinite(num)))
+	if (IL2CPP_UNLIKELY(!il2cpp_isfinite(num)))
 		met_4ObKN3_ThrowHelper__Throw_ArithmeticException();
 	return num;
 }

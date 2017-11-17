@@ -1459,6 +1459,24 @@ namespace testcase
 			if (res != 0)
 				return res;
 
+			if (!float.IsNaN(float.NaN))
+				return 10;
+
+			if (!double.IsNaN(double.NaN))
+				return 11;
+
+			if (!float.IsPositiveInfinity(float.PositiveInfinity))
+				return 12;
+
+			if (!double.IsPositiveInfinity(double.PositiveInfinity))
+				return 13;
+
+			if (!float.IsNegativeInfinity(float.NegativeInfinity))
+				return 14;
+
+			if (!double.IsNegativeInfinity(double.NegativeInfinity))
+				return 15;
+
 			return 0;
 		}
 	}
