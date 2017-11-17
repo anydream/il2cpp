@@ -251,7 +251,7 @@ namespace test
 				{
 					if (strOut.IndexOf("warning") != -1)
 					{
-						Console.WriteLine("{0}", strOut);
+						Console.WriteLine("\n{0}", strOut);
 					}
 					if (strOut.IndexOf("error") != -1)
 					{

@@ -479,7 +479,7 @@ namespace BuildTheCode
 			foreach (string srcFile in srcFiles)
 			{
 				AddCompileUnit(unitMap, objSet, srcFile,
-					"-Wall -Wno-unused-function -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM");
+					"-Wall -Wno-unused-function -Wno-unused-variable -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM");
 			}
 			if (!ParallelCompile(unitMap))
 				return;
