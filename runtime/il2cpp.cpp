@@ -114,6 +114,36 @@ void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 	}
 }
 
+float il2cpp_NaNF()
+{
+	return -nanf("0");
+}
+
+float il2cpp_PosInfF()
+{
+	return INFINITY;
+}
+
+float il2cpp_NegInfF()
+{
+	return -INFINITY;
+}
+
+double il2cpp_NaND()
+{
+	return -nan("0");
+}
+
+double il2cpp_PosInfD()
+{
+	return INFINITY;
+}
+
+double il2cpp_NegInfD()
+{
+	return -INFINITY;
+}
+
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)
 {
@@ -220,6 +250,6 @@ void il2cpp_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLen)
 	void* ptr = (uint8_t*)&ary[1] + dataOffset + elemSize * idx;
 
 	IL2CPP_MEMSET(ptr, 0, elemSize * clearLen);
-	}
+}
 
 #endif

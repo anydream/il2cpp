@@ -24,6 +24,13 @@
 #define IL2CPP_UNLIKELY(x)					x
 #endif
 
+#define IL2CPP_NANF				il2cpp_NaNF()
+#define IL2CPP_POS_INFF			il2cpp_PosInfF()
+#define IL2CPP_NEG_INFF			il2cpp_NegInfF()
+#define IL2CPP_NAND				il2cpp_NaND()
+#define IL2CPP_POS_INFD			il2cpp_PosInfD()
+#define IL2CPP_NEG_INFD			il2cpp_NegInfD()
+
 #define IL2CPP_ASSERT(_x)		if (!(_x)) abort()
 #define IL2CPP_UNREACHABLE		abort
 #define IL2CPP_MEMCPY			memcpy
@@ -33,7 +40,6 @@
 #define IL2CPP_REMAINDER		il2cpp_Remainder
 #define IL2CPP_CKFINITE			il2cpp_Ckfinite
 #define IL2CPP_SZARRAY_LEN(_x)	il2cpp_SZArray__LoadLength((cls_System_Array*)(_x))
-
 #define IL2CPP_CALL_ONCE		il2cpp_CallOnce
 #define IL2CPP_THROW(_ex)		throw il2cppException(_ex)
 
@@ -60,6 +66,13 @@ double il2cpp_Ckfinite(double num);
 void il2cpp_Yield();
 uintptr_t il2cpp_ThreadID();
 void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
+
+float il2cpp_NaNF();
+float il2cpp_PosInfF();
+float il2cpp_NegInfF();
+double il2cpp_NaND();
+double il2cpp_PosInfD();
+double il2cpp_NegInfD();
 
 struct cls_System_Array;
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary);

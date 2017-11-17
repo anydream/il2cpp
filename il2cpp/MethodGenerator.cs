@@ -2747,11 +2747,11 @@ namespace il2cpp
 		private static string RealToString(float num)
 		{
 			if (float.IsNaN(num))
-				return "nan";
+				return "IL2CPP_NANF";
 			else if (float.IsPositiveInfinity(num))
-				return "+inf";
+				return "IL2CPP_POS_INFF";
 			else if (float.IsNegativeInfinity(num))
-				return "-inf";
+				return "IL2CPP_NEG_INFF";
 			else
 				return AddFloatPostfix(num.ToString("R"));
 		}
@@ -2759,11 +2759,11 @@ namespace il2cpp
 		private static string RealToString(double num)
 		{
 			if (double.IsNaN(num))
-				return "nan";
+				return "IL2CPP_NAND";
 			else if (double.IsPositiveInfinity(num))
-				return "+inf";
+				return "IL2CPP_POS_INFD";
 			else if (double.IsNegativeInfinity(num))
-				return "-inf";
+				return "IL2CPP_NEG_INFD";
 			else
 				return num.ToString("R");
 		}
