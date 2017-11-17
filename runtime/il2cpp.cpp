@@ -64,14 +64,14 @@ double il2cpp_Remainder(double numer, double denom)
 
 float il2cpp_Ckfinite(float num)
 {
-	if (IL2CPP_UNLIKELY(isfinite(num)))
+	if (IL2CPP_UNLIKELY(!isfinite(num)))
 		met_4ObKN3_ThrowHelper__Throw_ArithmeticException();
 	return num;
 }
 
 double il2cpp_Ckfinite(double num)
 {
-	if (IL2CPP_UNLIKELY(isfinite(num)))
+	if (IL2CPP_UNLIKELY(!isfinite(num)))
 		met_4ObKN3_ThrowHelper__Throw_ArithmeticException();
 	return num;
 }
