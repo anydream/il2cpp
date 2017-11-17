@@ -37,6 +37,44 @@ void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef)
 	return obj;
 }
 
+void il2cpp_Yield()
+{
+#if defined(_WIN32)
+	Sleep(0);
+#else
+	sched_yield();
+#endif
+}
+
+uintptr_t il2cpp_ThreadID()
+{
+#if defined(_WIN32)
+	return (uintptr_t)GetCurrentThreadId();
+#else
+	return (uintptr_t)gettid();
+#endif
+}
+
+void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
+{
+	if (IL2CPP_UNLIKELY(onceFlag != -1))
+	{
+		if (IL2CPP_ATOMIC_CAS(&onceFlag, 0, 1) == 0)
+		{
+			lockTid = il2cpp_ThreadID();
+			invokeFunc();
+			IL2CPP_ATOMIC_CAS(&onceFlag, 1, -1);
+		}
+		else if (lockTid != il2cpp_ThreadID())
+		{
+			while (onceFlag != -1)
+				il2cpp_Yield();
+		}
+		else if (onceFlag != 1)
+			IL2CPP_UNREACHABLE();
+	}
+}
+
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 {
 	if (index < lowerBound || index >= lowerBound + length)
@@ -110,6 +148,7 @@ static bool il2cpp_isfinite(double num)
 	return il2cpp_dtest(&num) <= 0;
 }
 
+#if defined(IL2CPP_BRIDGE_HAS_cls_il2cpprt_ThrowHelper)
 float il2cpp_Ckfinite(float num)
 {
 	if (IL2CPP_UNLIKELY(!il2cpp_isfinite(num)))
@@ -123,44 +162,7 @@ double il2cpp_Ckfinite(double num)
 		met_4ObKN3_ThrowHelper__Throw_ArithmeticException();
 	return num;
 }
-
-void il2cpp_Yield()
-{
-#if defined(_WIN32)
-	Sleep(0);
-#else
-	sched_yield();
 #endif
-}
-
-uintptr_t il2cpp_ThreadID()
-{
-#if defined(_WIN32)
-	return (uintptr_t)GetCurrentThreadId();
-#else
-	return (uintptr_t)gettid();
-#endif
-}
-
-void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
-{
-	if (IL2CPP_UNLIKELY(onceFlag != -1))
-	{
-		if (IL2CPP_ATOMIC_CAS(&onceFlag, 0, 1) == 0)
-		{
-			lockTid = il2cpp_ThreadID();
-			invokeFunc();
-			IL2CPP_ATOMIC_CAS(&onceFlag, 1, -1);
-		}
-		else if (lockTid != il2cpp_ThreadID())
-		{
-			while (onceFlag != -1)
-				il2cpp_Yield();
-		}
-		else if (onceFlag != 1)
-			IL2CPP_UNREACHABLE();
-	}
-}
 
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)

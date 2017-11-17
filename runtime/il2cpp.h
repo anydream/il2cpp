@@ -52,15 +52,7 @@ struct il2cppException
 };
 
 void il2cpp_Init();
-
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
-void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
-void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);
-float il2cpp_Remainder(float numer, float denom);
-double il2cpp_Remainder(double numer, double denom);
-float il2cpp_Ckfinite(float num);
-double il2cpp_Ckfinite(double num);
-
 void il2cpp_Yield();
 uintptr_t il2cpp_ThreadID();
 void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
@@ -76,6 +68,13 @@ inline double il2cpp_NaND()
 	uint64_t n = 0xFFF8000000000000;
 	return *(double*)&n;
 }
+
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);
+float il2cpp_Remainder(float numer, float denom);
+double il2cpp_Remainder(double numer, double denom);
+float il2cpp_Ckfinite(float num);
+double il2cpp_Ckfinite(double num);
 
 struct cls_System_Array;
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary);
