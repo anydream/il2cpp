@@ -177,7 +177,6 @@ void il2cpp_ThrowOverflow()
 {
 	met_aBjyT3_ThrowHelper__Throw_OverflowException();
 }
-#endif
 
 template <>
 uint64_t il2cpp_ConvOverflow<uint64_t>(double from)
@@ -197,6 +196,7 @@ int64_t il2cpp_ConvOverflow<int64_t>(double from)
 		il2cpp_ThrowOverflow();
 	return to;
 }
+#endif
 
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)
