@@ -45,7 +45,7 @@ namespace il2cpp
 				return OpCode + " " + str;
 			}
 
-			return OpCode + " " + Operand;
+			return OpCode + " " + Operand + ' ';
 		}
 	}
 

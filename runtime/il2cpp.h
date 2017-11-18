@@ -263,15 +263,16 @@ inline ToType il2cpp_ConvOverflow(FromType from)
 	ToType to = (ToType)from;
 	if ((std::numeric_limits<ToType>::min() == 0 && from < 0) ||
 		(from < std::numeric_limits<ToType>::min()) ||
-		(from > std::numeric_limits<ToType>::max()) ||
-		(from < 0 && to > 0) ||
-		(from > 0 && to < 0))
+		(from > std::numeric_limits<ToType>::max()))
 		il2cpp_ThrowOverflow();
 	return to;
 }
 
 template <>
 uint64_t il2cpp_ConvOverflow<uint64_t>(double from);
+
+template <>
+int64_t il2cpp_ConvOverflow<int64_t>(double from);
 
 void il2cpp_Trap();
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);

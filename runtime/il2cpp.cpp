@@ -187,6 +187,17 @@ uint64_t il2cpp_ConvOverflow<uint64_t>(double from)
 	return (uint64_t)from;
 }
 
+template <>
+int64_t il2cpp_ConvOverflow<int64_t>(double from)
+{
+	int64_t to = (int64_t)from;
+	if ((from < INT64_MIN) ||
+		(from > INT64_MAX) ||
+		(to == INT64_MIN))
+		il2cpp_ThrowOverflow();
+	return to;
+}
+
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)
 {
