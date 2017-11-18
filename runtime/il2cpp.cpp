@@ -209,6 +209,16 @@ static bool il2cpp_SubOverflow(T lhs, T rhs, T &result)
 #endif
 }
 
+template <class T>
+static bool il2cpp_MulOverflow(T lhs, T rhs, T &result)
+{
+#if __has_builtin(__builtin_mul_overflow)
+	return __builtin_mul_overflow(lhs, rhs, &result);
+#else
+
+#endif
+}
+
 #if defined(IL2CPP_BRIDGE_HAS_cls_il2cpprt_ThrowHelper)
 template <class T>
 static T il2cpp_AddOverflow(T lhs, T rhs)
@@ -224,6 +234,15 @@ static T il2cpp_SubOverflow(T lhs, T rhs)
 {
 	T result;
 	if (IL2CPP_UNLIKELY(il2cpp_SubOverflow(lhs, rhs, result)))
+		met_aBjyT3_ThrowHelper__Throw_OverflowException();
+	return result;
+}
+
+template <class T>
+static T il2cpp_MulOverflow(T lhs, T rhs)
+{
+	T result;
+	if (IL2CPP_UNLIKELY(il2cpp_MulOverflow(lhs, rhs, result)))
 		met_aBjyT3_ThrowHelper__Throw_OverflowException();
 	return result;
 }
@@ -266,6 +285,26 @@ uint32_t il2cpp_SubOvfUn(uint32_t lhs, uint32_t rhs)
 uint64_t il2cpp_SubOvfUn(uint64_t lhs, uint64_t rhs)
 {
 	return il2cpp_SubOverflow(lhs, rhs);
+}
+
+int32_t il2cpp_MulOvf(int32_t lhs, int32_t rhs)
+{
+	return il2cpp_MulOverflow(lhs, rhs);
+}
+
+int64_t il2cpp_MulOvf(int64_t lhs, int64_t rhs)
+{
+	return il2cpp_MulOverflow(lhs, rhs);
+}
+
+uint32_t il2cpp_MulOvfUn(uint32_t lhs, uint32_t rhs)
+{
+	return il2cpp_MulOverflow(lhs, rhs);
+}
+
+uint64_t il2cpp_MulOvfUn(uint64_t lhs, uint64_t rhs)
+{
+	return il2cpp_MulOverflow(lhs, rhs);
 }
 #endif
 
