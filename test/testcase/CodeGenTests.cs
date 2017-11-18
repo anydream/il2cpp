@@ -3725,123 +3725,364 @@ namespace testcase
 			return 0;
 		}
 
-		static int CheckedAdd(int a, int b)
+		static int LoopAddOvf(byte lhs, byte rhs)
 		{
-			return checked(a + b);
-		}
-
-		static long CheckedAdd(long a, long b)
-		{
-			return checked(a + b);
-		}
-
-		static uint CheckedAddUn(uint a, uint b)
-		{
-			return checked(a + b);
-		}
-
-		static ulong CheckedAddUn(ulong a, ulong b)
-		{
-			return checked(a + b);
-		}
-
-		static int CheckedSub(int a, int b)
-		{
-			return checked(a - b);
-		}
-
-		static long CheckedSub(long a, long b)
-		{
-			return checked(a - b);
-		}
-
-		static uint CheckedSubUn(uint a, uint b)
-		{
-			return checked(a - b);
-		}
-
-		static ulong CheckedSubUn(ulong a, ulong b)
-		{
-			return checked(a - b);
-		}
-
-		static int TestOpOverflow()
-		{
+			int counter = 0;
 			try
 			{
-				CheckedAdd(int.MaxValue, 1);
+				checked
+				{
+					for (; ; )
+					{
+						lhs = (byte)(lhs + rhs);
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopAddOvf(ushort lhs, ushort rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = (ushort)(lhs + rhs);
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopAddOvf(short lhs, short rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = (short)(lhs + rhs);
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopAddOvf(int lhs, int rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs + rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopAddOvf(uint lhs, uint rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs + rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopAddOvf(long lhs, long rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs + rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopAddOvf(ulong lhs, ulong rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs + rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopSubOvf(byte lhs, byte rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = (byte)(lhs - rhs);
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopSubOvf(ushort lhs, ushort rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = (ushort)(lhs - rhs);
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopSubOvf(short lhs, short rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = (short)(lhs - rhs);
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopSubOvf(int lhs, int rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs - rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopSubOvf(uint lhs, uint rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs - rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopSubOvf(long lhs, long rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs - rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopSubOvf(ulong lhs, ulong rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs - rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int TestOverflow()
+		{
+			int res = LoopAddOvf((byte)120, (byte)1);
+			if (res != 135)
 				return 1;
-			}
-			catch (OverflowException)
-			{
-			}
-
-			try
-			{
-				CheckedAdd(long.MaxValue - 1, 2);
+			res = LoopAddOvf((byte)0, (byte)1);
+			if (res != 255)
 				return 2;
-			}
-			catch (OverflowException)
-			{
-			}
-
-			try
-			{
-				CheckedAddUn(uint.MaxValue - 1, 2);
+			res = LoopAddOvf((ushort)32760, (ushort)1);
+			if (res != 32775)
 				return 3;
-			}
-			catch (OverflowException)
-			{
-			}
-
-			try
-			{
-				CheckedAddUn(ulong.MaxValue, 1);
+			res = LoopAddOvf((ushort)0, (ushort)1);
+			if (res != 65535)
 				return 4;
-			}
-			catch (OverflowException)
-			{
-			}
-
-			CheckedAddUn(0, ulong.MaxValue);
-
-			try
-			{
-				CheckedSub(int.MinValue, 1);
+			res = LoopAddOvf((short)0, (short)1);
+			if (res != 32767)
 				return 5;
-			}
-			catch (OverflowException)
-			{
-			}
-
-			try
-			{
-				CheckedSub(long.MinValue, long.MaxValue);
+			res = LoopAddOvf((short)0, (short)-1);
+			if (res != 32768)
 				return 6;
-			}
-			catch (OverflowException)
-			{
-			}
 
-			try
-			{
-				CheckedSubUn(uint.MinValue, uint.MaxValue);
+			res = LoopAddOvf((int)int.MaxValue - 1234, 1);
+			if (res != 1234)
 				return 7;
-			}
-			catch (OverflowException)
-			{
-			}
-
-			try
-			{
-				CheckedSubUn(ulong.MinValue, 1);
+			res = LoopAddOvf((int)int.MinValue + 456, -1);
+			if (res != 456)
 				return 8;
-			}
-			catch (OverflowException)
-			{
-			}
+			res = LoopAddOvf((uint)uint.MaxValue - 1234, 1);
+			if (res != 1234)
+				return 9;
+			res = LoopAddOvf((long)long.MaxValue - 1234, 1);
+			if (res != 1234)
+				return 10;
+			res = LoopAddOvf((long)long.MinValue + 456, -1);
+			if (res != 456)
+				return 11;
+			res = LoopAddOvf((ulong)ulong.MaxValue - 1234, 1);
+			if (res != 1234)
+				return 12;
 
-			CheckedSub(long.MinValue, long.MinValue);
+
+			res = LoopSubOvf((byte)120, (byte)1);
+			if (res != 120)
+				return 21;
+			res = LoopSubOvf((byte)0, (byte)1);
+			if (res != 0)
+				return 22;
+			res = LoopSubOvf((ushort)32760, (ushort)1);
+			if (res != 32760)
+				return 23;
+			res = LoopSubOvf((ushort)0, (ushort)1);
+			if (res != 0)
+				return 24;
+			res = LoopSubOvf((short)12345, (short)1);
+			if (res != 45113)
+				return 25;
+			res = LoopSubOvf((short)12345, (short)-1);
+			if (res != 20422)
+				return 26;
+
+			res = LoopSubOvf((int)int.MinValue + 456, 1);
+			if (res != 456)
+				return 27;
+			res = LoopSubOvf((int)int.MaxValue - 789, -1);
+			if (res != 789)
+				return 28;
+			res = LoopSubOvf((uint)uint.MinValue + 1234, 1);
+			if (res != 1234)
+				return 29;
+			res = LoopSubOvf((long)long.MinValue + 1234, 1);
+			if (res != 1234)
+				return 30;
+			res = LoopSubOvf((long)long.MaxValue - 456, -1);
+			if (res != 456)
+				return 31;
+			res = LoopSubOvf((ulong)ulong.MinValue + 1234, 1);
+			if (res != 1234)
+				return 32;
 
 			return 0;
 		}
@@ -3870,9 +4111,7 @@ namespace testcase
 			if (!double.IsNegativeInfinity(double.NegativeInfinity))
 				return 15;
 
-			res = TestOpOverflow();
-			if (res != 0)
-				return 20 + res;
+			res = TestOverflow();
 
 			res = OVFTestAdd.Entry();
 			if (res != 0)
