@@ -1453,6 +1453,85 @@ namespace testcase
 			return 0;
 		}
 
+		static int CheckedAdd(int a, int b)
+		{
+			return checked(a + b);
+		}
+
+		static long CheckedAdd(long a, long b)
+		{
+			return checked(a + b);
+		}
+
+		static uint CheckedAddUn(uint a, uint b)
+		{
+			return checked(a + b);
+		}
+
+		static ulong CheckedAddUn(ulong a, ulong b)
+		{
+			return checked(a + b);
+		}
+
+		static int TestOpOverflow()
+		{
+			bool ok = false;
+			try
+			{
+				CheckedAdd(int.MaxValue, 1);
+			}
+			catch (OverflowException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 1;
+
+			ok = false;
+			try
+			{
+				CheckedAdd(long.MaxValue - 1, 2);
+			}
+			catch (OverflowException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 2;
+
+			ok = false;
+			try
+			{
+				CheckedAddUn(uint.MaxValue - 1, 2);
+			}
+			catch (OverflowException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 3;
+
+			ok = false;
+			try
+			{
+				CheckedAddUn(ulong.MaxValue, 1);
+			}
+			catch (OverflowException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 4;
+
+			CheckedAddUn(0, ulong.MaxValue);
+
+			return 0;
+		}
+
 		public static int Entry()
 		{
 			int res = TestCkfinite();
@@ -1476,6 +1555,10 @@ namespace testcase
 
 			if (!double.IsNegativeInfinity(double.NegativeInfinity))
 				return 15;
+
+			res = TestOpOverflow();
+			if (res != 0)
+				return 20 + res;
 
 			return 0;
 		}
