@@ -3,9 +3,6 @@
 #define NOMINMAX
 
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 #include <limits>
 
 #ifndef __has_builtin
