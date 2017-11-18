@@ -181,7 +181,7 @@ void il2cpp_ThrowOverflow()
 template <>
 uint64_t il2cpp_ConvOverflow<uint64_t>(double from)
 {
-	if (from < 0 || from > INT64_MAX)
+	if (from < 0 || from >= UINT64_MAX)
 		il2cpp_ThrowOverflow();
 	return (uint64_t)from;
 }
@@ -195,6 +195,15 @@ int64_t il2cpp_ConvOverflow<int64_t>(double from)
 		(to == INT64_MIN))
 		il2cpp_ThrowOverflow();
 	return to;
+}
+
+template <>
+int32_t il2cpp_ConvOverflow<int32_t>(double from)
+{
+	if (((int64_t)from < INT32_MIN) ||
+		((int64_t)from > INT32_MAX))
+		il2cpp_ThrowOverflow();
+	return (int32_t)from;
 }
 #endif
 
