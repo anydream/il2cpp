@@ -1334,6 +1334,68 @@ namespace il2cpp
 					GenConv(inst, StackType.Ptr, "uintptr_t");
 					return;
 
+				case Code.Conv_Ovf_I1:
+					GenConvOvf(inst, StackType.I4, "int8_t");
+					return;
+				case Code.Conv_Ovf_I2:
+					GenConvOvf(inst, StackType.I4, "int16_t");
+					return;
+				case Code.Conv_Ovf_I4:
+					GenConvOvf(inst, StackType.I4, "int32_t");
+					return;
+				case Code.Conv_Ovf_I8:
+					GenConvOvf(inst, StackType.I8, "int64_t");
+					return;
+				case Code.Conv_Ovf_U1:
+					GenConvOvf(inst, StackType.I4, "uint8_t");
+					return;
+				case Code.Conv_Ovf_U2:
+					GenConvOvf(inst, StackType.I4, "uint16_t");
+					return;
+				case Code.Conv_Ovf_U4:
+					GenConvOvf(inst, StackType.I4, "uint32_t");
+					return;
+				case Code.Conv_Ovf_U8:
+					GenConvOvf(inst, StackType.I8, "uint64_t");
+					return;
+				case Code.Conv_Ovf_I:
+					GenConvOvf(inst, StackType.Ptr, "intptr_t");
+					return;
+				case Code.Conv_Ovf_U:
+					GenConvOvf(inst, StackType.Ptr, "uintptr_t");
+					return;
+
+				case Code.Conv_Ovf_I1_Un:
+					GenConvOvf(inst, StackType.I4, "int8_t", true);
+					return;
+				case Code.Conv_Ovf_I2_Un:
+					GenConvOvf(inst, StackType.I4, "int16_t", true);
+					return;
+				case Code.Conv_Ovf_I4_Un:
+					GenConvOvf(inst, StackType.I4, "int32_t", true);
+					return;
+				case Code.Conv_Ovf_I8_Un:
+					GenConvOvf(inst, StackType.I8, "int64_t", true);
+					return;
+				case Code.Conv_Ovf_U1_Un:
+					GenConvOvf(inst, StackType.I4, "uint8_t", true);
+					return;
+				case Code.Conv_Ovf_U2_Un:
+					GenConvOvf(inst, StackType.I4, "uint16_t", true);
+					return;
+				case Code.Conv_Ovf_U4_Un:
+					GenConvOvf(inst, StackType.I4, "uint32_t", true);
+					return;
+				case Code.Conv_Ovf_U8_Un:
+					GenConvOvf(inst, StackType.I8, "uint64_t", true);
+					return;
+				case Code.Conv_Ovf_I_Un:
+					GenConvOvf(inst, StackType.Ptr, "intptr_t", true);
+					return;
+				case Code.Conv_Ovf_U_Un:
+					GenConvOvf(inst, StackType.Ptr, "uintptr_t", true);
+					return;
+
 				case Code.Add:
 					GenBinOp(inst, " + ");
 					return;
@@ -1672,6 +1734,22 @@ namespace il2cpp
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
 				(cast != null ? '(' + cast + ')' : null) + TempName(slotPop),
+				stype);
+		}
+
+		private void GenConvOvf(InstInfo inst, StackType stype, string cast, bool isUnsigned = false)
+		{
+			Debug.Assert(cast != null);
+
+			var slotPop = Pop();
+			var slotPush = Push(stype);
+
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				string.Format("IL2CPP_CONV_OVF({0}, {1}{2})",
+					cast,
+					isUnsigned ? '(' + slotPop.SlotType.GetUnsignedTypeName() + ')' : null,
+					TempName(slotPop)),
 				stype);
 		}
 
