@@ -504,9 +504,9 @@ namespace BuildTheCode
 			// 替换实现
 			if (!Helper.PatchTextFile(optedFile, str =>
 			{
-				if (str.Length > 0 && str[0] != '@')
+				if (str.Length > 0 && str[0] != '@' && str[0] != '$')
 				{
-					return str.Replace("@calloc", "@_il2cpp_GC_PatchCalloc");
+					return str.Replace(" @calloc(", " @_il2cpp_GC_PatchCalloc(");
 				}
 				return str;
 			}))
