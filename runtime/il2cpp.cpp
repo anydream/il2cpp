@@ -108,7 +108,7 @@ double il2cpp_Remainder(double numer, double denom)
 	return remainder(numer, denom);
 }
 
-static int16_t il2cpp_FDTest(float *ptr)
+inline int16_t il2cpp_FDTest(float *ptr)
 {
 	if ((*((uint16_t*)ptr + 1) & 0x7F80) == 0x7F80)
 	{
@@ -127,7 +127,7 @@ static int16_t il2cpp_FDTest(float *ptr)
 	return 0;
 }
 
-static int16_t il2cpp_DTest(double *ptr)
+inline int16_t il2cpp_DTest(double *ptr)
 {
 	if ((*((uint16_t*)ptr + 3) & 0x7FF0) == 0x7FF0)
 	{
@@ -146,12 +146,12 @@ static int16_t il2cpp_DTest(double *ptr)
 	return 0;
 }
 
-static bool il2cpp_IsFinite(float num)
+inline bool il2cpp_IsFinite(float num)
 {
 	return il2cpp_FDTest(&num) <= 0;
 }
 
-static bool il2cpp_IsFinite(double num)
+inline bool il2cpp_IsFinite(double num)
 {
 	return il2cpp_DTest(&num) <= 0;
 }
@@ -176,141 +176,6 @@ double il2cpp_Ckfinite(double num)
 void il2cpp_ThrowOverflow()
 {
 	met_aBjyT3_ThrowHelper__Throw_OverflowException();
-}
-#endif
-
-template <class T>
-static int8_t il2cpp_SignFlag(T x)
-{
-	if (sizeof(T) == 1)
-		return int8_t(x) < 0;
-	if (sizeof(T) == 2)
-		return int16_t(x) < 0;
-	if (sizeof(T) == 4)
-		return int32_t(x) < 0;
-	return int64_t(x) < 0;
-}
-
-template <class T>
-static bool il2cpp_AddOverflow(T lhs, T rhs, T &result)
-{
-#if __has_builtin(__builtin_add_overflow)
-	return __builtin_add_overflow(lhs, rhs, &result);
-#else
-	result = lhs + rhs;
-	int8_t sx = il2cpp_SignFlag(lhs);
-	return ((1 ^ sx) ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs + rhs));
-#endif
-}
-
-template <class T>
-static bool il2cpp_SubOverflow(T lhs, T rhs, T &result)
-{
-#if __has_builtin(__builtin_sub_overflow)
-	return __builtin_sub_overflow(lhs, rhs, &result);
-#else
-	result = lhs - rhs;
-	int8_t sx = il2cpp_SignFlag(lhs);
-	return (sx ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs - rhs));
-#endif
-}
-
-template <class T>
-static bool il2cpp_MulOverflow(T lhs, T rhs, T &result)
-{
-#if __has_builtin(__builtin_mul_overflow)
-	return __builtin_mul_overflow(lhs, rhs, &result);
-#else
-
-#endif
-}
-
-#if defined(IL2CPP_BRIDGE_HAS_cls_il2cpprt_ThrowHelper)
-template <class T>
-static T il2cpp_AddOverflow(T lhs, T rhs)
-{
-	T result;
-	if (IL2CPP_UNLIKELY(il2cpp_AddOverflow(lhs, rhs, result)))
-		met_aBjyT3_ThrowHelper__Throw_OverflowException();
-	return result;
-}
-
-template <class T>
-static T il2cpp_SubOverflow(T lhs, T rhs)
-{
-	T result;
-	if (IL2CPP_UNLIKELY(il2cpp_SubOverflow(lhs, rhs, result)))
-		met_aBjyT3_ThrowHelper__Throw_OverflowException();
-	return result;
-}
-
-template <class T>
-static T il2cpp_MulOverflow(T lhs, T rhs)
-{
-	T result;
-	if (IL2CPP_UNLIKELY(il2cpp_MulOverflow(lhs, rhs, result)))
-		met_aBjyT3_ThrowHelper__Throw_OverflowException();
-	return result;
-}
-
-int32_t il2cpp_AddOvf(int32_t lhs, int32_t rhs)
-{
-	return il2cpp_AddOverflow(lhs, rhs);
-}
-
-int64_t il2cpp_AddOvf(int64_t lhs, int64_t rhs)
-{
-	return il2cpp_AddOverflow(lhs, rhs);
-}
-
-uint32_t il2cpp_AddOvfUn(uint32_t lhs, uint32_t rhs)
-{
-	return il2cpp_AddOverflow(lhs, rhs);
-}
-
-uint64_t il2cpp_AddOvfUn(uint64_t lhs, uint64_t rhs)
-{
-	return il2cpp_AddOverflow(lhs, rhs);
-}
-
-int32_t il2cpp_SubOvf(int32_t lhs, int32_t rhs)
-{
-	return il2cpp_SubOverflow(lhs, rhs);
-}
-
-int64_t il2cpp_SubOvf(int64_t lhs, int64_t rhs)
-{
-	return il2cpp_SubOverflow(lhs, rhs);
-}
-
-uint32_t il2cpp_SubOvfUn(uint32_t lhs, uint32_t rhs)
-{
-	return il2cpp_SubOverflow(lhs, rhs);
-}
-
-uint64_t il2cpp_SubOvfUn(uint64_t lhs, uint64_t rhs)
-{
-	return il2cpp_SubOverflow(lhs, rhs);
-}
-
-int32_t il2cpp_MulOvf(int32_t lhs, int32_t rhs)
-{
-	return il2cpp_MulOverflow(lhs, rhs);
-}
-
-int64_t il2cpp_MulOvf(int64_t lhs, int64_t rhs)
-{
-	return il2cpp_MulOverflow(lhs, rhs);
-}
-
-uint32_t il2cpp_MulOvfUn(uint32_t lhs, uint32_t rhs)
-{
-	return il2cpp_MulOverflow(lhs, rhs);
-}
-
-uint64_t il2cpp_MulOvfUn(uint64_t lhs, uint64_t rhs)
-{
-	return il2cpp_MulOverflow(lhs, rhs);
 }
 #endif
 

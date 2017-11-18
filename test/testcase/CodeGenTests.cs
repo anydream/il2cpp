@@ -1367,6 +1367,583 @@ namespace testcase
 		}
 	}
 
+	internal class OVFTestAdd
+	{
+		private static sbyte Test_sbyte(sbyte a)
+		{
+			checked
+			{
+				return (sbyte)(a + a);
+			}
+		}
+
+		private static byte Test_byte(byte a)
+		{
+			checked
+			{
+				return (byte)(a + a);
+
+			}
+		}
+
+		private static short Test_short(short a)
+		{
+			checked
+			{
+				return (short)(a + a);
+			}
+		}
+
+		private static ushort Test_ushort(ushort a)
+		{
+			checked
+			{
+				return (ushort)(a + a);
+			}
+		}
+
+		private static int Test_int(int a)
+		{
+			checked
+			{
+				return a + a;
+			}
+		}
+
+		private static uint Test_uint(uint a)
+		{
+			checked
+			{
+				return a + a;
+			}
+		}
+
+		private static long Test_long(long a)
+		{
+			checked
+			{
+				return a + a;
+			}
+		}
+
+		private static ulong Test_ulong(ulong a)
+		{
+			checked
+			{
+				return a + a;
+			}
+		}
+
+		public static int Entry()
+		{
+			try
+			{
+				byte a = Test_byte((byte)(1 + byte.MaxValue / 2));
+				return 1;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				sbyte a = Test_sbyte((sbyte)(1 + sbyte.MaxValue / 2));
+				return 2;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				short a = Test_short((short)(1 + short.MaxValue / 2));
+				return 3;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				ushort a = Test_ushort((ushort)(1 + ushort.MaxValue / 2));
+				return 4;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				int a = Test_int((int)(1 + int.MaxValue / 2));
+				return 5;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				uint a = Test_uint((uint)(1U + uint.MaxValue / 2U));
+				return 6;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				long a = Test_long((long)(1L + long.MaxValue / 2L));
+				return 7;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				ulong a = Test_ulong((ulong)(1UL + ulong.MaxValue / 2UL));
+				return 8;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			return 0;
+		}
+	}
+
+	internal class OVFTestSub
+	{
+		private static sbyte Test_sbyte(sbyte a)
+		{
+			checked
+			{
+				return (sbyte)(-1 - a - a);
+			}
+		}
+
+		private static byte Test_byte(byte a)
+		{
+			checked
+			{
+				return (byte)(0 - a - a);
+			}
+		}
+
+		private static short Test_short(short a)
+		{
+			checked
+			{
+				return (short)(-1 - a - a);
+			}
+		}
+
+		private static ushort Test_ushort(ushort a)
+		{
+			checked
+			{
+				return (ushort)(0 - a - a);
+			}
+		}
+
+		private static int Test_int(int a)
+		{
+			checked
+			{
+				return -1 - a - a;
+			}
+		}
+
+		private static uint Test_uint(uint a)
+		{
+			checked
+			{
+				return 0U - a - a;
+			}
+		}
+
+		private static long Test_long(long a)
+		{
+			checked
+			{
+				return -1L - a - a;
+			}
+		}
+
+		private static ulong Test_ulong(ulong a)
+		{
+			checked
+			{
+				return 0UL - a - a;
+			}
+		}
+
+		public static int Entry()
+		{
+			try
+			{
+				byte a = Test_byte((byte)(1 + byte.MaxValue / 2));
+				return 1;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				sbyte a = Test_sbyte((sbyte)(1 + sbyte.MaxValue / 2));
+				return 2;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				short a = Test_short((short)(1 + short.MaxValue / 2));
+				return 3;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				ushort a = Test_ushort((ushort)(1 + ushort.MaxValue / 2));
+				return 4;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				int a = Test_int((int)(1 + int.MaxValue / 2));
+				return 5;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				uint a = Test_uint((uint)(1U + uint.MaxValue / 2U));
+				return 6;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				long a = Test_long((long)(1L + long.MaxValue / 2L));
+				return 7;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				ulong a = Test_ulong((ulong)(1UL + ulong.MaxValue / 2UL));
+				return 8;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			return 0;
+		}
+	}
+
+	internal class OVFTestMul
+	{
+		private static sbyte Test_sbyte(sbyte a)
+		{
+			checked
+			{
+				return (sbyte)(a * 2);
+			}
+		}
+
+		private static byte Test_byte(byte a)
+		{
+			checked
+			{
+				return (byte)(a * 2);
+			}
+		}
+
+		private static short Test_short(short a)
+		{
+			checked
+			{
+				return (short)(a * 2);
+			}
+		}
+
+		private static ushort Test_ushort(ushort a)
+		{
+			checked
+			{
+				return (ushort)(a * 2);
+			}
+		}
+
+		private static int Test_int(int a)
+		{
+			checked
+			{
+				return a * 2;
+			}
+		}
+
+		private static uint Test_uint(uint a)
+		{
+			checked
+			{
+				return a * 2;
+			}
+		}
+
+		private static long Test_long(long a)
+		{
+			checked
+			{
+				return a * 2;
+			}
+		}
+
+		private static ulong Test_ulong(ulong a)
+		{
+			checked
+			{
+				return a * 2;
+			}
+		}
+
+		public static int Entry()
+		{
+			try
+			{
+				byte a = Test_byte((byte)(1 + byte.MaxValue / 2));
+				return 1;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				sbyte a = Test_sbyte((sbyte)(1 + sbyte.MaxValue / 2));
+				return 2;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				short a = Test_short((short)(1 + short.MaxValue / 2));
+				return 3;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				ushort a = Test_ushort((ushort)(1 + ushort.MaxValue / 2));
+				return 4;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				int a = Test_int((int)(1 + int.MaxValue / 2));
+				return 5;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				uint a = Test_uint((uint)(1U + uint.MaxValue / 2U));
+				return 6;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				long a = Test_long((long)(1L + long.MaxValue / 2L));
+				return 7;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				ulong a = Test_ulong((ulong)(1UL + ulong.MaxValue / 2UL));
+				return 8;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			return 0;
+		}
+	}
+
+	internal class OVFTestDiv
+	{
+		private static sbyte Test_sbyte(sbyte a)
+		{
+			checked
+			{
+				return (sbyte)(a / 0.5);
+			}
+		}
+
+		private static byte Test_byte(byte a)
+		{
+			checked
+			{
+				return (byte)(a / 0.5);
+			}
+		}
+
+		private static short Test_short(short a)
+		{
+			checked
+			{
+				return (short)(a / 0.5);
+			}
+		}
+
+		private static ushort Test_ushort(ushort a)
+		{
+			checked
+			{
+				return (ushort)(a / 0.5);
+			}
+		}
+
+		private static int Test_int(int a)
+		{
+			checked
+			{
+				return (int)(a / 0.5);
+			}
+		}
+
+		private static uint Test_uint(uint a)
+		{
+			checked
+			{
+				return (uint)(a / 0.5);
+			}
+		}
+
+		private static long Test_long(long a)
+		{
+			checked
+			{
+				return (long)(a / 0.5);
+			}
+		}
+
+		private static ulong Test_ulong(ulong a)
+		{
+			checked
+			{
+				return (ulong)(a / 0.5);
+			}
+		}
+
+		public static int Entry()
+		{
+			try
+			{
+				byte a = Test_byte((byte)(1 + byte.MaxValue / 2));
+				return 1;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				sbyte a = Test_sbyte((sbyte)(1 + sbyte.MaxValue / 2));
+				return 2;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				short a = Test_short((short)(1 + short.MaxValue / 2));
+				return 3;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				ushort a = Test_ushort((ushort)(1 + ushort.MaxValue / 2));
+				return 4;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				int a = Test_int((int)(1 + int.MaxValue / 2));
+				return 5;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				uint a = Test_uint((uint)(1U + uint.MaxValue / 2U));
+				return 6;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				long a = Test_long((long)(1L + long.MaxValue / 2L));
+				return 7;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			try
+			{
+				ulong a = Test_ulong((ulong)(1UL + ulong.MaxValue / 2UL));
+				return 8;
+			}
+			catch (System.OverflowException)
+			{
+			}
+
+			return 0;
+		}
+	}
+
 	[CodeGen]
 	static class TestInstExceptions
 	{
@@ -1575,6 +2152,10 @@ namespace testcase
 			res = TestOpOverflow();
 			if (res != 0)
 				return 20 + res;
+
+			res = OVFTestAdd.Entry();
+			if (res != 0)
+				return 30 + res;
 
 			return 0;
 		}

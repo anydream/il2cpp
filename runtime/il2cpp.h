@@ -31,29 +31,29 @@
 #define IL2CPP_UNLIKELY(_x)					_x
 #endif
 
-#define IL2CPP_NANF					il2cpp_NaNF()
-#define IL2CPP_NAND					il2cpp_NaND()
-#define IL2CPP_POS_INF				(1E+300 * 1E+300)
-#define IL2CPP_NEG_INF				(-IL2CPP_POS_INF)
-#define IL2CPP_ADD_OVF				il2cpp_AddOvf
-#define IL2CPP_ADD_OVF_UN			il2cpp_AddOvfUn
-#define IL2CPP_SUB_OVF				il2cpp_SubOvf
-#define IL2CPP_SUB_OVF_UN			il2cpp_SubOvfUn
-#define IL2CPP_MUL_OVF				il2cpp_MulOvf
-#define IL2CPP_MUL_OVF_UN			il2cpp_MulOvfUn
-#define IL2CPP_CONV_OVF(_to, _from)	il2cpp_ConvOvf<_to>(_from)
-
 #define IL2CPP_TRAP					il2cpp_Trap
 #define IL2CPP_ASSERT(_x)			if (!(_x)) IL2CPP_TRAP()
 #define IL2CPP_MEMCPY				memcpy
 #define IL2CPP_MEMSET				memset
 #define IL2CPP_NEW					il2cpp_New
+#define IL2CPP_CALL_ONCE			il2cpp_CallOnce
+#define IL2CPP_THROW(_ex)			throw il2cppException(_ex)
+
+#define IL2CPP_NANF					il2cpp_NaNF()
+#define IL2CPP_NAND					il2cpp_NaND()
+#define IL2CPP_POS_INF				(1E+300 * 1E+300)
+#define IL2CPP_NEG_INF				(-IL2CPP_POS_INF)
+
 #define IL2CPP_CHECK_RANGE			il2cpp_CheckRange
 #define IL2CPP_REMAINDER			il2cpp_Remainder
 #define IL2CPP_CKFINITE				il2cpp_Ckfinite
+
+#define IL2CPP_ADD_OVF				il2cpp_AddOverflow
+#define IL2CPP_SUB_OVF				il2cpp_SubOverflow
+#define IL2CPP_MUL_OVF				il2cpp_MulOverflow
+#define IL2CPP_CONV_OVF(_to, _from)	il2cpp_ConvOverflow<_to>(_from)
+
 #define IL2CPP_SZARRAY_LEN(_x)		il2cpp_SZArray__LoadLength((cls_System_Array*)(_x))
-#define IL2CPP_CALL_ONCE			il2cpp_CallOnce
-#define IL2CPP_THROW(_ex)			throw il2cppException(_ex)
 
 struct cls_Object;
 
@@ -83,8 +83,81 @@ inline double il2cpp_NaND()
 	return *(double*)&n;
 }
 
+template <class T>
+inline int8_t il2cpp_SignFlag(T x)
+{
+	if (sizeof(T) == 1)
+		return int8_t(x) < 0;
+	if (sizeof(T) == 2)
+		return int16_t(x) < 0;
+	if (sizeof(T) == 4)
+		return int32_t(x) < 0;
+	return int64_t(x) < 0;
+}
+
+template <class T>
+inline bool il2cpp_AddOverflow(T lhs, T rhs, T &result)
+{
+#if __has_builtin(__builtin_add_overflow)
+	return __builtin_add_overflow(lhs, rhs, &result);
+#else
+	result = lhs + rhs;
+	int8_t sx = il2cpp_SignFlag(lhs);
+	return ((1 ^ sx) ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs + rhs));
+#endif
+}
+
+template <class T>
+inline bool il2cpp_SubOverflow(T lhs, T rhs, T &result)
+{
+#if __has_builtin(__builtin_sub_overflow)
+	return __builtin_sub_overflow(lhs, rhs, &result);
+#else
+	result = lhs - rhs;
+	int8_t sx = il2cpp_SignFlag(lhs);
+	return (sx ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs - rhs));
+#endif
+}
+
+template <class T>
+inline bool il2cpp_MulOverflow(T lhs, T rhs, T &result)
+{
+#if __has_builtin(__builtin_mul_overflow)
+	return __builtin_mul_overflow(lhs, rhs, &result);
+#else
+
+#endif
+}
+
+template <class T>
+inline T il2cpp_AddOverflow(T lhs, T rhs)
+{
+	T result;
+	if (IL2CPP_UNLIKELY(il2cpp_AddOverflow(lhs, rhs, result)))
+		il2cpp_ThrowOverflow();
+	return result;
+}
+
+template <class T>
+inline T il2cpp_SubOverflow(T lhs, T rhs)
+{
+	T result;
+	if (IL2CPP_UNLIKELY(il2cpp_SubOverflow(lhs, rhs, result)))
+		il2cpp_ThrowOverflow();
+	return result;
+}
+
+template <class T>
+inline T il2cpp_MulOverflow(T lhs, T rhs)
+{
+	T result;
+	if (IL2CPP_UNLIKELY(il2cpp_MulOverflow(lhs, rhs, result)))
+		il2cpp_ThrowOverflow();
+	return result;
+}
+
 template <class ToType, class FromType>
-inline ToType il2cpp_ConvOvf(FromType from)
+inline ToType il2cpp_ConvOverflow(FromType from)
 {
 	if ((std::numeric_limits<ToType>::min() == 0 && from < 0) ||
 		from < std::numeric_limits<ToType>::min() ||
@@ -101,18 +174,6 @@ double il2cpp_Remainder(double numer, double denom);
 float il2cpp_Ckfinite(float num);
 double il2cpp_Ckfinite(double num);
 void il2cpp_ThrowOverflow();
-int32_t il2cpp_AddOvf(int32_t lhs, int32_t rhs);
-int64_t il2cpp_AddOvf(int64_t lhs, int64_t rhs);
-uint32_t il2cpp_AddOvfUn(uint32_t lhs, uint32_t rhs);
-uint64_t il2cpp_AddOvfUn(uint64_t lhs, uint64_t rhs);
-int32_t il2cpp_SubOvf(int32_t lhs, int32_t rhs);
-int64_t il2cpp_SubOvf(int64_t lhs, int64_t rhs);
-uint32_t il2cpp_SubOvfUn(uint32_t lhs, uint32_t rhs);
-uint64_t il2cpp_SubOvfUn(uint64_t lhs, uint64_t rhs);
-int32_t il2cpp_MulOvf(int32_t lhs, int32_t rhs);
-int64_t il2cpp_MulOvf(int64_t lhs, int64_t rhs);
-uint32_t il2cpp_MulOvfUn(uint32_t lhs, uint32_t rhs);
-uint64_t il2cpp_MulOvfUn(uint64_t lhs, uint64_t rhs);
 
 struct cls_System_Array;
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary);

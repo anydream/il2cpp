@@ -1428,19 +1428,19 @@ namespace il2cpp
 					GenBinOpFunc(inst, "IL2CPP_ADD_OVF");
 					return;
 				case Code.Add_Ovf_Un:
-					GenBinOpFunc(inst, "IL2CPP_ADD_OVF_UN", true);
+					GenBinOpFunc(inst, "IL2CPP_ADD_OVF", true);
 					return;
 				case Code.Sub_Ovf:
 					GenBinOpFunc(inst, "IL2CPP_SUB_OVF");
 					return;
 				case Code.Sub_Ovf_Un:
-					GenBinOpFunc(inst, "IL2CPP_SUB_OVF_UN", true);
+					GenBinOpFunc(inst, "IL2CPP_SUB_OVF", true);
 					return;
 				case Code.Mul_Ovf:
 					GenBinOpFunc(inst, "IL2CPP_MUL_OVF");
 					return;
 				case Code.Mul_Ovf_Un:
-					GenBinOpFunc(inst, "IL2CPP_MUL_OVF_UN", true);
+					GenBinOpFunc(inst, "IL2CPP_MUL_OVF", true);
 					return;
 
 				case Code.And:
