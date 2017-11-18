@@ -2157,6 +2157,18 @@ namespace testcase
 			if (res != 0)
 				return 30 + res;
 
+			res = OVFTestSub.Entry();
+			if (res != 0)
+				return 40 + res;
+
+			res = OVFTestMul.Entry();
+			if (res != 0)
+				return 50 + res;
+
+			res = OVFTestDiv.Entry();
+			if (res != 0)
+				return 60 + res;
+
 			return 0;
 		}
 	}

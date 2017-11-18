@@ -55,6 +55,60 @@
 
 #define IL2CPP_SZARRAY_LEN(_x)		il2cpp_SZArray__LoadLength((cls_System_Array*)(_x))
 
+#define IL2CPP_CHECK_ADD_OVERFLOW(a,b) \
+	(int32_t)(b) >= 0 ? (int32_t)(INT32_MAX) - (int32_t)(b) < (int32_t)(a) ? -1 : 0	\
+	: (int32_t)(INT32_MIN) - (int32_t)(b) > (int32_t)(a) ? +1 : 0
+
+#define IL2CPP_CHECK_SUB_OVERFLOW(a,b) \
+	(int32_t)(b) < 0 ? (int32_t)(INT32_MAX) + (int32_t)(b) < (int32_t)(a) ? -1 : 0	\
+	: (int32_t)(INT32_MIN) + (int32_t)(b) > (int32_t)(a) ? +1 : 0
+
+#define IL2CPP_CHECK_ADD_OVERFLOW_UN(a,b) \
+	(uint32_t)(UINT32_MAX) - (uint32_t)(b) < (uint32_t)(a) ? -1 : 0
+
+#define IL2CPP_CHECK_SUB_OVERFLOW_UN(a,b) \
+	(uint32_t)(a) < (uint32_t)(b) ? -1 : 0
+
+#define IL2CPP_CHECK_ADD_OVERFLOW64(a,b) \
+	(int64_t)(b) >= 0 ? (int64_t)(INT64_MAX) - (int64_t)(b) < (int64_t)(a) ? -1 : 0	\
+	: (int64_t)(INT64_MIN) - (int64_t)(b) > (int64_t)(a) ? +1 : 0
+
+#define IL2CPP_CHECK_SUB_OVERFLOW64(a,b) \
+	(int64_t)(b) < 0 ? (int64_t)(INT64_MAX) + (int64_t)(b) < (int64_t)(a) ? -1 : 0	\
+	: (int64_t)(INT64_MIN) + (int64_t)(b) > (int64_t)(a) ? +1 : 0
+
+#define IL2CPP_CHECK_ADD_OVERFLOW64_UN(a,b) \
+	(uint64_t)(UINT64_MAX) - (uint64_t)(b) < (uint64_t)(a) ? -1 : 0
+
+#define IL2CPP_CHECK_SUB_OVERFLOW64_UN(a,b) \
+	(uint64_t)(a) < (uint64_t)(b) ? -1 : 0
+
+#define IL2CPP_CHECK_MUL_OVERFLOW(a,b) \
+	((int32_t)(a) == 0) || ((int32_t)(b) == 0) ? 0 : \
+	(((int32_t)(a) > 0) && ((int32_t)(b) == -1)) ? 0 : \
+	(((int32_t)(a) < 0) && ((int32_t)(b) == -1)) ? (a == - INT32_MAX) : \
+	(((int32_t)(a) > 0) && ((int32_t)(b) > 0)) ? (int32_t)(a) > ((INT32_MAX) / (int32_t)(b)) : \
+	(((int32_t)(a) > 0) && ((int32_t)(b) < 0)) ? (int32_t)(a) > ((INT32_MIN) / (int32_t)(b)) : \
+	(((int32_t)(a) < 0) && ((int32_t)(b) > 0)) ? (int32_t)(a) < ((INT32_MIN) / (int32_t)(b)) : \
+	(int32_t)(a) < ((INT32_MAX) / (int32_t)(b))
+
+#define IL2CPP_CHECK_MUL_OVERFLOW_UN(a,b) \
+	((uint32_t)(a) == 0) || ((uint32_t)(b) == 0) ? 0 : \
+	(uint32_t)(b) > ((UINT32_MAX) / (uint32_t)(a))
+
+#define IL2CPP_CHECK_MUL_OVERFLOW64(a,b) \
+	((int64_t)(a) == 0) || ((int64_t)(b) == 0) ? 0 : \
+	(((int64_t)(a) > 0) && ((int64_t)(b) == -1)) ? 0 : \
+	(((int64_t)(a) < 0) && ((int64_t)(b) == -1)) ? (a == - INT64_MAX) : \
+	(((int64_t)(a) > 0) && ((int64_t)(b) > 0)) ? (int64_t)(a) > ((INT64_MAX) / (int64_t)(b)) : \
+	(((int64_t)(a) > 0) && ((int64_t)(b) < 0)) ? (int64_t)(a) > ((INT64_MIN) / (int64_t)(b)) : \
+	(((int64_t)(a) < 0) && ((int64_t)(b) > 0)) ? (int64_t)(a) < ((INT64_MIN) / (int64_t)(b)) : \
+	(int64_t)(a) < ((INT64_MAX) / (int64_t)(b))
+
+#define IL2CPP_CHECK_MUL_OVERFLOW64_UN(a,b) \
+	((uint64_t)(a) == 0) || ((uint64_t)(b) == 0) ? 0 : \
+	(uint64_t)(b) > ((UINT64_MAX) / (uint64_t)(a))
+
 struct cls_Object;
 
 struct il2cppDummy {};
@@ -83,16 +137,24 @@ inline double il2cpp_NaND()
 	return *(double*)&n;
 }
 
-template <class T>
-inline int8_t il2cpp_SignFlag(T x)
+inline bool il2cpp_CheckAdd(int32_t lhs, int32_t rhs)
 {
-	if (sizeof(T) == 1)
-		return int8_t(x) < 0;
-	if (sizeof(T) == 2)
-		return int16_t(x) < 0;
-	if (sizeof(T) == 4)
-		return int32_t(x) < 0;
-	return int64_t(x) < 0;
+	return IL2CPP_CHECK_ADD_OVERFLOW(lhs, rhs);
+}
+
+inline bool il2cpp_CheckAdd(uint32_t lhs, uint32_t rhs)
+{
+	return IL2CPP_CHECK_ADD_OVERFLOW_UN(lhs, rhs);
+}
+
+inline bool il2cpp_CheckAdd(int64_t lhs, int64_t rhs)
+{
+	return IL2CPP_CHECK_ADD_OVERFLOW64(lhs, rhs);
+}
+
+inline bool il2cpp_CheckAdd(uint64_t lhs, uint64_t rhs)
+{
+	return IL2CPP_CHECK_ADD_OVERFLOW64_UN(lhs, rhs);
 }
 
 template <class T>
@@ -102,9 +164,28 @@ inline bool il2cpp_AddOverflow(T lhs, T rhs, T &result)
 	return __builtin_add_overflow(lhs, rhs, &result);
 #else
 	result = lhs + rhs;
-	int8_t sx = il2cpp_SignFlag(lhs);
-	return ((1 ^ sx) ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs + rhs));
+	return il2cpp_CheckAdd(lhs, rhs) != 0;
 #endif
+}
+
+inline bool il2cpp_CheckSub(int32_t lhs, int32_t rhs)
+{
+	return IL2CPP_CHECK_SUB_OVERFLOW(lhs, rhs);
+}
+
+inline bool il2cpp_CheckSub(uint32_t lhs, uint32_t rhs)
+{
+	return IL2CPP_CHECK_SUB_OVERFLOW_UN(lhs, rhs);
+}
+
+inline bool il2cpp_CheckSub(int64_t lhs, int64_t rhs)
+{
+	return IL2CPP_CHECK_SUB_OVERFLOW64(lhs, rhs);
+}
+
+inline bool il2cpp_CheckSub(uint64_t lhs, uint64_t rhs)
+{
+	return IL2CPP_CHECK_SUB_OVERFLOW64_UN(lhs, rhs);
 }
 
 template <class T>
@@ -114,9 +195,28 @@ inline bool il2cpp_SubOverflow(T lhs, T rhs, T &result)
 	return __builtin_sub_overflow(lhs, rhs, &result);
 #else
 	result = lhs - rhs;
-	int8_t sx = il2cpp_SignFlag(lhs);
-	return (sx ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs - rhs));
+	return il2cpp_CheckSub(lhs, rhs) != 0;
 #endif
+}
+
+inline bool il2cpp_CheckMul(int32_t lhs, int32_t rhs)
+{
+	return IL2CPP_CHECK_MUL_OVERFLOW(lhs, rhs);
+}
+
+inline bool il2cpp_CheckMul(uint32_t lhs, uint32_t rhs)
+{
+	return IL2CPP_CHECK_MUL_OVERFLOW_UN(lhs, rhs);
+}
+
+inline bool il2cpp_CheckMul(int64_t lhs, int64_t rhs)
+{
+	return IL2CPP_CHECK_MUL_OVERFLOW64(lhs, rhs);
+}
+
+inline bool il2cpp_CheckMul(uint64_t lhs, uint64_t rhs)
+{
+	return IL2CPP_CHECK_MUL_OVERFLOW64_UN(lhs, rhs);
 }
 
 template <class T>
@@ -125,7 +225,8 @@ inline bool il2cpp_MulOverflow(T lhs, T rhs, T &result)
 #if __has_builtin(__builtin_mul_overflow)
 	return __builtin_mul_overflow(lhs, rhs, &result);
 #else
-
+	result = lhs * rhs;
+	return il2cpp_CheckMul(lhs, rhs) != 0;
 #endif
 }
 
@@ -159,11 +260,14 @@ inline T il2cpp_MulOverflow(T lhs, T rhs)
 template <class ToType, class FromType>
 inline ToType il2cpp_ConvOverflow(FromType from)
 {
+	ToType to = (ToType)from;
 	if ((std::numeric_limits<ToType>::min() == 0 && from < 0) ||
-		from < std::numeric_limits<ToType>::min() ||
-		from > std::numeric_limits<ToType>::max())
+		(from < std::numeric_limits<ToType>::min()) ||
+		(from > std::numeric_limits<ToType>::max()) ||
+		(from < 0 && to > 0) ||
+		(from > 0 && to < 0))
 		il2cpp_ThrowOverflow();
-	return (ToType)from;
+	return to;
 }
 
 void il2cpp_Trap();
