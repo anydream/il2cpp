@@ -4145,6 +4145,170 @@ namespace testcase
 			return counter;
 		}
 
+		static int LoopConvInt(long num, long acc)
+		{
+			int counter = 0;
+			int result = 0;
+			try
+			{
+				for (; ; )
+				{
+					checked
+					{
+						result = (int)num;
+					}
+					num += acc;
+					counter++;
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			if (result == 0)
+				return -1;
+			return counter;
+		}
+
+		static int LoopConvInt(ulong num, ulong acc)
+		{
+			int counter = 0;
+			int result = 0;
+			try
+			{
+				for (; ; )
+				{
+					checked
+					{
+						result = (int)num;
+					}
+					num += acc;
+					counter++;
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			if (result == 0)
+				return -1;
+			return counter;
+		}
+
+		static int LoopConvInt(double num, double acc)
+		{
+			int counter = 0;
+			int result = 0;
+			try
+			{
+				for (; ; )
+				{
+					checked
+					{
+						result = (int)num;
+					}
+					num += acc;
+					counter++;
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			if (result == 0)
+				return -1;
+			return counter;
+		}
+
+		static int LoopConvLong(ulong num, ulong acc)
+		{
+			int counter = 0;
+			long result = 0;
+			try
+			{
+				for (; ; )
+				{
+					checked
+					{
+						result = (long)num;
+					}
+					num += acc;
+					counter++;
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			if (result == 0)
+				return -1;
+			return counter;
+		}
+
+		static int LoopConvLong(double num, double acc)
+		{
+			int counter = 0;
+			long result = 0;
+			try
+			{
+				for (; ; )
+				{
+					checked
+					{
+						result = (long)num;
+					}
+					num += acc;
+					counter++;
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			if (result == 0)
+				return -1;
+			return counter;
+		}
+
+		static int LoopConvULong(long num, long acc)
+		{
+			int counter = 0;
+			ulong result = 0;
+			try
+			{
+				for (; ; )
+				{
+					checked
+					{
+						result = (ulong)num;
+					}
+					num += acc;
+					counter++;
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopConvULong(double num, double acc)
+		{
+			int counter = 0;
+			ulong result = 0;
+			try
+			{
+				for (; ; )
+				{
+					checked
+					{
+						result = (ulong)num;
+					}
+					num += acc;
+					counter++;
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
 		static int TestOverflow()
 		{
 			int res = LoopAddOvf((byte)120, (byte)1);
@@ -4262,6 +4426,55 @@ namespace testcase
 			res = LoopMulOvf((ulong)1, 2);
 			if (res != 63)
 				return 52;
+
+
+			res = LoopConvInt((long)int.MaxValue - 500, 1);
+			if (res != 501)
+				return 60;
+			res = LoopConvInt((long)int.MinValue + 500, -1);
+			if (res != 501)
+				return 61;
+
+			res = LoopConvInt((ulong)int.MaxValue - 500, 1);
+			if (res != 501)
+				return 62;
+
+			res = LoopConvInt((double)int.MaxValue - 500, 0.5);
+			if (res != 1002)
+				return 63;
+			res = LoopConvInt((double)int.MinValue + 500, -0.5);
+			if (res != 1002)
+				return 64;
+
+
+			res = LoopConvLong((long)long.MaxValue - 500, 1);
+			if (res != 501)
+				return 65;
+
+			res = LoopConvLong((ulong)long.MaxValue - 500, 1);
+			if (res != 501)
+				return 66;
+
+			res = LoopConvLong((double)long.MaxValue - 9999999, 1000);
+			if (res != 9766)
+				return 67;
+			res = LoopConvLong((double)long.MinValue + 9999999, -5000);
+			if (res != 1954)
+				return 68;
+
+			res = LoopConvULong((long)1234, -1);
+			if (res != 1235)
+				return 69;
+			res = LoopConvULong(long.MaxValue - 999, 1);
+			if (res != 1000)
+				return 70;
+
+			res = LoopConvULong((double)1234, -1);
+			if (res != 1235)
+				return 71;
+			res = LoopConvULong((double)ulong.MaxValue - 9999999, 5000);
+			if (res != 2442)
+				return 72;
 
 			return 0;
 		}
