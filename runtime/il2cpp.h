@@ -80,6 +80,18 @@ float il2cpp_Remainder(float numer, float denom);
 double il2cpp_Remainder(double numer, double denom);
 float il2cpp_Ckfinite(float num);
 double il2cpp_Ckfinite(double num);
+int32_t il2cpp_AddOvf(int32_t lhs, int32_t rhs);
+int64_t il2cpp_AddOvf(int64_t lhs, int64_t rhs);
+uint32_t il2cpp_AddOvfUn(uint32_t lhs, uint32_t rhs);
+uint64_t il2cpp_AddOvfUn(uint64_t lhs, uint64_t rhs);
+int32_t il2cpp_SubOvf(int32_t lhs, int32_t rhs);
+int64_t il2cpp_SubOvf(int64_t lhs, int64_t rhs);
+uint32_t il2cpp_SubOvfUn(uint32_t lhs, uint32_t rhs);
+uint64_t il2cpp_SubOvfUn(uint64_t lhs, uint64_t rhs);
+int32_t il2cpp_MulOvf(int32_t lhs, int32_t rhs);
+int64_t il2cpp_MulOvf(int64_t lhs, int64_t rhs);
+uint32_t il2cpp_MulOvfUn(uint32_t lhs, uint32_t rhs);
+uint64_t il2cpp_MulOvfUn(uint64_t lhs, uint64_t rhs);
 
 struct cls_System_Array;
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary);

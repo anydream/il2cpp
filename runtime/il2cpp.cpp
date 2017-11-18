@@ -109,7 +109,7 @@ double il2cpp_Remainder(double numer, double denom)
 	return remainder(numer, denom);
 }
 
-static int16_t il2cpp_fdtest(float *ptr)
+static int16_t il2cpp_FDTest(float *ptr)
 {
 	if ((*((uint16_t*)ptr + 1) & 0x7F80) == 0x7F80)
 	{
@@ -128,7 +128,7 @@ static int16_t il2cpp_fdtest(float *ptr)
 	return 0;
 }
 
-static int16_t il2cpp_dtest(double *ptr)
+static int16_t il2cpp_DTest(double *ptr)
 {
 	if ((*((uint16_t*)ptr + 3) & 0x7FF0) == 0x7FF0)
 	{
@@ -147,31 +147,67 @@ static int16_t il2cpp_dtest(double *ptr)
 	return 0;
 }
 
-static bool il2cpp_isfinite(float num)
+static bool il2cpp_IsFinite(float num)
 {
-	return il2cpp_fdtest(&num) <= 0;
+	return il2cpp_FDTest(&num) <= 0;
 }
 
-static bool il2cpp_isfinite(double num)
+static bool il2cpp_IsFinite(double num)
 {
-	return il2cpp_dtest(&num) <= 0;
+	return il2cpp_DTest(&num) <= 0;
 }
 
 #if defined(IL2CPP_BRIDGE_HAS_cls_il2cpprt_ThrowHelper)
 float il2cpp_Ckfinite(float num)
 {
-	if (IL2CPP_UNLIKELY(!il2cpp_isfinite(num)))
+	if (IL2CPP_UNLIKELY(!il2cpp_IsFinite(num)))
 		met_4ObKN3_ThrowHelper__Throw_ArithmeticException();
 	return num;
 }
 
 double il2cpp_Ckfinite(double num)
 {
-	if (IL2CPP_UNLIKELY(!il2cpp_isfinite(num)))
+	if (IL2CPP_UNLIKELY(!il2cpp_IsFinite(num)))
 		met_4ObKN3_ThrowHelper__Throw_ArithmeticException();
 	return num;
 }
 #endif
+
+template <class T>
+static int8_t il2cpp_SignFlag(T x)
+{
+	if (sizeof(T) == 1)
+		return int8_t(x) < 0;
+	if (sizeof(T) == 2)
+		return int16_t(x) < 0;
+	if (sizeof(T) == 4)
+		return int32_t(x) < 0;
+	return int64_t(x) < 0;
+}
+
+template <class T>
+static bool il2cpp_SubOverflow(T lhs, T rhs, T &result)
+{
+#if __has_builtin(__builtin_sub_overflow)
+	return __builtin_sub_overflow(lhs, rhs, &result);
+#else
+	result = lhs - rhs;
+	int8_t sx = il2cpp_SignFlag(lhs);
+	return (sx ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs - rhs));
+#endif
+}
+
+template<class T>
+static bool il2cpp_AddOverflow(T lhs, T rhs, T &result)
+{
+#if __has_builtin(__builtin_add_overflow)
+	return __builtin_add_overflow(lhs, rhs, &result);
+#else
+	result = lhs + rhs;
+	int8_t sx = il2cpp_SignFlag(lhs);
+	return ((1 ^ sx) ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs + rhs));
+#endif
+}
 
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)
