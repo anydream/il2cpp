@@ -253,6 +253,26 @@ namespace il2cpp
 				case Code.Sub_Ovf_Un:
 				case Code.Mul_Ovf:
 				case Code.Mul_Ovf_Un:
+				case Code.Conv_Ovf_I1:
+				case Code.Conv_Ovf_I2:
+				case Code.Conv_Ovf_I4:
+				case Code.Conv_Ovf_I8:
+				case Code.Conv_Ovf_U1:
+				case Code.Conv_Ovf_U2:
+				case Code.Conv_Ovf_U4:
+				case Code.Conv_Ovf_U8:
+				case Code.Conv_Ovf_I:
+				case Code.Conv_Ovf_U:
+				case Code.Conv_Ovf_I1_Un:
+				case Code.Conv_Ovf_I2_Un:
+				case Code.Conv_Ovf_I4_Un:
+				case Code.Conv_Ovf_I8_Un:
+				case Code.Conv_Ovf_U1_Un:
+				case Code.Conv_Ovf_U2_Un:
+				case Code.Conv_Ovf_U4_Un:
+				case Code.Conv_Ovf_U8_Un:
+				case Code.Conv_Ovf_I_Un:
+				case Code.Conv_Ovf_U_Un:
 					ResolveExceptionType("OverflowException");
 					return;
 			}

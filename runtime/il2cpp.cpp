@@ -173,6 +173,13 @@ double il2cpp_Ckfinite(double num)
 }
 #endif
 
+#if defined(IL2CPP_BRIDGE_HAS_cls_il2cpprt_ThrowHelper)
+void il2cpp_ThrowOverflow()
+{
+	met_aBjyT3_ThrowHelper__Throw_OverflowException();
+}
+#endif
+
 template <class T>
 static int8_t il2cpp_SignFlag(T x)
 {
