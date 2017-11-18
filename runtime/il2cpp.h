@@ -32,6 +32,12 @@
 #define IL2CPP_NAND				il2cpp_NaND()
 #define IL2CPP_POS_INF			(1E+300 * 1E+300)
 #define IL2CPP_NEG_INF			(-IL2CPP_POS_INF)
+#define IL2CPP_ADD_OVF			il2cpp_AddOvf
+#define IL2CPP_ADD_OVF_UN		il2cpp_AddOvfUn
+#define IL2CPP_SUB_OVF			il2cpp_SubOvf
+#define IL2CPP_SUB_OVF_UN		il2cpp_SubOvfUn
+#define IL2CPP_MUL_OVF			il2cpp_MulOvf
+#define IL2CPP_MUL_OVF_UN		il2cpp_MulOvfUn
 
 #define IL2CPP_TRAP				il2cpp_Trap
 #define IL2CPP_ASSERT(_x)		if (!(_x)) IL2CPP_TRAP()

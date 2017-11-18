@@ -246,6 +246,15 @@ namespace il2cpp
 				case Code.Ckfinite:
 					ResolveExceptionType("ArithmeticException");
 					return;
+
+				case Code.Add_Ovf:
+				case Code.Add_Ovf_Un:
+				case Code.Sub_Ovf:
+				case Code.Sub_Ovf_Un:
+				case Code.Mul_Ovf:
+				case Code.Mul_Ovf_Un:
+					ResolveExceptionType("OverflowException");
+					return;
 			}
 		}
 

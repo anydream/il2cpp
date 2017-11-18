@@ -186,6 +186,18 @@ static int8_t il2cpp_SignFlag(T x)
 }
 
 template <class T>
+static bool il2cpp_AddOverflow(T lhs, T rhs, T &result)
+{
+#if __has_builtin(__builtin_add_overflow)
+	return __builtin_add_overflow(lhs, rhs, &result);
+#else
+	result = lhs + rhs;
+	int8_t sx = il2cpp_SignFlag(lhs);
+	return ((1 ^ sx) ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs + rhs));
+#endif
+}
+
+template <class T>
 static bool il2cpp_SubOverflow(T lhs, T rhs, T &result)
 {
 #if __has_builtin(__builtin_sub_overflow)
@@ -197,17 +209,65 @@ static bool il2cpp_SubOverflow(T lhs, T rhs, T &result)
 #endif
 }
 
-template<class T>
-static bool il2cpp_AddOverflow(T lhs, T rhs, T &result)
+#if defined(IL2CPP_BRIDGE_HAS_cls_il2cpprt_ThrowHelper)
+template <class T>
+static T il2cpp_AddOverflow(T lhs, T rhs)
 {
-#if __has_builtin(__builtin_add_overflow)
-	return __builtin_add_overflow(lhs, rhs, &result);
-#else
-	result = lhs + rhs;
-	int8_t sx = il2cpp_SignFlag(lhs);
-	return ((1 ^ sx) ^ il2cpp_SignFlag(rhs)) & (sx ^ il2cpp_SignFlag(lhs + rhs));
-#endif
+	T result;
+	if (IL2CPP_UNLIKELY(il2cpp_AddOverflow(lhs, rhs, result)))
+		met_aBjyT3_ThrowHelper__Throw_OverflowException();
+	return result;
 }
+
+template <class T>
+static T il2cpp_SubOverflow(T lhs, T rhs)
+{
+	T result;
+	if (IL2CPP_UNLIKELY(il2cpp_SubOverflow(lhs, rhs, result)))
+		met_aBjyT3_ThrowHelper__Throw_OverflowException();
+	return result;
+}
+
+int32_t il2cpp_AddOvf(int32_t lhs, int32_t rhs)
+{
+	return il2cpp_AddOverflow(lhs, rhs);
+}
+
+int64_t il2cpp_AddOvf(int64_t lhs, int64_t rhs)
+{
+	return il2cpp_AddOverflow(lhs, rhs);
+}
+
+uint32_t il2cpp_AddOvfUn(uint32_t lhs, uint32_t rhs)
+{
+	return il2cpp_AddOverflow(lhs, rhs);
+}
+
+uint64_t il2cpp_AddOvfUn(uint64_t lhs, uint64_t rhs)
+{
+	return il2cpp_AddOverflow(lhs, rhs);
+}
+
+int32_t il2cpp_SubOvf(int32_t lhs, int32_t rhs)
+{
+	return il2cpp_SubOverflow(lhs, rhs);
+}
+
+int64_t il2cpp_SubOvf(int64_t lhs, int64_t rhs)
+{
+	return il2cpp_SubOverflow(lhs, rhs);
+}
+
+uint32_t il2cpp_SubOvfUn(uint32_t lhs, uint32_t rhs)
+{
+	return il2cpp_SubOverflow(lhs, rhs);
+}
+
+uint64_t il2cpp_SubOvfUn(uint64_t lhs, uint64_t rhs)
+{
+	return il2cpp_SubOverflow(lhs, rhs);
+}
+#endif
 
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)

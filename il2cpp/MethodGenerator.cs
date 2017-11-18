@@ -1363,16 +1363,22 @@ namespace il2cpp
 					return;
 
 				case Code.Add_Ovf:
+					GenBinOpFunc(inst, "IL2CPP_ADD_OVF");
 					return;
 				case Code.Add_Ovf_Un:
+					GenBinOpFunc(inst, "IL2CPP_ADD_OVF_UN", true);
 					return;
 				case Code.Sub_Ovf:
+					GenBinOpFunc(inst, "IL2CPP_SUB_OVF");
 					return;
 				case Code.Sub_Ovf_Un:
+					GenBinOpFunc(inst, "IL2CPP_SUB_OVF_UN", true);
 					return;
 				case Code.Mul_Ovf:
+					GenBinOpFunc(inst, "IL2CPP_MUL_OVF");
 					return;
 				case Code.Mul_Ovf_Un:
+					GenBinOpFunc(inst, "IL2CPP_MUL_OVF_UN", true);
 					return;
 
 				case Code.And:
@@ -1821,6 +1827,18 @@ namespace il2cpp
 				return TempName(Pop()) + " == 0";
 		}
 
+		private void GenCkfinite(InstInfo inst)
+		{
+			var slotPop = Pop();
+			var slotPush = Push(slotPop.SlotType);
+			Debug.Assert(slotPop.SlotType.Kind == StackTypeKind.R4 || slotPop.SlotType.Kind == StackTypeKind.R8);
+
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				"IL2CPP_CKFINITE(" + TempName(slotPop) + ')',
+				slotPush.SlotType);
+		}
+
 		private void GenRem(InstInfo inst)
 		{
 			var slotPops = Pop(2);
@@ -1869,15 +1887,24 @@ namespace il2cpp
 				slotPush.SlotType);
 		}
 
-		private void GenCkfinite(InstInfo inst)
+		private void GenBinOpFunc(InstInfo inst, string func, bool isUnsigned = false)
 		{
-			var slotPop = Pop();
-			var slotPush = Push(slotPop.SlotType);
-			Debug.Assert(slotPop.SlotType.Kind == StackTypeKind.R4 || slotPop.SlotType.Kind == StackTypeKind.R8);
+			var slotPops = Pop(2);
+			var op1 = slotPops[0];
+			var op2 = slotPops[1];
 
+			if (!IsBinaryOpValid(op1.SlotType.Kind, op2.SlotType.Kind, out var retType, inst.OpCode.Code))
+				throw new InvalidOperationException();
+
+			var slotPush = Push(new StackType(retType));
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				"IL2CPP_CKFINITE(" + TempName(slotPop) + ')',
+				string.Format("{0}({1}{2}, {3}{4})",
+					func,
+					isUnsigned ? '(' + op1.SlotType.GetUnsignedTypeName() + ')' : null,
+					TempName(op1),
+					isUnsigned ? '(' + op2.SlotType.GetUnsignedTypeName() + ')' : null,
+					TempName(op2)),
 				slotPush.SlotType);
 		}
 
