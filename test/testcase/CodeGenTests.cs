@@ -439,6 +439,30 @@ namespace testcase
 			if (cls.strfld != "nice")
 				return 8;
 
+			string strRep = "adsf @calloc 1234";
+			if (strRep[6] != 'c' ||
+				strRep[7] != 'a' ||
+				strRep[8] != 'l' ||
+				strRep[9] != 'l' ||
+				strRep[10] != 'o' ||
+				strRep[11] != 'c' ||
+				strRep[12] != ' ')
+				return 9;
+
+			string strRep2 = "adsf  attributes # 1234";
+			if (strRep2[6] != 'a' ||
+				strRep2[7] != 't' ||
+				strRep2[8] != 't' ||
+				strRep2[9] != 'r' ||
+				strRep2[10] != 'i' ||
+				strRep2[11] != 'b' ||
+				strRep2[12] != 'u' ||
+				strRep2[13] != 't' ||
+				strRep2[14] != 'e' ||
+				strRep2[15] != 's' ||
+				strRep2[16] != ' ')
+				return 10;
+
 			return 0;
 		}
 	}

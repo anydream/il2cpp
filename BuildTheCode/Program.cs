@@ -55,15 +55,19 @@ namespace BuildTheCode
 			}
 		}
 
-		public static bool PatchTextFile(string file, string src, string dst)
+		public static bool PatchTextFile(string file, Func<string, string> CbReplace)
 		{
 			try
 			{
-				string content = File.ReadAllText(file, Encoding.UTF8);
-				if (content.IndexOf(src, StringComparison.Ordinal) == -1)
-					return true;
+				string[] contents = File.ReadAllLines(file, Encoding.UTF8);
 
-				content = content.Replace(src, dst);
+				for (int i = 0, sz = contents.Length; i < sz; ++i)
+				{
+					contents[i] = CbReplace(contents[i]);
+				}
+
+				string content = string.Join("\n", contents);
+
 				var buf = Encoding.UTF8.GetBytes(content);
 				File.WriteAllBytes(file, buf);
 
@@ -498,8 +502,17 @@ namespace BuildTheCode
 				return;
 
 			// 替换实现
-			if (!Helper.PatchTextFile(optedFile, "@calloc", "@_il2cpp_GC_PatchCalloc"))
+			if (!Helper.PatchTextFile(optedFile, str =>
+			{
+				if (str.Length > 0 && str[0] != '@')
+				{
+					return str.Replace("@calloc", "@_il2cpp_GC_PatchCalloc");
+				}
+				return str;
+			}))
+			{
 				return;
+			}
 
 			// 编译 GC
 			AddCompileUnit(unitMap, objSet,
@@ -637,8 +650,20 @@ namespace BuildTheCode
 			for (int i = 0; i < optCount; ++i)
 			{
 				// 注释掉待优化文件的 attributes 以防止破优化
-				if (!Helper.PatchTextFile(lastOptFile, "attributes #", ";"))
+				if (!Helper.PatchTextFile(lastOptFile, str =>
+				{
+					const string cmp = "attributes #";
+					if (str.Length > 0 &&
+						str[0] == cmp[0] &&
+						str.Substring(0, cmp.Length) == cmp)
+					{
+						return str.Replace("attributes #", ";");
+					}
+					return str;
+				}))
+				{
 					return null;
+				}
 
 				string optFile = Path.Combine(OutDir, "!opt_" + outNamePostfix + i + strExt);
 				CompileUnit optUnit = new CompileUnit(
