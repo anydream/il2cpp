@@ -4005,6 +4005,146 @@ namespace testcase
 			return counter;
 		}
 
+		static int LoopMulOvf(byte lhs, byte rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = (byte)(lhs * rhs);
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopMulOvf(ushort lhs, ushort rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = (ushort)(lhs * rhs);
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopMulOvf(short lhs, short rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = (short)(lhs * rhs);
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopMulOvf(int lhs, int rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs * rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopMulOvf(uint lhs, uint rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs * rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopMulOvf(long lhs, long rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs * rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
+		static int LoopMulOvf(ulong lhs, ulong rhs)
+		{
+			int counter = 0;
+			try
+			{
+				checked
+				{
+					for (; ; )
+					{
+						lhs = lhs * rhs;
+						counter++;
+					}
+				}
+			}
+			catch (OverflowException)
+			{
+			}
+			return counter;
+		}
+
 		static int TestOverflow()
 		{
 			int res = LoopAddOvf((byte)120, (byte)1);
@@ -4084,6 +4224,45 @@ namespace testcase
 			if (res != 1234)
 				return 32;
 
+
+			res = LoopMulOvf((byte)1, (byte)2);
+			if (res != 7)
+				return 41;
+			res = LoopMulOvf((byte)1, (byte)3);
+			if (res != 5)
+				return 42;
+			res = LoopMulOvf((ushort)1, (ushort)2);
+			if (res != 15)
+				return 43;
+			res = LoopMulOvf((ushort)1, (ushort)3);
+			if (res != 10)
+				return 44;
+			res = LoopMulOvf((short)1, (short)2);
+			if (res != 14)
+				return 45;
+			res = LoopMulOvf((short)1, (short)-2);
+			if (res != 15)
+				return 46;
+
+			res = LoopMulOvf((int)1, 2);
+			if (res != 30)
+				return 47;
+			res = LoopMulOvf((int)1, -2);
+			if (res != 31)
+				return 48;
+			res = LoopMulOvf((uint)1, 2);
+			if (res != 31)
+				return 49;
+			res = LoopMulOvf((long)1, -2);
+			if (res != 63)
+				return 50;
+			res = LoopMulOvf((long)1, 2);
+			if (res != 62)
+				return 51;
+			res = LoopMulOvf((ulong)1, 2);
+			if (res != 63)
+				return 52;
+
 			return 0;
 		}
 
@@ -4112,6 +4291,8 @@ namespace testcase
 				return 15;
 
 			res = TestOverflow();
+			if (res != 0)
+				return -res;
 
 			res = OVFTestAdd.Entry();
 			if (res != 0)
