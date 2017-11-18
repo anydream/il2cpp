@@ -1473,6 +1473,26 @@ namespace testcase
 			return checked(a + b);
 		}
 
+		static int CheckedSub(int a, int b)
+		{
+			return checked(a - b);
+		}
+
+		static long CheckedSub(long a, long b)
+		{
+			return checked(a - b);
+		}
+
+		static uint CheckedSubUn(uint a, uint b)
+		{
+			return checked(a - b);
+		}
+
+		static ulong CheckedSubUn(ulong a, ulong b)
+		{
+			return checked(a - b);
+		}
+
 		static int TestOpOverflow()
 		{
 			bool ok = false;
@@ -1528,6 +1548,60 @@ namespace testcase
 				return 4;
 
 			CheckedAddUn(0, ulong.MaxValue);
+
+			ok = false;
+			try
+			{
+				CheckedSub(int.MinValue, 1);
+			}
+			catch (OverflowException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 5;
+
+			ok = false;
+			try
+			{
+				CheckedSub(long.MinValue, long.MaxValue);
+			}
+			catch (OverflowException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 6;
+
+			ok = false;
+			try
+			{
+				CheckedSubUn(uint.MinValue, uint.MaxValue);
+			}
+			catch (OverflowException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 7;
+
+			ok = false;
+			try
+			{
+				CheckedSubUn(ulong.MinValue, 1);
+			}
+			catch (OverflowException)
+			{
+				ok = true;
+			}
+
+			if (!ok)
+				return 8;
+
+			CheckedSub(long.MinValue, long.MinValue);
 
 			return 0;
 		}
