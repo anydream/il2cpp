@@ -3732,7 +3732,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = (byte)(lhs + rhs);
 						counter++;
@@ -3752,7 +3752,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = (ushort)(lhs + rhs);
 						counter++;
@@ -3772,7 +3772,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = (short)(lhs + rhs);
 						counter++;
@@ -3792,7 +3792,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs + rhs;
 						counter++;
@@ -3812,7 +3812,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs + rhs;
 						counter++;
@@ -3832,7 +3832,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs + rhs;
 						counter++;
@@ -3852,7 +3852,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs + rhs;
 						counter++;
@@ -3872,7 +3872,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = (byte)(lhs - rhs);
 						counter++;
@@ -3892,7 +3892,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = (ushort)(lhs - rhs);
 						counter++;
@@ -3912,7 +3912,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = (short)(lhs - rhs);
 						counter++;
@@ -3932,7 +3932,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs - rhs;
 						counter++;
@@ -3952,7 +3952,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs - rhs;
 						counter++;
@@ -3972,7 +3972,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs - rhs;
 						counter++;
@@ -3992,7 +3992,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs - rhs;
 						counter++;
@@ -4012,7 +4012,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = (byte)(lhs * rhs);
 						counter++;
@@ -4032,7 +4032,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = (ushort)(lhs * rhs);
 						counter++;
@@ -4052,7 +4052,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = (short)(lhs * rhs);
 						counter++;
@@ -4072,7 +4072,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs * rhs;
 						counter++;
@@ -4092,7 +4092,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs * rhs;
 						counter++;
@@ -4112,7 +4112,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs * rhs;
 						counter++;
@@ -4132,7 +4132,7 @@ namespace testcase
 			{
 				checked
 				{
-					for (; ; )
+					for (int i = 0; i < 999999; ++i)
 					{
 						lhs = lhs * rhs;
 						counter++;
@@ -4151,7 +4151,7 @@ namespace testcase
 			int result = 0;
 			try
 			{
-				for (; ; )
+				for (int i = 0; i < 999999; ++i)
 				{
 					checked
 					{
@@ -4175,7 +4175,7 @@ namespace testcase
 			int result = 0;
 			try
 			{
-				for (; ; )
+				for (int i = 0; i < 999999; ++i)
 				{
 					checked
 					{
@@ -4199,7 +4199,7 @@ namespace testcase
 			int result = 0;
 			try
 			{
-				for (; ; )
+				for (int i = 0; i < 999999; ++i)
 				{
 					checked
 					{
@@ -4223,7 +4223,7 @@ namespace testcase
 			long result = 0;
 			try
 			{
-				for (; ; )
+				for (int i = 0; i < 999999; ++i)
 				{
 					checked
 					{
@@ -4247,7 +4247,7 @@ namespace testcase
 			long result = 0;
 			try
 			{
-				for (; ; )
+				for (int i = 0; i < 999999; ++i)
 				{
 					checked
 					{
@@ -4271,7 +4271,7 @@ namespace testcase
 			ulong result = 0;
 			try
 			{
-				for (; ; )
+				for (int i = 0; i < 999999; ++i)
 				{
 					checked
 					{
@@ -4293,7 +4293,7 @@ namespace testcase
 			ulong result = 0;
 			try
 			{
-				for (; ; )
+				for (int i = 0; i < 999999; ++i)
 				{
 					checked
 					{
@@ -4447,7 +4447,7 @@ namespace testcase
 				return 64;
 
 
-			res = LoopConvLong((long)long.MaxValue - 500, 1);
+			res = LoopConvLong(long.MaxValue - 500, 1);
 			if (res != 501)
 				return 65;
 

@@ -259,12 +259,11 @@ inline ToType il2cpp_ConvOverflow(FromType from)
 {
 	const bool isFromUnsigned = ((FromType)-1) > 0;
 
-	ToType to = (ToType)from;
 	if ((std::numeric_limits<ToType>::min() == 0 && from < 0) ||
 		(isFromUnsigned ? false : from < std::numeric_limits<ToType>::min()) ||
 		(from > std::numeric_limits<ToType>::max()))
 		il2cpp_ThrowOverflow();
-	return to;
+	return (ToType)from;
 }
 
 template <>
