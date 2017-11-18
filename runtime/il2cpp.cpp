@@ -1,15 +1,14 @@
-﻿#if defined(_WIN32)
+﻿#include "il2cpp.h"
+#include "il2cppGC.h"
+#include "il2cppBridge.h"
+#include <math.h>
+
+#if defined(_WIN32)
 #include <windows.h>
 #else
 #include <sys/types.h>
 #include <sched.h>
 #endif
-
-#include <math.h>
-
-#include "il2cpp.h"
-#include "il2cppGC.h"
-#include "il2cppBridge.h"
 
 void il2cpp_Init()
 {
