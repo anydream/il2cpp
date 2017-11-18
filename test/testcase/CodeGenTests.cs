@@ -1372,83 +1372,57 @@ namespace testcase
 	{
 		static int TestCkfinite()
 		{
-			bool ok = false;
 			try
 			{
 				TestInstructions.CkfiniteNaN();
+				return 1;
 			}
 			catch (ArithmeticException)
 			{
-				ok = true;
 			}
 
-			if (!ok)
-				return 1;
-
-			ok = false;
 			try
 			{
 				TestInstructions.CkfiniteNaND();
+				return 2;
 			}
 			catch (ArithmeticException)
 			{
-				ok = true;
 			}
 
-			if (!ok)
-				return 2;
-
-			ok = false;
 			try
 			{
 				TestInstructions.CkfinitePosInf();
+				return 3;
 			}
 			catch (ArithmeticException)
 			{
-				ok = true;
 			}
 
-			if (!ok)
-				return 3;
-
-			ok = false;
 			try
 			{
 				TestInstructions.CkfinitePosInfD();
+				return 4;
 			}
 			catch (ArithmeticException)
 			{
-				ok = true;
 			}
-
-			if (!ok)
-				return 4;
-
-			ok = false;
 			try
 			{
 				TestInstructions.CkfiniteNegInf();
+				return 5;
 			}
 			catch (ArithmeticException)
 			{
-				ok = true;
 			}
-
-			if (!ok)
-				return 5;
-
-			ok = false;
 			try
 			{
 				TestInstructions.CkfiniteNegInfD();
+				return 6;
 			}
 			catch (ArithmeticException)
 			{
-				ok = true;
 			}
-
-			if (!ok)
-				return 6;
 
 			return 0;
 		}
@@ -1495,111 +1469,79 @@ namespace testcase
 
 		static int TestOpOverflow()
 		{
-			bool ok = false;
 			try
 			{
 				CheckedAdd(int.MaxValue, 1);
+				return 1;
 			}
 			catch (OverflowException)
 			{
-				ok = true;
 			}
 
-			if (!ok)
-				return 1;
-
-			ok = false;
 			try
 			{
 				CheckedAdd(long.MaxValue - 1, 2);
+				return 2;
 			}
 			catch (OverflowException)
 			{
-				ok = true;
 			}
 
-			if (!ok)
-				return 2;
-
-			ok = false;
 			try
 			{
 				CheckedAddUn(uint.MaxValue - 1, 2);
+				return 3;
 			}
 			catch (OverflowException)
 			{
-				ok = true;
 			}
 
-			if (!ok)
-				return 3;
-
-			ok = false;
 			try
 			{
 				CheckedAddUn(ulong.MaxValue, 1);
+				return 4;
 			}
 			catch (OverflowException)
 			{
-				ok = true;
 			}
-
-			if (!ok)
-				return 4;
 
 			CheckedAddUn(0, ulong.MaxValue);
 
-			ok = false;
 			try
 			{
 				CheckedSub(int.MinValue, 1);
+				return 5;
 			}
 			catch (OverflowException)
 			{
-				ok = true;
 			}
 
-			if (!ok)
-				return 5;
-
-			ok = false;
 			try
 			{
 				CheckedSub(long.MinValue, long.MaxValue);
+				return 6;
 			}
 			catch (OverflowException)
 			{
-				ok = true;
 			}
 
-			if (!ok)
-				return 6;
-
-			ok = false;
 			try
 			{
 				CheckedSubUn(uint.MinValue, uint.MaxValue);
+				return 7;
 			}
 			catch (OverflowException)
 			{
-				ok = true;
 			}
 
-			if (!ok)
-				return 7;
-
-			ok = false;
 			try
 			{
 				CheckedSubUn(ulong.MinValue, 1);
+				return 8;
 			}
 			catch (OverflowException)
 			{
-				ok = true;
 			}
-
-			if (!ok)
-				return 8;
 
 			CheckedSub(long.MinValue, long.MinValue);
 
