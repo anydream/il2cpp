@@ -1325,7 +1325,7 @@ namespace il2cpp
 					GenConv(inst, StackType.R8, "double");
 					return;
 				case Code.Conv_R_Un:
-					GenConv(inst, StackType.R8, "uint32_t");
+					GenConvR_Un(inst);
 					return;
 				case Code.Conv_I:
 					GenConv(inst, StackType.Ptr, "intptr_t");
@@ -1735,6 +1735,17 @@ namespace il2cpp
 				TempName(slotPush),
 				(cast != null ? '(' + cast + ')' : null) + TempName(slotPop),
 				stype);
+		}
+
+		private void GenConvR_Un(InstInfo inst)
+		{
+			var slotPop = Pop();
+			var slotPush = Push(StackType.R8);
+
+			inst.InstCode = GenAssign(
+				TempName(slotPush),
+				'(' + slotPop.SlotType.GetUnsignedTypeName() + ')' + TempName(slotPop),
+				slotPush.SlotType);
 		}
 
 		private void GenConvOvf(InstInfo inst, StackType stype, string cast, bool isUnsigned = false)

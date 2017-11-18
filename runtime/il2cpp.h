@@ -270,6 +270,9 @@ inline ToType il2cpp_ConvOverflow(FromType from)
 	return to;
 }
 
+template <>
+uint64_t il2cpp_ConvOverflow<uint64_t>(double from);
+
 void il2cpp_Trap();
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);

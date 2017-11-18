@@ -179,6 +179,14 @@ void il2cpp_ThrowOverflow()
 }
 #endif
 
+template <>
+uint64_t il2cpp_ConvOverflow<uint64_t>(double from)
+{
+	if (from < 0 || from > INT64_MAX)
+		il2cpp_ThrowOverflow();
+	return (uint64_t)from;
+}
+
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
 int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)
 {
