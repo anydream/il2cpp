@@ -4561,6 +4561,173 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static class TestBitwise
+	{
+		static List<int> ShiftLeft(int num)
+		{
+			List<int> results = new List<int>();
+			while (num != 0)
+			{
+				num = num << 1;
+				results.Add(num);
+			}
+			return results;
+		}
+
+		static List<int> ShiftLeftUn(int num)
+		{
+			List<int> results = new List<int>();
+			while (num != 0)
+			{
+				num = (int)((uint)num << 1);
+				results.Add(num);
+			}
+			return results;
+		}
+
+		static List<int> ShiftRight(int num)
+		{
+			List<int> results = new List<int>();
+			while (num != 0 && num != -1)
+			{
+				num = num >> 1;
+				results.Add(num);
+			}
+			return results;
+		}
+
+		static List<int> ShiftRightUn(int num)
+		{
+			List<int> results = new List<int>();
+			while (num != 0)
+			{
+				num = (int)((uint)num >> 1);
+				results.Add(num);
+			}
+			return results;
+		}
+
+		static bool CheckLeft(List<int> lst)
+		{
+			if (lst.Count != 31) return false;
+
+			if (lst[0] != -2468) return false;
+			if (lst[1] != -4936) return false;
+			if (lst[2] != -9872) return false;
+			if (lst[3] != -19744) return false;
+			if (lst[4] != -39488) return false;
+			if (lst[5] != -78976) return false;
+			if (lst[6] != -157952) return false;
+			if (lst[7] != -315904) return false;
+			if (lst[8] != -631808) return false;
+			if (lst[9] != -1263616) return false;
+			if (lst[10] != -2527232) return false;
+			if (lst[11] != -5054464) return false;
+			if (lst[12] != -10108928) return false;
+			if (lst[13] != -20217856) return false;
+			if (lst[14] != -40435712) return false;
+			if (lst[15] != -80871424) return false;
+			if (lst[16] != -161742848) return false;
+			if (lst[17] != -323485696) return false;
+			if (lst[18] != -646971392) return false;
+			if (lst[19] != -1293942784) return false;
+			if (lst[20] != 1707081728) return false;
+			if (lst[21] != -880803840) return false;
+			if (lst[22] != -1761607680) return false;
+			if (lst[23] != 771751936) return false;
+			if (lst[24] != 1543503872) return false;
+			if (lst[25] != -1207959552) return false;
+			if (lst[26] != 1879048192) return false;
+			if (lst[27] != -536870912) return false;
+			if (lst[28] != -1073741824) return false;
+			if (lst[29] != -2147483648) return false;
+			if (lst[30] != 0) return false;
+
+			return true;
+		}
+
+		static bool CheckRight(List<int> lst)
+		{
+			if (lst.Count != 11) return false;
+
+			if (lst[0] != -617) return false;
+			if (lst[1] != -309) return false;
+			if (lst[2] != -155) return false;
+			if (lst[3] != -78) return false;
+			if (lst[4] != -39) return false;
+			if (lst[5] != -20) return false;
+			if (lst[6] != -10) return false;
+			if (lst[7] != -5) return false;
+			if (lst[8] != -3) return false;
+			if (lst[9] != -2) return false;
+			if (lst[10] != -1) return false;
+
+			return true;
+		}
+
+		static bool CheckRightUn(List<int> lst)
+		{
+			if (lst.Count != 32) return false;
+
+			if (lst[0] != 2147483031) return false;
+			if (lst[1] != 1073741515) return false;
+			if (lst[2] != 536870757) return false;
+			if (lst[3] != 268435378) return false;
+			if (lst[4] != 134217689) return false;
+			if (lst[5] != 67108844) return false;
+			if (lst[6] != 33554422) return false;
+			if (lst[7] != 16777211) return false;
+			if (lst[8] != 8388605) return false;
+			if (lst[9] != 4194302) return false;
+			if (lst[10] != 2097151) return false;
+			if (lst[11] != 1048575) return false;
+			if (lst[12] != 524287) return false;
+			if (lst[13] != 262143) return false;
+			if (lst[14] != 131071) return false;
+			if (lst[15] != 65535) return false;
+			if (lst[16] != 32767) return false;
+			if (lst[17] != 16383) return false;
+			if (lst[18] != 8191) return false;
+			if (lst[19] != 4095) return false;
+			if (lst[20] != 2047) return false;
+			if (lst[21] != 1023) return false;
+			if (lst[22] != 511) return false;
+			if (lst[23] != 255) return false;
+			if (lst[24] != 127) return false;
+			if (lst[25] != 63) return false;
+			if (lst[26] != 31) return false;
+			if (lst[27] != 15) return false;
+			if (lst[28] != 7) return false;
+			if (lst[29] != 3) return false;
+			if (lst[30] != 1) return false;
+			if (lst[31] != 0) return false;
+
+			return true;
+		}
+
+		public static int Entry()
+		{
+			var res = ShiftLeft(-1234);
+			if (!CheckLeft(res))
+				return 1;
+
+			res = ShiftLeftUn(-1234);
+			if (!CheckLeft(res))
+				return 2;
+
+			res = ShiftRight(-1234);
+			if (!CheckRight(res))
+				return 3;
+
+			res = ShiftRightUn(-1234);
+			if (!CheckRightUn(res))
+				return 4;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
 	static class TestNullable
 	{
 		struct MyStru
@@ -5837,7 +6004,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestInstExceptions.Entry();
+			TestBitwise.Entry();
 		}
 	}
 }
