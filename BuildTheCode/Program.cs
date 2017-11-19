@@ -464,6 +464,7 @@ namespace BuildTheCode
 		public string OptLevel = "-O3";
 		public int GenOptCount = 6;
 		public int FinalOptCount = 2;
+		public string AddCFlags = null;
 
 		public readonly string WorkDir;
 		public readonly string OutDir;
@@ -483,7 +484,7 @@ namespace BuildTheCode
 			foreach (string srcFile in srcFiles)
 			{
 				AddCompileUnit(unitMap, objSet, srcFile,
-					"-Wall -Wno-unused-function -Wno-unused-variable -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM");
+					"-Wall -Wno-unused-function -Wno-unused-variable -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM " + AddCFlags);
 			}
 			if (!ParallelCompile(unitMap))
 				return;
@@ -517,10 +518,10 @@ namespace BuildTheCode
 			// 编译 GC
 			AddCompileUnit(unitMap, objSet,
 				"bdwgc/extra/gc.c",
-				"-D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include");
+				"-D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include " + AddCFlags);
 			AddCompileUnit(unitMap, objSet,
 				"il2cppGC.cpp",
-				"-Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include");
+				"-Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include " + AddCFlags);
 			if (!ParallelCompile(unitMap))
 				return;
 
@@ -747,6 +748,7 @@ namespace BuildTheCode
 		static string OptLevel = "-O3";
 		static int GenOptCount = 6;
 		static int FinalOptCount = 2;
+		static string AddCFlags = null;
 
 		static List<string> ParseArgs(string[] args)
 		{
@@ -796,6 +798,12 @@ namespace BuildTheCode
 								int.TryParse(cmdArg, out FinalOptCount);
 							continue;
 						}
+						else if (cmd == "addcflags")
+						{
+							if (!string.IsNullOrEmpty(cmdArg))
+								AddCFlags = cmdArg;
+							continue;
+						}
 					}
 					i = currI;
 					Console.Error.WriteLine("Unknown command {0}", arg);
@@ -838,6 +846,7 @@ namespace BuildTheCode
 				make.OptLevel = OptLevel;
 				make.GenOptCount = GenOptCount;
 				make.FinalOptCount = FinalOptCount;
+				make.AddCFlags = AddCFlags;
 				make.Invoke(new HashSet<string>(srcFiles));
 			}
 			else
