@@ -172,8 +172,8 @@ namespace test
 			{
 				var attr = typeDef.CustomAttributes[0];
 				if (attr.AttributeType.Name == "CodeGenAttribute"
-					)
-				//&& typeDef.Name == "TestInstExceptions")
+				//)
+				&& typeDef.Name == "TestInstExceptions")
 				{
 					return typeDef.FindMethod("Entry");
 				}
@@ -258,7 +258,7 @@ namespace test
 						Console.WriteLine();
 						hasBuildErr = true;
 					}
-					else if (strOut.IndexOf(":") != -1)
+					else if (strOut.IndexOf(":") != -1 && strOut.IndexOf("Skipped:") == -1)
 						Console.Write(".");
 				}
 
