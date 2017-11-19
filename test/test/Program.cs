@@ -172,8 +172,8 @@ namespace test
 			{
 				var attr = typeDef.CustomAttributes[0];
 				if (attr.AttributeType.Name == "CodeGenAttribute"
-				//)
-				&& typeDef.Name == "TestInstExceptions")
+				)
+				//&& typeDef.Name == "TestInstExceptions")
 				{
 					return typeDef.FindMethod("Entry");
 				}
