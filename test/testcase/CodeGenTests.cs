@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using testInsts;
 
 namespace testcase
@@ -560,6 +561,43 @@ namespace testcase
 
 			if (!TestInPlace())
 				return 14;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
+	static unsafe class TestExplicitLayout
+	{
+		[StructLayout(LayoutKind.Explicit)]
+		struct Stru
+		{
+			[FieldOffset(0)] public char str;
+			[FieldOffset(12)] public int num;
+			[FieldOffset(12)] public short snum1;
+			[FieldOffset(14)] public short snum2;
+			[FieldOffset(16)] public float fnum;
+		}
+
+		public static int Entry()
+		{
+			Stru s = new Stru();
+			Stru* p = &s;
+
+			if ((byte*)&p->num - (byte*)p != 12)
+				return 1;
+
+			if ((byte*)&p->snum1 - (byte*)p != 12)
+				return 2;
+
+			if ((byte*)&p->snum2 - (byte*)p != 14)
+				return 3;
+
+			if ((byte*)&p->fnum - (byte*)p != 16)
+				return 4;
+
+			if ((byte*)&p->str - (byte*)p != 0)
+				return 5;
 
 			return 0;
 		}
@@ -5081,7 +5119,7 @@ namespace testcase
 
 			return 0;
 		}
-		
+
 		public static int Entry()
 		{
 			int res = TestList();
@@ -6013,7 +6051,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestBitwise.Entry();
+			TestExplicitLayout.Entry();
 		}
 	}
 }

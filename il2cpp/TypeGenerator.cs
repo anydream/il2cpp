@@ -87,15 +87,48 @@ namespace il2cpp
 					}
 				}
 
+				bool isExplicitLayout = CurrType.Def.IsExplicitLayout;
+				if (isExplicitLayout)
+				{
+					prtDecl.AppendLine("union\n{");
+					++prtDecl.Indents;
+				}
+
+				int fldCounter = 0;
+
 				// 生成字段
 				foreach (var fldX in fields)
 				{
 					RefValueTypeDecl(unit, fldX.FieldType);
 
+					bool isFieldExLayout = isExplicitLayout && fldX.Def.FieldOffset != 0;
+					if (isFieldExLayout)
+					{
+						prtDecl.AppendLine("struct\n{");
+						++prtDecl.Indents;
+						prtDecl.AppendFormatLine("uint8_t padding_{0}[{1}];",
+							fldCounter,
+							fldX.Def.FieldOffset);
+					}
+
 					prtDecl.AppendLine("// " + fldX.GetReplacedNameKey());
 					prtDecl.AppendFormatLine("{0} {1};",
 						GenContext.GetTypeName(fldX.FieldType),
 						GenContext.GetFieldName(fldX));
+
+					if (isFieldExLayout)
+					{
+						--prtDecl.Indents;
+						prtDecl.AppendLine("};");
+					}
+
+					++fldCounter;
+				}
+
+				if (isExplicitLayout)
+				{
+					--prtDecl.Indents;
+					prtDecl.AppendLine("};");
 				}
 
 				--prtDecl.Indents;
@@ -245,16 +278,13 @@ namespace il2cpp
 				fields.Sort((lhs, rhs) =>
 					GenContext.GetTypeLayoutOrder(rhs.FieldType).CompareTo(GenContext.GetTypeLayoutOrder(lhs.FieldType)));
 			}
-			else if (layoutType == TypeAttributes.SequentialLayout)
+			else if (layoutType == TypeAttributes.SequentialLayout ||
+					 layoutType == TypeAttributes.ExplicitLayout)
 			{
 				fields.Sort((lhs, rhs) => lhs.Def.Rid.CompareTo(rhs.Def.Rid));
 
 				for (int i = 0; i < fields.Count - 1; ++i)
 					Debug.Assert(fields[i].Def.Rid < fields[i + 1].Def.Rid);
-			}
-			else if (layoutType == TypeAttributes.ExplicitLayout)
-			{
-				throw new NotImplementedException();
 			}
 
 			return fields;
