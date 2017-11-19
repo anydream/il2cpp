@@ -1403,13 +1403,13 @@ namespace il2cpp
 					GenBinOpFunc(inst, "IL2CPP_SUB");
 					return;
 				case Code.Mul:
-					GenBinOp(inst, " * ");
+					GenBinOp(inst, "*");
 					return;
 				case Code.Div:
-					GenBinOp(inst, " / ");
+					GenBinOp(inst, "/");
 					return;
 				case Code.Div_Un:
-					GenBinOp(inst, " / ", true);
+					GenBinOp(inst, "/", true);
 					return;
 				case Code.Rem:
 					GenRem(inst);
@@ -1444,25 +1444,25 @@ namespace il2cpp
 					return;
 
 				case Code.And:
-					GenIntBinOp(inst, " & ");
+					GenIntBinOp(inst, "&");
 					return;
 				case Code.Or:
-					GenIntBinOp(inst, " | ");
+					GenIntBinOp(inst, "|");
 					return;
 				case Code.Xor:
-					GenIntBinOp(inst, " ^ ");
+					GenIntBinOp(inst, "^");
 					return;
 				case Code.Not:
 					GenIntUnaryOp(inst, "~");
 					return;
 				case Code.Shl:
-					GenShiftOp(inst, " << ");
+					GenShiftOp(inst, "<<");
 					return;
 				case Code.Shr:
-					GenShiftOp(inst, " >> ");
+					GenShiftOp(inst, ">>");
 					return;
 				case Code.Shr_Un:
-					GenShiftOp(inst, " >> ", true);
+					GenShiftOp(inst, ">>", true);
 					return;
 
 				case Code.Ldlen:
@@ -2067,7 +2067,10 @@ namespace il2cpp
 			var slotPush = Push(new StackType(retType));
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				'(' + TempName(op1) + op + TempName(op2) + ')',
+				string.Format("({0} {1} {2})",
+					TempName(op1),
+					op,
+					TempName(op2)),
 				slotPush.SlotType);
 		}
 
