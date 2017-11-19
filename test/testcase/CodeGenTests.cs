@@ -5032,7 +5032,7 @@ namespace testcase
 	[CodeGen]
 	static class TestContainer
 	{
-		public static int Entry()
+		static int TestList()
 		{
 			List<int> ilst = new List<int>() { 1, 2, 3 };
 			ilst.Add(123);
@@ -5078,6 +5078,15 @@ namespace testcase
 			ilst.RemoveRange(0, 2);
 			if (ilst.Count != 0)
 				return 8;
+
+			return 0;
+		}
+		
+		public static int Entry()
+		{
+			int res = TestList();
+			if (res != 0)
+				return res;
 
 			return 0;
 		}
