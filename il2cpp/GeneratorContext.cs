@@ -110,7 +110,6 @@ namespace il2cpp
 			"cls_Object",
 			"cls_String",
 			"cls_System_Array",
-			"cls_System_Exception",
 			"cls_il2cpprt_ThrowHelper",
 		};
 
