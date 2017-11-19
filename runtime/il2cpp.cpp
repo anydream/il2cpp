@@ -190,8 +190,8 @@ template <>
 int64_t il2cpp_ConvOverflow<int64_t>(double from)
 {
 	int64_t to = (int64_t)from;
-	if ((from < INT64_MIN) ||
-		(from > INT64_MAX) ||
+	if ((from < (double)INT64_MIN) ||
+		(from > (double)INT64_MAX) ||
 		(to == INT64_MIN))
 		il2cpp_ThrowOverflow();
 	return to;
