@@ -296,10 +296,10 @@ T il2cpp_MulOverflow(T lhs, T rhs)
 template <class ToType, class FromType>
 ToType il2cpp_ConvOverflow(FromType from)
 {
-	const bool isFromUnsigned = ((FromType)-1) > 0;
+	const bool isUnsignedFrom = std::is_unsigned<FromType>::value;
 
 	if ((std::numeric_limits<ToType>::min() == 0 && from < 0) ||
-		(isFromUnsigned ? false : from < std::numeric_limits<ToType>::min()) ||
+		(isUnsignedFrom ? false : from < std::numeric_limits<ToType>::min()) ||
 		(from > std::numeric_limits<ToType>::max()))
 		il2cpp_ThrowOverflow();
 	return (ToType)from;
