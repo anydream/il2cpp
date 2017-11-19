@@ -1397,10 +1397,10 @@ namespace il2cpp
 					return;
 
 				case Code.Add:
-					GenBinOp(inst, " + ");
+					GenBinOpFunc(inst, "IL2CPP_ADD");
 					return;
 				case Code.Sub:
-					GenBinOp(inst, " - ");
+					GenBinOpFunc(inst, "IL2CPP_SUB");
 					return;
 				case Code.Mul:
 					GenBinOp(inst, " * ");

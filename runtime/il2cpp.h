@@ -3,6 +3,7 @@
 #define NOMINMAX
 
 #include <stdint.h>
+#include <type_traits>
 #include <limits>
 
 #ifndef __has_builtin
@@ -45,6 +46,8 @@
 #define IL2CPP_REMAINDER			il2cpp_Remainder
 #define IL2CPP_CKFINITE				il2cpp_Ckfinite
 
+#define IL2CPP_ADD					il2cpp_SafeAdd
+#define IL2CPP_SUB					il2cpp_SafeSub
 #define IL2CPP_ADD_OVF				il2cpp_AddOverflow
 #define IL2CPP_SUB_OVF				il2cpp_SubOverflow
 #define IL2CPP_MUL_OVF				il2cpp_MulOverflow
@@ -134,6 +137,42 @@ inline double il2cpp_NaND()
 	return *(double*)&n;
 }
 
+template <class T, class = typename std::enable_if<std::is_integral<T>::value>::type>
+T il2cpp_SafeAdd(T lhs, T rhs)
+{
+	typedef typename std::make_unsigned<T>::type unsigned_t;
+	unsigned_t res = static_cast<unsigned_t>(lhs) + static_cast<unsigned_t>(rhs);
+	return static_cast<T>(res);
+}
+
+inline float il2cpp_SafeAdd(float lhs, float rhs)
+{
+	return lhs + rhs;
+}
+
+inline double il2cpp_SafeAdd(double lhs, double rhs)
+{
+	return lhs + rhs;
+}
+
+template <class T, class = typename std::enable_if<std::is_integral<T>::value>::type>
+T il2cpp_SafeSub(T lhs, T rhs)
+{
+	typedef typename std::make_unsigned<T>::type unsigned_t;
+	unsigned_t res = static_cast<unsigned_t>(lhs) - static_cast<unsigned_t>(rhs);
+	return static_cast<T>(res);
+}
+
+inline float il2cpp_SafeSub(float lhs, float rhs)
+{
+	return lhs - rhs;
+}
+
+inline double il2cpp_SafeSub(double lhs, double rhs)
+{
+	return lhs - rhs;
+}
+
 inline bool il2cpp_CheckAdd(int32_t lhs, int32_t rhs)
 {
 	return IL2CPP_CHECK_ADD_OVERFLOW(lhs, rhs);
@@ -155,12 +194,12 @@ inline bool il2cpp_CheckAdd(uint64_t lhs, uint64_t rhs)
 }
 
 template <class T>
-inline bool il2cpp_AddOverflow(T lhs, T rhs, T &result)
+bool il2cpp_AddOverflow(T lhs, T rhs, T &result)
 {
 #if __has_builtin(__builtin_add_overflow)
 	return __builtin_add_overflow(lhs, rhs, &result);
 #else
-	result = lhs + rhs;
+	result = IL2CPP_ADD(lhs, rhs);
 	return il2cpp_CheckAdd(lhs, rhs) != 0;
 #endif
 }
@@ -186,12 +225,12 @@ inline bool il2cpp_CheckSub(uint64_t lhs, uint64_t rhs)
 }
 
 template <class T>
-inline bool il2cpp_SubOverflow(T lhs, T rhs, T &result)
+bool il2cpp_SubOverflow(T lhs, T rhs, T &result)
 {
 #if __has_builtin(__builtin_sub_overflow)
 	return __builtin_sub_overflow(lhs, rhs, &result);
 #else
-	result = lhs - rhs;
+	result = IL2CPP_SUB(lhs, rhs);
 	return il2cpp_CheckSub(lhs, rhs) != 0;
 #endif
 }
@@ -217,7 +256,7 @@ inline bool il2cpp_CheckMul(uint64_t lhs, uint64_t rhs)
 }
 
 template <class T>
-inline bool il2cpp_MulOverflow(T lhs, T rhs, T &result)
+bool il2cpp_MulOverflow(T lhs, T rhs, T &result)
 {
 #if __has_builtin(__builtin_mul_overflow)
 	return __builtin_mul_overflow(lhs, rhs, &result);
@@ -228,7 +267,7 @@ inline bool il2cpp_MulOverflow(T lhs, T rhs, T &result)
 }
 
 template <class T>
-inline T il2cpp_AddOverflow(T lhs, T rhs)
+T il2cpp_AddOverflow(T lhs, T rhs)
 {
 	T result;
 	if (IL2CPP_UNLIKELY(il2cpp_AddOverflow(lhs, rhs, result)))
@@ -237,7 +276,7 @@ inline T il2cpp_AddOverflow(T lhs, T rhs)
 }
 
 template <class T>
-inline T il2cpp_SubOverflow(T lhs, T rhs)
+T il2cpp_SubOverflow(T lhs, T rhs)
 {
 	T result;
 	if (IL2CPP_UNLIKELY(il2cpp_SubOverflow(lhs, rhs, result)))
@@ -246,7 +285,7 @@ inline T il2cpp_SubOverflow(T lhs, T rhs)
 }
 
 template <class T>
-inline T il2cpp_MulOverflow(T lhs, T rhs)
+T il2cpp_MulOverflow(T lhs, T rhs)
 {
 	T result;
 	if (IL2CPP_UNLIKELY(il2cpp_MulOverflow(lhs, rhs, result)))
@@ -255,7 +294,7 @@ inline T il2cpp_MulOverflow(T lhs, T rhs)
 }
 
 template <class ToType, class FromType>
-inline ToType il2cpp_ConvOverflow(FromType from)
+ToType il2cpp_ConvOverflow(FromType from)
 {
 	const bool isFromUnsigned = ((FromType)-1) > 0;
 

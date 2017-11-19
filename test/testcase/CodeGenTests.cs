@@ -4447,13 +4447,13 @@ namespace testcase
 				return 64;
 
 
-			/*res = LoopConvLong(long.MaxValue - 500, 1);
+			res = LoopConvLong(long.MaxValue - 500, 1);
 			if (res != 501)
-				return 65;*/
+				return 65;
 
-			/*res = LoopConvLong((ulong)long.MaxValue - 500, 1);
+			res = LoopConvLong((ulong)long.MaxValue - 500, 1);
 			if (res != 501)
-				return 66;*/
+				return 66;
 
 			res = LoopConvLong((double)long.MaxValue - 9999999, 1000);
 			if (res != 9766)
@@ -4466,9 +4466,9 @@ namespace testcase
 			if (res != 1235)
 				return 69;
 
-			/*res = LoopConvULong(long.MaxValue - 999, 1);
+			res = LoopConvULong(long.MaxValue - 999, 1);
 			if (res != 1000)
-				return 70;*/
+				return 70;
 
 			res = LoopConvULong((double)1234, -1);
 			if (res != 1235)
