@@ -978,7 +978,7 @@ namespace il2cpp
 				}
 			}
 
-			if (tyX.GetNameKey() == "System.String")
+			if (tyX.GetNameKey() == "String")
 			{
 				ResolveAllFields(tyX);
 			}
