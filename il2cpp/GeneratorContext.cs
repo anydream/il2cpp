@@ -323,6 +323,9 @@ namespace il2cpp
 					else
 						return 10;
 
+				case ElementType.CModReqd:
+					return GetTypeLayoutOrder(tySig.Next);
+
 				default:
 					throw new NotImplementedException();
 			}
