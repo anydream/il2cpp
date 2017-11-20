@@ -33,7 +33,7 @@ namespace il2cpp
 		private readonly Dictionary<TypeDef, VarianceGroup> VarianceMap = new Dictionary<TypeDef, VarianceGroup>();
 
 		private TypeDef ThrowHelperType;
-		private HashSet<string> ResolvedExceptions = new HashSet<string>();
+		private readonly HashSet<string> ResolvedExceptions = new HashSet<string>();
 
 		// 运行时装箱类型原型
 		private TypeDef BoxedTypePrototype;
@@ -41,6 +41,8 @@ namespace il2cpp
 		private TypeDef SZArrayPrototype;
 		// 运行时多维数组原型映射
 		private readonly Dictionary<uint, TypeDef> MDArrayProtoMap = new Dictionary<uint, TypeDef>();
+
+		private DelegateProperty DelegateType;
 
 		// 对象终结器虚调用是否已经生成
 		private bool IsVCallFinalizerGenerated;
@@ -54,14 +56,20 @@ namespace il2cpp
 
 		public void ClearForGenerator()
 		{
+			TypeMap.Clear();
+			RawTypeMap.Clear();
 			MethodTableMap.Clear();
 			VCallEntries.Clear();
 			PendingMethods.Clear();
 			VarianceMap.Clear();
 			ThrowHelperType = null;
 			ResolvedExceptions.Clear();
+			BoxedTypePrototype = null;
 			SZArrayPrototype = null;
 			MDArrayProtoMap.Clear();
+			DelegateType = null;
+			IsVCallFinalizerGenerated = false;
+			IsStringTypeResolved = false;
 		}
 
 		public TypeX GetTypeByName(string name)
@@ -888,7 +896,8 @@ namespace il2cpp
 			{
 				tyX.BaseType = ResolveTypeDefOrRef(tyX.Def.BaseType, replacer);
 
-				if (tyX.BaseType.GetNameKey() == "System.Enum")
+				string baseName = tyX.BaseType.GetNameKey();
+				if (baseName == "System.Enum")
 				{
 					// 处理枚举类型
 					var fldDef = tyX.Def.Fields.FirstOrDefault(f => !f.IsStatic);
@@ -896,6 +905,12 @@ namespace il2cpp
 
 					FieldX fldX = ResolveFieldDef(fldDef);
 					tyX.EnumInfo = new EnumProperty { EnumField = fldX };
+				}
+				else if (baseName == "System.Delegate" || baseName == "System.MulticastDelegate")
+				{
+					Debug.Assert(DelegateType != null);
+					tyX.DelegateInfo = DelegateType;
+					tyX.IsMulticastDelegate = baseName == "System.MulticastDelegate";
 				}
 			}
 			// 解析接口
@@ -978,9 +993,16 @@ namespace il2cpp
 				}
 			}
 
-			if (tyX.GetNameKey() == "String")
+			string typeName = tyX.GetNameKey();
+			if (typeName == "String")
 			{
+				// 解析所有的字段
 				ResolveAllFields(tyX);
+			}
+			else if (typeName == "System.Delegate")
+			{
+				// 解析委托类
+				ResolveDelegateType();
 			}
 		}
 
@@ -1758,6 +1780,29 @@ namespace il2cpp
 
 				ResolveMethodDef(metDef);
 			}
+		}
+
+		private void ResolveDelegateType()
+		{
+			if (DelegateType != null)
+				return;
+
+			TypeDef tyDef = Context.CorLibTypes.GetTypeRef("System", "Delegate").Resolve();
+			Debug.Assert(tyDef != null);
+
+			// 使用微软的 BCL 布局
+			var fldMetPtr =
+				tyDef.Fields.FirstOrDefault(f => f.Name == "_methodPtr" && f.FieldType.ElementType == ElementType.I);
+			var fldTarget =
+				tyDef.Fields.FirstOrDefault(f => f.Name == "_target" && f.FieldType.ElementType == ElementType.Object);
+
+			if (fldMetPtr == null || fldTarget == null)
+				throw new TypeLoadException("Mismatch System.Delegate fields");
+
+			var fldXMetPtr = ResolveFieldDef(fldMetPtr);
+			var fldXTarget = ResolveFieldDef(fldTarget);
+
+			DelegateType = new DelegateProperty { MethodPtrField = fldXMetPtr, TargetField = fldXTarget };
 		}
 
 		private InterfaceImpl MakeInterfaceImpl(string ns, string name, TypeSig genArg)

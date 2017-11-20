@@ -32,6 +32,12 @@ namespace il2cpp
 		public FieldX EnumField;
 	}
 
+	internal class DelegateProperty
+	{
+		public FieldX MethodPtrField;
+		public FieldX TargetField;
+	}
+
 	internal class TypeX : GenericArgs
 	{
 		// 类型定义
@@ -83,6 +89,11 @@ namespace il2cpp
 		// 是否为枚举类型
 		public bool IsEnumType => EnumInfo != null;
 		public TypeSig EnumTypeSig => EnumInfo.EnumField.FieldType;
+
+		public DelegateProperty DelegateInfo;
+		// 是否为委托类型
+		public bool IsDelegateType => DelegateInfo != null;
+		public bool IsMulticastDelegate;
 
 		// 装箱类型
 		public TypeX BoxedType;

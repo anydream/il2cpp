@@ -785,6 +785,21 @@ namespace il2cpp
 					return true;
 				}
 			}
+			else if (CurrMethod.DeclType.IsDelegateType)
+			{
+				string metName = CurrMethod.Def.Name;
+
+				if (metName == ".ctor")
+				{
+					//return true;
+				}
+				else if (metName == "Invoke")
+				{
+					//return true;
+				}
+				else
+					throw new NotImplementedException();
+			}
 			else
 				return RuntimeInternals.GenInternalMethod(CurrMethod, prt, GenContext);
 
