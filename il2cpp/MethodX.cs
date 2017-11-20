@@ -45,7 +45,11 @@ namespace il2cpp
 				return OpCode + " " + str;
 			}
 
-			return OpCode + " " + Operand + ' ';
+			string strOperand = Operand?.ToString();
+			if (string.IsNullOrEmpty(strOperand))
+				return OpCode.ToString();
+
+			return OpCode + " " + strOperand + ' ';
 		}
 	}
 

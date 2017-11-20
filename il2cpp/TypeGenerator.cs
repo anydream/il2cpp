@@ -161,7 +161,7 @@ namespace il2cpp
 				metGen.Generate();
 
 				prtDecl.AppendFormatLine("// {0}{1}{2} -> {3}",
-					metX.Def.HasBody ? null : "extern ",
+					!metX.Def.HasBody && !metX.Def.IsAbstract ? "extern " : null,
 					metX.Def.IsInternalCall ? "internalcall " : null,
 					metX.DeclType.GetNameKey(),
 					metX.GetReplacedNameKey());
