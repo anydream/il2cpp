@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="BindingTests.cs" />
     <Compile Include="CodeGenTests.cs" />
+    <Compile Include="InstExceptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
