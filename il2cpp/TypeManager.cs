@@ -54,24 +54,6 @@ namespace il2cpp
 			Context = context;
 		}
 
-		public void ClearForGenerator()
-		{
-			TypeMap.Clear();
-			RawTypeMap.Clear();
-			MethodTableMap.Clear();
-			VCallEntries.Clear();
-			PendingMethods.Clear();
-			VarianceMap.Clear();
-			ThrowHelperType = null;
-			ResolvedExceptions.Clear();
-			BoxedTypePrototype = null;
-			SZArrayPrototype = null;
-			MDArrayProtoMap.Clear();
-			DelegateType = null;
-			IsVCallFinalizerGenerated = false;
-			IsStringTypeResolved = false;
-		}
-
 		public TypeX GetTypeByName(string name)
 		{
 			if (TypeMap.TryGetValue(name, out var tyX))

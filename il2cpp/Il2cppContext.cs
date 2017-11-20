@@ -60,9 +60,8 @@ namespace il2cpp
 		public GenerateResult Generate()
 		{
 			if (TypeMgr == null)
-				return null;
+				Reset();
 
-			TypeMgr.ClearForGenerator();
 			return new GeneratorContext(TypeMgr).Generate();
 		}
 
