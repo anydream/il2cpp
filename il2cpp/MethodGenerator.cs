@@ -800,29 +800,55 @@ namespace il2cpp
 				}
 				else if (metName == "Invoke")
 				{
-					if (CurrMethod.ReturnType.ElementType != ElementType.Void)
-						prt.Append("return ");
-
-					prt.AppendFormat("(({0}(*)(cls_Object*",
-						GenContext.GetTypeName(CurrMethod.ReturnType));
-
-					for (int i = 1, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
-					{
-						prt.Append(",");
-						var argType = CurrMethod.ParamTypes[i];
-						prt.Append(GenContext.GetTypeName(argType));
-					}
-
-					prt.AppendFormat("))arg_0->{0})(arg_0->{1}",
-						GenContext.GetFieldName(declType.DelegateInfo.MethodPtrField),
+					prt.AppendFormatLine("cls_Object* target = arg_0->{0};",
 						GenContext.GetFieldName(declType.DelegateInfo.TargetField));
 
-					for (int i = 1, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+					for (int s = 0; s < 2; ++s)
 					{
-						prt.AppendFormat(", {0}",
-							ArgName(i));
+						bool hasTarget = s == 0;
+
+						if (hasTarget)
+							prt.AppendLine("if (target)");
+						else
+							prt.AppendLine("else");
+
+						++prt.Indents;
+
+						if (CurrMethod.ReturnType.ElementType != ElementType.Void)
+							prt.Append("return ");
+
+						prt.AppendFormat("(({0}(*)({1}",
+							GenContext.GetTypeName(CurrMethod.ReturnType),
+							hasTarget ? "cls_Object*" : null);
+
+						bool last = hasTarget;
+						for (int i = 1, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+						{
+							if (last)
+								prt.Append(",");
+							last = true;
+
+							var argType = CurrMethod.ParamTypes[i];
+							prt.Append(GenContext.GetTypeName(argType));
+						}
+
+						prt.AppendFormat("))arg_0->{0})({1}",
+							GenContext.GetFieldName(declType.DelegateInfo.MethodPtrField),
+							hasTarget ? "target" : null);
+
+						last = hasTarget;
+						for (int i = 1, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+						{
+							if (last)
+								prt.Append(", ");
+							last = true;
+
+							prt.Append(ArgName(i));
+						}
+						prt.AppendLine(");");
+
+						--prt.Indents;
 					}
-					prt.AppendLine(");");
 
 					return true;
 				}
