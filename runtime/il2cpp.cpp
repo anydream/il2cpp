@@ -83,18 +83,18 @@ void il2cpp_Trap()
 #endif
 }
 
-void il2cpp_CheckRange(uint64_t lowerBound, uint64_t length, uint64_t index)
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 {
-	if (index < lowerBound || index >= lowerBound + length)
+	if (index < lowerBound || index >= IL2CPP_ADD(lowerBound, length))
 		IL2CPP_TRAP();
 }
 
-void il2cpp_CheckRange(uint64_t lowerBound, uint64_t length, uint64_t index, uint64_t rangeLen)
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen)
 {
 	il2cpp_CheckRange(lowerBound, length, index);
 
-	index += rangeLen;
-	if (index < lowerBound || index > lowerBound + length)
+	index = IL2CPP_ADD(index, rangeLen);
+	if (index < lowerBound || index > IL2CPP_ADD(lowerBound, length))
 		IL2CPP_TRAP();
 }
 

@@ -315,8 +315,8 @@ template <>
 int32_t il2cpp_ConvOverflow<int32_t>(double from);
 
 void il2cpp_Trap();
-void il2cpp_CheckRange(uint64_t lowerBound, uint64_t length, uint64_t index);
-void il2cpp_CheckRange(uint64_t lowerBound, uint64_t length, uint64_t index, uint64_t rangeLen);
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);
 float il2cpp_Remainder(float numer, float denom);
 double il2cpp_Remainder(double numer, double denom);
 float il2cpp_Ckfinite(float num);
