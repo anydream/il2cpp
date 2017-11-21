@@ -315,8 +315,8 @@ template <>
 int32_t il2cpp_ConvOverflow<int32_t>(double from);
 
 void il2cpp_Trap();
-void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
-void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);
+void il2cpp_CheckRange(uint64_t lowerBound, uint64_t length, uint64_t index);
+void il2cpp_CheckRange(uint64_t lowerBound, uint64_t length, uint64_t index, uint64_t rangeLen);
 float il2cpp_Remainder(float numer, float denom);
 double il2cpp_Remainder(double numer, double denom);
 float il2cpp_Ckfinite(float num);
@@ -324,11 +324,11 @@ double il2cpp_Ckfinite(double num);
 void il2cpp_ThrowOverflow();
 
 struct cls_System_Array;
-int32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary);
-int32_t il2cpp_Array__GetLength(cls_System_Array* ary);
-int64_t il2cpp_Array__GetLongLength(cls_System_Array* ary);
-int32_t il2cpp_Array__GetLength(cls_System_Array* ary, int32_t dim);
-int32_t il2cpp_Array__GetLowerBound(cls_System_Array* ary, int32_t dim);
-int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, int32_t dim);
-void il2cpp_Array__Copy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen);
-void il2cpp_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLen);
+uint32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary);
+uint32_t il2cpp_Array__GetLength(cls_System_Array* ary);
+uint64_t il2cpp_Array__GetLongLength(cls_System_Array* ary);
+uint32_t il2cpp_Array__GetLength(cls_System_Array* ary, uint32_t dim);
+int32_t il2cpp_Array__GetLowerBound(cls_System_Array* ary, uint32_t dim);
+int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, uint32_t dim);
+void il2cpp_Array__Copy(cls_System_Array* srcAry, uint32_t srcIdx, cls_System_Array* dstAry, uint32_t dstIdx, uint32_t copyLen);
+void il2cpp_Array__Clear(cls_System_Array* ary, uint32_t idx, uint32_t clearLen);

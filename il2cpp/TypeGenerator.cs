@@ -66,12 +66,12 @@ namespace il2cpp
 				{
 					var arrayInfo = CurrType.ArrayInfo;
 					if (arrayInfo.IsSZArray)
-						prtDecl.AppendLine("int32_t Length;");
+						prtDecl.AppendLine("uint32_t Length;");
 					else
 					{
 						uint rank = arrayInfo.Rank;
 						for (int i = 0; i < rank; ++i)
-							prtDecl.AppendFormatLine("int32_t LowerBound{0};\nint32_t Size{0};", i);
+							prtDecl.AppendFormatLine("int32_t LowerBound{0};\nuint32_t Size{0};", i);
 					}
 				}
 				else
@@ -82,8 +82,8 @@ namespace il2cpp
 					}
 					else if (nameKey == "System.Array")
 					{
-						prtDecl.AppendLine("int32_t ElemSize;");
-						prtDecl.AppendLine("int32_t Rank;");
+						prtDecl.AppendLine("uint32_t ElemSize;");
+						prtDecl.AppendLine("uint32_t Rank;");
 					}
 				}
 

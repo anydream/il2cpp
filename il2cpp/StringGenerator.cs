@@ -91,7 +91,7 @@ namespace il2cpp
 				string strAry = StringToArrayOrRaw(str, out bool isRaw);
 
 				prt.AppendFormatLine("// {0}", EscapeString(str));
-				prt.AppendFormatLine("static const struct {{ cls_Object obj; int32_t len; {5} str[{0}]; }} {1} {{ {{{2}}}, {3}, {4} }};",
+				prt.AppendFormatLine("static const struct {{ cls_Object obj; uint32_t len; {5} str[{0}]; }} {1} {{ {{{2}}}, {3}, {4} }};",
 					str.Length + 1,
 					GetConstName(prop.ConstIndex),
 					strTypeID,
