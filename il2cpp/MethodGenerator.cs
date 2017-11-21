@@ -816,7 +816,7 @@ namespace il2cpp
 					ArgName(i + 1));
 			}
 
-			prt.AppendLine("uintptr_t index =");
+			prt.AppendLine("uint64_t index =");
 			++prt.Indents;
 			for (int i = 0; i < rank; ++i)
 			{
