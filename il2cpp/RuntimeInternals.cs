@@ -116,7 +116,7 @@ return arg_0->Rank;");
 				if (metName == "GetHashCode")
 				{
 					prt.AppendLine("uintptr_t val = (uintptr_t)arg_0;");
-					prt.AppendLine("return (int32_t)val ^ (int32_t)(val >> 32);");
+					prt.AppendLine("return (int32_t)((uint32_t)val ^ (uint32_t)(val >> 32));");
 					return true;
 				}
 			}
