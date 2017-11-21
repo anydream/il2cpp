@@ -655,12 +655,13 @@ namespace il2cpp
 
 		private bool GenerateRuntimeImpl(CodePrinter prt)
 		{
-			if (CurrMethod.DeclType.IsArrayType)
+			var declType = CurrMethod.DeclType;
+			if (declType.IsArrayType)
 			{
-				TypeSig elemType = CurrMethod.DeclType.GenArgs[0];
+				TypeSig elemType = declType.GenArgs[0];
 				string metName = CurrMethod.Def.Name;
 				int pCount = CurrMethod.ParamTypes.Count - 1;
-				var arrayInfo = CurrMethod.DeclType.ArrayInfo;
+				var arrayInfo = declType.ArrayInfo;
 				bool isSZArray = arrayInfo.IsSZArray;
 				uint rank = arrayInfo.Rank;
 
@@ -785,17 +786,45 @@ namespace il2cpp
 					return true;
 				}
 			}
-			else if (CurrMethod.DeclType.IsDelegateType)
+			else if (declType.IsDelegateType)
 			{
 				string metName = CurrMethod.Def.Name;
 
 				if (metName == ".ctor")
 				{
-					//return true;
+					prt.AppendFormatLine("arg_0->{0} = arg_1;",
+						GenContext.GetFieldName(declType.DelegateInfo.TargetField));
+					prt.AppendFormatLine("arg_0->{0} = arg_2;",
+						GenContext.GetFieldName(declType.DelegateInfo.MethodPtrField));
+					return true;
 				}
 				else if (metName == "Invoke")
 				{
-					//return true;
+					if (CurrMethod.ReturnType.ElementType != ElementType.Void)
+						prt.Append("return ");
+
+					prt.AppendFormat("(({0}(*)(cls_Object*",
+						GenContext.GetTypeName(CurrMethod.ReturnType));
+
+					for (int i = 1, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+					{
+						prt.Append(",");
+						var argType = CurrMethod.ParamTypes[i];
+						prt.Append(GenContext.GetTypeName(argType));
+					}
+
+					prt.AppendFormat("))arg_0->{0})(arg_0->{1}",
+						GenContext.GetFieldName(declType.DelegateInfo.MethodPtrField),
+						GenContext.GetFieldName(declType.DelegateInfo.TargetField));
+
+					for (int i = 1, sz = CurrMethod.ParamTypes.Count; i < sz; ++i)
+					{
+						prt.AppendFormat(", {0}",
+							ArgName(i));
+					}
+					prt.AppendLine(");");
+
+					return true;
 				}
 				else
 					throw new NotImplementedException();

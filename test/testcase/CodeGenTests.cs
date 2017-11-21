@@ -1705,7 +1705,7 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestDelegate
 	{
 		delegate int FooFunc(int a, int b);

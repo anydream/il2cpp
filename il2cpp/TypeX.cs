@@ -34,8 +34,8 @@ namespace il2cpp
 
 	internal class DelegateProperty
 	{
-		public FieldX MethodPtrField;
 		public FieldX TargetField;
+		public FieldX MethodPtrField;
 	}
 
 	internal class TypeX : GenericArgs

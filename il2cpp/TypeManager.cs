@@ -1775,18 +1775,18 @@ namespace il2cpp
 			Debug.Assert(tyDef != null);
 
 			// 使用微软的 BCL 布局
-			var fldMetPtr =
-				tyDef.Fields.FirstOrDefault(f => f.Name == "_methodPtr" && f.FieldType.ElementType == ElementType.I);
 			var fldTarget =
 				tyDef.Fields.FirstOrDefault(f => f.Name == "_target" && f.FieldType.ElementType == ElementType.Object);
+			var fldMetPtr =
+				tyDef.Fields.FirstOrDefault(f => f.Name == "_methodPtr" && f.FieldType.ElementType == ElementType.I);
 
-			if (fldMetPtr == null || fldTarget == null)
+			if (fldTarget == null || fldMetPtr == null)
 				throw new TypeLoadException("Mismatch System.Delegate fields");
 
-			var fldXMetPtr = ResolveFieldDef(fldMetPtr);
 			var fldXTarget = ResolveFieldDef(fldTarget);
+			var fldXMetPtr = ResolveFieldDef(fldMetPtr);
 
-			DelegateType = new DelegateProperty { MethodPtrField = fldXMetPtr, TargetField = fldXTarget };
+			DelegateType = new DelegateProperty { TargetField = fldXTarget, MethodPtrField = fldXMetPtr };
 		}
 
 		private InterfaceImpl MakeInterfaceImpl(string ns, string name, TypeSig genArg)
