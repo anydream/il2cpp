@@ -1742,7 +1742,7 @@ namespace testcase
 			}
 		}
 
-		public static int Entry()
+		private static int SMethod(bool flag)
 		{
 			var cls = new Cls() { num = 34 };
 			FooFunc pfn = cls.Foo;
@@ -1750,12 +1750,38 @@ namespace testcase
 			if (result != 1870)
 				return 1;
 
-			Inf inf = new ClsA();
-			inf = new ClsB() { num = 99 };
+			Inf inf;
+			int cmp;
+			if (flag)
+			{
+				inf = new ClsA { num = 88 };
+				cmp = 339;
+			}
+			else
+			{
+				inf = new ClsB { num = 99 };
+				cmp = -86;
+			}
 			pfn = inf.Foo;
 			result = pfn(132, 119);
-			if (result != -86)
+			if (result != cmp)
 				return 2;
+
+			return 0;
+		}
+
+		delegate int SFunc(bool b);
+		public static int Entry()
+		{
+			SFunc pfn = SMethod;
+
+			int res = pfn(true);
+			if (res != 0)
+				return res;
+
+			pfn(false);
+			if (res != 0)
+				return res;
 
 			return 0;
 		}
@@ -2881,7 +2907,7 @@ namespace testcase
 	{
 		private static void Main()
 		{
-			TestExplicitLayout.Entry();
+			TestDelegate.Entry();
 		}
 	}
 }
