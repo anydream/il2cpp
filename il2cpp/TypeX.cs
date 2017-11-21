@@ -93,7 +93,6 @@ namespace il2cpp
 		public DelegateProperty DelegateInfo;
 		// 是否为委托类型
 		public bool IsDelegateType => DelegateInfo != null;
-		public bool IsMulticastDelegate;
 
 		// 装箱类型
 		public TypeX BoxedType;

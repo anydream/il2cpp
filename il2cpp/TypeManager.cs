@@ -879,20 +879,22 @@ namespace il2cpp
 				tyX.BaseType = ResolveTypeDefOrRef(tyX.Def.BaseType, replacer);
 
 				string baseName = tyX.BaseType.GetNameKey();
-				if (baseName == "System.Enum")
+				if (tyX.Def.IsEnum)
 				{
-					// 处理枚举类型
+					Debug.Assert(baseName == "System.Enum");
+					// 枚举类型
 					var fldDef = tyX.Def.Fields.FirstOrDefault(f => !f.IsStatic);
 					Debug.Assert(fldDef != null);
 
 					FieldX fldX = ResolveFieldDef(fldDef);
 					tyX.EnumInfo = new EnumProperty { EnumField = fldX };
 				}
-				else if (baseName == "System.Delegate" || baseName == "System.MulticastDelegate")
+				else if (tyX.Def.IsDelegate)
 				{
+					Debug.Assert(baseName == "System.MulticastDelegate");
+					// 委托类型
 					Debug.Assert(DelegateType != null);
 					tyX.DelegateInfo = DelegateType;
-					tyX.IsMulticastDelegate = baseName == "System.MulticastDelegate";
 				}
 			}
 			// 解析接口
