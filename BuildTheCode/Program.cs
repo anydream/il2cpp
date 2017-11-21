@@ -461,10 +461,10 @@ namespace BuildTheCode
 
 	internal class Maker
 	{
-		public string OptLevel = "-O3";
-		public int GenOptCount = 6;
-		public int FinalOptCount = 2;
-		public string AddCFlags = null;
+		public string OptLevel;
+		public int GenOptCount;
+		public int FinalOptCount;
+		public string AddCFlags;
 
 		public readonly string WorkDir;
 		public readonly string OutDir;
@@ -746,9 +746,9 @@ namespace BuildTheCode
 	static class Program
 	{
 		static string OptLevel = "-O3";
-		static int GenOptCount = 6;
-		static int FinalOptCount = 2;
-		static string AddCFlags = null;
+		static int GenOptCount = 1;
+		static int FinalOptCount = 1;
+		static string AddCFlags;
 
 		static List<string> ParseArgs(string[] args)
 		{
