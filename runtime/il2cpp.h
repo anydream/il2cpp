@@ -3,6 +3,7 @@
 #define NOMINMAX
 
 #include <stdint.h>
+#include <malloc.h>
 #include <type_traits>
 #include <limits>
 
@@ -276,6 +277,16 @@ T il2cpp_AddOverflow(T lhs, T rhs)
 	return result;
 }
 
+template <class T, class U>
+std::common_type_t<T, U> il2cpp_AddOverflow(T lhs, U rhs)
+{
+	typedef std::common_type_t<T, U> common_t;
+	common_t result;
+	if (IL2CPP_UNLIKELY(il2cpp_AddOverflow(static_cast<common_t>(lhs), static_cast<common_t>(rhs), result)))
+		il2cpp_ThrowOverflow();
+	return result;
+}
+
 template <class T>
 T il2cpp_SubOverflow(T lhs, T rhs)
 {
@@ -285,11 +296,31 @@ T il2cpp_SubOverflow(T lhs, T rhs)
 	return result;
 }
 
+template <class T, class U>
+std::common_type_t<T, U> il2cpp_SubOverflow(T lhs, U rhs)
+{
+	typedef std::common_type_t<T, U> common_t;
+	common_t result;
+	if (IL2CPP_UNLIKELY(il2cpp_SubOverflow(static_cast<common_t>(lhs), static_cast<common_t>(rhs), result)))
+		il2cpp_ThrowOverflow();
+	return result;
+}
+
 template <class T>
 T il2cpp_MulOverflow(T lhs, T rhs)
 {
 	T result;
 	if (IL2CPP_UNLIKELY(il2cpp_MulOverflow(lhs, rhs, result)))
+		il2cpp_ThrowOverflow();
+	return result;
+}
+
+template <class T, class U>
+std::common_type_t<T, U> il2cpp_MulOverflow(T lhs, U rhs)
+{
+	typedef std::common_type_t<T, U> common_t;
+	common_t result;
+	if (IL2CPP_UNLIKELY(il2cpp_MulOverflow(static_cast<common_t>(lhs), static_cast<common_t>(rhs), result)))
 		il2cpp_ThrowOverflow();
 	return result;
 }

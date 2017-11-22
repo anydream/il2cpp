@@ -2726,7 +2726,7 @@ namespace il2cpp
 
 			if (CurrMethod.Def.Body.InitLocals)
 			{
-				inst.InstCode += string.Format("\nIL2CPP_MEMSET({0}, 0, {1});",
+				inst.InstCode += string.Format("\nIL2CPP_MEMSET((void*){0}, 0, {1});",
 					TempName(slotRes),
 					TempName(slotPop));
 			}
