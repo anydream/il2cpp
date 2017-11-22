@@ -529,7 +529,7 @@ namespace testcase
 			for (int i = 0; i < 50; ++i)
 				sum += buf[i];
 
-			if (sum != 123)
+			if (sum != 123 || buf[49] != 123)
 				return false;
 			return true;
 		}
