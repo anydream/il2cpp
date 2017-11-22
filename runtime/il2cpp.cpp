@@ -156,7 +156,7 @@ inline bool il2cpp_IsFinite(double num)
 	return il2cpp_DTest(&num) <= 0;
 }
 
-#if defined(IL2CPP_BRIDGE_HAS_cls_il2cpprt_ThrowHelper)
+#if defined(IL2CPP_BRIDGE_HAS_4ObKN3_ThrowHelper__Throw_ArithmeticException)
 float il2cpp_Ckfinite(float num)
 {
 	if (IL2CPP_UNLIKELY(!il2cpp_IsFinite(num)))
@@ -172,7 +172,7 @@ double il2cpp_Ckfinite(double num)
 }
 #endif
 
-#if defined(IL2CPP_BRIDGE_HAS_cls_il2cpprt_ThrowHelper)
+#if defined(IL2CPP_BRIDGE_HAS_aBjyT3_ThrowHelper__Throw_OverflowException)
 void il2cpp_ThrowOverflow()
 {
 	met_aBjyT3_ThrowHelper__Throw_OverflowException();

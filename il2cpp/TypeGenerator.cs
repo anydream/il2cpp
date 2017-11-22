@@ -160,6 +160,8 @@ namespace il2cpp
 				var metGen = new MethodGenerator(GenContext, metX);
 				metGen.Generate();
 
+				AppendRuntimeFlags(metX, prtDecl);
+
 				prtDecl.AppendFormatLine("// {0}{1}{2} -> {3}",
 					!metX.Def.HasBody && !metX.Def.IsAbstract ? "extern " : null,
 					metX.Def.IsInternalCall ? "internalcall " : null,
@@ -288,6 +290,16 @@ namespace il2cpp
 			}
 
 			return fields;
+		}
+
+		private void AppendRuntimeFlags(MethodX metX, CodePrinter prt)
+		{
+			string typeName = metX.DeclType.GetNameKey();
+			if (typeName == "il2cpprt.ThrowHelper")
+			{
+				prt.AppendFormatLine("#define IL2CPP_BRIDGE_HAS_{0}",
+					GenContext.GetMethodName(metX, null));
+			}
 		}
 	}
 }
