@@ -1649,6 +1649,9 @@ namespace il2cpp
 					GenStobj(inst, GetCorLibTypes().Object);
 					return;
 
+				case Code.Localloc:
+					GenLocalloc(inst);
+					return;
 				case Code.Sizeof:
 					GenSizeof(inst, (TypeX)operand);
 					return;
@@ -1673,7 +1676,12 @@ namespace il2cpp
 					GenLeave(inst, (int)operand);
 					return;
 
+				//! 反射指令暂时返回空指针
 				case Code.Ldtoken:
+					GenLdc(inst, StackType.Obj, "nullptr");
+					return;
+				case Code.Mkrefany:
+					Pop();
 					GenLdc(inst, StackType.Obj, "nullptr");
 					return;
 
@@ -2703,6 +2711,29 @@ namespace il2cpp
 					TempName(slotDest)),
 				TempName(slotSrc),
 				tySig);
+		}
+
+		private void GenLocalloc(InstInfo inst)
+		{
+			var slotRes = MakeSlotInfo(StackType.Ptr, TypeStack.Count);
+			var slotPop = Pop();
+			var slotPush = Push(StackType.Ptr);
+			inst.InstCode = GenAssign(
+				TempName(slotRes),
+				string.Format("IL2CPP_ALLOCA({0})",
+					TempName(slotPop)),
+				slotRes.SlotType);
+
+			if (CurrMethod.Def.Body.InitLocals)
+			{
+				inst.InstCode += string.Format("\nIL2CPP_MEMSET({0}, 0, {1});",
+					TempName(slotRes),
+					TempName(slotPop));
+			}
+			inst.InstCode += '\n' + GenAssign(
+				TempName(slotPush),
+				TempName(slotRes),
+				slotPush.SlotType);
 		}
 
 		private void GenSizeof(InstInfo inst, TypeX tyX)

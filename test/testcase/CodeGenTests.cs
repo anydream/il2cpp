@@ -520,6 +520,20 @@ namespace testcase
 			return v2.fldI4 == 123 && v2.fldR8 == 456;
 		}
 
+		private static unsafe bool TestLocalloc()
+		{
+			int* buf = stackalloc int[50];
+			buf[49] = 123;
+
+			int sum = 0;
+			for (int i = 0; i < 50; ++i)
+				sum += buf[i];
+
+			if (sum != 123)
+				return false;
+			return true;
+		}
+
 		public static int Entry()
 		{
 			sfldI2 = 26;
@@ -560,6 +574,9 @@ namespace testcase
 
 			if (!TestInPlace())
 				return 14;
+
+			if (!TestLocalloc())
+				return 15;
 
 			return 0;
 		}

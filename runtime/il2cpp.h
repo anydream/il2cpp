@@ -33,6 +33,7 @@
 #define IL2CPP_ASSERT(_x)			if (!(_x)) IL2CPP_TRAP()
 #define IL2CPP_MEMCPY				memcpy
 #define IL2CPP_MEMSET				memset
+#define IL2CPP_ALLOCA				alloca
 #define IL2CPP_NEW					il2cpp_New
 #define IL2CPP_CALL_ONCE			il2cpp_CallOnce
 #define IL2CPP_THROW(_ex)			throw il2cppException(_ex)
