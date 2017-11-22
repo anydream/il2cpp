@@ -1770,6 +1770,19 @@ namespace testcase
 			return 0;
 		}
 
+		static int FuncCall(Func<bool, int> func, bool b)
+		{
+			return func(b);
+		}
+
+		private static int actres = -1;
+		static void Act()
+		{
+			actres = SMethod(true);
+			if (actres == 0)
+				actres = SMethod(false);
+		}
+
 		delegate int SFunc(bool b);
 		public static int Entry()
 		{
@@ -1782,6 +1795,23 @@ namespace testcase
 			pfn(false);
 			if (res != 0)
 				return res;
+
+			Func<bool, int> lambda = bl =>
+			{
+				return TestDelegate.SMethod(bl);
+			};
+			res = FuncCall(lambda, true);
+			if (res != 0)
+				return res;
+
+			res = FuncCall(lambda, false);
+			if (res != 0)
+				return res;
+
+			Action act = Act;
+			act();
+			if (actres != 0)
+				return actres;
 
 			return 0;
 		}
