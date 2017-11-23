@@ -816,6 +816,12 @@ namespace BuildTheCode
 
 		static void Main(string[] args)
 		{
+			// 添加 clang 目录到环境变量
+			string envPath = Environment.GetEnvironmentVariable("PATH");
+			string clangPath = Path.GetFullPath("../../../tools/clang/bin");
+			envPath = clangPath + ';' + envPath;
+			Environment.SetEnvironmentVariable("PATH", envPath);
+
 			try
 			{
 				Helper.RunCommand("clang", "-v", null, null, null);
@@ -823,11 +829,7 @@ namespace BuildTheCode
 			}
 			catch (System.ComponentModel.Win32Exception)
 			{
-				Console.Error.Write("error: Cannot find clang toolchain,\nplease download it from ");
-				var oldColor = Console.ForegroundColor;
-				Console.ForegroundColor = ConsoleColor.Cyan;
-				Console.Error.WriteLine("http://releases.llvm.org/download.html");
-				Console.ForegroundColor = oldColor;
+				Console.Error.Write("error: Cannot find clang toolchain!");
 				try
 				{
 					Console.ReadKey();
