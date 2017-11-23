@@ -628,11 +628,19 @@ namespace testcase
 			if ((byte*)&p->str - (byte*)p != 0)
 				return 5;
 
+			if (sizeof(Stru) != 20)
+				return 6;
+
 			var s2 = new StruSized();
 			s2.aa = 1.23f;
 			s2.bb = 3.14;
+			if (sizeof(StruSized) != 120)
+				return 7;
+
 			var s3 = new StruExpSized();
 			s3.num = 666;
+			if (sizeof(StruExpSized) != 60)
+				return 8;
 
 			return 0;
 		}

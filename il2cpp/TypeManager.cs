@@ -638,6 +638,14 @@ namespace il2cpp
 					}
 			}
 
+			// 后处理指令
+			switch (inst.OpCode.Code)
+			{
+				case Code.Sizeof:
+					ResolveAllFields((TypeX)inst.Operand);
+					break;
+			}
+
 			ResolveOpCodeException(inst.OpCode.Code);
 		}
 
