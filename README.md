@@ -9,7 +9,7 @@ il2cpp
 ## How to
   - Pre-requirements:
     1. Windows 64-bit system required;
-    2. Visual Studio 2015 or 2017, C# and C++ desktop environments;
+    2. Visual Studio 2015 or 2017, C# and C++ desktop dev environments;
   - Open ``il2cpp.sln``;
   - Set ``test`` as startup project;
   - Run.
@@ -54,4 +54,5 @@ il2cpp
 
 
 正在如火如荼地开发中...
+
 求 star 求测试~~
