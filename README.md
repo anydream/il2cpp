@@ -1,18 +1,20 @@
-# il2cpp
+il2cpp
+===
 ### A MSIL/C# to C++ converter
-
-
-正在如火如荼地开发中...
-
 
 > 「  在享受C#开发速度的同时, 获得C++编译器往死里优化的执行效率  」
 
-
 ![alt tag](https://github.com/anydream/il2cpp/raw/master/il2cpp-schematic.png)
 
+## How to
+  - Pre-requirements:
+    1. Windows 64-bit system required;
+    2. Visual Studio 2015 or 2017, C# and C++ desktop dev environments;
+  - Open ``il2cpp.sln``;
+  - Set ``test`` as startup project;
+  - Run.
 
-
-# 已实现的特性
+## 已实现的特性
 - [x] 类型/方法/字段的引用分析, 提取最小依赖子集
 - [x] 虚方法调用与虚表绑定
 - [x] 接口与基类方法的显式重写
@@ -24,7 +26,7 @@
 - [x] 枚举类型处理
 - [x] 字符串常量代码生成
 - [x] 可空类型代码生成
-- [x] 显式字段布局
+- [x] 显式字段布局和结构体长度
 - [x] 方法委托
 - [x] C++ 代码编译工具
 - [x] 数组读写指令
@@ -42,7 +44,7 @@
 - [x] 装箱/拆箱指令
 - [x] 溢出检查指令
 
-# 明确不支持的特性
+## 明确不支持的特性
 - [x] 运行时创建新类型 (TypeBuilder.CreateType)
 - [x] 运行时加载 .NET DLL 并实例化其中的类型
 - [x] 运行时实例化不存在的泛型展开 (编译期存在的泛型展开可以被动态实例化)
@@ -50,5 +52,7 @@
 - [x] 递归的泛型参数类型展开
 - [x] thiscall 方法委托类型的 Marshaling (只支持静态方法委托的 Marshaling)
 
+
+正在如火如荼地开发中...
 
 求 star 求测试~~
