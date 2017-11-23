@@ -2,14 +2,14 @@ il2cpp
 ===
 ### A MSIL/C# to C++ converter
 
-> 「  在享受C#开发速度的同时, 获得C++编译器往死里优化的执行效率  」
+> 「  在享受C#开发效率的同时, 获得C++编译器往死里优化的执行速度  」
 
 ![alt tag](https://github.com/anydream/il2cpp/raw/master/il2cpp-schematic.png)
 
 ## How to
   - Pre-requirements:
     1. Windows 64-bit system required;
-    2. Visual Studio 2015 or 2017, C# and C++ desktop dev environments;
+    2. Visual Studio **2017**, C# and C++ desktop dev environments;
   - Open ``il2cpp.sln``;
   - Set ``test`` as startup project;
   - Run.
