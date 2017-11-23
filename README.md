@@ -1,18 +1,20 @@
-# il2cpp
+il2cpp
+===
 ### A MSIL/C# to C++ converter
-
-
-正在如火如荼地开发中...
-
 
 > 「  在享受C#开发速度的同时, 获得C++编译器往死里优化的执行效率  」
 
-
 ![alt tag](https://github.com/anydream/il2cpp/raw/master/il2cpp-schematic.png)
 
+## How to
+  - Pre-requirements:
+    1. Windows 64-bit system required;
+    2. Visual Studio 2015/2017 C# and C++ desktop environments;
+  - Open ``il2cpp.sln``;
+  - Set ``test`` as startup project;
+  - Run.
 
-
-# 已实现的特性
+## 已实现的特性
 - [x] 类型/方法/字段的引用分析, 提取最小依赖子集
 - [x] 虚方法调用与虚表绑定
 - [x] 接口与基类方法的显式重写
@@ -51,4 +53,5 @@
 - [x] thiscall 方法委托类型的 Marshaling (只支持静态方法委托的 Marshaling)
 
 
+正在如火如荼地开发中...
 求 star 求测试~~
