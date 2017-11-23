@@ -595,7 +595,7 @@ namespace testcase
 			[FieldOffset(16)] public float fnum;
 		}
 
-		[StructLayout(LayoutKind.Sequential, Size = 120)]
+		[StructLayout(LayoutKind.Auto, Size = 120)]
 		struct StruSized
 		{
 			public float aa;
