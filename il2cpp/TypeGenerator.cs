@@ -88,10 +88,18 @@ namespace il2cpp
 				}
 
 				bool isExplicitLayout = CurrType.Def.IsExplicitLayout;
-				if (isExplicitLayout)
+				uint classSize = CurrType.Def.ClassSize;
+				bool hasStructSize = CurrType.Def.HasClassLayout && classSize != 0;
+				if (isExplicitLayout || hasStructSize)
 				{
 					prtDecl.AppendLine("union\n{");
 					++prtDecl.Indents;
+
+					if (!isExplicitLayout && fields.Count != 0)
+					{
+						prtDecl.AppendLine("struct\n{");
+						++prtDecl.Indents;
+					}
 				}
 
 				int fldCounter = 0;
@@ -125,8 +133,19 @@ namespace il2cpp
 					++fldCounter;
 				}
 
-				if (isExplicitLayout)
+				if (isExplicitLayout || hasStructSize)
 				{
+					if (!isExplicitLayout && fields.Count != 0)
+					{
+						--prtDecl.Indents;
+						prtDecl.AppendLine("};");
+					}
+					if (hasStructSize)
+					{
+						prtDecl.AppendFormatLine("uint8_t padding_struct[{0}];",
+							classSize);
+					}
+
 					--prtDecl.Indents;
 					prtDecl.AppendLine("};");
 				}

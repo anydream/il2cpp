@@ -595,6 +595,19 @@ namespace testcase
 			[FieldOffset(16)] public float fnum;
 		}
 
+		[StructLayout(LayoutKind.Sequential, Size = 120)]
+		struct StruSized
+		{
+			public float aa;
+			public double bb;
+		}
+
+		[StructLayout(LayoutKind.Explicit, Size = 60)]
+		struct StruExpSized
+		{
+			[FieldOffset(12)] public int num;
+		}
+
 		public static int Entry()
 		{
 			Stru s = new Stru();
@@ -614,6 +627,12 @@ namespace testcase
 
 			if ((byte*)&p->str - (byte*)p != 0)
 				return 5;
+
+			var s2 = new StruSized();
+			s2.aa = 1.23f;
+			s2.bb = 3.14;
+			var s3 = new StruExpSized();
+			s3.num = 666;
 
 			return 0;
 		}
