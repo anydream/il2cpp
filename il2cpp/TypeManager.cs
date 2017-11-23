@@ -49,6 +49,8 @@ namespace il2cpp
 		// 字符串对象是否已经解析
 		private bool IsStringTypeResolved;
 
+		private const string NsIl2cppRT = "il2cpprt";
+
 		public TypeManager(Il2cppContext context)
 		{
 			Context = context;
@@ -1397,9 +1399,17 @@ namespace il2cpp
 			if (BoxedTypePrototype != null)
 				return BoxedTypePrototype;
 
+			string typeName = "BoxedType";
+			TypeRef tyRef = Context.CorLibTypes.GetTypeRef(NsIl2cppRT, typeName);
+			if (tyRef != null)
+			{
+				BoxedTypePrototype = tyRef.Resolve();
+				return BoxedTypePrototype;
+			}
+
 			TypeDefUser tyDef = new TypeDefUser(
-				"il2cpprt",
-				"BoxedType",
+				NsIl2cppRT,
+				typeName,
 				Context.CorLibTypes.Object.ToTypeDefOrRef());
 			tyDef.Layout = TypeAttributes.SequentialLayout;
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.NonVariant, "T"));
@@ -1460,10 +1470,15 @@ namespace il2cpp
 
 		private TypeDef MakeSZArrayDef()
 		{
+			string typeName = "SZArray";
+			TypeRef tyRef = Context.CorLibTypes.GetTypeRef(NsIl2cppRT, typeName);
+			if (tyRef != null)
+				return tyRef.Resolve();
+
 			var arrayTyRef = Context.CorLibTypes.GetTypeRef("System", "Array");
 			TypeDefUser tyDef = new TypeDefUser(
-				"il2cpprt",
-				"SZArray",
+				NsIl2cppRT,
+				typeName,
 				arrayTyRef);
 			tyDef.Layout = TypeAttributes.SequentialLayout;
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
@@ -1531,9 +1546,14 @@ namespace il2cpp
 
 		private TypeDef MakeMDArrayDef(uint rank)
 		{
+			string typeName = "MDArray" + rank;
+			TypeRef tyRef = Context.CorLibTypes.GetTypeRef(NsIl2cppRT, typeName);
+			if (tyRef != null)
+				return tyRef.Resolve();
+
 			TypeDefUser tyDef = new TypeDefUser(
-				"il2cpprt",
-				"MDArray" + rank,
+				NsIl2cppRT,
+				typeName,
 				Context.CorLibTypes.GetTypeRef("System", "Array"));
 			tyDef.Layout = TypeAttributes.SequentialLayout;
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
@@ -1732,16 +1752,26 @@ namespace il2cpp
 		{
 			if (ThrowHelperType == null)
 			{
-				TypeDef tyDef = new TypeDefUser(
-					"il2cpprt",
-					"ThrowHelper",
-					Context.CorLibTypes.Object.TypeRef);
-				Context.CorLibModule.Types.Add(tyDef);
-				ThrowHelperType = tyDef;
+				string typeName = "ThrowHelper";
+				TypeRef tyRef = Context.CorLibTypes.GetTypeRef(NsIl2cppRT, typeName);
+				if (tyRef != null)
+				{
+					ThrowHelperType = tyRef.Resolve();
+				}
+				else
+				{
+					TypeDef tyDef = new TypeDefUser(
+										NsIl2cppRT,
+										typeName,
+										Context.CorLibTypes.Object.TypeRef);
+					Context.CorLibModule.Types.Add(tyDef);
+					ThrowHelperType = tyDef;
+				}
 			}
 
 			string metName = "Throw_" + exName;
-			if (ThrowHelperType.FindMethod(metName) == null)
+			MethodDef metDef = ThrowHelperType.FindMethod(metName);
+			if (metDef == null)
 			{
 				TypeDef exDef = Context.CorLibTypes.GetTypeRef("System", exName).Resolve();
 				Debug.Assert(
@@ -1750,10 +1780,10 @@ namespace il2cpp
 				MethodDef exDefCtor = exDef.FindDefaultConstructor();
 				Debug.Assert(exDefCtor != null);
 
-				MethodDef metDef = new MethodDefUser(
-					metName,
-					MethodSig.CreateStatic(Context.CorLibTypes.Void),
-					MethodAttributes.Public | MethodAttributes.Static);
+				metDef = new MethodDefUser(
+				   metName,
+				   MethodSig.CreateStatic(Context.CorLibTypes.Void),
+				   MethodAttributes.Public | MethodAttributes.Static);
 				ThrowHelperType.Methods.Add(metDef);
 
 				var body = metDef.Body = new CilBody();
@@ -1761,9 +1791,8 @@ namespace il2cpp
 				insts.Add(OpCodes.Newobj.ToInstruction(exDefCtor));
 				insts.Add(OpCodes.Throw.ToInstruction());
 				body.UpdateInstructionOffsets();
-
-				ResolveMethodDef(metDef);
 			}
+			ResolveMethodDef(metDef);
 		}
 
 		private void ResolveDelegateType()
