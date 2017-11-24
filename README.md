@@ -1,4 +1,4 @@
-il2cpp  *A MSIL/C# to C++ converter*
+il2cpp
 ===
 
 > 「  在享受C#开发效率的同时, 获得C++编译器往死里优化的执行速度  」
