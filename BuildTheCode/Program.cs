@@ -382,6 +382,8 @@ namespace BuildTheCode
 		protected virtual void UpdateHash(string path)
 		{
 			byte[] hashBytes = Helper.GetFileHash(path);
+			if (hashBytes == null)
+				return;
 			string hashFile = GetHashFilePath(path);
 
 			try
