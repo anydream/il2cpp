@@ -77,6 +77,7 @@ namespace il2cpp
 					if (currIsObject)
 					{
 						prtDecl.AppendLine("uint32_t TypeID;");
+						prtDecl.AppendLine("uint8_t Flags[4];");
 					}
 					else if (nameKey == "System.Array")
 					{

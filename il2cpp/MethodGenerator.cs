@@ -679,7 +679,7 @@ namespace il2cpp
 					}
 					else if (rank == pCount)
 					{
-						prt.AppendFormatLine("{0}->Rank = {1};\n{0}->Length = ",
+						prt.AppendFormat("{0}->Rank = {1};\n{0}->Length = ",
 							ArgName(0),
 							rank);
 						for (int i = 0; i < rank; ++i)
@@ -700,7 +700,7 @@ namespace il2cpp
 					}
 					else if (rank * 2 == pCount)
 					{
-						prt.AppendFormatLine("{0}->Rank = {1};\n{0}->Length = ",
+						prt.AppendFormat("{0}->Rank = {1};\n{0}->Length = ",
 							ArgName(0),
 							rank);
 						for (int i = 0; i < rank; ++i)
