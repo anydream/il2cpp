@@ -83,6 +83,14 @@ void il2cpp_Trap()
 #endif
 }
 
+#if defined(IL2CPP_DISABLE_CHECK_RANGE)
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
+{
+}
+void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen)
+{
+}
+#else
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 {
 	if (index < lowerBound || index >= IL2CPP_ADD(lowerBound, length))
@@ -97,6 +105,7 @@ void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_
 	if (index < lowerBound || index > IL2CPP_ADD(lowerBound, length))
 		IL2CPP_TRAP();
 }
+#endif
 
 float il2cpp_Remainder(float numer, float denom)
 {
