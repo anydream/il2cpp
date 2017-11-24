@@ -34,75 +34,7 @@ namespace il2cpp
 					return true;
 				}
 			}
-			/*else if (typeName == "System.Array")
-			{
-				if (metName == "get_Rank")
-				{
-					prt.AppendLine(
-						@"if (arg_0->Rank == 0)
-	return 1;
-return arg_0->Rank;");
-
-					return true;
-				}
-				else if (metName == "get_Length")
-				{
-					prt.AppendLine(
-						@"return il2cpp_Array__GetLength(arg_0);");
-
-					return true;
-				}
-				else if (metName == "get_LongLength")
-				{
-					prt.AppendLine(
-						@"return il2cpp_Array__GetLongLength(arg_0);");
-
-					return true;
-				}
-				else if (metName == "GetLength")
-				{
-					prt.AppendLine(
-						@"return il2cpp_Array__GetLength(arg_0, arg_1);");
-
-					return true;
-				}
-				else if (metName == "GetLowerBound")
-				{
-					prt.AppendLine(
-						@"return il2cpp_Array__GetLowerBound(arg_0, arg_1);");
-
-					return true;
-				}
-				else if (metName == "GetUpperBound")
-				{
-					prt.AppendLine(
-						@"return il2cpp_Array__GetUpperBound(arg_0, arg_1);");
-
-					return true;
-				}
-				else if (metName == "Copy")
-				{
-					prt.AppendLine(
-						@"il2cpp_Array__Copy(arg_0, arg_1, arg_2, arg_3, arg_4);");
-
-					return true;
-				}
-				else if (metName == "Clear")
-				{
-					prt.AppendLine(
-						@"il2cpp_Array__Clear(arg_0, arg_1, arg_2);");
-
-					return true;
-				}
-			}
-			else if (typeName == "System.Environment")
-			{
-				if (metName == "GetResourceFromDefault")
-				{
-					prt.AppendLine("return arg_0;");
-					return true;
-				}
-			}
+			/*
 			else if (typeName == "System.ValueType")
 			{
 				if (metName == "GetHashCode")

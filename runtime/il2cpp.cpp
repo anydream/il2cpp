@@ -218,33 +218,17 @@ cls_String* met_2Rvly4_Environment__GetResourceFromDefault(cls_String* str)
 uint32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary)
 {
 	IL2CPP_ASSERT(ary->Rank == 0);
-	return ((uint32_t*)&ary[1])[0];
+	return (uint32_t)ary->Length;
 }
 
 uint32_t il2cpp_Array__GetLength(cls_System_Array* ary)
 {
-	if (IL2CPP_LIKELY(ary->Rank == 0))
-		return ((uint32_t*)&ary[1])[0];
-	else
-	{
-		uint32_t length = 1;
-		for (uint32_t i = 0, sz = ary->Rank; i < sz; ++i)
-			length *= ((uint32_t*)&ary[1])[i * 2 + 1];
-		return length;
-	}
+	return (uint32_t)ary->Length;
 }
 
 uint64_t il2cpp_Array__GetLongLength(cls_System_Array* ary)
 {
-	if (IL2CPP_LIKELY(ary->Rank == 0))
-		return ((uint32_t*)&ary[1])[0];
-	else
-	{
-		uint64_t length = 1;
-		for (uint32_t i = 0, sz = ary->Rank; i < sz; ++i)
-			length *= ((uint32_t*)&ary[1])[i * 2 + 1];
-		return length;
-	}
+	return (uint64_t)ary->Length;
 }
 
 uint32_t il2cpp_Array__GetLength(cls_System_Array* ary, uint32_t dim)
@@ -252,7 +236,7 @@ uint32_t il2cpp_Array__GetLength(cls_System_Array* ary, uint32_t dim)
 	if (IL2CPP_LIKELY(ary->Rank == 0))
 	{
 		IL2CPP_CHECK_RANGE(0, 1, dim);
-		return ((uint32_t*)&ary[1])[0];
+		return (uint32_t)ary->Length;
 	}
 	else
 	{
@@ -280,7 +264,7 @@ int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, uint32_t dim)
 	if (IL2CPP_LIKELY(ary->Rank == 0))
 	{
 		IL2CPP_CHECK_RANGE(0, 1, dim);
-		return ((int32_t*)&ary[1])[0] - 1;
+		return (int32_t)(ary->Length - 1);
 	}
 	else
 	{
@@ -292,17 +276,17 @@ int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, uint32_t dim)
 
 void il2cpp_Array__Copy(cls_System_Array* srcAry, uint32_t srcIdx, cls_System_Array* dstAry, uint32_t dstIdx, uint32_t copyLen)
 {
-	uint32_t elemSize = dstAry->ElemSize;
-	uint32_t rank = dstAry->Rank;
+	auto elemSize = dstAry->ElemSize;
+	auto rank = dstAry->Rank;
 	IL2CPP_ASSERT(elemSize == srcAry->ElemSize);
 	IL2CPP_ASSERT(rank == srcAry->Rank);
 
-	uint64_t srcLen = il2cpp_Array__GetLongLength(srcAry);
-	uint64_t dstLen = il2cpp_Array__GetLongLength(dstAry);
+	auto srcLen = srcAry->Length;
+	auto dstLen = dstAry->Length;
 	il2cpp_CheckRange(0, srcLen, srcIdx, copyLen);
 	il2cpp_CheckRange(0, dstLen, dstIdx, copyLen);
 
-	uint32_t dataOffset = rank == 0 ? sizeof(uint32_t) : rank * sizeof(uint32_t) * 2;
+	uint32_t dataOffset = rank == 0 ? 0 : rank * sizeof(uint32_t) * 2;
 	uint8_t* srcPtr = (uint8_t*)&srcAry[1] + dataOffset + elemSize * srcIdx;
 	uint8_t* dstPtr = (uint8_t*)&dstAry[1] + dataOffset + elemSize * dstIdx;
 
@@ -311,12 +295,12 @@ void il2cpp_Array__Copy(cls_System_Array* srcAry, uint32_t srcIdx, cls_System_Ar
 
 void il2cpp_Array__Clear(cls_System_Array* ary, uint32_t idx, uint32_t clearLen)
 {
-	uint32_t elemSize = ary->ElemSize;
-	uint32_t rank = ary->Rank;
-	uint64_t aryLen = il2cpp_Array__GetLongLength(ary);
+	auto elemSize = ary->ElemSize;
+	auto rank = ary->Rank;
+	auto aryLen = ary->Length;
 	il2cpp_CheckRange(0, aryLen, idx, clearLen);
 
-	uint32_t dataOffset = rank == 0 ? sizeof(uint32_t) : rank * sizeof(uint32_t) * 2;
+	uint32_t dataOffset = rank == 0 ? 0 : rank * sizeof(uint32_t) * 2;
 	uint8_t* ptr = (uint8_t*)&ary[1] + dataOffset + elemSize * idx;
 
 	IL2CPP_MEMSET(ptr, 0, elemSize * clearLen);
