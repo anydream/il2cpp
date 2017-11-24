@@ -34,7 +34,7 @@ namespace il2cpp
 					return true;
 				}
 			}
-			else if (typeName == "System.Array")
+			/*else if (typeName == "System.Array")
 			{
 				if (metName == "get_Rank")
 				{
@@ -119,7 +119,7 @@ return arg_0->Rank;");
 					prt.AppendLine("return (int32_t)((uint32_t)val ^ (uint32_t)(val >> 32));");
 					return true;
 				}
-			}
+			}*/
 			return false;
 		}
 	}

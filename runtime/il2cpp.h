@@ -369,7 +369,11 @@ float il2cpp_Ckfinite(float num);
 double il2cpp_Ckfinite(double num);
 void il2cpp_ThrowOverflow();
 
+struct cls_String;
 struct cls_System_Array;
+
+cls_String* met_2Rvly4_Environment__GetResourceFromDefault(cls_String* str);
+
 uint32_t il2cpp_SZArray__LoadLength(cls_System_Array* ary);
 uint32_t il2cpp_Array__GetLength(cls_System_Array* ary);
 uint64_t il2cpp_Array__GetLongLength(cls_System_Array* ary);
@@ -378,3 +382,12 @@ int32_t il2cpp_Array__GetLowerBound(cls_System_Array* ary, uint32_t dim);
 int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, uint32_t dim);
 void il2cpp_Array__Copy(cls_System_Array* srcAry, uint32_t srcIdx, cls_System_Array* dstAry, uint32_t dstIdx, uint32_t copyLen);
 void il2cpp_Array__Clear(cls_System_Array* ary, uint32_t idx, uint32_t clearLen);
+
+int32_t met_yYD1s1_Array__get_Rank(cls_System_Array* ary);
+int32_t met_im47r1_Array__get_Length(cls_System_Array* ary);
+int64_t met_mkmvJ2_Array__get_LongLength(cls_System_Array* ary);
+int32_t met_Ksden4_Array__GetLength(cls_System_Array* ary, int32_t dim);
+int32_t met_ceL9h_Array__GetLowerBound(cls_System_Array* ary, int32_t dim);
+int32_t met_OyzG21_Array__GetUpperBound(cls_System_Array* ary, int32_t dim);
+void met_ezijB_Array__Copy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen, uint8_t reliable);
+void met_mjkfQ2_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLen);
