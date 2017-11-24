@@ -338,9 +338,7 @@ namespace il2cpp
 				prt.AppendLine("\n{");
 				++prt.Indents;
 
-				prt.AppendLine("static uintptr_t s_LockTid = 0;");
-				prt.AppendLine("static int8_t s_OnceFlag = 0;");
-				prt.AppendFormatLine("IL2CPP_CALL_ONCE(s_OnceFlag, s_LockTid, &{0});",
+				prt.AppendFormatLine("IL2CPP_CALL_CCTOR({0});",
 					onceFuncName);
 
 				--prt.Indents;

@@ -36,8 +36,22 @@
 #define IL2CPP_MEMSET				memset
 #define IL2CPP_ALLOCA				alloca
 #define IL2CPP_NEW					il2cpp_New
-#define IL2CPP_CALL_ONCE			il2cpp_CallOnce
 #define IL2CPP_THROW(_ex)			throw il2cppException(_ex)
+
+#if defined(IL2CPP_DISABLE_THREADSAFE_CALL_CCTOR)
+#define IL2CPP_CALL_CCTOR(_pfn) \
+	static bool s_IsCalled = false; \
+	if (!s_IsCalled) \
+	{ \
+		s_IsCalled = true; \
+		_pfn(); \
+	}
+#else
+#define IL2CPP_CALL_CCTOR(_pfn) \
+	static uintptr_t s_LockTid = 0; \
+	static uint8_t s_OnceFlag = 0; \
+	il2cpp_CallOnce(s_OnceFlag, s_LockTid, &_pfn);
+#endif
 
 #define IL2CPP_NANF					il2cpp_NaNF()
 #define IL2CPP_NAND					il2cpp_NaND()
@@ -125,7 +139,7 @@ void il2cpp_Init();
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
 void il2cpp_Yield();
 uintptr_t il2cpp_ThreadID();
-void il2cpp_CallOnce(int8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
+void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
 
 inline float il2cpp_NaNF()
 {
