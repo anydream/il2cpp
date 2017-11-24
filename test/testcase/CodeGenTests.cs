@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace testcase
@@ -3002,6 +3004,22 @@ namespace testcase
 
 	internal class Program
 	{
+		private static void MainRayTrace()
+		{
+			var tw = new Stopwatch();
+			tw.Start();
+			var c = TestRayTrace2.Entry();
+			tw.Stop();
+			Console.WriteLine("Elapsed: {0}", tw.ElapsedMilliseconds);
+
+			using (StreamWriter sw = new StreamWriter("imageCS.ppm"))
+			{
+				sw.Write("P3\r\n{0} {1}\r\n{2}\r\n", 256, 256, 255);
+				for (int i = 0; i < 256 * 256; i++)
+					sw.Write("{0} {1} {2}\r\n", TestRayTrace2.toInt(c[i].x), TestRayTrace2.toInt(c[i].y), TestRayTrace2.toInt(c[i].z));
+			}
+		}
+
 		private static void Main()
 		{
 			TestDelegate.Entry();
