@@ -138,8 +138,12 @@ struct il2cppException
 void il2cpp_Init();
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
 void il2cpp_Yield();
+void il2cpp_SleepMS(uint32_t ms);
 uintptr_t il2cpp_ThreadID();
+void il2cpp_Trap();
 void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
+void il2cpp_SpinLock(uint8_t &flag);
+void il2cpp_SpinUnlock(uint8_t &flag);
 
 inline float il2cpp_NaNF()
 {
@@ -360,7 +364,6 @@ int64_t il2cpp_ConvOverflow<int64_t>(double from);
 template <>
 int32_t il2cpp_ConvOverflow<int32_t>(double from);
 
-void il2cpp_Trap();
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);
 float il2cpp_Remainder(float numer, float denom);
@@ -391,3 +394,6 @@ int32_t met_ceL9h_Array__GetLowerBound(cls_System_Array* ary, int32_t dim);
 int32_t met_OyzG21_Array__GetUpperBound(cls_System_Array* ary, int32_t dim);
 void met_ezijB_Array__Copy(cls_System_Array* srcAry, int32_t srcIdx, cls_System_Array* dstAry, int32_t dstIdx, int32_t copyLen, uint8_t reliable);
 void met_mjkfQ2_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLen);
+
+void met_5lgqh_Monitor__ReliableEnter(cls_Object* obj, uint8_t* lockTaken);
+void met_vcJk_Monitor__Exit(cls_Object* obj);

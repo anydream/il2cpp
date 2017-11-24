@@ -242,6 +242,29 @@ namespace testcase
 	}
 
 	[CodeGen]
+	static class TestObject
+	{
+		public static int Entry()
+		{
+			int num = 0;
+			for (int i = 0; i < 10; ++i)
+			{
+				object obj = new object();
+				lock (obj)
+				{
+					++num;
+					obj = null;
+				}
+			}
+
+			if (num != 10)
+				return 1;
+
+			return 0;
+		}
+	}
+
+	[CodeGen]
 	static class TestCallVirt
 	{
 		interface Inf

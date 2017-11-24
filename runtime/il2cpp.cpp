@@ -7,6 +7,7 @@
 #include <windows.h>
 #else
 #include <sys/types.h>
+#include <unistd.h>
 #include <sched.h>
 #endif
 
@@ -45,12 +46,30 @@ void il2cpp_Yield()
 #endif
 }
 
+void il2cpp_SleepMS(uint32_t ms)
+{
+#if defined(_WIN32)
+	Sleep(ms);
+#else
+	usleep(ms * 1000);
+#endif
+}
+
 uintptr_t il2cpp_ThreadID()
 {
 #if defined(_WIN32)
 	return (uintptr_t)GetCurrentThreadId();
 #else
 	return (uintptr_t)gettid();
+#endif
+}
+
+void il2cpp_Trap()
+{
+#if __has_builtin(__builtin_trap)
+	__builtin_trap();
+#else
+	abort();
 #endif
 }
 
@@ -74,13 +93,25 @@ void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 	}
 }
 
-void il2cpp_Trap()
+void il2cpp_SpinLock(uint8_t &flag)
 {
-#if __has_builtin(__builtin_trap)
-	__builtin_trap();
-#else
-	abort();
-#endif
+	uint32_t count = 10;
+	while (IL2CPP_ATOMIC_CAS(&flag, 0, 1) != 0)
+	{
+		if (count < 200)
+		{
+			for (uint32_t i = 0; i < count; ++i)
+				il2cpp_Yield();
+			++count;
+		}
+		else
+			il2cpp_SleepMS(1);
+	}
+}
+
+void il2cpp_SpinUnlock(uint8_t &flag)
+{
+	IL2CPP_ATOMIC_CAS(&flag, 1, 0);
 }
 
 #if defined(IL2CPP_DISABLE_CHECK_RANGE)
@@ -356,5 +387,17 @@ void met_mjkfQ2_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLe
 {
 	il2cpp_Array__Clear(ary, idx, clearLen);
 }
+#endif
 
+#if defined(IL2CPP_BRIDGE_HAS_cls_System_Threading_Monitor)
+void met_5lgqh_Monitor__ReliableEnter(cls_Object* obj, uint8_t* lockTaken)
+{
+	il2cpp_SpinLock(obj->Flags[0]);
+	*lockTaken = 1;
+}
+
+void met_vcJk_Monitor__Exit(cls_Object* obj)
+{
+	il2cpp_SpinUnlock(obj->Flags[0]);
+}
 #endif

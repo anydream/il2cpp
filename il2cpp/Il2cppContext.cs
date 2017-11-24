@@ -65,7 +65,7 @@ namespace il2cpp
 			return new GeneratorContext(TypeMgr).Generate();
 		}
 
-		public static void SaveToFolder(string folder, List<CompileUnit> units, HashSet<string> addUnitNames)
+		public static void SaveToFolder(string folder, List<CompileUnit> units, HashSet<string> addUnitNames, string addParams = null)
 		{
 			Directory.CreateDirectory(folder);
 			HashSet<string> unitNames = new HashSet<string>(addUnitNames);
@@ -88,7 +88,7 @@ namespace il2cpp
 			// 生成编译脚本
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("@echo off");
-			sb.Append("BuildTheCode il2cpp.cpp");
+			sb.AppendFormat("BuildTheCode {0} il2cpp.cpp", addParams);
 			foreach (string unitName in unitNames)
 				sb.AppendFormat(" {0}.cpp", unitName);
 			sb.AppendLine();
