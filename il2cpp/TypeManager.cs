@@ -1537,7 +1537,7 @@ namespace il2cpp
 				if (hlpMetDef.IsStatic || hlpMetDef.IsConstructor)
 					continue;
 
-				MethodDef aryMetDef = CopyMethodImplForSZArray(hlpClsDef, hlpMetDef, genArgT);
+				MethodDef aryMetDef = CopyMethodFromSZArrayHelper(hlpClsDef, hlpMetDef, genArgT);
 				tyDef.Methods.Add(aryMetDef);
 			}
 
@@ -1628,7 +1628,7 @@ namespace il2cpp
 		}
 
 		// 复制方法实现到 SZArray
-		private MethodDef CopyMethodImplForSZArray(TypeDef hlpClsDef, MethodDef hlpMetDef, GenericVar genArgT)
+		private MethodDef CopyMethodFromSZArrayHelper(TypeDef hlpClsDef, MethodDef hlpMetDef, GenericVar genArgT)
 		{
 			MethodX hlpMetX = new MethodX(new TypeX(hlpClsDef), hlpMetDef);
 			hlpMetX.GenArgs = new List<TypeSig>() { genArgT };
@@ -1651,6 +1651,7 @@ namespace il2cpp
 			{
 				body.Variables.Add(new Local(Helper.ReplaceGenericSig(loc.Type, replacer)));
 			}
+			Debug.Assert(!hlpBody.HasExceptionHandlers);
 
 			var offsetMap = new Dictionary<uint, int>();
 
