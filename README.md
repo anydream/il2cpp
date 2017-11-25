@@ -12,14 +12,17 @@ il2cpp
   - Open ``il2cpp.sln``;
   - Set ``test`` as startup project;
   - Run.
-  - You can add some test code into ``CodeGenTests.cs`` like this:
+  - You can add your test code into ``CodeGenTests.cs`` like this:
     ```CSharp
     [CodeGen]
     static class MyTest
     {
+        // return 0 means PASS, otherwise means FAIL
         public static int Entry()
         {
-            // return 0 means PASS, otherwise means FAIL
+            int a = 1, b = 2;
+            if (a + b != 3)
+                return 1;
             return 0;
         }
     }
