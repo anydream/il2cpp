@@ -500,10 +500,15 @@ namespace il2cpp
 			throw new NotImplementedException(tySig.ElementType.ToString());
 		}
 
-		public string GetTypeName(TypeX tyX)
+		public string GetTypeName(TypeX tyX, bool expandEnum = true)
 		{
-			if (tyX.IsEnumType)
-				return GetTypeName(tyX.EnumTypeSig);
+			if (tyX == null)
+				return "il2cppDummy";
+			if (expandEnum)
+			{
+				if (tyX.IsEnumType)
+					return GetTypeName(tyX.EnumTypeSig);
+			}
 
 			string strName = tyX.GeneratedTypeName;
 			if (strName == null)

@@ -19,7 +19,7 @@ namespace il2cpp
 		public CompileUnit Generate()
 		{
 			CompileUnit unit = new CompileUnit();
-			unit.Name = GenContext.GetTypeName(CurrType);
+			unit.Name = GenContext.GetTypeName(CurrType, false);
 
 			// 重排字段
 			var fields = LayoutFields(out var sfields);

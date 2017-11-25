@@ -866,8 +866,8 @@ namespace il2cpp
 
 					return true;
 				}
-				else
-					throw new NotImplementedException();
+				//else
+				//	throw new NotImplementedException();
 			}
 			else
 				return RuntimeInternals.GenInternalMethod(CurrMethod, prt, GenContext);
@@ -2806,6 +2806,7 @@ namespace il2cpp
 			{
 				inst.InstCode += GenGoto(target);
 			}
+			TypeStack.Clear();
 		}
 
 		private List<ExHandlerInfo> GetLeaveThroughHandlers(int offset, int target)
