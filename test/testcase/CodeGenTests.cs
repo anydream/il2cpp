@@ -246,26 +246,50 @@ namespace testcase
 	[CodeGen]
 	static class TestObject
 	{
-		private static object s_Locker = new object();
-		private static int s_ObjCounter;
+		private static object s_NewLocker = new object();
+		private static object s_DelLocker = new object();
+		private static long s_NewCounter;
+		private static long s_DelCounter;
 
 		class Cls
 		{
+			public int num;
+			public byte[] payload = new byte[64];
 			public Cls()
 			{
-				lock (s_Locker)
+				lock (s_NewLocker)
 				{
-					++s_ObjCounter;
+					++s_NewCounter;
 				}
 			}
 
 			~Cls()
 			{
-				lock (s_Locker)
+				lock (s_DelLocker)
 				{
-					--s_ObjCounter;
+					++s_DelCounter;
 				}
 			}
+		}
+
+		static int TestFinalizer()
+		{
+			Cls[] ary = new Cls[9999];
+			for (int i = 0; i < ary.Length; ++i)
+			{
+				ary[i] = new Cls() { num = i };
+			}
+			if (ary.Length != 9999)
+				return -1;
+
+			int sum = 0;
+			foreach (Cls cls in ary)
+				sum += cls.num;
+
+			if (sum != 49985001)
+				return -2;
+
+			return 0;
 		}
 
 		public static int Entry()
@@ -280,23 +304,25 @@ namespace testcase
 					obj = null;
 				}
 			}
-
 			if (num != 10)
 				return 1;
 
-			Cls[] ary = new Cls[9999];
-			for (int i = 0; i < ary.Length; ++i)
-				ary[i] = new Cls();
+			for (; ; )
+			{
+				int res = TestFinalizer();
+				if (res != 0)
+					return res;
 
-			if (s_ObjCounter != ary.Length)
-				return 2;
+				GC.Collect();
 
-			ary = null;
-			GC.Collect();
-			if (s_ObjCounter != 0)
-				return 3;
+				if (s_DelCounter >= 999900)
+				{
+					if (s_NewCounter - s_DelCounter == 9999)
+						return 0;
+				}
+			}
 
-			return 0;
+			return -3;
 		}
 	}
 
@@ -3056,7 +3082,7 @@ namespace testcase
 
 		private static void Main()
 		{
-			TestDelegate.Entry();
+			TestObject.Entry();
 		}
 	}
 }
