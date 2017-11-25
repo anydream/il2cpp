@@ -21,10 +21,10 @@ void* il2cpp_GC_AllocAtomic(uintptr_t sz)
 
 static void GC_CALLBACK FinalizerCallback(void* obj, void* cdata)
 {
-	((void(*)(cls_Object*))cdata)((cls_Object*)obj);
+	((IL2CPP_FINALIZER_FUNC)cdata)((cls_Object*)obj);
 }
 
-void il2cpp_GC_RegisterFinalizer(cls_Object* obj, void(*finalizer)(cls_Object*))
+void il2cpp_GC_RegisterFinalizer(cls_Object* obj, IL2CPP_FINALIZER_FUNC finalizer)
 {
 	IL2CPP_ASSERT(finalizer != nullptr);
 	GC_REGISTER_FINALIZER_NO_ORDER(obj, &FinalizerCallback, (void*)finalizer, nullptr, nullptr);

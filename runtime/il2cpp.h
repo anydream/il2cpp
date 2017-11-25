@@ -140,7 +140,7 @@ typedef void(*IL2CPP_FINALIZER_FUNC)(cls_Object*);
 void il2cpp_Trap();
 void il2cpp_Init();
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
-void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, void(*finalizer)(cls_Object*));
+void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, IL2CPP_FINALIZER_FUNC finalizer);
 void il2cpp_Yield();
 void il2cpp_SleepMS(uint32_t ms);
 uintptr_t il2cpp_ThreadID();

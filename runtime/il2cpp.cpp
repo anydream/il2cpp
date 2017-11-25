@@ -46,7 +46,7 @@ void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef)
 	return obj;
 }
 
-void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, void(*finalizer)(cls_Object*))
+void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, IL2CPP_FINALIZER_FUNC finalizer)
 {
 	if (sz < 4)
 		sz = 4;
