@@ -12,6 +12,7 @@ il2cpp
   - Open ``il2cpp.sln``;
   - Set ``test`` as startup project;
   - Run.
+
   - You can add your test code into ``CodeGenTests.cs`` like this:
     ```CSharp
     [CodeGen]
