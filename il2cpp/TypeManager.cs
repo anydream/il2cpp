@@ -44,8 +44,6 @@ namespace il2cpp
 
 		private DelegateProperty DelegateType;
 
-		// 对象终结器虚调用是否已经生成
-		private bool IsVCallFinalizerGenerated;
 		// 字符串对象是否已经解析
 		private bool IsStringTypeResolved;
 
@@ -674,21 +672,7 @@ namespace il2cpp
 			{
 				MethodX metX = new MethodX(tyX, fin);
 				tyX.FinalizerMethod = AddMethod(metX);
-
-				AddVCallObjectFinalizer();
 			}
-		}
-
-		private void AddVCallObjectFinalizer()
-		{
-			if (IsVCallFinalizerGenerated)
-				return;
-			IsVCallFinalizerGenerated = true;
-
-			MethodDef fin = Context.CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("Finalize");
-			MethodX vmetFinalizer = ResolveMethodDef(fin);
-
-			AddVCallEntry(vmetFinalizer);
 		}
 
 		private void AddVCallEntry(MethodX virtMetX)

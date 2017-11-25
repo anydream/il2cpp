@@ -135,12 +135,15 @@ struct il2cppException
 	il2cppException(cls_Object* ptr) : ExceptionPtr(ptr) {}
 };
 
+typedef void(*IL2CPP_FINALIZER_FUNC)(cls_Object*);
+
+void il2cpp_Trap();
 void il2cpp_Init();
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
+void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, void(*finalizer)(cls_Object*));
 void il2cpp_Yield();
 void il2cpp_SleepMS(uint32_t ms);
 uintptr_t il2cpp_ThreadID();
-void il2cpp_Trap();
 void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)());
 void il2cpp_SpinLock(uint8_t &flag);
 void il2cpp_SpinUnlock(uint8_t &flag);

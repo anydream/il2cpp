@@ -11,6 +11,15 @@
 #include <sched.h>
 #endif
 
+void il2cpp_Trap()
+{
+#if __has_builtin(__builtin_trap)
+	__builtin_trap();
+#else
+	abort();
+#endif
+}
+
 void il2cpp_Init()
 {
 	il2cpp_GC_Init();
@@ -33,6 +42,24 @@ void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef)
 	else
 		obj = (cls_Object*)il2cpp_GC_Alloc(sz);
 #endif
+	obj->TypeID = typeID;
+	return obj;
+}
+
+void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, void(*finalizer)(cls_Object*))
+{
+	if (sz < 4)
+		sz = 4;
+
+	cls_Object* obj;
+
+	if (isNoRef)
+		obj = (cls_Object*)il2cpp_GC_AllocAtomic(sz);
+	else
+		obj = (cls_Object*)il2cpp_GC_Alloc(sz);
+
+	il2cpp_GC_RegisterFinalizer(obj, finalizer);
+
 	obj->TypeID = typeID;
 	return obj;
 }
@@ -61,15 +88,6 @@ uintptr_t il2cpp_ThreadID()
 	return (uintptr_t)GetCurrentThreadId();
 #else
 	return (uintptr_t)gettid();
-#endif
-}
-
-void il2cpp_Trap()
-{
-#if __has_builtin(__builtin_trap)
-	__builtin_trap();
-#else
-	abort();
 #endif
 }
 

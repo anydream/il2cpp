@@ -246,6 +246,28 @@ namespace testcase
 	[CodeGen]
 	static class TestObject
 	{
+		private static object s_Locker = new object();
+		private static int s_ObjCounter;
+
+		class Cls
+		{
+			public Cls()
+			{
+				lock (s_Locker)
+				{
+					++s_ObjCounter;
+				}
+			}
+
+			~Cls()
+			{
+				lock (s_Locker)
+				{
+					--s_ObjCounter;
+				}
+			}
+		}
+
 		public static int Entry()
 		{
 			int num = 0;
@@ -261,6 +283,18 @@ namespace testcase
 
 			if (num != 10)
 				return 1;
+
+			Cls[] ary = new Cls[9999];
+			for (int i = 0; i < ary.Length; ++i)
+				ary[i] = new Cls();
+
+			if (s_ObjCounter != ary.Length)
+				return 2;
+
+			ary = null;
+			GC.Collect();
+			if (s_ObjCounter != 0)
+				return 3;
 
 			return 0;
 		}

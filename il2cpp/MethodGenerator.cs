@@ -2381,11 +2381,12 @@ namespace il2cpp
 
 				string strCode = GenAssign(
 					TempName(slotPush),
-					string.Format("IL2CPP_NEW(sizeof({0}){1}, {2}, {3})",
+					string.Format("IL2CPP_NEW(sizeof({0}){1}, {2}, {3}{4})",
 						GenContext.GetTypeName(tyX),
 						strAddSize,
 						GenContext.GetTypeID(tyX),
-						GenContext.IsNoRefType(tyX) ? "1" : "0"),
+						GenContext.IsNoRefType(tyX) ? "1" : "0",
+						tyX.FinalizerMethod != null ? ", (IL2CPP_FINALIZER_FUNC)&" + GenContext.GetMethodName(tyX.FinalizerMethod, PrefixMet) : null),
 					slotPush.SlotType);
 
 				var ctorList = new List<SlotInfo>(ctorArgs);
