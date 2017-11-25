@@ -419,3 +419,10 @@ void met_vcJk_Monitor__Exit(cls_Object* obj)
 	il2cpp_SpinUnlock(obj->Flags[0]);
 }
 #endif
+
+#if defined(IL2CPP_BRIDGE_HAS_cls_System_GC)
+void met_Jbedr_GC___Collect(int32_t gen, int32_t mode)
+{
+	il2cpp_GC_Collect();
+}
+#endif

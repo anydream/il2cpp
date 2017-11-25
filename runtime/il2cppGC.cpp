@@ -30,6 +30,11 @@ void il2cpp_GC_RegisterFinalizer(cls_Object* obj, IL2CPP_FINALIZER_FUNC finalize
 	GC_REGISTER_FINALIZER_NO_ORDER(obj, &FinalizerCallback, (void*)finalizer, nullptr, nullptr);
 }
 
+void il2cpp_GC_Collect()
+{
+	GC_gcollect();
+}
+
 #if defined(IL2CPP_PATCH_LLVM)
 extern "C" void* _il2cpp_GC_PatchCalloc(uintptr_t nelem, uintptr_t sz)
 {

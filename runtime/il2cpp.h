@@ -414,3 +414,5 @@ void met_mjkfQ2_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLe
 
 void met_5lgqh_Monitor__ReliableEnter(cls_Object* obj, uint8_t* lockTaken);
 void met_vcJk_Monitor__Exit(cls_Object* obj);
+
+void met_Jbedr_GC___Collect(int32_t gen, int32_t mode);

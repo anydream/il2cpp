@@ -112,6 +112,7 @@ namespace il2cpp
 			"cls_System_Array",
 			"cls_System_Threading_Monitor",
 			"cls_il2cpprt_ThrowHelper",
+			"cls_System_GC",
 		};
 
 		public CompileUnitMerger(Dictionary<string, CompileUnit> units)
