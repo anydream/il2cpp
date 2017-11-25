@@ -170,10 +170,10 @@ namespace test
 		{
 			if (typeDef.HasCustomAttributes)
 			{
-				var attr = typeDef.CustomAttributes[0];
-				if (attr.AttributeType.Name == "CodeGenAttribute"
+				var codeGenAttr = typeDef.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == "CodeGenAttribute");
+				if (codeGenAttr != null
 				)
-				//&& typeDef.Name == "TestInstExceptions")
+				// && typeDef.Name == "TestYield")
 				{
 					return typeDef.FindMethod("Entry");
 				}

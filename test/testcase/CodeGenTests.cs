@@ -2146,6 +2146,31 @@ namespace testcase
 	}
 
 	//[CodeGen]
+	static class TestYield
+	{
+		static IEnumerable<int> MyRange(int start, int end)
+		{
+			for (var i = start; i <= end; i++)
+				yield return i;
+		}
+
+		static int MySum(this IEnumerable<int> numbers)
+		{
+			var sum = 0;
+			foreach (var i in numbers)
+				sum += i;
+			return sum;
+		}
+
+		public static int Entry()
+		{
+			int a = MyRange(1, 100).MySum();
+
+			return a;
+		}
+	}
+
+	//[CodeGen]
 	static class TestReflection
 	{
 		public static int Entry()
@@ -3082,7 +3107,7 @@ namespace testcase
 
 		private static void Main()
 		{
-			TestObject.Entry();
+			TestYield.Entry();
 		}
 	}
 }
