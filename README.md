@@ -12,7 +12,7 @@ il2cpp
   - Open ``il2cpp.sln``;
   - Set ``test`` as startup project;
   - Run.
-  - You can add your test code into ``CodeGenTests.cs`` like this:
+  - You can add your test code into ``CodeGenTests.cs`` like this:
     ```CSharp
     [CodeGen]
     static class MyTest
@@ -72,5 +72,4 @@ il2cpp
 
 
 **正在如火如荼地开发中...**
-
 **求 star 求测试~**
