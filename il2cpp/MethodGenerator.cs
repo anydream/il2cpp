@@ -1690,7 +1690,7 @@ namespace il2cpp
 					GenLeave(inst, (int)operand);
 					return;
 
-				//! 反射指令暂时返回空指针
+				//! 反射指令暂时返回空
 				case Code.Ldtoken:
 					switch (operand)
 					{
@@ -1711,7 +1711,7 @@ namespace il2cpp
 					return;
 				case Code.Mkrefany:
 					Pop();
-					GenLdc(inst, StackType.Obj, "nullptr");
+					GenLoad(inst, new StackType("stru_System_TypedReference"), "{}");
 					return;
 
 				case Code.Newarr:
