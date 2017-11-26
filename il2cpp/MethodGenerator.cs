@@ -477,7 +477,7 @@ namespace il2cpp
 			if (CurrMethod.ExHandlerList.IsCollectionValid())
 			{
 				prt.AppendLine("// exceptions");
-				prt.AppendLine("cls_Object* lastException = 0;");
+				prt.AppendLine("cls_Object* lastException = nullptr;");
 				prt.AppendLine("int leaveTarget = 0;");
 				prt.AppendLine();
 			}
@@ -1692,7 +1692,22 @@ namespace il2cpp
 
 				//! 反射指令暂时返回空指针
 				case Code.Ldtoken:
-					GenLdc(inst, StackType.Obj, "nullptr");
+					switch (operand)
+					{
+						case TypeX opTyX:
+						case TypeDef opTyDef:
+						case TypeSpec opTySpec:
+							GenLoad(inst, new StackType("stru_System_RuntimeTypeHandle"), "{}");
+							break;
+						case MethodX opMetX:
+							GenLoad(inst, new StackType("stru_System_RuntimeMethodHandle"), "{}");
+							break;
+						case FieldX opFldX:
+							GenLoad(inst, new StackType("stru_System_RuntimeFieldHandle"), "{}");
+							break;
+						default:
+							throw new NotImplementedException();
+					}
 					return;
 				case Code.Mkrefany:
 					Pop();
@@ -1735,6 +1750,14 @@ namespace il2cpp
 			inst.InstCode = GenAssign(TempName(slotPush), TempName(slotTop), (TypeSig)null);
 			++PopCount;
 			++PushCount;
+		}
+
+		private void GenLoad(InstInfo inst, StackType stype, string val)
+		{
+			var slotPush = Push(stype);
+			inst.InstCode = string.Format("{0} = {1};",
+				TempName(slotPush),
+				val);
 		}
 
 		private void GenLdc(InstInfo inst, StackType stype, string val)
@@ -2790,7 +2813,7 @@ namespace il2cpp
 
 		private void GenLeave(InstInfo inst, int target)
 		{
-			inst.InstCode = "lastException = 0;\n";
+			inst.InstCode = "lastException = nullptr;\n";
 
 			var leaveHandlers = GetLeaveThroughHandlers(inst.Offset, target);
 			if (leaveHandlers.IsCollectionValid())

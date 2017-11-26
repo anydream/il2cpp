@@ -107,12 +107,15 @@ namespace il2cpp
 		public readonly Dictionary<string, CompileUnit> UnitMap;
 		private static readonly HashSet<string> BridgeTypes = new HashSet<string>
 		{
+			"cls_il2cpprt_ThrowHelper",
 			"cls_Object",
 			"cls_String",
 			"cls_System_Array",
 			"cls_System_Threading_Monitor",
-			"cls_il2cpprt_ThrowHelper",
 			"cls_System_GC",
+			"cls_System_RuntimeTypeHandle",
+			"cls_System_RuntimeMethodHandle",
+			"cls_System_RuntimeFieldHandle",
 		};
 
 		public CompileUnitMerger(Dictionary<string, CompileUnit> units)

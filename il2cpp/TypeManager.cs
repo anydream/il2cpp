@@ -46,6 +46,9 @@ namespace il2cpp
 
 		// 字符串对象是否已经解析
 		private bool IsStringTypeResolved;
+		private bool IsRTTypeHandleResolved;
+		private bool IsRTMethodHandleResolved;
+		private bool IsRTFieldHandleResolved;
 
 		private const string NsIl2cppRT = "il2cpprt";
 
@@ -641,6 +644,33 @@ namespace il2cpp
 			{
 				case Code.Sizeof:
 					ResolveAllFields((TypeX)inst.Operand);
+					break;
+
+				case Code.Ldtoken:
+					switch (operType)
+					{
+						case OperandType.InlineType:
+							if (!IsRTTypeHandleResolved)
+							{
+								IsRTTypeHandleResolved = true;
+								ResolveTypeDefOrRef(Context.CorLibTypes.GetTypeRef("System", "RuntimeTypeHandle").Resolve(), null);
+							}
+							break;
+						case OperandType.InlineMethod:
+							if (!IsRTMethodHandleResolved)
+							{
+								IsRTMethodHandleResolved = true;
+								ResolveTypeDefOrRef(Context.CorLibTypes.GetTypeRef("System", "RuntimeMethodHandle").Resolve(), null);
+							}
+							break;
+						case OperandType.InlineField:
+							if (!IsRTFieldHandleResolved)
+							{
+								IsRTFieldHandleResolved = true;
+								ResolveTypeDefOrRef(Context.CorLibTypes.GetTypeRef("System", "RuntimeFieldHandle").Resolve(), null);
+							}
+							break;
+					}
 					break;
 			}
 
