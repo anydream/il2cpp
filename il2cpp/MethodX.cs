@@ -123,8 +123,19 @@ namespace il2cpp
 
 		// 是否已处理过
 		public bool IsProcessed;
-		// 是否跳过处理
-		public bool IsSkipProcessing;
+		// 是否跳过处理 (1: true, 2: false)
+		private byte SkipProcessingFlag;
+		public bool IsSkipProcessing
+		{
+			get => SkipProcessingFlag == 1;
+			set
+			{
+				if (!value)
+					SkipProcessingFlag = 2;
+				else if (SkipProcessingFlag == 0)
+					SkipProcessingFlag = 1;
+			}
+		}
 
 		// 生成的方法名称
 		public string GeneratedMethodName;
