@@ -309,7 +309,7 @@ namespace il2cpp
 
 		private void GenerateMet()
 		{
-			if (CurrMethod.IsSkipProcessing)
+			if (!CurrMethod.IsProcessed)
 				return;
 
 			CodePrinter prt = new CodePrinter();
@@ -531,7 +531,7 @@ namespace il2cpp
 				new HashSet<MethodX>(CurrMethod.OverrideImpls) :
 				new HashSet<MethodX>();
 
-			if (CurrMethod.IsSkipProcessing)
+			if (!CurrMethod.IsProcessed)
 				implSet.Remove(CurrMethod);
 			else
 				implSet.Add(CurrMethod);
