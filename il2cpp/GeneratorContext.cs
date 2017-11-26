@@ -588,36 +588,24 @@ namespace il2cpp
 			{
 				string prefix = fldX.IsStatic ? "sfld_" : "fld_";
 
-				if (!fldX.DeclType.HasGenArgs && fldX.DeclType.Def.DefinitionAssembly.IsCorLib())
+				string middle = null;
+				if (fldX.IsStatic)
 				{
-					string middle = null;
-					if (fldX.IsStatic)
-					{
-						middle = GetNameWithGen(fldX.DeclType.Def.Name, fldX.DeclType.GenArgs) +
-							"__";
-					}
+					int hashCode = Helper.CombineHash(
+						fldX.GetNameKey().GetHashCode(),
+						fldX.GetReplacedNameKey().GetHashCode(),
+						fldX.DeclType.GetNameKey().GetHashCode(),
+						(int)fldX.Def.Rid);
 
-					strName = prefix + middle + fldX.Def.Name;
+					middle = NameHash(hashCode) + '_' +
+							 GetNameWithGen(fldX.DeclType.Def.Name, fldX.DeclType.GenArgs);
 				}
 				else
 				{
-					string middle = null;
-					if (fldX.IsStatic)
-					{
-						int hashCode = Helper.CombineHash(
-							fldX.GetNameKey().GetHashCode(),
-							fldX.GetReplacedNameKey().GetHashCode(),
-							fldX.DeclType.GetNameKey().GetHashCode());
-						middle = NameHash(hashCode) + '_' +
-								 GetNameWithGen(fldX.DeclType.Def.Name, fldX.DeclType.GenArgs);
-					}
-					else
-					{
-						middle = NameHash((int)fldX.Def.Rid);
-					}
-
-					strName = prefix + middle + "__" + fldX.Def.Name;
+					middle = NameHash((int)fldX.Def.Rid);
 				}
+
+				strName = prefix + middle + "__" + fldX.Def.Name;
 
 				fldX.GeneratedFieldName = strName = EscapeName(strName);
 			}
