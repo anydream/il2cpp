@@ -960,6 +960,9 @@ namespace il2cpp
 					bool last = false;
 					foreach (var fldDef in fldList)
 					{
+						if (fldDef.IsStatic)
+							continue;
+
 						if (last)
 						{
 							insts.Add(OpCodes.Dup.ToInstruction());
@@ -978,7 +981,8 @@ namespace il2cpp
 							fldRef = new MemberRefUser(fldDef.Module, fldDef.Name, fldDef.FieldSig, new TypeSpecUser(tyGenInstSig));
 						}
 
-						if (fldDef.FieldType.IsValueType)
+						if (fldDef.FieldType.IsValueType ||
+							fldDef.FieldType.ElementType == ElementType.Var)
 						{
 							if (fldRef != null)
 								insts.Add(OpCodes.Ldflda.ToInstruction(fldRef));

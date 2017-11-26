@@ -2634,14 +2634,27 @@ namespace il2cpp
 			}
 			else
 			{
-				inst.InstCode = GenAssign(
-					TempName(slotPush),
-					string.Format("{0}(({1}*){2})->{3}",
-						isAddr ? "&" : null,
-						GenContext.GetTypeName(fldX.DeclType),
-						TempName(slotPop),
-						GenContext.GetFieldName(fldX)),
-					slotPush.SlotType);
+				if (fldX.DeclType.IsEnumType)
+				{
+					inst.InstCode = GenAssign(
+						TempName(slotPush),
+						string.Format("{0}({1}*){2}",
+							isAddr ? null : "*",
+							GenContext.GetTypeName(fldX.DeclType),
+							TempName(slotPop)),
+						slotPush.SlotType);
+				}
+				else
+				{
+					inst.InstCode = GenAssign(
+						TempName(slotPush),
+						string.Format("{0}(({1}*){2})->{3}",
+							isAddr ? "&" : null,
+							GenContext.GetTypeName(fldX.DeclType),
+							TempName(slotPop),
+							GenContext.GetFieldName(fldX)),
+						slotPush.SlotType);
+				}
 			}
 		}
 
