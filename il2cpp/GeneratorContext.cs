@@ -67,7 +67,7 @@ namespace il2cpp
 		public HashSet<string> DeclDepends = new HashSet<string>();
 		public HashSet<string> ImplDepends = new HashSet<string>();
 		public HashSet<string> StringDepends = new HashSet<string>();
-		public uint DependOrder;
+		public ulong DependOrder;
 
 		public void Optimize(Dictionary<string, CompileUnit> unitMap)
 		{
@@ -204,29 +204,45 @@ namespace il2cpp
 		private bool IsUnitFull(CompileUnit unit)
 		{
 			// 生成一个 .cpp 文件比什么 LTO 都好使
-			return false;
 #if false
 			return !unit.IsEmpty();
 #else
-			return unit.DeclCode.Length > 30000 ||
-				   unit.ImplCode.Length > 100000;
+			return unit.DeclCode.Length > 100000 ||
+				   unit.ImplCode.Length > 1000000;
 #endif
 		}
 
-		private uint GetDependOrder(CompileUnit unit)
+		private ulong GetDependOrder(CompileUnit unit, HashSet<string> stackUnitNames = null)
 		{
-			uint depOrder = unit.DependOrder;
+			ulong depOrder = unit.DependOrder;
 			if (depOrder != 0)
 				return depOrder;
 
-			unit.Optimize(UnitMap);
+			string unitName = unit.Name;
+			if (stackUnitNames != null && stackUnitNames.Contains(unitName))
+				return 0;
+			if (stackUnitNames == null)
+				stackUnitNames = new HashSet<string>();
+			stackUnitNames.Add(unitName);
 
+			unit.Optimize(UnitMap);
 			foreach (string dep in unit.DeclDepends)
-				depOrder += GetDependOrder(UnitMap[dep]);
+			{
+				var depUnit = GetUnitFromMap(dep);
+				if (depUnit != null)
+					depOrder += GetDependOrder(depUnit, stackUnitNames);
+			}
 
 			++depOrder;
 			unit.DependOrder = depOrder;
 			return depOrder;
+		}
+
+		private CompileUnit GetUnitFromMap(string key)
+		{
+			if (UnitMap.TryGetValue(key, out var result))
+				return result;
+			return null;
 		}
 	}
 

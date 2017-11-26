@@ -7,7 +7,7 @@
 
 ## How to test
   - Pre-requirements:
-    1. Windows7 and later, 64-bit system;
+    1. Windows 7 or later, 64-bit system;
     2. Visual Studio **2017**, C# and C++ desktop dev environments;
   - Open ``il2cpp.sln``;
   - Set ``test`` as startup project;

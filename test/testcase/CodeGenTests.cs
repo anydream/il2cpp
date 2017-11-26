@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace testcase
@@ -50,8 +51,8 @@ namespace testcase
 
 		public static int Entry()
 		{
-			long res = Fib(26);
-			if (res != 121393)
+			long res = Fib(37);
+			if (res != 24157817)
 				return 1;
 			return 0;
 		}
@@ -75,8 +76,28 @@ namespace testcase
 
 		public static int Entry()
 		{
-			long res = Fib(26);
-			if (res != 121393)
+			long res = Fib(37);
+			if (res != 24157817)
+				return 1;
+			return 0;
+		}
+	}
+
+	//[CodeGen]
+	static class FibonacciYield
+	{
+		static IEnumerable<long> Fib(int n)
+		{
+			if (n < 2)
+				yield return n;
+			else
+				yield return Fib(n - 1).First() + Fib(n - 2).First();
+		}
+
+		public static int Entry()
+		{
+			long res = Fib(37).First();
+			if (res != 24157817)
 				return 1;
 			return 0;
 		}
@@ -547,6 +568,11 @@ namespace testcase
 				strRep2[15] != 's' ||
 				strRep2[16] != ' ')
 				return 10;
+
+			/*int a = 123;
+			string sconcat = "测试" + a;
+			if (sconcat != "测试123")
+				return 11;*/
 
 			return 0;
 		}
@@ -3107,7 +3133,13 @@ namespace testcase
 
 		private static void Main()
 		{
-			TestYield.Entry();
+			var tw = new Stopwatch();
+			tw.Start();
+
+			var result = FibonacciYield.Entry();
+
+			tw.Stop();
+			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
 		}
 	}
 }
