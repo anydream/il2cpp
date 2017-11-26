@@ -268,6 +268,12 @@ namespace il2cpp
 				case Code.Conv_Ovf_U_Un:
 					ResolveExceptionType("OverflowException");
 					return;
+
+				case Code.Unbox:
+				case Code.Unbox_Any:
+				case Code.Castclass:
+					ResolveExceptionType("InvalidCastException");
+					return;
 			}
 		}
 

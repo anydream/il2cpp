@@ -2540,7 +2540,7 @@ namespace il2cpp
 
 			inst.InstCode = string.Format(
 				"if (istype_{1}({0}->TypeID)) {2}\n" +
-				"// else throw InvalidCastException;",
+				"else IL2CPP_THROW_INVALIDCAST;",
 				TempName(slotPop),
 				GenContext.GetTypeName(tyX),
 				GenAssign(
@@ -2601,7 +2601,7 @@ namespace il2cpp
 			RefTypeImpl(tyX);
 			inst.InstCode = string.Format(
 				"if ({0} == nullptr || istype_{1}({0}->TypeID)) {2}\n" +
-				"// else throw InvalidCastException;",
+				"else IL2CPP_THROW_INVALIDCAST;",
 				TempName(slotPop),
 				GenContext.GetTypeName(tyX),
 				GenAssign(

@@ -33,15 +33,7 @@ namespace il2cpp
 
 			if (Operand is string str)
 			{
-				str = str
-					.Replace("\n", "\\n")
-					.Replace("\r", "\\r")
-					.Replace("\x0B", "\\x0B")
-					.Replace("\x0C", "\\x0C")
-					.Replace("\x85", "\\x85")
-					.Replace("\u2028", "\\u2028")
-					.Replace("\u2029", "\\u2029");
-
+				str = Helper.EscapeString(str);
 				return OpCode + " " + str;
 			}
 

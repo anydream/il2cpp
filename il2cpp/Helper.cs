@@ -592,5 +592,18 @@ namespace il2cpp
 				result = ((result << 5) + result) ^ hash;
 			return result;
 		}
+
+		public static string EscapeString(string str)
+		{
+			return str
+				.Replace("\\", "\\x5C")
+				.Replace("\n", "\\n")
+				.Replace("\r", "\\r")
+				.Replace("\x0B", "\\x0B")
+				.Replace("\x0C", "\\x0C")
+				.Replace("\x85", "\\x85")
+				.Replace("\u2028", "\\u2028")
+				.Replace("\u2029", "\\u2029");
+		}
 	}
 }

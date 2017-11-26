@@ -21,10 +21,12 @@
 #endif
 
 #ifdef GNU_LIKE
+#define IL2CPP_UNREACHABLE					__builtin_unreachable()
 #define IL2CPP_ATOMIC_CAS(_dst, _cmp, _new)	__sync_val_compare_and_swap(_dst, _cmp, _new)
 #define IL2CPP_LIKELY(_x)					__builtin_expect((_x), 1)
 #define IL2CPP_UNLIKELY(_x)					__builtin_expect((_x), 0)
 #else
+#define IL2CPP_UNREACHABLE					abort()
 #define IL2CPP_ATOMIC_CAS(_dst, _cmp, _new)	_InterlockedCompareExchange8((volatile char*)_dst, _new, _cmp)
 #define IL2CPP_LIKELY(_x)					_x
 #define IL2CPP_UNLIKELY(_x)					_x
@@ -37,6 +39,7 @@
 #define IL2CPP_ALLOCA				alloca
 #define IL2CPP_NEW					il2cpp_New
 #define IL2CPP_THROW(_ex)			throw il2cppException(_ex)
+#define IL2CPP_THROW_INVALIDCAST	{ il2cpp_ThrowInvalidCast(); IL2CPP_UNREACHABLE; }
 
 #if defined(IL2CPP_DISABLE_THREADSAFE_CALL_CCTOR)
 #define IL2CPP_CALL_CCTOR(_pfn) \
@@ -387,6 +390,7 @@ float il2cpp_Remainder(float numer, float denom);
 double il2cpp_Remainder(double numer, double denom);
 float il2cpp_Ckfinite(float num);
 double il2cpp_Ckfinite(double num);
+void il2cpp_ThrowInvalidCast();
 void il2cpp_ThrowOverflow();
 
 struct cls_String;

@@ -230,6 +230,13 @@ double il2cpp_Ckfinite(double num)
 }
 #endif
 
+#if defined(IL2CPP_BRIDGE_HAS_GJNRe4_ThrowHelper__Throw_InvalidCastException)
+void il2cpp_ThrowInvalidCast()
+{
+	met_GJNRe4_ThrowHelper__Throw_InvalidCastException();
+}
+#endif
+
 #if defined(IL2CPP_BRIDGE_HAS_aBjyT3_ThrowHelper__Throw_OverflowException)
 void il2cpp_ThrowOverflow()
 {
