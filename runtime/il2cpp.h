@@ -34,7 +34,7 @@
 #define IL2CPP_UNLIKELY(_x)					_x
 #endif
 
-#define IL2CPP_ASSERT(_x)			do { if (!(_x)) IL2CPP_TRAP(); } while(0)
+#define IL2CPP_ASSERT(_x)			do { if (!(_x)) IL2CPP_TRAP; } while(0)
 #define IL2CPP_MEMCPY				memcpy
 #define IL2CPP_MEMSET				memset
 #define IL2CPP_ALLOCA				alloca

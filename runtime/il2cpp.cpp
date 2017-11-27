@@ -98,7 +98,7 @@ void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 				il2cpp_Yield();
 		}
 		else if (onceFlag != 1)
-			IL2CPP_TRAP();
+			IL2CPP_TRAP;
 	}
 }
 
@@ -134,7 +134,7 @@ void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 {
 	if (index < lowerBound || index >= IL2CPP_ADD(lowerBound, length))
-		IL2CPP_TRAP();
+		IL2CPP_TRAP;
 }
 
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen)
@@ -143,7 +143,7 @@ void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_
 
 	index = IL2CPP_ADD(index, rangeLen);
 	if (index < lowerBound || index > IL2CPP_ADD(lowerBound, length))
-		IL2CPP_TRAP();
+		IL2CPP_TRAP;
 }
 #endif
 
