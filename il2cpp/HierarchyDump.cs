@@ -116,8 +116,9 @@ namespace il2cpp
 
 						if (metX.HasOverrideImpls)
 						{
-							foreach (MethodX overMetX in metX.OverrideImpls)
+							foreach (var kv in metX.OverrideImpls)
 							{
+								MethodX overMetX = kv.Key;
 								sb.AppendFormat("     - {0}, {1}\n",
 									overMetX.DeclType.GetNameKey() + " -> " + overMetX.GetNameKey() + '|' + ((uint)overMetX.Def.Attributes).ToString("X"),
 									overMetX.GetReplacedNameKey());

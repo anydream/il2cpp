@@ -103,6 +103,7 @@ namespace il2cpp
 		// 装箱类型
 		public TypeX BoxedType;
 		public bool HasBoxedType => BoxedType != null;
+		public bool IsBoxedType;
 		// 可空类型原型
 		public TypeX NullableElem;
 

@@ -34,7 +34,7 @@ namespace il2cpp
 			if (Operand is string str)
 			{
 				str = Helper.EscapeString(str);
-				return OpCode + " " + str;
+				return OpCode + " " + str + ' ';
 			}
 
 			string strOperand = Operand?.ToString();
@@ -106,7 +106,7 @@ namespace il2cpp
 		public InstInfo[] InstList;
 
 		// 虚方法绑定的实现方法
-		public HashSet<MethodX> OverrideImpls;
+		public Dictionary<MethodX, HashSet<TypeX>> OverrideImpls;
 		public bool HasOverrideImpls => OverrideImpls.IsCollectionValid();
 
 		public bool HasThis => DefSig.HasThis;
@@ -171,11 +171,17 @@ namespace il2cpp
 			return sb.ToString();
 		}
 
-		public void AddOverrideImpl(MethodX impl)
+		public void AddOverrideImpl(MethodX implMetX, TypeX implTyX)
 		{
 			if (OverrideImpls == null)
-				OverrideImpls = new HashSet<MethodX>();
-			OverrideImpls.Add(impl);
+				OverrideImpls = new Dictionary<MethodX, HashSet<TypeX>>();
+
+			if (!OverrideImpls.TryGetValue(implMetX, out var implTypeSet))
+			{
+				implTypeSet = new HashSet<TypeX>();
+				OverrideImpls.Add(implMetX, implTypeSet);
+			}
+			implTypeSet.Add(implTyX);
 		}
 	}
 }

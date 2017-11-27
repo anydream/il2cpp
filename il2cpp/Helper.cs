@@ -595,7 +595,7 @@ namespace il2cpp
 
 		public static string EscapeString(string str)
 		{
-			return str
+			return ReplaceNonCharacters(str, '?')
 				.Replace("\\", "\\x5C")
 				.Replace("\n", "\\n")
 				.Replace("\r", "\\r")
@@ -604,6 +604,37 @@ namespace il2cpp
 				.Replace("\x85", "\\x85")
 				.Replace("\u2028", "\\u2028")
 				.Replace("\u2029", "\\u2029");
+		}
+
+		private static string ReplaceNonCharacters(string aString, char replacement)
+		{
+			var sb = new StringBuilder(aString.Length);
+			for (var i = 0; i < aString.Length; i++)
+			{
+				if (char.IsSurrogatePair(aString, i))
+				{
+					int c = char.ConvertToUtf32(aString, i);
+					i++;
+					if (IsCharacter(c))
+						sb.Append(char.ConvertFromUtf32(c));
+					else
+						sb.Append(replacement);
+				}
+				else
+				{
+					char c = aString[i];
+					if (IsCharacter(c))
+						sb.Append(c);
+					else
+						sb.Append(replacement);
+				}
+			}
+			return sb.ToString();
+		}
+
+		private static bool IsCharacter(int point)
+		{
+			return point < 0xFDD0;
 		}
 	}
 }

@@ -111,8 +111,6 @@ namespace il2cpp
 			"cls_Object",
 			"cls_String",
 			"cls_System_Array",
-			"cls_System_Threading_Monitor",
-			"cls_System_GC",
 			"cls_System_RuntimeTypeHandle",
 			"cls_System_RuntimeMethodHandle",
 			"cls_System_RuntimeFieldHandle",
@@ -435,7 +433,7 @@ namespace il2cpp
 			return "nullptr";
 		}
 
-		public string GetTypeName(TypeSig tySig)
+		public string GetTypeName(TypeSig tySig, bool hasVolatile = true)
 		{
 			switch (tySig.ElementType)
 			{
@@ -511,7 +509,7 @@ namespace il2cpp
 					{
 						CModReqdSig modReqdSig = (CModReqdSig)tySig;
 						if (modReqdSig.Modifier.FullName == "System.Runtime.CompilerServices.IsVolatile")
-							return "volatile " + GetTypeName(tySig.Next);
+							return (hasVolatile ? "volatile " : null) + GetTypeName(tySig.Next);
 					}
 					break;
 			}

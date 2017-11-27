@@ -21,25 +21,26 @@
 #endif
 
 #ifdef GNU_LIKE
+#define IL2CPP_TRAP							__builtin_trap()
 #define IL2CPP_UNREACHABLE					__builtin_unreachable()
 #define IL2CPP_ATOMIC_CAS(_dst, _cmp, _new)	__sync_val_compare_and_swap(_dst, _cmp, _new)
-#define IL2CPP_LIKELY(_x)					__builtin_expect((_x), 1)
-#define IL2CPP_UNLIKELY(_x)					__builtin_expect((_x), 0)
+#define IL2CPP_LIKELY(_x)					__builtin_expect(!!(_x), 1)
+#define IL2CPP_UNLIKELY(_x)					__builtin_expect(!!(_x), 0)
 #else
+#define IL2CPP_TRAP							abort()
 #define IL2CPP_UNREACHABLE					abort()
 #define IL2CPP_ATOMIC_CAS(_dst, _cmp, _new)	_InterlockedCompareExchange8((volatile char*)_dst, _new, _cmp)
 #define IL2CPP_LIKELY(_x)					_x
 #define IL2CPP_UNLIKELY(_x)					_x
 #endif
 
-#define IL2CPP_TRAP					il2cpp_Trap
-#define IL2CPP_ASSERT(_x)			if (!(_x)) IL2CPP_TRAP()
+#define IL2CPP_ASSERT(_x)			do { if (!(_x)) IL2CPP_TRAP; } while(0)
 #define IL2CPP_MEMCPY				memcpy
 #define IL2CPP_MEMSET				memset
 #define IL2CPP_ALLOCA				alloca
 #define IL2CPP_NEW					il2cpp_New
 #define IL2CPP_THROW(_ex)			throw il2cppException(_ex)
-#define IL2CPP_THROW_INVALIDCAST	{ il2cpp_ThrowInvalidCast(); IL2CPP_UNREACHABLE; }
+#define IL2CPP_THROW_INVALIDCAST	do { il2cpp_ThrowInvalidCast(); IL2CPP_UNREACHABLE; } while(0)
 
 #if defined(IL2CPP_DISABLE_THREADSAFE_CALL_CCTOR)
 #define IL2CPP_CALL_CCTOR(_pfn) \
@@ -140,7 +141,6 @@ struct il2cppException
 
 typedef void(*IL2CPP_FINALIZER_FUNC)(cls_Object*);
 
-void il2cpp_Trap();
 void il2cpp_Init();
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, IL2CPP_FINALIZER_FUNC finalizer);
@@ -420,3 +420,5 @@ void met_5lgqh_Monitor__ReliableEnter(cls_Object* obj, uint8_t* lockTaken);
 void met_vcJk_Monitor__Exit(cls_Object* obj);
 
 void met_Jbedr_GC___Collect(int32_t gen, int32_t mode);
+
+int32_t met_3ECm11_RuntimeHelpers__GetHashCode(cls_Object* obj);

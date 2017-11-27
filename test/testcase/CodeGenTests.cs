@@ -1999,6 +1999,9 @@ namespace testcase
 			public int bb;
 		}
 
+		class Cls
+		{ }
+
 		public static int Entry()
 		{
 			Stru s = new Stru();
@@ -2047,6 +2050,9 @@ namespace testcase
 			if (new Stru2 { aa = 123, bb = 456 }.GetHashCode() ==
 				new Stru2 { aa = 456, bb = 123 }.GetHashCode())
 				return 9;
+
+			if (new Cls().GetHashCode() == new Cls().GetHashCode())
+				return 10;
 
 			return 0;
 		}

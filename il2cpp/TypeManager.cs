@@ -719,11 +719,11 @@ namespace il2cpp
 				MethodDef entryDef = virtMetX.Def;
 
 				// 在虚入口所在类型内解析虚方法
-				if (virtMetX.DeclType.IsInstantiated)
-					ResolveVMethod(virtMetX, virtMetX.DeclType, entryTyX, entryDef);
+				if (entryTyX.IsInstantiated)
+					ResolveVMethod(virtMetX, entryTyX, entryTyX, entryDef);
 
 				// 在继承类型内解析虚方法
-				foreach (TypeX derivedTyX in virtMetX.DeclType.DerivedTypes)
+				foreach (TypeX derivedTyX in entryTyX.DerivedTypes)
 					ResolveVMethod(virtMetX, derivedTyX, entryTyX, entryDef);
 			}
 		}
@@ -746,7 +746,7 @@ namespace il2cpp
 			MethodX implMetX = MakeMethodX(implTyX, implDef, virtMetX.GenArgs);
 
 			// 关联实现方法到虚方法
-			virtMetX.AddOverrideImpl(implMetX);
+			virtMetX.AddOverrideImpl(implMetX, derivedTyX);
 
 			// 处理该方法
 			implMetX.IsSkipProcessing = false;
@@ -1411,6 +1411,7 @@ namespace il2cpp
 			tyX.GenArgs = new List<TypeSig>() { valueTyX.GetTypeSig() };
 			tyX = TryAddType(tyX);
 			tyX.IsInstantiated = true;
+			tyX.IsBoxedType = true;
 
 			FieldX fldX = new FieldX(tyX, boxedTyDef.Fields[0]);
 			AddField(fldX);

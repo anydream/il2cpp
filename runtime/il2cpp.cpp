@@ -11,15 +11,6 @@
 #include <sched.h>
 #endif
 
-void il2cpp_Trap()
-{
-#if __has_builtin(__builtin_trap)
-	__builtin_trap();
-#else
-	abort();
-#endif
-}
-
 void il2cpp_Init()
 {
 	il2cpp_GC_Init();
@@ -93,21 +84,21 @@ uintptr_t il2cpp_ThreadID()
 
 void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 {
-	if (IL2CPP_UNLIKELY(onceFlag != 0xFF))
+	if (IL2CPP_UNLIKELY(onceFlag != 2))
 	{
 		if (IL2CPP_ATOMIC_CAS(&onceFlag, 0, 1) == 0)
 		{
 			lockTid = il2cpp_ThreadID();
 			invokeFunc();
-			IL2CPP_ATOMIC_CAS(&onceFlag, 1, 0xFF);
+			IL2CPP_ATOMIC_CAS(&onceFlag, 1, 2);
 		}
 		else if (lockTid != il2cpp_ThreadID())
 		{
-			while (onceFlag != 0xFF)
+			while (onceFlag != 2)
 				il2cpp_Yield();
 		}
 		else if (onceFlag != 1)
-			IL2CPP_TRAP();
+			IL2CPP_TRAP;
 	}
 }
 
@@ -143,7 +134,7 @@ void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 {
 	if (index < lowerBound || index >= IL2CPP_ADD(lowerBound, length))
-		IL2CPP_TRAP();
+		IL2CPP_TRAP;
 }
 
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen)
@@ -152,7 +143,7 @@ void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_
 
 	index = IL2CPP_ADD(index, rangeLen);
 	if (index < lowerBound || index > IL2CPP_ADD(lowerBound, length))
-		IL2CPP_TRAP();
+		IL2CPP_TRAP;
 }
 #endif
 
@@ -414,7 +405,6 @@ void met_mjkfQ2_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLe
 }
 #endif
 
-#if defined(IL2CPP_BRIDGE_HAS_cls_System_Threading_Monitor)
 void met_5lgqh_Monitor__ReliableEnter(cls_Object* obj, uint8_t* lockTaken)
 {
 	il2cpp_SpinLock(obj->Flags[0]);
@@ -425,11 +415,14 @@ void met_vcJk_Monitor__Exit(cls_Object* obj)
 {
 	il2cpp_SpinUnlock(obj->Flags[0]);
 }
-#endif
 
-#if defined(IL2CPP_BRIDGE_HAS_cls_System_GC)
 void met_Jbedr_GC___Collect(int32_t gen, int32_t mode)
 {
 	il2cpp_GC_Collect();
 }
-#endif
+
+int32_t met_3ECm11_RuntimeHelpers__GetHashCode(cls_Object* obj)
+{
+	uintptr_t val = (uintptr_t)obj;
+	return (int32_t)((uint32_t)val ^ (uint32_t)(val >> 32));
+}
