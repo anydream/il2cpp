@@ -414,7 +414,6 @@ void met_mjkfQ2_Array__Clear(cls_System_Array* ary, int32_t idx, int32_t clearLe
 }
 #endif
 
-#if defined(IL2CPP_BRIDGE_HAS_cls_System_Threading_Monitor)
 void met_5lgqh_Monitor__ReliableEnter(cls_Object* obj, uint8_t* lockTaken)
 {
 	il2cpp_SpinLock(obj->Flags[0]);
@@ -425,11 +424,14 @@ void met_vcJk_Monitor__Exit(cls_Object* obj)
 {
 	il2cpp_SpinUnlock(obj->Flags[0]);
 }
-#endif
 
-#if defined(IL2CPP_BRIDGE_HAS_cls_System_GC)
 void met_Jbedr_GC___Collect(int32_t gen, int32_t mode)
 {
 	il2cpp_GC_Collect();
 }
-#endif
+
+int32_t met_3ECm11_RuntimeHelpers__GetHashCode(cls_Object* obj)
+{
+	uintptr_t val = (uintptr_t)obj;
+	return (int32_t)((uint32_t)val ^ (uint32_t)(val >> 32));
+}

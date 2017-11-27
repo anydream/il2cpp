@@ -42,15 +42,6 @@ namespace il2cpp
 					prt.AppendLine("return (int32_t)0x14AE055C;");
 					return true;
 				}
-			}
-			else if (typeName == "System.Runtime.CompilerServices.RuntimeHelpers")
-			{
-				if (metName == "GetHashCode")
-				{
-					prt.AppendLine("uintptr_t val = (uintptr_t)arg_0;");
-					prt.AppendLine("return (int32_t)((uint32_t)val ^ (uint32_t)(val >> 32));");
-					return true;
-				}
 			}*/
 			return false;
 		}
