@@ -526,22 +526,22 @@ namespace il2cpp
 			prt.AppendLine("\n{");
 			++prt.Indents;
 
-			HashSet<MethodX> implSet =
+			Dictionary<MethodX, HashSet<TypeX>> implMap =
 				CurrMethod.OverrideImpls != null ?
-				new HashSet<MethodX>(CurrMethod.OverrideImpls) :
-				new HashSet<MethodX>();
+				new Dictionary<MethodX, HashSet<TypeX>>(CurrMethod.OverrideImpls) :
+				new Dictionary<MethodX, HashSet<TypeX>>();
 
 			if (!CurrMethod.IsProcessed)
-				implSet.Remove(CurrMethod);
-			else
-				implSet.Add(CurrMethod);
+				implMap.Remove(CurrMethod);
+			else if (!implMap.ContainsKey(CurrMethod))
+				implMap.Add(CurrMethod, new HashSet<TypeX>());
 
-			if (implSet.IsCollectionValid())
+			if (implMap.IsCollectionValid())
 			{
 				prt.AppendLine("switch (typeID)\n{");
 				++prt.Indents;
 
-				List<MethodX> implMets = new List<MethodX>(implSet);
+				List<MethodX> implMets = new List<MethodX>(implMap.Keys);
 				// 删除所有不包含装箱类型的值类型
 				implMets.RemoveAll(met => met.DeclType.IsValueType && !met.DeclType.HasBoxedType);
 				implMets.Sort((lhs, rhs) =>
@@ -549,15 +549,30 @@ namespace il2cpp
 
 				foreach (MethodX implMetX in implMets)
 				{
-					var declTyX = implMetX.DeclType;
-					RefTypeImpl(declTyX);
+					HashSet<TypeX> implTypes = new HashSet<TypeX>(implMap[implMetX]);
+					TypeX declTyX = implMetX.DeclType;
+					implTypes.Add(declTyX);
 
+					foreach (TypeX implTyX in implTypes)
+					{
+						// 跳过装箱类型
+						if (implTyX.IsBoxedType)
+							continue;
+						RefTypeImpl(implTyX);
+
+						prt.AppendFormatLine("// {0}",
+							implTyX.GetNameKey());
+						prt.AppendFormatLine("case {0}:",
+							GenContext.GetTypeID(implTyX));
+					}
+
+					++prt.Indents;
 					prt.AppendFormatLine("// {0}",
 						implMetX.GetReplacedNameKey());
-					prt.AppendFormatLine("case {0}: return (void*)&{1};",
-						GenContext.GetTypeID(declTyX),
+					prt.AppendFormatLine("return (void*)&{0};",
 						GenContext.GetMethodName(implMetX,
 							declTyX.HasBoxedType ? PrefixWrap : PrefixMet));
+					--prt.Indents;
 
 					// 如果是值类型则必须存在装箱类型
 					Debug.Assert(declTyX.HasBoxedType || !declTyX.IsValueType);
