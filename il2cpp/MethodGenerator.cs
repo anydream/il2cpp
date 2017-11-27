@@ -2311,9 +2311,9 @@ namespace il2cpp
 				var argType = metX.ParamTypes[i];
 
 				sb.AppendFormat("{0}{1}{2}",
-				CastType(argType),
-								isArg0ValueType && i == 0 ? "&" : null,
-								TempName(slotArgs[i]));
+					CastType(argType),
+					isArg0ValueType && i == 0 ? "&" : null,
+					TempName(slotArgs[i]));
 			}
 			sb.Append(')');
 
@@ -2938,11 +2938,12 @@ namespace il2cpp
 
 		private string CastType(TypeSig tySig)
 		{
-			if (tySig.ElementType == ElementType.ValueType ||
-				tySig.ElementType == ElementType.GenericInst && tySig.IsValueType)
+			if ((tySig.ElementType == ElementType.ValueType ||
+				tySig.ElementType == ElementType.GenericInst && tySig.IsValueType) &&
+				!Helper.IsEnumType(tySig, out _))
 				return null;
 			else
-				return '(' + GenContext.GetTypeName(tySig) + ')';
+				return '(' + GenContext.GetTypeName(tySig, false) + ')';
 		}
 
 		private ICorLibTypes GetCorLibTypes()

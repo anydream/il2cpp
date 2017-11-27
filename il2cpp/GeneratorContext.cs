@@ -433,7 +433,7 @@ namespace il2cpp
 			return "nullptr";
 		}
 
-		public string GetTypeName(TypeSig tySig)
+		public string GetTypeName(TypeSig tySig, bool hasVolatile = true)
 		{
 			switch (tySig.ElementType)
 			{
@@ -509,7 +509,7 @@ namespace il2cpp
 					{
 						CModReqdSig modReqdSig = (CModReqdSig)tySig;
 						if (modReqdSig.Modifier.FullName == "System.Runtime.CompilerServices.IsVolatile")
-							return "volatile " + GetTypeName(tySig.Next);
+							return (hasVolatile ? "volatile " : null) + GetTypeName(tySig.Next);
 					}
 					break;
 			}

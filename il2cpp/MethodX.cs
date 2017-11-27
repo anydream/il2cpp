@@ -34,7 +34,7 @@ namespace il2cpp
 			if (Operand is string str)
 			{
 				str = Helper.EscapeString(str);
-				return OpCode + " " + str;
+				return OpCode + " " + str + ' ';
 			}
 
 			string strOperand = Operand?.ToString();
