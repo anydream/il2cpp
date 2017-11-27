@@ -293,7 +293,19 @@ namespace testcase
 			}
 		}
 
-		class Cls : Base
+		class Middle : Base
+		{
+			public static int s_num;
+			~Middle()
+			{
+				lock (s_DelLocker)
+				{
+					++s_num;
+				}
+			}
+		}
+
+		class Cls : Middle
 		{ }
 
 		static int TestFinalizer()
@@ -342,7 +354,11 @@ namespace testcase
 				if (s_DelCounter >= 999900)
 				{
 					if (s_NewCounter - s_DelCounter == 9999)
+					{
+						if (Middle.s_num != s_DelCounter)
+							return -3;
 						return 0;
+					}
 				}
 			}
 
