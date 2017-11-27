@@ -700,16 +700,7 @@ namespace il2cpp
 
 		private void GenFinalizer(TypeX tyX)
 		{
-			if (tyX.IsFinalizerGenerated)
-				return;
-			tyX.IsFinalizerGenerated = true;
-
-			MethodDef fin = tyX.Def.Methods.FirstOrDefault(met => !met.IsStatic && met.Name == "Finalize");
-			if (fin != null)
-			{
-				MethodX metX = new MethodX(tyX, fin);
-				tyX.FinalizerMethod = AddMethod(metX);
-			}
+			tyX.GenFinalizerMethod(this);
 		}
 
 		private void AddVCallEntry(MethodX virtMetX)
@@ -851,7 +842,7 @@ namespace il2cpp
 		}
 
 		// 添加方法到类型
-		private MethodX AddMethod(MethodX metX)
+		public MethodX AddMethod(MethodX metX)
 		{
 			Debug.Assert(metX != null);
 

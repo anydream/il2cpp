@@ -272,11 +272,11 @@ namespace testcase
 		private static long s_NewCounter;
 		private static long s_DelCounter;
 
-		class Cls
+		class Base
 		{
 			public int num;
 			public byte[] payload = new byte[64];
-			public Cls()
+			public Base()
 			{
 				lock (s_NewLocker)
 				{
@@ -284,7 +284,7 @@ namespace testcase
 				}
 			}
 
-			~Cls()
+			~Base()
 			{
 				lock (s_DelLocker)
 				{
@@ -292,6 +292,9 @@ namespace testcase
 				}
 			}
 		}
+
+		class Cls : Base
+		{ }
 
 		static int TestFinalizer()
 		{

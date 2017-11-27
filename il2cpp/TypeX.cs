@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using dnlib.DotNet;
 
@@ -78,8 +79,13 @@ namespace il2cpp
 
 		// 静态构造方法
 		public MethodX CctorMethod;
+		// 是否已生成静态构造
+		public bool IsCctorGenerated;
+
 		// 终结器方法
-		public MethodX FinalizerMethod;
+		public MethodX FinalizerMethod { get; private set; }
+		// 是否已生成终结器
+		private bool IsFinalizerGenerated;
 
 		public ArrayProperty ArrayInfo;
 		// 是否为数组类型
@@ -102,11 +108,6 @@ namespace il2cpp
 
 		// 是否实例化过
 		public bool IsInstantiated;
-
-		// 是否已生成静态构造
-		public bool IsCctorGenerated;
-		// 是否已生成终结器
-		public bool IsFinalizerGenerated;
 
 		// 生成的类型名称
 		public string GeneratedTypeName;
@@ -324,6 +325,26 @@ namespace il2cpp
 			if (BaseType.Def == tyDef)
 				return BaseType;
 			return BaseType.FindBaseType(tyDef);
+		}
+
+		public MethodX GenFinalizerMethod(TypeManager typeMgr)
+		{
+			if (!IsFinalizerGenerated)
+			{
+				IsFinalizerGenerated = true;
+
+				// 跳过 Object 类的终结器
+				if (GetNameKey() != "Object")
+				{
+					MethodDef finMetDef = Def.Methods.FirstOrDefault(met => !met.IsStatic && met.Name == "Finalize");
+					if (finMetDef != null)
+						FinalizerMethod = typeMgr.AddMethod(new MethodX(this, finMetDef));
+				}
+
+				if (FinalizerMethod == null)
+					FinalizerMethod = BaseType?.GenFinalizerMethod(typeMgr);
+			}
+			return FinalizerMethod;
 		}
 	}
 }
