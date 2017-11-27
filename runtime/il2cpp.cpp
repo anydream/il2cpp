@@ -11,15 +11,6 @@
 #include <sched.h>
 #endif
 
-void il2cpp_Trap()
-{
-#if __has_builtin(__builtin_trap)
-	__builtin_trap();
-#else
-	abort();
-#endif
-}
-
 void il2cpp_Init()
 {
 	il2cpp_GC_Init();
