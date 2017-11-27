@@ -84,17 +84,17 @@ uintptr_t il2cpp_ThreadID()
 
 void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 {
-	if (IL2CPP_UNLIKELY(onceFlag != 0xFF))
+	if (IL2CPP_UNLIKELY(onceFlag != 2))
 	{
 		if (IL2CPP_ATOMIC_CAS(&onceFlag, 0, 1) == 0)
 		{
 			lockTid = il2cpp_ThreadID();
 			invokeFunc();
-			IL2CPP_ATOMIC_CAS(&onceFlag, 1, 0xFF);
+			IL2CPP_ATOMIC_CAS(&onceFlag, 1, 2);
 		}
 		else if (lockTid != il2cpp_ThreadID())
 		{
-			while (onceFlag != 0xFF)
+			while (onceFlag != 2)
 				il2cpp_Yield();
 		}
 		else if (onceFlag != 1)
