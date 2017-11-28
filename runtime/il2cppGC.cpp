@@ -2,10 +2,73 @@
 #include "il2cppGC.h"
 #include <gc.h>
 
+#if defined(GC_THREADS) && !defined(IL2CPP_DISABLE_FINALIZER_THREAD)
+
+#include <condition_variable>
+
+static class FinalizerThread
+{
+public:
+	FinalizerThread()
+	{
+		Thread_ = std::thread(&FinalizerThread::WorkingThread, this);
+	}
+
+	~FinalizerThread()
+	{
+		IsExit_ = true;
+		Notify();
+		Thread_.join();
+	}
+
+	void Notify()
+	{
+		IsNotify_ = true;
+		CondVar_.notify_one();
+	}
+
+private:
+	void WorkingThread()
+	{
+		while (!IsExit_)
+		{
+			std::unique_lock<std::mutex> lk(Mutex_);
+			CondVar_.wait(lk);
+
+			while (IsNotify_)
+			{
+				IsNotify_ = false;
+				GC_invoke_finalizers();
+			}
+		}
+	}
+
+private:
+	std::thread Thread_;
+	std::mutex Mutex_;
+	std::condition_variable CondVar_;
+	bool IsNotify_ = false;
+	bool IsExit_ = false;
+} g_FinalizerThread;
+
+static void GC_CALLBACK FinalizerNotifier()
+{
+	g_FinalizerThread.Notify();
+}
+#endif
+
 void il2cpp_GC_Init()
 {
+	GC_set_no_dls(1);
+
 	GC_INIT();
+
 #if defined(GC_THREADS)
+#if !defined(IL2CPP_DISABLE_FINALIZER_THREAD)
+	GC_set_finalize_on_demand(1);
+	GC_set_finalizer_notifier(&FinalizerNotifier);
+#endif
+
 	GC_allow_register_threads();
 #endif
 }
