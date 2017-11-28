@@ -232,6 +232,8 @@
 
 #if defined(__GNUC__) && !defined(__INTEL_COMPILER)
 # define AO_compiler_barrier() __asm__ __volatile__("" : : : "memory")
+#elif defined(__clang__)
+# define AO_compiler_barrier() _mm_mfence()
 #elif defined(_MSC_VER) || defined(__DMC__) || defined(__BORLANDC__) \
         || defined(__WATCOMC__)
 # if defined(_AMD64_) || defined(_M_X64) || _MSC_VER >= 1400
