@@ -1395,8 +1395,13 @@ STATIC word GC_push_stack_for(GC_thread thread, DWORD me)
     /* For unblocked threads call GetThreadContext().   */
     CONTEXT context;
     context.ContextFlags = CONTEXT_INTEGER|CONTEXT_CONTROL;
-    if (!GetThreadContext(THREAD_HANDLE(thread), &context))
-      ABORT("GetThreadContext failed");
+    // Fix ERROR_GEN_FAILURE problem
+    HANDLE hThread = THREAD_HANDLE(thread);
+    while (!GetThreadContext(hThread, &context))
+    {
+        ResumeThread(hThread);
+        SuspendThread(hThread);
+    }
 
     /* Push all registers that might point into the heap.  Frame        */
     /* pointer registers are included in case client code was           */
