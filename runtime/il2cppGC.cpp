@@ -51,7 +51,7 @@ private:
 	std::thread Thread_;
 	std::mutex Mutex_;
 	std::condition_variable CondVar_;
-	bool IsNotify_ = false;
+	volatile bool IsNotify_ = false;
 	bool IsExit_ = false;
 } g_FinalizerThread;
 
