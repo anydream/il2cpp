@@ -509,7 +509,7 @@ namespace BuildTheCode
 			{
 				if (str.Length > 0 && str[0] != '@' && str[0] != '$')
 				{
-					return str.Replace(" @calloc(", " @_il2cpp_GC_PatchCalloc(");
+					return str.Replace("@calloc(", "@_il2cpp_GC_PatchCalloc(");
 				}
 				return str;
 			}))
@@ -517,13 +517,14 @@ namespace BuildTheCode
 				return;
 			}
 
+			const string cflagsGC = "-Wno-ignored-attributes -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -DGC_THREADS -Ibdwgc/include -Ibdwgc/libatomic_ops ";
 			// 编译 GC
 			AddCompileUnit(unitMap, objSet,
 				"bdwgc/extra/gc.c",
-				"-D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include " + AddCFlags);
+				cflagsGC + AddCFlags);
 			AddCompileUnit(unitMap, objSet,
 				"il2cppGC.cpp",
-				"-Wall -Xclang -flto-visibility-public-std -D_CRT_SECURE_NO_WARNINGS -DIL2CPP_PATCH_LLVM -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include " + AddCFlags);
+				"-Wall -Xclang -flto-visibility-public-std -DIL2CPP_PATCH_LLVM " + cflagsGC + AddCFlags);
 			if (!ParallelCompile(unitMap))
 				return;
 
