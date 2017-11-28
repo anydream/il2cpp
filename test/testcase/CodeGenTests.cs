@@ -353,7 +353,7 @@ namespace testcase
 
 				if (s_DelCounter >= 999900)
 				{
-					if (s_NewCounter - s_DelCounter <= 9999)
+					if (s_NewCounter - s_DelCounter <= 19999)
 					{
 						if (Middle.s_num != s_DelCounter)
 							return -3;
