@@ -9,16 +9,16 @@
 static class FinalizerThread
 {
 public:
-	FinalizerThread()
-	{
-		Thread_ = std::thread(&FinalizerThread::WorkingThread, this);
-	}
-
 	~FinalizerThread()
 	{
 		IsExit_ = true;
 		Notify();
 		Thread_.join();
+	}
+
+	void Start()
+	{
+		Thread_ = std::thread(&FinalizerThread::WorkingThread, this);
 	}
 
 	void Notify()
@@ -30,6 +30,8 @@ public:
 private:
 	void WorkingThread()
 	{
+		il2cpp_GC_RegisterThread();
+
 		while (!IsExit_)
 		{
 			std::unique_lock<std::mutex> lk(Mutex_);
@@ -41,6 +43,8 @@ private:
 				GC_invoke_finalizers();
 			}
 		}
+
+		il2cpp_GC_UnregisterThread();
 	}
 
 private:
@@ -64,12 +68,13 @@ void il2cpp_GC_Init()
 	GC_INIT();
 
 #if defined(GC_THREADS)
+	GC_allow_register_threads();
+
 #if !defined(IL2CPP_DISABLE_FINALIZER_THREAD)
 	GC_set_finalize_on_demand(1);
 	GC_set_finalizer_notifier(&FinalizerNotifier);
+	g_FinalizerThread.Start();
 #endif
-
-	GC_allow_register_threads();
 #endif
 }
 
@@ -85,18 +90,29 @@ void* il2cpp_GC_AllocAtomic(uintptr_t sz)
 	return ptr;
 }
 
-bool il2cpp_GC_RegisterThread(void* basePtr)
+bool il2cpp_GC_RegisterThread()
 {
 #if defined(GC_THREADS)
+	int temp = 0;
 	GC_stack_base sb;
 	int res = GC_get_stack_base(&sb);
 	if (res != GC_SUCCESS)
-		sb.mem_base = basePtr;
+		sb.mem_base = &temp;
 
 	res = GC_register_my_thread(&sb);
 	if ((res != GC_SUCCESS) && (res != GC_DUPLICATE))
 		return false;
 	return true;
+#else
+	return false;
+#endif
+}
+
+bool il2cpp_GC_UnregisterThread()
+{
+#if defined(GC_THREADS)
+	int res = GC_unregister_my_thread();
+	return res == GC_SUCCESS;
 #else
 	return false;
 #endif
