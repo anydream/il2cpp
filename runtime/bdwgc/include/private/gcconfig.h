@@ -3007,11 +3007,6 @@
 # define WRAP_MARK_SOME
 #endif
 
-#if defined(WRAP_MARK_SOME) && defined(PARALLEL_MARK)
-  /* TODO: GC_mark_local does not handle memory protection faults yet.  */
-# undef PARALLEL_MARK
-#endif
-
 #if defined(PARALLEL_MARK) && !defined(DEFAULT_STACK_MAYBE_SMALL) \
     && (defined(HPUX) || defined(GC_DGUX386_THREADS) \
         || defined(NO_GETCONTEXT) /* e.g. musl */)
@@ -3030,6 +3025,17 @@
   /* not needed to be specified manually) since GC_linux_main_stack_base */
   /* causes app crash if invoked inside Dalvik VM.                       */
 # define USE_GET_STACKBASE_FOR_MAIN
+#endif
+
+/* Outline pthread primitives to use in GC_get_[main_]stack_base.       */
+#if ((defined(FREEBSD) && defined(__GLIBC__)) /* kFreeBSD */ \
+     || defined(LINUX) || defined(NETBSD) || defined(PLATFORM_ANDROID)) \
+    && !defined(NO_PTHREAD_GETATTR_NP)
+# define HAVE_PTHREAD_GETATTR_NP 1
+#elif defined(FREEBSD) && !defined(__GLIBC__) \
+      && !defined(NO_PTHREAD_ATTR_GET_NP)
+# define HAVE_PTHREAD_NP_H 1 /* requires include pthread_np.h */
+# define HAVE_PTHREAD_ATTR_GET_NP 1
 #endif
 
 #if defined(UNIX_LIKE) && defined(THREADS) && !defined(NO_CANCEL_SAFE) \
@@ -3121,7 +3127,15 @@
 # if __has_feature(memory_sanitizer) && !defined(MEMORY_SANITIZER)
 #   define MEMORY_SANITIZER
 # endif
-#endif
+# if __has_feature(thread_sanitizer) && !defined(THREAD_SANITIZER)
+#   define THREAD_SANITIZER
+# endif
+#else
+# ifdef __SANITIZE_ADDRESS__
+    /* GCC v4.8+ */
+#   define ADDRESS_SANITIZER
+# endif
+#endif /* !__has_feature */
 
 #if defined(SPARC)
 # define ASM_CLEAR_CODE /* Stack clearing is crucial, and we    */

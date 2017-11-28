@@ -49,8 +49,25 @@ typedef struct GC_Thread_Rep {
 #   ifdef USE_TKILL_ON_ANDROID
       pid_t kernel_id;
 #   endif
-    /* Extra bookkeeping information the stopping code uses */
+
+    void * status;              /* The value returned from the thread.  */
+                                /* Used only to avoid premature         */
+                                /* reclamation of any data it might     */
+                                /* reference.                           */
+                                /* This is unfortunately also the       */
+                                /* reason we need to intercept join     */
+                                /* and detach.                          */
+
+    /* Extra bookkeeping information the stopping code uses.            */
+    /* Should have the offset of 3 (in words) at least, to avoid TSan   */
+    /* false positive about the race between GC_has_other_debug_info    */
+    /* and GC_suspend_handler_inner (which sets store_stop.stack_ptr).  */
     struct thread_stop_info stop_info;
+
+#   if defined(GC_ENABLE_SUSPEND_THREAD) && !defined(GC_DARWIN_THREADS) \
+        && !defined(GC_OPENBSD_UTHREADS) && !defined(NACL)
+      volatile AO_t suspended_ext;  /* Thread was suspended externally. */
+#   endif
 
     unsigned char flags;
 #       define FINISHED 1       /* Thread has exited.                   */
@@ -62,7 +79,6 @@ typedef struct GC_Thread_Rep {
                                 /* it unregisters itself, since it      */
                                 /* may not return a GC pointer.         */
 #       define MAIN_THREAD 4    /* True for the original thread only.   */
-#       define SUSPENDED_EXT 8  /* Thread was suspended externally.     */
 #       define DISABLED_GC 0x10 /* Collections are disabled while the   */
                                 /* thread is exiting.                   */
 
@@ -105,14 +121,6 @@ typedef struct GC_Thread_Rep {
                         /* the innermost GC_call_with_gc_active() of    */
                         /* this thread.  May be NULL.                   */
 
-    void * status;              /* The value returned from the thread.  */
-                                /* Used only to avoid premature         */
-                                /* reclamation of any data it might     */
-                                /* reference.                           */
-                                /* This is unfortunately also the       */
-                                /* reason we need to intercept join     */
-                                /* and detach.                          */
-
 #   ifdef THREAD_LOCAL_ALLOC
         struct thread_local_freelists tlfs;
 #   endif
@@ -121,6 +129,12 @@ typedef struct GC_Thread_Rep {
 #ifndef THREAD_TABLE_SZ
 # define THREAD_TABLE_SZ 256    /* Power of 2 (for speed). */
 #endif
+
+#define THREAD_TABLE_INDEX(id) \
+                (int)(((NUMERIC_THREAD_ID(id) >> 16) \
+                       ^ (NUMERIC_THREAD_ID(id) >> 8) \
+                       ^ NUMERIC_THREAD_ID(id)) % THREAD_TABLE_SZ)
+
 GC_EXTERN volatile GC_thread GC_threads[THREAD_TABLE_SZ];
 
 GC_EXTERN GC_bool GC_thr_initialized;

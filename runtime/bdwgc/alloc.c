@@ -31,16 +31,21 @@
  * The call GC_allocobj(i,k) ensures that the freelist for
  * kind k objects of size i points to a non-empty
  * free list. It returns a pointer to the first entry on the free list.
- * In a single-threaded world, GC_allocobj may be called to allocate
- * an object of (small) size lb as follows:
+ * If not using thread-local allocation, GC_allocobj may be called to
+ * allocate an object of small size lb (and NORMAL kind) as follows
+ * (GC_generic_malloc_inner is a wrapper over GC_allocobj which also
+ * fills in GC_size_map if needed):
  *
  *   lg = GC_size_map[lb];
+ *   LOCK();
  *   op = GC_objfreelist[lg];
  *   if (NULL == op) {
- *     op = GENERAL_MALLOC(lb, NORMAL);
+ *     op = GC_generic_malloc_inner(lb, NORMAL);
  *   } else {
  *     GC_objfreelist[lg] = obj_link(op);
+ *     GC_bytes_allocd += GRANULES_TO_BYTES((word)lg);
  *   }
+ *   UNLOCK();
  *
  * Note that this is very fast if the free list is non-empty; it should
  * only involve the execution of 4 or 5 simple instructions.
@@ -62,6 +67,23 @@
 word GC_non_gc_bytes = 0;  /* Number of bytes not intended to be collected */
 
 word GC_gc_no = 0;
+
+#ifndef NO_CLOCK
+  static unsigned long full_gc_total_time = 0; /* in msecs, may wrap */
+  static GC_bool measure_performance = FALSE;
+                /* Do performance measurements if set to true (e.g.,    */
+                /* accumulation of the total time of full collections). */
+
+  GC_API void GC_CALL GC_start_performance_measurement(void)
+  {
+    measure_performance = TRUE;
+  }
+
+  GC_API unsigned long GC_CALL GC_get_full_gc_total_time(void)
+  {
+    return full_gc_total_time;
+  }
+#endif /* !NO_CLOCK */
 
 #ifndef GC_DISABLE_INCREMENTAL
   GC_INNER GC_bool GC_incremental = FALSE; /* By default, stop the world. */
@@ -440,8 +462,9 @@ GC_API GC_on_collection_event_proc GC_CALL GC_get_on_collection_event(void)
 /* Return TRUE if we successfully completed the collection.     */
 GC_INNER GC_bool GC_try_to_collect_inner(GC_stop_func stop_func)
 {
-#   ifndef SMALL_CONFIG
+#   ifndef NO_CLOCK
       CLOCK_TYPE start_time = 0; /* initialized to prevent warning. */
+      GC_bool start_time_valid;
 #   endif
 
     ASSERT_CANCEL_DISABLED();
@@ -462,10 +485,13 @@ GC_INNER GC_bool GC_try_to_collect_inner(GC_stop_func stop_func)
         }
     }
     GC_notify_full_gc();
-#   ifndef SMALL_CONFIG
-      if (GC_print_stats) {
+#   ifndef NO_CLOCK
+      start_time_valid = FALSE;
+      if ((GC_print_stats | (int)measure_performance) != 0) {
+        if (GC_print_stats)
+          GC_log_printf("Initiating full world-stop collection!\n");
+        start_time_valid = TRUE;
         GET_TIME(start_time);
-        GC_log_printf("Initiating full world-stop collection!\n");
       }
 #   endif
     GC_promote_black_lists();
@@ -503,13 +529,17 @@ GC_INNER GC_bool GC_try_to_collect_inner(GC_stop_func stop_func)
       return(FALSE);
     }
     GC_finish_collection();
-#   ifndef SMALL_CONFIG
-      if (GC_print_stats) {
+#   ifndef NO_CLOCK
+      if (start_time_valid) {
         CLOCK_TYPE current_time;
+        unsigned long time_diff;
 
         GET_TIME(current_time);
-        GC_log_printf("Complete collection took %lu msecs\n",
-                      MS_TIME_DIFF(current_time,start_time));
+        time_diff = MS_TIME_DIFF(current_time, start_time);
+        if (measure_performance)
+          full_gc_total_time += time_diff; /* may wrap */
+        if (GC_print_stats)
+          GC_log_printf("Complete collection took %lu msecs\n", time_diff);
       }
 #   endif
     if (GC_on_collection_event)
@@ -599,7 +629,7 @@ GC_API int GC_CALL GC_collect_a_little(void)
     return(result);
 }
 
-#ifndef SMALL_CONFIG
+#ifndef NO_CLOCK
   /* Variables for world-stop average delay time statistic computation. */
   /* "divisor" is incremented every world-stop and halved when reached  */
   /* its maximum (or upon "total_time" overflow).                       */
@@ -611,7 +641,7 @@ GC_API int GC_CALL GC_collect_a_little(void)
     /* newer ones).                                                     */
 #   define MAX_TOTAL_TIME_DIVISOR 1000
 # endif
-#endif
+#endif /* !NO_CLOCK */
 
 #ifdef USE_MUNMAP
 # define IF_USE_MUNMAP(x) x
@@ -629,7 +659,7 @@ GC_API int GC_CALL GC_collect_a_little(void)
 STATIC GC_bool GC_stopped_mark(GC_stop_func stop_func)
 {
     unsigned i;
-#   ifndef SMALL_CONFIG
+#   ifndef NO_CLOCK
       CLOCK_TYPE start_time = 0; /* initialized to prevent warning. */
 #   endif
 
@@ -640,7 +670,7 @@ STATIC GC_bool GC_stopped_mark(GC_stop_func stop_func)
         GC_cond_register_dynamic_libraries();
 #   endif
 
-#   ifndef SMALL_CONFIG
+#   ifndef NO_CLOCK
       if (GC_PRINT_STATS_FLAG)
         GET_TIME(start_time);
 #   endif
@@ -737,7 +767,7 @@ STATIC GC_bool GC_stopped_mark(GC_stop_func stop_func)
         GC_on_collection_event(GC_EVENT_POST_START_WORLD);
 #   endif
 
-#   ifndef SMALL_CONFIG
+#   ifndef NO_CLOCK
       if (GC_PRINT_STATS_FLAG) {
         unsigned long time_diff;
         unsigned total_time, divisor;
@@ -903,7 +933,7 @@ GC_INLINE int GC_compute_heap_usage_percent(void)
 /* held, but the world is otherwise running.                            */
 STATIC void GC_finish_collection(void)
 {
-#   ifndef SMALL_CONFIG
+#   ifndef NO_CLOCK
       CLOCK_TYPE start_time = 0; /* initialized to prevent warning. */
       CLOCK_TYPE finalize_time = 0;
 #   endif
@@ -915,7 +945,7 @@ STATIC void GC_finish_collection(void)
         GC_check_tls();
 #   endif
 
-#   ifndef SMALL_CONFIG
+#   ifndef NO_CLOCK
       if (GC_print_stats)
         GET_TIME(start_time);
 #   endif
@@ -957,7 +987,7 @@ STATIC void GC_finish_collection(void)
       GC_clean_changing_list();
 #   endif
 
-#   ifndef SMALL_CONFIG
+#   ifndef NO_CLOCK
       if (GC_print_stats)
         GET_TIME(finalize_time);
 #   endif
@@ -1028,12 +1058,12 @@ STATIC void GC_finish_collection(void)
 
     if (GC_on_collection_event)
       GC_on_collection_event(GC_EVENT_RECLAIM_END);
-#   ifndef SMALL_CONFIG
+#   ifndef NO_CLOCK
       if (GC_print_stats) {
         CLOCK_TYPE done_time;
 
         GET_TIME(done_time);
-#       ifndef GC_NO_FINALIZATION
+#       if !defined(SMALL_CONFIG) && !defined(GC_NO_FINALIZATION)
           /* A convenient place to output finalization statistics.      */
           GC_print_finalization_stats();
 #       endif
@@ -1041,6 +1071,9 @@ STATIC void GC_finish_collection(void)
                       MS_TIME_DIFF(finalize_time,start_time),
                       MS_TIME_DIFF(done_time,finalize_time));
       }
+#   elif !defined(SMALL_CONFIG) && !defined(GC_NO_FINALIZATION)
+      if (GC_print_stats)
+        GC_print_finalization_stats();
 #   endif
 }
 

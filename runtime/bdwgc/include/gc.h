@@ -395,6 +395,20 @@ GC_API unsigned long GC_CALL GC_get_time_limit(void);
 
 /* Public procedures */
 
+/* Tell the collector to start various performance measurements.        */
+/* Only the total time taken by full collections is calculated, as      */
+/* of now.  And, currently, there is no way to stop the measurements.   */
+/* The function does not use any synchronization.  Defined only if the  */
+/* library has been compiled without NO_CLOCK.                          */
+GC_API void GC_CALL GC_start_performance_measurement(void);
+
+/* Get the total time of all full collections since the start of the    */
+/* performance measurements.  The measurement unit is one millisecond.  */
+/* Note that the returned value wraps around on overflow.               */
+/* The function does not use any synchronization.  Defined only if the  */
+/* library has been compiled without NO_CLOCK.                          */
+GC_API unsigned long GC_CALL GC_get_full_gc_total_time(void);
+
 /* Set whether the GC will allocate executable memory pages or not.     */
 /* A non-zero argument instructs the collector to allocate memory with  */
 /* the executable flag on.  Must be called before the collector is      */
@@ -439,6 +453,10 @@ GC_API void GC_CALL GC_atfork_child(void);
 /* Initialize the collector.  Portable clients should call GC_INIT()    */
 /* from the main program instead.                                       */
 GC_API void GC_CALL GC_init(void);
+
+/* Returns non-zero (TRUE) if and only if the collector is initialized  */
+/* (or, at least, the initialization is in progress).                   */
+GC_API int GC_CALL GC_is_init_called(void);
 
 /* Perform the collector shutdown.  (E.g. dispose critical sections on  */
 /* Win32 target.)  A duplicate invocation is a no-op.  GC_INIT should   */
@@ -1246,6 +1264,7 @@ GC_API GC_await_finalize_proc GC_CALL GC_get_await_finalize_proc(void);
                         /* and getter acquire the lock too.     */
 
 /* Returns !=0 if GC_invoke_finalizers has something to do.     */
+/* Does not use any synchronization.                            */
 GC_API int GC_CALL GC_should_invoke_finalizers(void);
 
 GC_API int GC_CALL GC_invoke_finalizers(void);

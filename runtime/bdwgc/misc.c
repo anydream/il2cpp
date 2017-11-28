@@ -91,7 +91,7 @@ int GC_dont_precollect = FALSE;
 
 GC_bool GC_quiet = 0; /* used also in pcr_interface.c */
 
-#ifndef SMALL_CONFIG
+#if !defined(NO_CLOCK) || !defined(SMALL_CONFIG)
   int GC_print_stats = 0;
 #endif
 
@@ -108,7 +108,11 @@ GC_bool GC_quiet = 0; /* used also in pcr_interface.c */
 # else
     GC_INNER GC_bool GC_dump_regularly = FALSE;
 # endif
-#endif
+# ifndef NO_CLOCK
+    STATIC CLOCK_TYPE GC_init_time;
+                /* The time that the GC was initialized at.     */
+# endif
+#endif /* !NO_DEBUGGING */
 
 #ifdef KEEP_BACK_PTRS
   GC_INNER long GC_backtraces = 0;
@@ -245,59 +249,6 @@ STATIC void GC_init_size_map(void)
     /* We leave the rest of the array to be filled in on demand. */
 }
 
-/* Fill in additional entries in GC_size_map, including the ith one     */
-/* We assume the ith entry is currently 0.                              */
-/* Note that a filled in section of the array ending at n always        */
-/* has length at least n/4.                                             */
-GC_INNER void GC_extend_size_map(size_t i)
-{
-    size_t orig_granule_sz = ROUNDED_UP_GRANULES(i);
-    size_t granule_sz = orig_granule_sz;
-    size_t byte_sz = GRANULES_TO_BYTES(granule_sz);
-                        /* The size we try to preserve.         */
-                        /* Close to i, unless this would        */
-                        /* introduce too many distinct sizes.   */
-    size_t smaller_than_i = byte_sz - (byte_sz >> 3);
-    size_t much_smaller_than_i = byte_sz - (byte_sz >> 2);
-    size_t low_limit;   /* The lowest indexed entry we  */
-                        /* initialize.                  */
-    size_t j;
-
-    if (GC_size_map[smaller_than_i] == 0) {
-        low_limit = much_smaller_than_i;
-        while (GC_size_map[low_limit] != 0) low_limit++;
-    } else {
-        low_limit = smaller_than_i + 1;
-        while (GC_size_map[low_limit] != 0) low_limit++;
-        granule_sz = ROUNDED_UP_GRANULES(low_limit);
-        granule_sz += granule_sz >> 3;
-        if (granule_sz < orig_granule_sz) granule_sz = orig_granule_sz;
-    }
-    /* For these larger sizes, we use an even number of granules.       */
-    /* This makes it easier to, for example, construct a 16byte-aligned */
-    /* allocator even if GRANULE_BYTES is 8.                            */
-        granule_sz += 1;
-        granule_sz &= ~1;
-    if (granule_sz > MAXOBJGRANULES) {
-        granule_sz = MAXOBJGRANULES;
-    }
-    /* If we can fit the same number of larger objects in a block,      */
-    /* do so.                                                           */
-    {
-        size_t number_of_objs = HBLK_GRANULES/granule_sz;
-        GC_ASSERT(number_of_objs != 0);
-        granule_sz = HBLK_GRANULES/number_of_objs;
-        granule_sz &= ~1;
-    }
-    byte_sz = GRANULES_TO_BYTES(granule_sz);
-    /* We may need one extra byte;                      */
-    /* don't always fill in GC_size_map[byte_sz]        */
-    byte_sz -= EXTRA_BYTES;
-
-    for (j = low_limit; j <= byte_sz; j++) GC_size_map[j] = granule_sz;
-}
-
-
 /*
  * The following is a gross hack to deal with a problem that can occur
  * on machines that are sloppy about stack frame sizes, notably SPARC.
@@ -344,6 +295,17 @@ GC_INNER void GC_extend_size_map(size_t i)
   }
 #endif
 
+#ifdef THREADS
+  /* Used to occasionally clear a bigger chunk. */
+  /* TODO: Should be more random than it is ... */
+  GC_ATTR_NO_SANITIZE_THREAD
+  static unsigned next_random_no(void)
+  {
+    static unsigned random_no = 0;
+    return ++random_no % 13;
+  }
+#endif /* THREADS */
+
 /* Clear some of the inaccessible part of the stack.  Returns its       */
 /* argument, so it can be used in a tail call position, hence clearing  */
 /* another frame.                                                       */
@@ -353,10 +315,6 @@ GC_API void * GC_CALL GC_clear_stack(void *arg)
     ptr_t sp = GC_approx_sp();  /* Hotter than actual sp */
 #   ifdef THREADS
         word volatile dummy[SMALL_CLEAR_SIZE];
-        static unsigned random_no = 0;
-                                /* Should be more random than it is ... */
-                                /* Used to occasionally clear a bigger  */
-                                /* chunk.                               */
 #   endif
 
 #   define SLOP 400
@@ -375,7 +333,7 @@ GC_API void * GC_CALL GC_clear_stack(void *arg)
         /* thus more junk remains accessible, thus the heap gets        */
         /* larger ...                                                   */
 #   ifdef THREADS
-      if (++random_no % 13 == 0) {
+      if (next_random_no() == 0) {
         ptr_t limit = sp;
 
         MAKE_HOTTER(limit, BIG_CLEAR_SIZE*sizeof(word));
@@ -748,14 +706,29 @@ GC_API void GC_CALL GC_get_heap_usage_safe(GC_word *pheap_size,
 
 GC_INNER GC_bool GC_is_initialized = FALSE;
 
+GC_API int GC_CALL GC_is_init_called(void)
+{
+  return GC_is_initialized;
+}
+
 #if (defined(MSWIN32) || defined(MSWINCE)) && defined(THREADS)
     GC_INNER CRITICAL_SECTION GC_write_cs;
 #endif
 
 #ifndef DONT_USE_ATEXIT
+# if !defined(PCR) && !defined(SMALL_CONFIG)
+    /* A dedicated variable to avoid a garbage collection on abort.     */
+    /* GC_find_leak cannot be used for this purpose as otherwise        */
+    /* TSan finds a data race (between GC_default_on_abort and, e.g.,   */
+    /* GC_finish_collection).                                           */
+    static GC_bool skip_gc_atexit = FALSE;
+# else
+#   define skip_gc_atexit FALSE
+# endif
+
   STATIC void GC_exit_check(void)
   {
-    if (GC_find_leak) {
+    if (GC_find_leak && !skip_gc_atexit) {
       GC_gcollect();
     }
   }
@@ -958,7 +931,7 @@ GC_API void GC_CALL GC_init(void)
 #   ifdef GC_READ_ENV_FILE
       GC_envfile_init();
 #   endif
-#   ifndef SMALL_CONFIG
+#   if !defined(NO_CLOCK) || !defined(SMALL_CONFIG)
 #     ifdef GC_PRINT_VERBOSE_STATS
         /* This is useful for debugging and profiling on platforms with */
         /* missing getenv() (like WinCE).                               */
@@ -970,8 +943,9 @@ GC_API void GC_CALL GC_init(void)
           GC_print_stats = 1;
         }
 #     endif
-#     if (defined(UNIX_LIKE) && !defined(GC_ANDROID_LOG)) \
-         || defined(CYGWIN32) || defined(SYMBIAN)
+#   endif
+#   if ((defined(UNIX_LIKE) && !defined(GC_ANDROID_LOG)) \
+        || defined(CYGWIN32) || defined(SYMBIAN)) && !defined(SMALL_CONFIG)
         {
           char * file_name = TRUSTED_STRING(GETENV("GC_LOG_FILE"));
 #         ifdef GC_LOG_TO_FILE_ALWAYS
@@ -1005,8 +979,7 @@ GC_API void GC_CALL GC_init(void)
             }
           }
         }
-#     endif
-#   endif /* !SMALL_CONFIG */
+#   endif
 #   if !defined(NO_DEBUGGING) && !defined(GC_DUMP_REGULARLY)
       if (0 != GETENV("GC_DUMP_REGULARLY")) {
         GC_dump_regularly = TRUE;
@@ -1144,6 +1117,9 @@ GC_API void GC_CALL GC_init(void)
           }
         }
       }
+#   endif
+#   if !defined(NO_DEBUGGING) && !defined(NO_CLOCK)
+      GET_TIME(GC_init_time);
 #   endif
     maybe_install_looping_handler();
 #   if ALIGNMENT > GC_DS_TAGS
@@ -1754,7 +1730,9 @@ GC_API GC_warn_proc GC_CALL GC_get_warn_proc(void)
   /* and from EXIT() macro (msg is NULL in that case).                  */
   STATIC void GC_CALLBACK GC_default_on_abort(const char *msg)
   {
-    GC_find_leak = FALSE; /* disable at-exit GC_gcollect()  */
+#   ifndef DONT_USE_ATEXIT
+      skip_gc_atexit = TRUE; /* disable at-exit GC_gcollect() */
+#   endif
 
     if (msg != NULL) {
 #     if defined(MSWIN32)
@@ -2067,11 +2045,22 @@ GC_API void * GC_CALL GC_do_blocking(GC_fn_type fn, void * client_data)
 
   GC_API void GC_CALL GC_dump_named(const char *name)
   {
+#   ifndef NO_CLOCK
+      CLOCK_TYPE current_time;
+
+      GET_TIME(current_time);
+#   endif
     if (name != NULL) {
       GC_printf("***GC Dump %s\n", name);
     } else {
       GC_printf("***GC Dump collection #%lu\n", (unsigned long)GC_gc_no);
     }
+#   ifndef NO_CLOCK
+      /* Note that the time is wrapped in ~49 days if sizeof(long)==4.  */
+      GC_printf("Time since GC init: %lu msecs\n",
+                MS_TIME_DIFF(current_time, GC_init_time));
+#   endif
+
     GC_printf("\n***Static roots:\n");
     GC_print_static_roots();
     GC_printf("\n***Heap sections:\n");

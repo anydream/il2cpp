@@ -177,9 +177,8 @@ GC_INNER char * GC_get_maps(void)
     /* stacks.  And there is no easy way to read the entire     */
     /* file atomically.  This is arguably a misfeature of the   */
     /* /proc/.../maps interface.                                */
-
-    /* Since we don't believe the file can grow                 */
-    /* asynchronously, it should suffice to first determine     */
+    /* Since we expect the file can grow asynchronously in rare */
+    /* cases, it should suffice to first determine              */
     /* the size (using lseek or read), and then to reread the   */
     /* file.  If the size is inconsistent we have to retry.     */
     /* This only matters with threads enabled, and if we use    */
@@ -232,10 +231,9 @@ GC_INNER char * GC_get_maps(void)
               return 0;
 #           ifdef THREADS
               if (maps_size > old_maps_size) {
-                ABORT_ARG2("Unexpected asynchronous /proc/self/maps growth "
-                           "(unregistered thread?)", " from %lu to %lu",
-                           (unsigned long)old_maps_size,
-                           (unsigned long)maps_size);
+                /* This might be caused by e.g. thread creation. */
+                WARN("Unexpected asynchronous /proc/self/maps growth"
+                     " (to %" WARN_PRIdPTR " bytes)\n", maps_size);
               }
 #           endif
         } while (maps_size >= maps_buf_sz || maps_size < old_maps_size);
@@ -715,7 +713,20 @@ GC_INNER size_t GC_page_size = 0;
   GC_INNER void GC_setpagesize(void)
   {
     GetSystemInfo(&GC_sysinfo);
-    GC_page_size = (size_t)GC_sysinfo.dwPageSize;
+#   if defined(CYGWIN32) && defined(USE_MUNMAP)
+      /* Allocations made with mmap() are aligned to the allocation     */
+      /* granularity, which (at least on 64-bit Windows OS) is not the  */
+      /* same as the page size.  Probably a separate variable could     */
+      /* be added to distinguish the allocation granularity from the    */
+      /* actual page size, but in practice there is no good reason to   */
+      /* make allocations smaller than dwAllocationGranularity, so we   */
+      /* just use it instead of the actual page size here (as Cygwin    */
+      /* itself does in many cases).                                    */
+      GC_page_size = (size_t)GC_sysinfo.dwAllocationGranularity;
+      GC_ASSERT(GC_page_size >= (size_t)GC_sysinfo.dwPageSize);
+#   else
+      GC_page_size = (size_t)GC_sysinfo.dwPageSize;
+#   endif
 #   if defined(MSWINCE) && !defined(_WIN32_WCE_EMULATION)
       {
         OSVERSIONINFO verInfo;
@@ -1184,8 +1195,12 @@ GC_INNER size_t GC_page_size = 0;
       && !defined(GC_OPENBSD_THREADS) \
       && (!defined(GC_SOLARIS_THREADS) || defined(_STRICT_STDC))
 
-# if defined(LINUX) && defined(USE_GET_STACKBASE_FOR_MAIN)
+# if (defined(HAVE_PTHREAD_ATTR_GET_NP) || defined(HAVE_PTHREAD_GETATTR_NP)) \
+     && (defined(THREADS) || defined(USE_GET_STACKBASE_FOR_MAIN))
 #   include <pthread.h>
+#   ifdef HAVE_PTHREAD_NP_H
+#     include <pthread_np.h> /* for pthread_attr_get_np() */
+#   endif
 # elif defined(DARWIN) && !defined(NO_PTHREAD_GET_STACKADDR_NP)
     /* We could use pthread_get_stackaddr_np even in case of a  */
     /* single-threaded gclib (there is no -lpthread on Darwin). */
@@ -1197,14 +1212,22 @@ GC_INNER size_t GC_page_size = 0;
   ptr_t GC_get_main_stack_base(void)
   {
     ptr_t result;
-#   if defined(LINUX) && !defined(NO_PTHREAD_GETATTR_NP) \
+#   if (defined(HAVE_PTHREAD_ATTR_GET_NP) \
+        || defined(HAVE_PTHREAD_GETATTR_NP)) \
        && (defined(USE_GET_STACKBASE_FOR_MAIN) \
            || (defined(THREADS) && !defined(REDIRECT_MALLOC)))
       pthread_attr_t attr;
       void *stackaddr;
       size_t size;
 
-      if (pthread_getattr_np(pthread_self(), &attr) == 0) {
+#     ifdef HAVE_PTHREAD_ATTR_GET_NP
+        if (pthread_attr_init(&attr) == 0
+            && (pthread_attr_get_np(pthread_self(), &attr) == 0
+                ? TRUE : (pthread_attr_destroy(&attr), FALSE)))
+#     else /* HAVE_PTHREAD_GETATTR_NP */
+        if (pthread_getattr_np(pthread_self(), &attr) == 0)
+#     endif
+      {
         if (pthread_attr_getstack(&attr, &stackaddr, &size) == 0
             && stackaddr != NULL) {
           (void)pthread_attr_destroy(&attr);
@@ -1270,11 +1293,12 @@ GC_INNER size_t GC_page_size = 0;
 # define GET_MAIN_STACKBASE_SPECIAL
 #endif /* !AMIGA, !BEOS, !OPENBSD, !OS2, !Windows */
 
-#if (defined(GC_LINUX_THREADS) || defined(PLATFORM_ANDROID)) \
-    && !defined(NO_PTHREAD_GETATTR_NP)
-
+#if (defined(HAVE_PTHREAD_ATTR_GET_NP) || defined(HAVE_PTHREAD_GETATTR_NP)) \
+    && defined(THREADS) && !defined(HAVE_GET_STACK_BASE)
 # include <pthread.h>
-  /* extern int pthread_getattr_np(pthread_t, pthread_attr_t *); */
+# ifdef HAVE_PTHREAD_NP_H
+#   include <pthread_np.h>
+# endif
 
   GC_API int GC_CALL GC_get_stack_base(struct GC_stack_base *b)
   {
@@ -1284,10 +1308,20 @@ GC_INNER size_t GC_page_size = 0;
       DCL_LOCK_STATE;
 #   endif
 
-    if (pthread_getattr_np(pthread_self(), &attr) != 0) {
+#   ifdef HAVE_PTHREAD_ATTR_GET_NP
+      if (pthread_attr_init(&attr) != 0)
+        ABORT("pthread_attr_init failed");
+      if (pthread_attr_get_np(pthread_self(), &attr) != 0) {
+        WARN("pthread_attr_get_np failed\n", 0);
+        (void)pthread_attr_destroy(&attr);
+        return GC_UNIMPLEMENTED;
+      }
+#   else /* HAVE_PTHREAD_GETATTR_NP */
+      if (pthread_getattr_np(pthread_self(), &attr) != 0) {
         WARN("pthread_getattr_np failed\n", 0);
         return GC_UNIMPLEMENTED;
-    }
+      }
+#   endif
     if (pthread_attr_getstack(&attr, &(b -> mem_base), &size) != 0) {
         ABORT("pthread_attr_getstack failed");
     }
@@ -1323,7 +1357,7 @@ GC_INNER size_t GC_page_size = 0;
     return GC_SUCCESS;
   }
 # define HAVE_GET_STACK_BASE
-#endif /* GC_LINUX_THREADS */
+#endif /* THREADS && (HAVE_PTHREAD_ATTR_GET_NP || HAVE_PTHREAD_GETATTR_NP) */
 
 #if defined(GC_DARWIN_THREADS) && !defined(NO_PTHREAD_GET_STACKADDR_NP)
 # include <pthread.h>
@@ -2460,17 +2494,25 @@ GC_INNER void GC_unmap(ptr_t start, size_t bytes)
       /* We immediately remap it to prevent an intervening mmap from    */
       /* accidentally grabbing the same address space.                  */
       {
-        void * result;
+#       ifdef CYGWIN32
+          /* Calling mmap() with the new protection flags on an         */
+          /* existing memory map with MAP_FIXED is broken on Cygwin.    */
+          /* However, calling mprotect() on the given address range     */
+          /* with PROT_NONE seems to work fine.                         */
+          if (mprotect(start_addr, len, PROT_NONE))
+            ABORT("mprotect(PROT_NONE) failed");
+#       else
+          void * result = mmap(start_addr, len, PROT_NONE,
+                               MAP_PRIVATE | MAP_FIXED | OPT_MAP_ANON,
+                               zero_fd, 0/* offset */);
 
-        result = mmap(start_addr, len, PROT_NONE,
-                      MAP_PRIVATE | MAP_FIXED | OPT_MAP_ANON,
-                      zero_fd, 0/* offset */);
-        if (result != (void *)start_addr)
-          ABORT("mmap(PROT_NONE) failed");
-#       if defined(CPPCHECK) || defined(LINT2)
-          /* Explicitly store the resource handle to a global variable. */
-          GC_noop1((word)result);
-#       endif
+          if (result != (void *)start_addr)
+            ABORT("mmap(PROT_NONE) failed");
+#         if defined(CPPCHECK) || defined(LINT2)
+            /* Explicitly store the resource handle to a global variable. */
+            GC_noop1((word)result);
+#         endif
+#       endif /* !CYGWIN32 */
       }
       GC_unmapped_bytes += len;
 #   endif
@@ -2577,15 +2619,20 @@ GC_INNER void GC_unmap_gap(ptr_t start1, size_t bytes1, ptr_t start2,
 #   else
       if (len != 0) {
         /* Immediately remap as above. */
-        void * result;
-        result = mmap(start_addr, len, PROT_NONE,
-                      MAP_PRIVATE | MAP_FIXED | OPT_MAP_ANON,
-                      zero_fd, 0/* offset */);
-        if (result != (void *)start_addr)
-          ABORT("mmap(PROT_NONE) failed");
-#       if defined(CPPCHECK) || defined(LINT2)
-          GC_noop1((word)result);
-#       endif
+#       ifdef CYGWIN32
+          if (mprotect(start_addr, len, PROT_NONE))
+            ABORT("mprotect(PROT_NONE) failed");
+#       else
+          void * result = mmap(start_addr, len, PROT_NONE,
+                               MAP_PRIVATE | MAP_FIXED | OPT_MAP_ANON,
+                               zero_fd, 0/* offset */);
+
+          if (result != (void *)start_addr)
+            ABORT("mmap(PROT_NONE) failed");
+#         if defined(CPPCHECK) || defined(LINT2)
+            GC_noop1((word)result);
+#         endif
+#       endif /* !CYGWIN32 */
         GC_unmapped_bytes += len;
       }
 #   endif
@@ -3060,6 +3107,8 @@ GC_API GC_push_other_roots_proc GC_CALL GC_get_push_other_roots(void)
 /* correctly.                                                           */
 #ifdef AO_HAVE_test_and_set_acquire
   GC_INNER volatile AO_TS_t GC_fault_handler_lock = AO_TS_INITIALIZER;
+
+  GC_ATTR_NO_SANITIZE_THREAD
   static void async_set_pht_entry_from_index(volatile page_hash_table db,
                                              size_t index)
   {
@@ -3101,9 +3150,27 @@ GC_API GC_push_other_roots_proc GC_CALL GC_get_push_other_roots(void)
     }
   }
 #endif /* !AO_HAVE_test_and_set_acquire */
+
+  /* This function is used only by the fault handler.  Potential data   */
+  /* race between this function and GC_install_header, GC_remove_header */
+  /* should not be harmful because the added or removed header should   */
+  /* be already unprotected.                                            */
+  GC_ATTR_NO_SANITIZE_THREAD
+  static GC_bool is_header_found_async(void *addr)
+  {
+#   ifdef HASH_TL
+      hdr *result;
+      GET_HDR((ptr_t)addr, result);
+      return result != NULL;
+#   else
+      return HDR_INNER(addr) != NULL;
+#   endif
+  }
+
 #else /* !THREADS */
 # define async_set_pht_entry_from_index(db, index) \
                         set_pht_entry_from_index(db, index)
+# define is_header_found_async(addr) (HDR(addr) != NULL)
 #endif /* !THREADS */
 
 #ifndef DARWIN
@@ -3188,13 +3255,13 @@ GC_API GC_push_other_roots_proc GC_CALL GC_get_push_other_roots(void)
             /* Address is only within the correct physical page.        */
             in_allocd_block = FALSE;
             for (i = 0; i < divHBLKSZ(GC_page_size); i++) {
-              if (HDR(h+i) != 0) {
+              if (is_header_found_async(&h[i])) {
                 in_allocd_block = TRUE;
                 break;
               }
             }
 #       else
-            in_allocd_block = (HDR(addr) != 0);
+            in_allocd_block = is_header_found_async(addr);
 #       endif
         if (!in_allocd_block) {
             /* FIXME - We should make sure that we invoke the   */
@@ -4318,7 +4385,7 @@ catch_exception_raise(mach_port_t exception_port GC_ATTR_UNUSED,
 
   /* This is the address that caused the fault */
   addr = (char*) exc_state.DARWIN_EXC_STATE_DAR;
-  if (HDR(addr) == 0) {
+  if (!is_header_found_async(addr)) {
     /* Ugh... just like the SIGBUS problem above, it seems we get       */
     /* a bogus KERN_PROTECTION_FAILURE every once and a while.  We wait */
     /* till we get a bunch in a row before doing anything about it.     */

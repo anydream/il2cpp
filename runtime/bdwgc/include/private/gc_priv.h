@@ -155,20 +155,34 @@ typedef char * ptr_t;   /* A generic pointer to which we can add        */
 #endif
 
 #ifndef GC_ATTR_NO_SANITIZE_ADDR
-# ifdef ADDRESS_SANITIZER
+# ifndef ADDRESS_SANITIZER
+#   define GC_ATTR_NO_SANITIZE_ADDR /* empty */
+# elif GC_CLANG_PREREQ(3, 8)
 #   define GC_ATTR_NO_SANITIZE_ADDR __attribute__((no_sanitize("address")))
 # else
-#   define GC_ATTR_NO_SANITIZE_ADDR /* empty */
+#   define GC_ATTR_NO_SANITIZE_ADDR __attribute__((no_sanitize_address))
 # endif
 #endif /* !GC_ATTR_NO_SANITIZE_ADDR */
 
 #ifndef GC_ATTR_NO_SANITIZE_MEMORY
-# ifdef MEMORY_SANITIZER
+# ifndef MEMORY_SANITIZER
+#   define GC_ATTR_NO_SANITIZE_MEMORY /* empty */
+# elif GC_CLANG_PREREQ(3, 8)
 #   define GC_ATTR_NO_SANITIZE_MEMORY __attribute__((no_sanitize("memory")))
 # else
-#   define GC_ATTR_NO_SANITIZE_MEMORY /* empty */
+#   define GC_ATTR_NO_SANITIZE_MEMORY __attribute__((no_sanitize_memory))
 # endif
 #endif /* !GC_ATTR_NO_SANITIZE_MEMORY */
+
+#ifndef GC_ATTR_NO_SANITIZE_THREAD
+# ifndef THREAD_SANITIZER
+#   define GC_ATTR_NO_SANITIZE_THREAD /* empty */
+# elif GC_CLANG_PREREQ(3, 8)
+#   define GC_ATTR_NO_SANITIZE_THREAD __attribute__((no_sanitize("thread")))
+# else
+#   define GC_ATTR_NO_SANITIZE_THREAD __attribute__((no_sanitize_thread))
+# endif
+#endif /* !GC_ATTR_NO_SANITIZE_THREAD */
 
 #ifndef GC_ATTR_UNUSED
 # if GC_GNUC_PREREQ(3, 4)
@@ -396,6 +410,7 @@ typedef char * ptr_t;   /* A generic pointer to which we can add        */
 /*                               */
 /*********************************/
 
+#ifndef NO_CLOCK
 #ifdef BSD_TIME
 # undef CLOCK_TYPE
 # undef GET_TIME
@@ -445,6 +460,7 @@ typedef char * ptr_t;   /* A generic pointer to which we can add        */
   /* Avoid using double type since some targets (like ARM) might        */
   /* require -lm option for double-to-long conversion.                  */
 #endif /* !BSD_TIME && !MSWIN32 */
+#endif /* !NO_CLOCK */
 
 /* We use bzero and bcopy internally.  They may not be available.       */
 # if defined(SPARC) && defined(SUNOS4)
@@ -937,7 +953,7 @@ typedef word page_hash_table[PHT_SIZE];
 # define counter_t volatile AO_t
 #else
   typedef size_t counter_t;
-# if defined(THREADS) && (defined(MPROTECT_VDB) \
+# if defined(THREADS) && (defined(MPROTECT_VDB) || defined(THREAD_SANITIZER) \
                 || (defined(GC_ASSERTIONS) && defined(THREAD_LOCAL_ALLOC)))
 #   include "gc_atomic_ops.h"
 # endif
@@ -1214,7 +1230,7 @@ struct _GC_arrays {
         /* since last collection.                               */
   word _finalizer_bytes_freed;
         /* Bytes of memory explicitly deallocated while         */
-        /* finalizers were running.  Used to approximate mem.   */
+        /* finalizers were running.  Used to approximate memory */
         /* explicitly deallocated by finalizers.                */
   ptr_t _scratch_end_ptr;
   ptr_t _scratch_last_end_ptr;
@@ -1587,8 +1603,11 @@ struct GC_traced_stack_sect_s {
 #else
 /* Set mark bit correctly, even if mark bits may be concurrently        */
 /* accessed.                                                            */
-# ifdef PARALLEL_MARK
-    /* This is used only if we explicitly set USE_MARK_BITS.    */
+# if defined(PARALLEL_MARK) || (defined(THREAD_SANITIZER) && defined(THREADS))
+    /* Workaround TSan false positive: there is no race between         */
+    /* mark_bit_from_hdr and set_mark_bit_from_hdr when n is different  */
+    /* (alternatively, USE_MARK_BYTES could be used).  If TSan is off,  */
+    /* AO_or() is used only if we set USE_MARK_BITS explicitly.         */
 #   define OR_WORD(addr, bits) AO_or((volatile AO_t *)(addr), (AO_t)(bits))
 # else
 #   define OR_WORD(addr, bits) (void)(*(addr) |= (bits))
@@ -1656,15 +1675,6 @@ GC_INNER void GC_initiate_gc(void);
 
 GC_INNER GC_bool GC_collection_in_progress(void);
                         /* Collection is in progress, or was abandoned. */
-
-#ifndef GC_DISABLE_INCREMENTAL
-# define GC_PUSH_CONDITIONAL(b, t, all) \
-                GC_push_conditional((ptr_t)(b), (ptr_t)(t), all)
-                        /* Do either of GC_push_all or GC_push_selected */
-                        /* depending on the third arg.                  */
-#else
-# define GC_PUSH_CONDITIONAL(b, t, all) GC_push_all((ptr_t)(b), (ptr_t)(t))
-#endif
 
 #define GC_PUSH_ALL_SYM(sym) \
                 GC_push_all((ptr_t)&(sym), (ptr_t)&(sym) + sizeof(sym))
@@ -1942,13 +1952,6 @@ GC_INNER ptr_t GC_allocobj(size_t sz, int kind);
 # define GC_DBG_EXTRAS "unknown", 0
 #endif
 
-/* We make the GC_clear_stack() call a tail one, hoping to get more of  */
-/* the stack.                                                           */
-#define GENERAL_MALLOC(lb,k) \
-    GC_clear_stack(GC_generic_malloc(lb, k))
-#define GENERAL_MALLOC_IOP(lb,k) \
-    GC_clear_stack(GC_generic_malloc_ignore_off_page(lb, k))
-
 #ifdef GC_COLLECT_AT_MALLOC
   extern size_t GC_dbg_collect_at_malloc_min_lb;
                             /* variable visible outside for debugging   */
@@ -2025,7 +2028,7 @@ GC_EXTERN GC_bool GC_have_errors; /* We saw a smashed or leaked object. */
                                   /* without acquiring the lock.        */
 
 #define VERBOSE 2
-#ifndef SMALL_CONFIG
+#if !defined(NO_CLOCK) || !defined(SMALL_CONFIG)
   /* GC_print_stats should be visible to extra/MacOS.c. */
   extern int GC_print_stats;    /* Nonzero generates basic GC log.      */
                                 /* VERBOSE generates add'l messages.    */
@@ -2314,8 +2317,6 @@ GC_EXTERN signed_word GC_bytes_found;
 
 GC_INNER void GC_default_print_heap_obj_proc(ptr_t p);
 
-GC_INNER void GC_extend_size_map(size_t); /* in misc.c */
-
 GC_INNER void GC_setpagesize(void);
 
 GC_INNER void GC_initialize_offsets(void);      /* defined in obj_map.c */
@@ -2323,7 +2324,8 @@ GC_INNER void GC_initialize_offsets(void);      /* defined in obj_map.c */
 GC_INNER void GC_bl_init(void);
 GC_INNER void GC_bl_init_no_interiors(void);    /* defined in blacklst.c */
 
-GC_INNER void GC_start_debugging(void); /* defined in dbg_mlc.c */
+GC_INNER void GC_start_debugging_inner(void);   /* defined in dbg_mlc.c. */
+                        /* Should not be called if GC_debugging_started. */
 
 /* Store debugging info into p.  Return displaced pointer.      */
 /* Assumes we don't hold allocation lock.                       */

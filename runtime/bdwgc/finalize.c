@@ -427,7 +427,7 @@ GC_API int GC_CALL GC_unregister_disappearing_link(void * * link)
     int res = GC_SUCCESS;
     DCL_LOCK_STATE;
 
-    GC_ASSERT(obj != NULL);
+    GC_ASSERT(NONNULL_ARG_NOT_NULL(obj));
     LOCK();
     if (GC_toggleref_callback != 0) {
       if (!ensure_toggleref_capacity(1)) {
@@ -1182,6 +1182,7 @@ GC_INNER void GC_finalize(void)
 /* Returns true if it is worth calling GC_invoke_finalizers. (Useful if */
 /* finalizers can only be called from some kind of "safe state" and     */
 /* getting into that safe state is expensive.)                          */
+GC_ATTR_NO_SANITIZE_THREAD
 GC_API int GC_CALL GC_should_invoke_finalizers(void)
 {
   return GC_fnlz_roots.finalize_now != NULL;
@@ -1195,7 +1196,7 @@ GC_API int GC_CALL GC_invoke_finalizers(void)
     word bytes_freed_before = 0; /* initialized to prevent warning. */
     DCL_LOCK_STATE;
 
-    while (GC_fnlz_roots.finalize_now != NULL) {
+    while (GC_should_invoke_finalizers()) {
         struct finalizable_object * curr_fo;
 
 #       ifdef THREADS
@@ -1223,7 +1224,15 @@ GC_API int GC_CALL GC_invoke_finalizers(void)
         /* finalizable.  Otherwise it should not matter.        */
     }
     /* bytes_freed_before is initialized whenever count != 0 */
-    if (count != 0 && bytes_freed_before != GC_bytes_freed) {
+    if (count != 0
+#         if defined(THREADS) && !defined(THREAD_SANITIZER)
+            /* A quick check whether some memory was freed.     */
+            /* The race with GC_free() is safe to be ignored    */
+            /* because we only need to know if the current      */
+            /* thread has deallocated something.                */
+            && bytes_freed_before != GC_bytes_freed
+#         endif
+       ) {
         LOCK();
         GC_finalizer_bytes_freed += (GC_bytes_freed - bytes_freed_before);
         UNLOCK();
@@ -1244,7 +1253,8 @@ GC_INNER void GC_notify_or_invoke_finalizers(void)
 #   if defined(THREADS) && !defined(KEEP_BACK_PTRS) \
        && !defined(MAKE_BACK_GRAPH)
       /* Quick check (while unlocked) for an empty finalization queue.  */
-      if (NULL == GC_fnlz_roots.finalize_now) return;
+      if (!GC_should_invoke_finalizers())
+        return;
 #   endif
     LOCK();
 

@@ -528,11 +528,6 @@ void GC_push_thread_structures(void)
 /* It may not be safe to allocate when we register the first thread.    */
 static struct GC_Thread_Rep first_thread;
 
-#define THREAD_TABLE_INDEX(id) \
-                (int)(((NUMERIC_THREAD_ID(id) >> 16) \
-                       ^ (NUMERIC_THREAD_ID(id) >> 8) \
-                       ^ NUMERIC_THREAD_ID(id)) % THREAD_TABLE_SZ)
-
 /* Add a thread to GC_threads.  We assume it wasn't already there.      */
 /* Caller holds allocation lock.                                        */
 STATIC GC_thread GC_new_thread(pthread_t id)
@@ -754,7 +749,8 @@ STATIC void GC_remove_all_threads_but_me(void)
       me = 0;
       for (p = GC_threads[hv]; 0 != p; p = next) {
         next = p -> next;
-        if (THREAD_EQUAL(p -> id, self)) {
+        if (THREAD_EQUAL(p -> id, self)
+            && me == NULL) { /* ignore dead threads with the same id */
           me = p;
           p -> next = 0;
 #         ifdef GC_DARWIN_THREADS
@@ -791,7 +787,11 @@ STATIC void GC_remove_all_threads_but_me(void)
               GC_remove_specific_after_fork(GC_thread_key, p -> id);
             }
 #         endif
-          if (p != &first_thread) GC_INTERNAL_FREE(p);
+          /* TODO: To avoid TSan hang (when updating GC_bytes_freed),   */
+          /* we just skip explicit free of GC_threads entries for now.  */
+#         ifndef THREAD_SANITIZER
+            if (p != &first_thread) GC_INTERNAL_FREE(p);
+#         endif
         }
       }
       GC_threads[hv] = me;
@@ -1005,7 +1005,11 @@ STATIC void GC_remove_all_threads_but_me(void)
 STATIC void GC_wait_for_gc_completion(GC_bool wait_for_all)
 {
     DCL_LOCK_STATE;
-    GC_ASSERT(I_HOLD_LOCK());
+#   if !defined(THREAD_SANITIZER) || !defined(CAN_HANDLE_FORK)
+      /* GC_lock_holder is accessed with the lock held, so there is no  */
+      /* data race actually (unlike what is reported by TSan).          */
+      GC_ASSERT(I_HOLD_LOCK());
+#   endif
     ASSERT_CANCEL_DISABLED();
     if (GC_incremental && GC_collection_in_progress()) {
         word old_gc_no = GC_gc_no;
@@ -1039,6 +1043,10 @@ IF_CANCEL(static int fork_cancel_state;)
                                 /* protected by allocation lock.        */
 
 /* Called before a fork()               */
+#ifdef GC_ASSERTIONS
+  /* GC_lock_holder is updated safely (no data race actually).  */
+  GC_ATTR_NO_SANITIZE_THREAD
+#endif
 static void fork_prepare_proc(void)
 {
     /* Acquire all relevant locks, so that after releasing the locks    */
@@ -1063,6 +1071,9 @@ static void fork_prepare_proc(void)
 }
 
 /* Called in parent after a fork() (even if the latter failed). */
+#ifdef GC_ASSERTIONS
+  GC_ATTR_NO_SANITIZE_THREAD
+#endif
 static void fork_parent_proc(void)
 {
 #   if defined(PARALLEL_MARK)
@@ -1074,6 +1085,9 @@ static void fork_parent_proc(void)
 }
 
 /* Called in child after a fork()       */
+#ifdef GC_ASSERTIONS
+  GC_ATTR_NO_SANITIZE_THREAD
+#endif
 static void fork_child_proc(void)
 {
     /* Clean up the thread table, so that just our thread is left. */
@@ -1515,9 +1529,11 @@ GC_API int WRAP_FUNC(pthread_join)(pthread_t thread, void **retval)
 # endif
     if (result == 0) {
         LOCK();
-        /* Here the pthread thread id may have been recycled. */
-        GC_ASSERT((t -> flags & FINISHED) != 0);
-        GC_delete_gc_thread(t);
+        /* Here the pthread thread id may have been recycled.           */
+        /* Delete the thread from GC_threads (unless it has been        */
+        /* registered again from the client thread key destructor).     */
+        if ((t -> flags & FINISHED) != 0)
+          GC_delete_gc_thread(t);
         UNLOCK();
     }
     return result;
@@ -1645,10 +1661,7 @@ GC_API void GC_CALL GC_allow_register_threads(void)
 {
     /* Check GC is initialized and the current thread is registered. */
     GC_ASSERT(GC_lookup_thread(pthread_self()) != 0);
-
-#   ifndef GC_ALWAYS_MULTITHREADED
-      GC_need_to_lock = TRUE;   /* We are multi-threaded now. */
-#   endif
+    set_need_to_lock();
 }
 
 GC_API int GC_CALL GC_register_my_thread(const struct GC_stack_base *sb)
@@ -1675,7 +1688,6 @@ GC_API int GC_CALL GC_register_my_thread(const struct GC_stack_base *sb)
     } else if ((me -> flags & FINISHED) != 0) {
         /* This code is executed when a thread is registered from the   */
         /* client thread key destructor.                                */
-        GC_ASSERT((me -> flags & SUSPENDED_EXT) == 0);
         GC_record_stack_base(me, sb);
         me -> flags &= ~FINISHED; /* but not DETACHED */
 #       ifdef GC_EXPLICIT_SIGNALS_UNBLOCK
@@ -1840,10 +1852,7 @@ GC_API int WRAP_FUNC(pthread_create)(pthread_t *new_thread,
       GC_log_printf("About to start new thread from thread %p\n",
                     (void *)pthread_self());
 #   endif
-#   ifndef GC_ALWAYS_MULTITHREADED
-      GC_need_to_lock = TRUE;
-#   endif
-
+    set_need_to_lock();
     result = REAL_FUNC(pthread_create)(new_thread, attr, GC_start_routine, si);
 
     /* Wait until child has been added to the thread table.             */
@@ -1887,10 +1896,12 @@ STATIC void GC_pause(void)
 }
 #endif
 
-#define SPIN_MAX 128    /* Maximum number of calls to GC_pause before   */
+#ifndef SPIN_MAX
+# define SPIN_MAX 128   /* Maximum number of calls to GC_pause before   */
                         /* give up.                                     */
+#endif
 
-GC_INNER volatile GC_bool GC_collecting = 0;
+GC_INNER volatile GC_bool GC_collecting = FALSE;
                         /* A hint that we're in the collector and       */
                         /* holding the allocation lock for an           */
                         /* extended period.                             */
@@ -1958,6 +1969,19 @@ STATIC void GC_generic_lock(pthread_mutex_t * lock)
 
 #endif /* !USE_SPIN_LOCK || ... */
 
+#if defined(THREAD_SANITIZER) \
+    && (defined(USE_SPIN_LOCK) || !defined(NO_PTHREAD_TRYLOCK))
+  /* GC_collecting is a hint, a potential data race between     */
+  /* GC_lock() and ENTER/EXIT_GC() is OK to ignore.             */
+  GC_ATTR_NO_SANITIZE_THREAD
+  static GC_bool is_collecting(void)
+  {
+    return GC_collecting;
+  }
+#else
+# define is_collecting() GC_collecting
+#endif
+
 #if defined(USE_SPIN_LOCK)
 
 /* Reasonably fast spin locks.  Basically the same implementation */
@@ -1966,13 +1990,31 @@ STATIC void GC_generic_lock(pthread_mutex_t * lock)
 
 GC_INNER volatile AO_TS_t GC_allocate_lock = AO_TS_INITIALIZER;
 
+# define low_spin_max 30 /* spin cycles if we suspect uniprocessor  */
+# define high_spin_max SPIN_MAX /* spin cycles for multiprocessor   */
+  static unsigned spin_max = low_spin_max;
+  static unsigned last_spins = 0;
+
+  /* A potential data race between threads invoking GC_lock which reads */
+  /* and updates spin_max and last_spins could be ignored because these */
+  /* variables are hints only.  (Atomic getters and setters are avoided */
+  /* here for performance reasons.)                                     */
+  GC_ATTR_NO_SANITIZE_THREAD
+  static void set_last_spins_and_high_spin_max(unsigned new_last_spins)
+  {
+    last_spins = new_last_spins;
+    spin_max = high_spin_max;
+  }
+
+  GC_ATTR_NO_SANITIZE_THREAD
+  static void reset_spin_max(void)
+  {
+    spin_max = low_spin_max;
+  }
+
 GC_INNER void GC_lock(void)
 {
-#   define low_spin_max 30  /* spin cycles if we suspect uniprocessor */
-#   define high_spin_max SPIN_MAX /* spin cycles for multiprocessor */
-    static unsigned spin_max = low_spin_max;
     unsigned my_spin_max;
-    static unsigned last_spins = 0;
     unsigned my_last_spins;
     unsigned i;
 
@@ -1982,7 +2024,8 @@ GC_INNER void GC_lock(void)
     my_spin_max = spin_max;
     my_last_spins = last_spins;
     for (i = 0; i < my_spin_max; i++) {
-        if (GC_collecting || GC_nprocs == 1) goto yield;
+        if (is_collecting() || GC_nprocs == 1)
+          goto yield;
         if (i < my_last_spins/2) {
             GC_pause();
             continue;
@@ -1994,13 +2037,12 @@ GC_INNER void GC_lock(void)
              * against the other process with which we were contending.
              * Thus it makes sense to spin longer the next time.
              */
-            last_spins = i;
-            spin_max = high_spin_max;
+            set_last_spins_and_high_spin_max(i);
             return;
         }
     }
     /* We are probably being scheduled against the other process.  Sleep. */
-    spin_max = low_spin_max;
+    reset_spin_max();
 yield:
     for (i = 0;; ++i) {
         if (AO_test_and_set_acquire(&GC_allocate_lock) == AO_TS_CLEAR) {
@@ -2029,10 +2071,11 @@ yield:
 }
 
 #else  /* !USE_SPIN_LOCK */
+
 GC_INNER void GC_lock(void)
 {
 #ifndef NO_PTHREAD_TRYLOCK
-    if (1 == GC_nprocs || GC_collecting) {
+    if (1 == GC_nprocs || is_collecting()) {
         pthread_mutex_lock(&GC_allocate_ml);
     } else {
         GC_generic_lock(&GC_allocate_ml);

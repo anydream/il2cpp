@@ -48,8 +48,10 @@ void GC_noop6(word arg1 GC_ATTR_UNUSED, word arg2 GC_ATTR_UNUSED,
 # endif
 }
 
-/* Single argument version, robust against whole program analysis. */
 volatile word GC_noop_sink;
+
+/* Single argument version, robust against whole program analysis. */
+GC_ATTR_NO_SANITIZE_THREAD
 GC_API void GC_CALL GC_noop1(word x)
 {
     GC_noop_sink = x;
@@ -532,7 +534,7 @@ static void alloc_mark_stack(size_t);
 #     if GC_GNUC_PREREQ(4, 7) || GC_CLANG_PREREQ(3, 3)
 #       pragma GCC diagnostic push
         /* Suppress "taking the address of label is non-standard" warning. */
-#       if defined(__clang__) || GC_GNUC_PREREQ(7, 0)
+#       if defined(__clang__) || GC_GNUC_PREREQ(6, 4)
 #         pragma GCC diagnostic ignored "-Wpedantic"
 #       else
           /* GCC before ~4.8 does not accept "-Wpedantic" quietly.  */
@@ -644,9 +646,9 @@ GC_INNER mse * GC_signal_mark_stack_overflow(mse *msp)
  * encoding, we optionally maintain a cache for the block address to
  * header mapping, we prefetch when an object is "grayed", etc.
  */
+GC_ATTR_NO_SANITIZE_ADDR GC_ATTR_NO_SANITIZE_MEMORY GC_ATTR_NO_SANITIZE_THREAD
 GC_INNER mse * GC_mark_from(mse *mark_stack_top, mse *mark_stack,
                             mse *mark_stack_limit)
-                        GC_ATTR_NO_SANITIZE_ADDR GC_ATTR_NO_SANITIZE_MEMORY
 {
   signed_word credit = HBLKSIZE;  /* Remaining credit for marking work  */
   ptr_t current_p;      /* Pointer to current candidate ptr.            */
@@ -1587,8 +1589,8 @@ GC_API void GC_CALL GC_print_trace(word gc_no)
  * and scans the entire region immediately, in case the contents
  * change.
  */
+GC_ATTR_NO_SANITIZE_ADDR GC_ATTR_NO_SANITIZE_MEMORY GC_ATTR_NO_SANITIZE_THREAD
 GC_API void GC_CALL GC_push_all_eager(char *bottom, char *top)
-                        GC_ATTR_NO_SANITIZE_ADDR GC_ATTR_NO_SANITIZE_MEMORY
 {
     word * b = (word *)(((word) bottom + ALIGNMENT-1) & ~(ALIGNMENT-1));
     word * t = (word *)(((word) top) & ~(ALIGNMENT-1));
@@ -1627,6 +1629,36 @@ GC_INNER void GC_push_all_stack(ptr_t bottom, ptr_t top)
     }
 # endif
 }
+
+#if defined(WRAP_MARK_SOME) && defined(PARALLEL_MARK)
+  /* Similar to GC_push_conditional but scans the whole region immediately. */
+  GC_ATTR_NO_SANITIZE_ADDR GC_ATTR_NO_SANITIZE_MEMORY
+  GC_ATTR_NO_SANITIZE_THREAD
+  GC_INNER void GC_push_conditional_eager(ptr_t bottom, ptr_t top,
+                                          GC_bool all)
+  {
+    word * b = (word *)(((word) bottom + ALIGNMENT-1) & ~(ALIGNMENT-1));
+    word * t = (word *)(((word) top) & ~(ALIGNMENT-1));
+    register word *p;
+    register word *lim;
+    register ptr_t greatest_ha = GC_greatest_plausible_heap_addr;
+    register ptr_t least_ha = GC_least_plausible_heap_addr;
+#   define GC_greatest_plausible_heap_addr greatest_ha
+#   define GC_least_plausible_heap_addr least_ha
+
+    if (top == NULL)
+      return;
+    (void)all; /* TODO: If !all then scan only dirty pages. */
+
+    lim = t - 1;
+    for (p = b; (word)p <= (word)lim; p = (word *)((ptr_t)p + ALIGNMENT)) {
+      register word q = *p;
+      GC_PUSH_ONE_HEAP(q, p, GC_mark_stack_top);
+    }
+#   undef GC_greatest_plausible_heap_addr
+#   undef GC_least_plausible_heap_addr
+  }
+#endif /* WRAP_MARK_SOME && PARALLEL_MARK */
 
 #if !defined(SMALL_CONFIG) && !defined(USE_MARK_BYTES) && \
     defined(MARK_BIT_PER_GRANULE)
