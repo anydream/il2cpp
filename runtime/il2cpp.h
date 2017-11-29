@@ -363,26 +363,55 @@ std::common_type_t<T, U> il2cpp_MulOverflow(T lhs, U rhs)
 	return result;
 }
 
-template <class ToType, class FromType>
-ToType il2cpp_ConvOverflow(FromType from)
+template <class T, class S>
+T il2cpp_ConvOverflow(S s)
 {
-	const bool isUnsignedFrom = std::is_unsigned<FromType>::value;
+	const bool isToReal = std::is_floating_point<T>::value;
+	const bool isToSmaller = sizeof(T) < sizeof(S);
+	const bool isEquals = sizeof(T) == sizeof(S);
+	const bool isToUnsigned = std::is_unsigned<T>::value;
+	const bool isFromReal = std::is_floating_point<S>::value;
+	const bool isFromUnsigned = std::is_unsigned<S>::value;
 
-	if ((std::numeric_limits<ToType>::min() == 0 && from < 0) ||
-		(isUnsignedFrom ? false : from < std::numeric_limits<ToType>::min()) ||
-		(from > std::numeric_limits<ToType>::max()))
-		il2cpp_ThrowOverflow();
-	return (ToType)from;
+	if (isToReal && isFromReal && isToSmaller)
+	{
+		if (s > static_cast<S>(std::numeric_limits<T>::max()) ||
+			s < static_cast<S>(std::numeric_limits<T>::lowest()))
+		{
+			il2cpp_ThrowOverflow();
+		}
+	}
+	else if (!isToReal)
+	{
+		if (isFromReal || isToSmaller)
+		{
+			if (s >= static_cast<S>(std::numeric_limits<T>::max()) + 1)
+			{
+				il2cpp_ThrowOverflow();
+			}
+			if (!isFromUnsigned &&
+				s <= static_cast<S>(std::numeric_limits<T>::lowest()) - 1)
+			{
+				il2cpp_ThrowOverflow();
+			}
+		}
+		else
+		{
+			using common_t = std::common_type_t<T, S>;
+			if (isEquals &&
+				static_cast<common_t>(s) > static_cast<common_t>(std::numeric_limits<T>::max()))
+			{
+				il2cpp_ThrowOverflow();
+			}
+			if (isToUnsigned && s < 0)
+			{
+				il2cpp_ThrowOverflow();
+			}
+		}
+	}
+
+	return static_cast<T>(s);
 }
-
-template <>
-uint64_t il2cpp_ConvOverflow<uint64_t>(double from);
-
-template <>
-int64_t il2cpp_ConvOverflow<int64_t>(double from);
-
-template <>
-int32_t il2cpp_ConvOverflow<int32_t>(double from);
 
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index, int64_t rangeLen);

@@ -233,34 +233,6 @@ void il2cpp_ThrowOverflow()
 {
 	met_aBjyT3_ThrowHelper__Throw_OverflowException();
 }
-
-template <>
-uint64_t il2cpp_ConvOverflow<uint64_t>(double from)
-{
-	if (from < 0 || from >= UINT64_MAX)
-		il2cpp_ThrowOverflow();
-	return (uint64_t)from;
-}
-
-template <>
-int64_t il2cpp_ConvOverflow<int64_t>(double from)
-{
-	int64_t to = (int64_t)from;
-	if ((from < (double)INT64_MIN) ||
-		(from > (double)INT64_MAX) ||
-		(to == INT64_MIN))
-		il2cpp_ThrowOverflow();
-	return to;
-}
-
-template <>
-int32_t il2cpp_ConvOverflow<int32_t>(double from)
-{
-	if (((int64_t)from < INT32_MIN) ||
-		((int64_t)from > INT32_MAX))
-		il2cpp_ThrowOverflow();
-	return (int32_t)from;
-}
 #endif
 
 #if defined(IL2CPP_BRIDGE_HAS_cls_System_Array)
