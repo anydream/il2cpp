@@ -13,7 +13,9 @@ public:
 	{
 		IsExit_ = true;
 		Notify();
-		Thread_.join();
+
+		if (Thread_.joinable())
+			Thread_.join();
 	}
 
 	void Start()
