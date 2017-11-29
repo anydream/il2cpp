@@ -2,7 +2,7 @@
 #include "il2cppGC.h"
 #include <gc.h>
 
-#if defined(GC_THREADS) && !defined(IL2CPP_DISABLE_FINALIZER_THREAD)
+#if defined(GC_THREADS) && defined(IL2CPP_ENABLE_FINALIZER_THREAD)
 
 #include <condition_variable>
 
@@ -72,7 +72,7 @@ void il2cpp_GC_Init()
 #if defined(GC_THREADS)
 	GC_allow_register_threads();
 
-#if !defined(IL2CPP_DISABLE_FINALIZER_THREAD)
+#if defined(IL2CPP_ENABLE_FINALIZER_THREAD)
 	GC_set_finalize_on_demand(1);
 	GC_set_finalizer_notifier(&FinalizerNotifier);
 	g_FinalizerThread.Start();
