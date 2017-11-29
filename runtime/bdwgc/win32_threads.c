@@ -1400,7 +1400,6 @@ STATIC word GC_push_stack_for(GC_thread thread, DWORD me)
     while (!GetThreadContext(hThread, &context))
     {
         ResumeThread(hThread);
-        SuspendThread(hThread);
     }
 
     /* Push all registers that might point into the heap.  Frame        */
