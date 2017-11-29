@@ -517,7 +517,7 @@ namespace BuildTheCode
 				return;
 			}
 
-			const string cflagsGC = "-Wno-ignored-attributes -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -DGC_THREADS -Ibdwgc/include -Ibdwgc/libatomic_ops ";
+			const string cflagsGC = "-Wno-ignored-attributes -D_CRT_SECURE_NO_WARNINGS -DDONT_USE_USER32_DLL -DNO_GETENV -DGC_NOT_DLL -Ibdwgc/include -Ibdwgc/libatomic_ops ";
 			// 编译 GC
 			AddCompileUnit(unitMap, objSet,
 				"bdwgc/extra/gc.c",
@@ -804,7 +804,7 @@ namespace BuildTheCode
 						else if (cmd == "addcflags")
 						{
 							if (!string.IsNullOrEmpty(cmdArg))
-								AddCFlags = cmdArg;
+								AddCFlags += cmdArg + ' ';
 							continue;
 						}
 					}
