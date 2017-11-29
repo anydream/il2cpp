@@ -74,5 +74,5 @@ void met_Jbedr_GC___Collect(int32_t gen, int32_t mode)
 int32_t met_3ECm11_RuntimeHelpers__GetHashCode(cls_Object* obj)
 {
 	uintptr_t val = (uintptr_t)obj;
-	return (int32_t)((uint32_t)val ^ (uint32_t)(val >> 32));
+	return (int32_t)((uint32_t)val ^ (uint32_t)(val >> 32) ^ (uint32_t)0x14AE055C);
 }
