@@ -63,6 +63,10 @@ namespace dnlib.DotNet {
 		static AssemblyResolver() {
 			gacInfos = new List<GacInfo>();
 
+			string selfPath = Path.GetFullPath("./");
+			gacInfos.Add(new GacInfo(2, "", selfPath, new[] { "gac" }));
+			gacInfos.Add(new GacInfo(4, "", selfPath, new[] { "gac" }));
+
 			if (Type.GetType("Mono.Runtime") != null) {
 				var dirs = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
 				var extraMonoPathsList = new List<string>();
@@ -401,6 +405,13 @@ namespace dnlib.DotNet {
 				try {
 					mod = ModuleDefMD.Load(path, moduleContext);
 					var asm = mod.Assembly;
+					if (!asm.HasPublicKey)
+					{
+						asm.PublicKey = new PublicKey(new byte[]
+						{
+							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+						});
+					}
 					if (asm != null && asmComparer.Equals(assembly, asm)) {
 						mod = null;
 						return asm;
