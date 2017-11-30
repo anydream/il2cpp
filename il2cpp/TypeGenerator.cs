@@ -33,6 +33,14 @@ namespace il2cpp
 			if (!CurrType.IsEnumType)
 			{
 				prtDecl.AppendFormatLine("// {0}", nameKey);
+
+				ushort packSize = CurrType.Def.HasClassLayout ? CurrType.Def.PackingSize : (ushort)0;
+				if (packSize > 2 && !Helper.IsPowerOfTwo(packSize))
+					throw new TypeLoadException();
+
+				if (packSize != 0)
+					prtDecl.AppendFormatLine("IL2CPP_PACKED_BEGIN({0})", packSize);
+
 				var baseType = CurrType.BaseType;
 
 				// 值类型不继承任何基类
@@ -151,7 +159,17 @@ namespace il2cpp
 				}
 
 				--prtDecl.Indents;
-				prtDecl.AppendLine("};");
+
+				if (packSize != 0)
+				{
+					prtDecl.AppendFormatLine("}} IL2CPP_PACKED_TAIL({0});",
+						packSize);
+				}
+				else
+					prtDecl.AppendLine("};");
+
+				if (packSize != 0)
+					prtDecl.AppendLine("IL2CPP_PACKED_END");
 			}
 
 			CodePrinter prtImpl = new CodePrinter();

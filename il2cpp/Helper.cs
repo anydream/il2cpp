@@ -636,5 +636,10 @@ namespace il2cpp
 		{
 			return point < 0xFDD0;
 		}
+
+		public static bool IsPowerOfTwo(ushort x)
+		{
+			return (x & (x - 1)) == 0;
+		}
 	}
 }

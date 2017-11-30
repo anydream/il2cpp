@@ -26,12 +26,18 @@
 #define IL2CPP_ATOMIC_CAS(_dst, _cmp, _new)	__sync_val_compare_and_swap(_dst, _cmp, _new)
 #define IL2CPP_LIKELY(_x)					__builtin_expect(!!(_x), 1)
 #define IL2CPP_UNLIKELY(_x)					__builtin_expect(!!(_x), 0)
+#define IL2CPP_PACKED_TAIL(_x)				__attribute__((packed, aligned(_x)))
+#define IL2CPP_PACKED_BEGIN(_x)
+#define IL2CPP_PACKED_END
 #else
 #define IL2CPP_TRAP							abort()
 #define IL2CPP_UNREACHABLE					abort()
 #define IL2CPP_ATOMIC_CAS(_dst, _cmp, _new)	_InterlockedCompareExchange8((volatile char*)_dst, _new, _cmp)
 #define IL2CPP_LIKELY(_x)					_x
 #define IL2CPP_UNLIKELY(_x)					_x
+#define IL2CPP_PACKED_TAIL(_x)
+#define IL2CPP_PACKED_BEGIN(_x)				#pragma pack(push, _x)
+#define IL2CPP_PACKED_END					#pragma pack(pop)
 #endif
 
 #define IL2CPP_ASSERT(_x)				do { if (!(_x)) IL2CPP_TRAP; } while(0)
