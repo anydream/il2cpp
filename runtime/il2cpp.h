@@ -34,28 +34,13 @@
 #define IL2CPP_UNLIKELY(_x)					_x
 #endif
 
-#define IL2CPP_ASSERT(_x)			do { if (!(_x)) IL2CPP_TRAP; } while(0)
-#define IL2CPP_MEMCPY				memcpy
-#define IL2CPP_MEMSET				memset
-#define IL2CPP_ALLOCA				alloca
-#define IL2CPP_NEW					il2cpp_New
-#define IL2CPP_THROW(_ex)			throw il2cppException(_ex)
-#define IL2CPP_THROW_INVALIDCAST	do { il2cpp_ThrowInvalidCast(); IL2CPP_UNREACHABLE; } while(0)
-
-#if defined(IL2CPP_DISABLE_THREADSAFE_CALL_CCTOR)
-#define IL2CPP_CALL_CCTOR(_pfn) \
-	static bool s_IsCalled = false; \
-	if (!s_IsCalled) \
-	{ \
-		s_IsCalled = true; \
-		_pfn(); \
-	}
-#else
-#define IL2CPP_CALL_CCTOR(_pfn) \
-	static uintptr_t s_LockTid = 0; \
-	static uint8_t s_OnceFlag = 0; \
-	il2cpp_CallOnce(s_OnceFlag, s_LockTid, &_pfn);
-#endif
+#define IL2CPP_ASSERT(_x)				do { if (!(_x)) IL2CPP_TRAP; } while(0)
+#define IL2CPP_MEMCPY					memcpy
+#define IL2CPP_MEMSET					memset
+#define IL2CPP_ALLOCA					alloca
+#define IL2CPP_NEW						il2cpp_New
+#define IL2CPP_THROW(_ex)				throw il2cppException(_ex)
+#define IL2CPP_THROW_INVALIDCAST		do { il2cpp_ThrowInvalidCast(); IL2CPP_UNREACHABLE; } while(0)
 
 #define IL2CPP_NANF						il2cpp_NaNF()
 #define IL2CPP_NAND						il2cpp_NaND()
@@ -74,6 +59,21 @@
 #define IL2CPP_CONV_OVF(_t, _s, _val)	il2cpp_ConvOverflow<_t, _s>((_s)_val)
 
 #define IL2CPP_SZARRAY_LEN(_x)			il2cpp_SZArray__LoadLength((cls_System_Array*)(_x))
+
+#if defined(IL2CPP_DISABLE_THREADSAFE_CALL_CCTOR)
+#define IL2CPP_CALL_CCTOR(_pfn) \
+	static bool s_IsCalled = false; \
+	if (!s_IsCalled) \
+	{ \
+		s_IsCalled = true; \
+		_pfn(); \
+	}
+#else
+#define IL2CPP_CALL_CCTOR(_pfn) \
+	static uintptr_t s_LockTid = 0; \
+	static uint8_t s_OnceFlag = 0; \
+	il2cpp_CallOnce(s_OnceFlag, s_LockTid, &_pfn);
+#endif
 
 #define IL2CPP_CHECK_ADD_OVERFLOW(a,b) \
 	(int32_t)(b) >= 0 ? (int32_t)(INT32_MAX) - (int32_t)(b) < (int32_t)(a) ? -1 : 0	\
@@ -139,7 +139,7 @@ struct il2cppException
 	il2cppException(cls_Object* ptr) : ExceptionPtr(ptr) {}
 };
 
-typedef void(*IL2CPP_FINALIZER_FUNC)(cls_Object*);
+using IL2CPP_FINALIZER_FUNC = void(*)(cls_Object*);
 
 void il2cpp_Init();
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
@@ -163,19 +163,12 @@ inline double il2cpp_NaND()
 	return *(double*)&n;
 }
 
-template <class T, class = typename std::enable_if<std::is_integral<T>::value>::type>
-T il2cpp_SafeAdd(T lhs, T rhs)
-{
-	typedef typename std::make_unsigned<T>::type unsigned_t;
-	unsigned_t res = static_cast<unsigned_t>(lhs) + static_cast<unsigned_t>(rhs);
-	return static_cast<T>(res);
-}
-
 template <class T, class U>
 std::common_type_t<T, U> il2cpp_SafeAdd(T lhs, U rhs)
 {
-	typedef std::common_type_t<T, U> common_t;
-	return il2cpp_SafeAdd(static_cast<common_t>(lhs), static_cast<common_t>(rhs));
+	using common_t = std::common_type_t<T, U>;
+	using unsigned_t = std::make_unsigned_t<common_t>;
+	return static_cast<unsigned_t>(lhs) + static_cast<unsigned_t>(rhs);
 }
 
 inline float il2cpp_SafeAdd(float lhs, float rhs)
@@ -188,19 +181,12 @@ inline double il2cpp_SafeAdd(double lhs, double rhs)
 	return lhs + rhs;
 }
 
-template <class T, class = typename std::enable_if<std::is_integral<T>::value>::type>
-T il2cpp_SafeSub(T lhs, T rhs)
-{
-	typedef typename std::make_unsigned<T>::type unsigned_t;
-	unsigned_t res = static_cast<unsigned_t>(lhs) - static_cast<unsigned_t>(rhs);
-	return static_cast<T>(res);
-}
-
 template <class T, class U>
 std::common_type_t<T, U> il2cpp_SafeSub(T lhs, U rhs)
 {
-	typedef std::common_type_t<T, U> common_t;
-	return il2cpp_SafeSub(static_cast<common_t>(lhs), static_cast<common_t>(rhs));
+	using common_t = std::common_type_t<T, U>;
+	using unsigned_t = std::make_unsigned_t<common_t>;
+	return static_cast<unsigned_t>(lhs) - static_cast<unsigned_t>(rhs);
 }
 
 inline float il2cpp_SafeSub(float lhs, float rhs)
@@ -306,30 +292,12 @@ bool il2cpp_MulOverflow(T lhs, T rhs, T &result)
 #endif
 }
 
-template <class T>
-T il2cpp_AddOverflow(T lhs, T rhs)
-{
-	T result;
-	if (IL2CPP_UNLIKELY(il2cpp_AddOverflow(lhs, rhs, result)))
-		il2cpp_ThrowOverflow();
-	return result;
-}
-
 template <class T, class U>
 std::common_type_t<T, U> il2cpp_AddOverflow(T lhs, U rhs)
 {
-	typedef std::common_type_t<T, U> common_t;
+	using common_t = std::common_type_t<T, U>;
 	common_t result;
 	if (IL2CPP_UNLIKELY(il2cpp_AddOverflow(static_cast<common_t>(lhs), static_cast<common_t>(rhs), result)))
-		il2cpp_ThrowOverflow();
-	return result;
-}
-
-template <class T>
-T il2cpp_SubOverflow(T lhs, T rhs)
-{
-	T result;
-	if (IL2CPP_UNLIKELY(il2cpp_SubOverflow(lhs, rhs, result)))
 		il2cpp_ThrowOverflow();
 	return result;
 }
@@ -337,18 +305,9 @@ T il2cpp_SubOverflow(T lhs, T rhs)
 template <class T, class U>
 std::common_type_t<T, U> il2cpp_SubOverflow(T lhs, U rhs)
 {
-	typedef std::common_type_t<T, U> common_t;
+	using common_t = std::common_type_t<T, U>;
 	common_t result;
 	if (IL2CPP_UNLIKELY(il2cpp_SubOverflow(static_cast<common_t>(lhs), static_cast<common_t>(rhs), result)))
-		il2cpp_ThrowOverflow();
-	return result;
-}
-
-template <class T>
-T il2cpp_MulOverflow(T lhs, T rhs)
-{
-	T result;
-	if (IL2CPP_UNLIKELY(il2cpp_MulOverflow(lhs, rhs, result)))
 		il2cpp_ThrowOverflow();
 	return result;
 }
@@ -356,7 +315,7 @@ T il2cpp_MulOverflow(T lhs, T rhs)
 template <class T, class U>
 std::common_type_t<T, U> il2cpp_MulOverflow(T lhs, U rhs)
 {
-	typedef std::common_type_t<T, U> common_t;
+	using common_t = std::common_type_t<T, U>;
 	common_t result;
 	if (IL2CPP_UNLIKELY(il2cpp_MulOverflow(static_cast<common_t>(lhs), static_cast<common_t>(rhs), result)))
 		il2cpp_ThrowOverflow();
