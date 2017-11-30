@@ -725,7 +725,7 @@ namespace testcase
 			[FieldOffset(16)] public float fnum;
 		}
 
-		[StructLayout(LayoutKind.Auto, Size = 120)]
+		[StructLayout(LayoutKind.Auto, Size = 120, Pack = 1)]
 		struct StruSized
 		{
 			public float aa;
@@ -736,6 +736,14 @@ namespace testcase
 		struct StruExpSized
 		{
 			[FieldOffset(12)] public int num;
+		}
+
+		[StructLayout(LayoutKind.Sequential, Pack = 2)]
+		struct StruPacked
+		{
+			public byte b1;
+			public byte b2;
+			public int i3;
 		}
 
 		public static int Entry()
@@ -771,6 +779,17 @@ namespace testcase
 			s3.num = 666;
 			if (sizeof(StruExpSized) != 60)
 				return 8;
+
+			StruPacked ex = new StruPacked();
+			byte* addr = (byte*)&ex;
+			if (sizeof(StruPacked) != 6)
+				return 9;
+			if (&ex.b1 - addr != 0)
+				return 10;
+			if (&ex.b2 - addr != 1)
+				return 11;
+			if ((byte*)&ex.i3 - addr != 2)
+				return 12;
 
 			return 0;
 		}
@@ -2192,6 +2211,16 @@ namespace testcase
 			if (res != 0)
 				return res;
 
+			return 0;
+		}
+	}
+
+	//[CodeGen]
+	static class TestContainer2
+	{
+		public static int Entry()
+		{
+			var dict = new Dictionary<int, int>();
 			return 0;
 		}
 	}
