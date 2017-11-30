@@ -57,23 +57,23 @@
 	il2cpp_CallOnce(s_OnceFlag, s_LockTid, &_pfn);
 #endif
 
-#define IL2CPP_NANF					il2cpp_NaNF()
-#define IL2CPP_NAND					il2cpp_NaND()
-#define IL2CPP_POS_INF				(1E+300 * 1E+300)
-#define IL2CPP_NEG_INF				(-IL2CPP_POS_INF)
+#define IL2CPP_NANF						il2cpp_NaNF()
+#define IL2CPP_NAND						il2cpp_NaND()
+#define IL2CPP_POS_INF					(1E+300 * 1E+300)
+#define IL2CPP_NEG_INF					(-IL2CPP_POS_INF)
 
-#define IL2CPP_CHECK_RANGE			il2cpp_CheckRange
-#define IL2CPP_REMAINDER			il2cpp_Remainder
-#define IL2CPP_CKFINITE				il2cpp_Ckfinite
+#define IL2CPP_CHECK_RANGE				il2cpp_CheckRange
+#define IL2CPP_REMAINDER				il2cpp_Remainder
+#define IL2CPP_CKFINITE					il2cpp_Ckfinite
 
-#define IL2CPP_ADD					il2cpp_SafeAdd
-#define IL2CPP_SUB					il2cpp_SafeSub
-#define IL2CPP_ADD_OVF				il2cpp_AddOverflow
-#define IL2CPP_SUB_OVF				il2cpp_SubOverflow
-#define IL2CPP_MUL_OVF				il2cpp_MulOverflow
-#define IL2CPP_CONV_OVF(_to, _from)	il2cpp_ConvOverflow<_to>(_from)
+#define IL2CPP_ADD						il2cpp_SafeAdd
+#define IL2CPP_SUB						il2cpp_SafeSub
+#define IL2CPP_ADD_OVF					il2cpp_AddOverflow
+#define IL2CPP_SUB_OVF					il2cpp_SubOverflow
+#define IL2CPP_MUL_OVF					il2cpp_MulOverflow
+#define IL2CPP_CONV_OVF(_t, _s, _val)	il2cpp_ConvOverflow<_t, _s>((_s)_val)
 
-#define IL2CPP_SZARRAY_LEN(_x)		il2cpp_SZArray__LoadLength((cls_System_Array*)(_x))
+#define IL2CPP_SZARRAY_LEN(_x)			il2cpp_SZArray__LoadLength((cls_System_Array*)(_x))
 
 #define IL2CPP_CHECK_ADD_OVERFLOW(a,b) \
 	(int32_t)(b) >= 0 ? (int32_t)(INT32_MAX) - (int32_t)(b) < (int32_t)(a) ? -1 : 0	\

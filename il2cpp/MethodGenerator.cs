@@ -1885,11 +1885,13 @@ namespace il2cpp
 			var slotPop = Pop();
 			var slotPush = Push(stype);
 
+			string from = isUnsigned ? slotPop.SlotType.GetUnsignedTypeName() : slotPop.SlotType.GetTypeName();
+
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				string.Format("IL2CPP_CONV_OVF({0}, {1}{2})",
+				string.Format("IL2CPP_CONV_OVF({0}, {1}, {2})",
 					cast,
-					isUnsigned ? '(' + slotPop.SlotType.GetUnsignedTypeName() + ')' : null,
+					from,
 					TempName(slotPop)),
 				stype);
 		}
