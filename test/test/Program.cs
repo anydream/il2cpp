@@ -448,6 +448,9 @@ namespace test
 			testCodeGen.TestDir = "../../../testcases/";
 			testCodeGen.OnType = TestCodeGen;
 			testCodeGen.Start();
+
+			if (PassedTests != TotalTests)
+				Console.WriteLine("\nFailed Tests: {0}", TotalTests - PassedTests);
 #endif
 		}
 	}
