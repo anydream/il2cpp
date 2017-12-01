@@ -597,10 +597,16 @@ namespace il2cpp
 									case GenericMVar _:
 										break;
 
+									case CModReqdSig modReqdSig:
+										Debug.Assert(modReqdSig.Modifier.FullName == "System.Runtime.CompilerServices.IsVolatile");
+										tyDefRef = modReqdSig.Next.ToTypeDefOrRef();
+										break;
+
 									default:
 										isKeepToken = true;
 										break;
 								}
+
 								break;
 						}
 
