@@ -347,5 +347,10 @@ namespace il2cpp
 			}
 			return FinalizerMethod;
 		}
+
+		public bool IsBasicType()
+		{
+			return Def.DefinitionAssembly.IsCorLib() && Helper.IsBasicType(Def.FullName) != null;
+		}
 	}
 }

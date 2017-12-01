@@ -515,7 +515,7 @@ namespace il2cpp
 					EscapeName(fullName));
 		}
 
-		private static string IsBasicType(string fullName)
+		public static string IsBasicType(string fullName)
 		{
 			switch (fullName)
 			{

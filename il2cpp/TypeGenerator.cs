@@ -289,7 +289,7 @@ namespace il2cpp
 				return;
 
 			TypeX tyX = GenContext.GetTypeBySig(tySig);
-			if (tyX != null)
+			if (tyX != null && !tyX.IsBasicType())
 				unit.DeclDepends.Add(GenContext.GetTypeName(tyX));
 		}
 

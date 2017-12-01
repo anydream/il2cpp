@@ -2956,7 +2956,7 @@ namespace il2cpp
 		private void RefTypeDecl(TypeSig tySig)
 		{
 			TypeX tyX = GenContext.GetTypeBySig(tySig);
-			if (tyX != null)
+			if (tyX != null && !tyX.IsBasicType())
 				DeclDepends.Add(GenContext.GetTypeName(tyX));
 		}
 
