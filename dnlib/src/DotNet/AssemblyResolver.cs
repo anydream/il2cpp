@@ -405,7 +405,7 @@ namespace dnlib.DotNet {
 				try {
 					mod = ModuleDefMD.Load(path, moduleContext);
 					var asm = mod.Assembly;
-					if (!asm.HasPublicKey)
+					if (!asm.HasPublicKey && asm.Name == "mscorlib")
 					{
 						asm.PublicKey = new PublicKey(new byte[]
 						{
