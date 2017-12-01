@@ -308,6 +308,8 @@ namespace test
 				Console.ForegroundColor = oldColor;
 			}
 
+			++TotalTests;
+
 			context.Reset();
 		}
 
