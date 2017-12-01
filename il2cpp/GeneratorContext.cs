@@ -131,38 +131,51 @@ namespace il2cpp
 			UnitMap.Clear();
 			var transMap = new Dictionary<string, string>();
 
-			CompileUnit bridgeUnit = new CompileUnit();
-			bridgeUnit.Name = "il2cppBridge";
-			UnitMap.Add(bridgeUnit.Name, bridgeUnit);
-
 			// 收集桥接代码的所有依赖项
-			List<CompileUnit> tmpList = new List<CompileUnit>();
+			var bridgeUnitNames = new HashSet<string>();
+			var bridgeUnits = new List<CompileUnit>();
+			var remainUnits = new List<CompileUnit>();
 			for (; ; )
 			{
 				bool changed = false;
 				foreach (var unit in sortedUnits)
 				{
-					if (BridgeTypes.Contains(unit.Name) ||
-						bridgeUnit.DeclDepends.Contains(unit.Name))
+					string unitName = unit.Name;
+					if (BridgeTypes.Contains(unitName) ||
+						bridgeUnitNames.Contains(unitName))
 					{
-						bridgeUnit.DeclCode += "#define IL2CPP_BRIDGE_HAS_" + unit.Name + '\n';
-						bridgeUnit.Append(unit);
-						transMap[unit.Name] = bridgeUnit.Name;
+						bridgeUnits.Add(unit);
+						bridgeUnitNames.Add(unitName);
+						bridgeUnitNames.UnionWith(unit.DeclDepends);
 						changed = true;
 					}
 					else
-						tmpList.Add(unit);
+						remainUnits.Add(unit);
 				}
 
 				if (changed)
 				{
-					sortedUnits = tmpList;
-					tmpList = new List<CompileUnit>();
+					sortedUnits = remainUnits;
+					remainUnits = new List<CompileUnit>();
 				}
 				else
 					break;
 			}
+			bridgeUnits.Sort((lhs, rhs) => GetDependOrder(lhs).CompareTo(GetDependOrder(rhs)));
 
+			// 生成桥接单元
+			CompileUnit bridgeUnit = new CompileUnit();
+			bridgeUnit.Name = "il2cppBridge";
+			UnitMap.Add(bridgeUnit.Name, bridgeUnit);
+
+			foreach (var unit in bridgeUnits)
+			{
+				bridgeUnit.DeclCode += "#define IL2CPP_BRIDGE_HAS_" + unit.Name + '\n';
+				bridgeUnit.Append(unit);
+				transMap[unit.Name] = bridgeUnit.Name;
+			}
+
+			// 划分其他编译单元
 			CompileUnit currUnit = NewUnit();
 			foreach (var unit in sortedUnits)
 			{
