@@ -1759,7 +1759,11 @@ namespace il2cpp
 					}
 					else
 					{
-						operand = new MethodSpecUser(metSpec.Method, new GenericInstMethodSig(genArgT));
+						var metGenArgs = metSpec.GenericInstMethodSig?.GenericArguments;
+						Debug.Assert(metGenArgs != null);
+						IList<TypeSig> genArgs = Helper.ReplaceGenericSigList(metGenArgs, replacer);
+
+						operand = new MethodSpecUser(metSpec.Method, new GenericInstMethodSig(genArgs));
 					}
 				}
 

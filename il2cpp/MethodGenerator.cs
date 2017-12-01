@@ -228,7 +228,7 @@ namespace il2cpp
 		private void AddBranch(int target)
 		{
 			Branches.Enqueue(new Tuple<Stack<StackType>, int>(
-				new Stack<StackType>(TypeStack),
+				new Stack<StackType>(TypeStack.Reverse()),
 				target));
 		}
 
