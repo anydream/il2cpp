@@ -181,9 +181,9 @@ namespace il2cpp
 			CurrMethod = metX;
 		}
 
-		private SlotInfo MakeSlotInfo(StackType stype, int sidx)
+		private SlotInfo MakeSlotInfo(StackType stype, int? sidx = null)
 		{
-			SlotInfo slot = new SlotInfo(stype, sidx);
+			SlotInfo slot = new SlotInfo(stype, sidx ?? TypeStack.Count);
 			AddSlotMap(slot);
 			return slot;
 		}
@@ -2269,7 +2269,7 @@ namespace il2cpp
 						Debug.Assert(metX.DeclType != ConstrainedType);
 
 						var slotSelf = GetStackSlot(numArgs);
-						slotRepSelf = MakeSlotInfo(StackType.Obj, TypeStack.Count);
+						slotRepSelf = MakeSlotInfo(StackType.Obj);
 						strPreCode = GenBoxImpl(
 							ConstrainedType,
 							string.Format("*({0}*){1}",
@@ -2281,7 +2281,7 @@ namespace il2cpp
 				else
 				{
 					var slotSelf = GetStackSlot(numArgs);
-					slotRepSelf = MakeSlotInfo(StackType.Obj, TypeStack.Count);
+					slotRepSelf = MakeSlotInfo(StackType.Obj);
 					strPreCode = GenAssign(
 						TempName(slotRepSelf),
 						string.Format("*({0}*){1}",
@@ -2373,26 +2373,25 @@ namespace il2cpp
 
 			if (tyX.IsValueType)
 			{
-				var slotPush = Push(ToStackType(tyX.GetTypeSig()));
-				var ctorArgs = Pop(metX.ParamTypes.Count);
-				bool isReorder = ShiftRight(ctorArgs);
+				var slotPush = MakeSlotInfo(ToStackType(tyX.GetTypeSig()));
+				var ctorArgs = new List<SlotInfo> { slotPush };
+				ctorArgs.AddRange(Pop(metX.ParamTypes.Count - 1));
+				bool hasTemp = ctorArgs.Count > 1;
 
-				var ctorList = new List<SlotInfo>(ctorArgs);
-				string strCode = GenCall(metX, false, ctorList, true);
+				string strCode = GenCall(metX, false, ctorArgs, true);
 
 				var slotRet = Push(slotPush.SlotType);
-				if (isReorder)
+				if (hasTemp)
 					strCode += '\n' + GenAssign(TempName(slotRet), TempName(slotPush), (TypeSig)null);
 
 				inst.InstCode = strCode;
-
-				--PushCount;
 			}
 			else
 			{
-				var slotPush = Push(StackType.Obj);
-				var ctorArgs = Pop(metX.ParamTypes.Count);
-				bool isReorder = ShiftRight(ctorArgs);
+				var slotPush = MakeSlotInfo(StackType.Obj);
+				var ctorArgs = new List<SlotInfo> { slotPush };
+				ctorArgs.AddRange(Pop(metX.ParamTypes.Count - 1));
+				bool hasTemp = ctorArgs.Count > 1;
 
 				string strAddSize = null;
 				if (tyX.IsArrayType)
@@ -2404,7 +2403,7 @@ namespace il2cpp
 						GenContext.GetTypeName(elemType));
 
 					uint rank = tyX.ArrayInfo.Rank;
-					int argLen = ctorArgs.Length - 1;
+					int argLen = ctorArgs.Count - 1;
 					if (rank == argLen)
 					{
 						for (int i = 0; i < rank; ++i)
@@ -2429,16 +2428,13 @@ namespace il2cpp
 						tyX.FinalizerMethod != null ? ", (IL2CPP_FINALIZER_FUNC)&" + GenContext.GetMethodName(tyX.FinalizerMethod, PrefixMet) : null),
 					slotPush.SlotType);
 
-				var ctorList = new List<SlotInfo>(ctorArgs);
-				strCode += '\n' + GenCall(metX, false, ctorList);
+				strCode += '\n' + GenCall(metX, false, ctorArgs);
 
 				var slotRet = Push(StackType.Obj);
-				if (isReorder)
+				if (hasTemp)
 					strCode += '\n' + GenAssign(TempName(slotRet), TempName(slotPush), (TypeSig)null);
 
 				inst.InstCode = strCode;
-
-				--PushCount;
 			}
 		}
 
@@ -2783,7 +2779,7 @@ namespace il2cpp
 
 		private void GenLocalloc(InstInfo inst)
 		{
-			var slotRes = MakeSlotInfo(StackType.Ptr, TypeStack.Count);
+			var slotRes = MakeSlotInfo(StackType.Ptr);
 			var slotPop = Pop();
 			var slotPush = Push(StackType.Ptr);
 			inst.InstCode = GenAssign(

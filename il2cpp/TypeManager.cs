@@ -1751,7 +1751,8 @@ namespace il2cpp
 				}
 				else if (operand is MethodSpec metSpec)
 				{
-					if (metSpec.Name == "UnsafeCast")
+					if (metSpec.Name == "UnsafeCast" ||
+						metSpec.Name == "As")
 					{
 						inst.OpCode = OpCodes.Nop;
 						inst.Operand = null;
