@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
 
@@ -51,6 +52,35 @@ namespace il2cpp
 		private bool IsRTFieldHandleResolved;
 
 		private const string NsIl2cppRT = "il2cpprt";
+
+		public StringBuilder RecordLogs;
+#if DEBUG && false
+		private void RecordResolvingMethod(MethodX metX)
+		{
+			if (RecordLogs == null)
+				RecordLogs = new StringBuilder();
+
+			RecordLogs.AppendFormat(" * {0} -> {1}\n", metX.DeclType.GetNameKey(), metX.GetNameKey());
+		}
+
+		private void RecordAddingMethod(MethodX metX)
+		{
+			if (RecordLogs == null)
+				RecordLogs = new StringBuilder();
+
+			if (!PendingMethods.Contains(metX))
+				RecordLogs.AppendFormat("   |- {0} -> {1}\n", metX.DeclType.GetNameKey(), metX.GetNameKey());
+		}
+#else
+		private void RecordResolvingMethod(MethodX metX)
+		{
+		}
+
+		private void RecordAddingMethod(MethodX metX)
+		{
+			
+		}
+#endif
 
 		public TypeManager(Il2cppContext context)
 		{
@@ -106,6 +136,8 @@ namespace il2cpp
 
 			if (!metX.Def.HasBody || !metX.Def.Body.HasInstructions)
 				return;
+
+			RecordResolvingMethod(metX);
 
 			IGenericReplacer replacer = new GenericReplacer(metX.DeclType, metX);
 
@@ -744,6 +776,8 @@ namespace il2cpp
 			if (!derivedTyX.IsInstantiated)
 				return;
 
+			RecordResolvingMethod(virtMetX);
+
 			// 查询虚方法绑定
 			derivedTyX.QueryCallVirt(this, entryTyX, entryDef, out TypeX implTyX, out var implDef);
 
@@ -893,6 +927,7 @@ namespace il2cpp
 		{
 			if (!metX.IsProcessed)
 			{
+				RecordAddingMethod(metX);
 				PendingMethods.Enqueue(metX);
 			}
 		}
