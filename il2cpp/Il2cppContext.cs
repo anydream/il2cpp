@@ -65,6 +65,11 @@ namespace il2cpp
 			return new GeneratorContext(TypeMgr).Generate();
 		}
 
+		public string GetRecordLogs()
+		{
+			return TypeMgr?.RecordLogs?.ToString();
+		}
+
 		public static void SaveToFolder(string folder, List<CompileUnit> units, HashSet<string> addUnitNames, string addParams = null)
 		{
 			Directory.CreateDirectory(folder);
