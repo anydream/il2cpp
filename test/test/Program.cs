@@ -204,6 +204,10 @@ namespace test
 			long elapsedMS = sw.ElapsedMilliseconds;
 			Console.Write("Res({0}ms) ", elapsedMS);
 
+			string strRecLogs = context.GetRecordLogs();
+			if (strRecLogs != null)
+				Console.WriteLine(strRecLogs);
+
 			sw.Restart();
 			var genResult = context.Generate();
 			sw.Stop();
@@ -268,6 +272,8 @@ namespace test
 				}
 			};
 
+			string result = null;
+
 			RunCommand(
 				null,
 				"build.cmd",
@@ -275,7 +281,6 @@ namespace test
 				actOutput,
 				actOutput);
 
-			string result = null;
 			if (!hasBuildErr)
 			{
 				Console.Write(" Running");
