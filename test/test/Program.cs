@@ -206,7 +206,7 @@ namespace test
 
 			string strRecLogs = context.GetRecordLogs();
 			if (strRecLogs != null)
-				Console.WriteLine(strRecLogs);
+				Console.WriteLine('\n' + strRecLogs);
 
 			sw.Restart();
 			var genResult = context.Generate();
