@@ -78,7 +78,7 @@ namespace il2cpp
 
 		private void RecordAddingMethod(MethodX metX)
 		{
-			
+
 		}
 #endif
 
@@ -219,7 +219,10 @@ namespace il2cpp
 						info.HandlerEnd = instList.Length;
 
 					if (eh.CatchType != null)
+					{
 						info.CatchType = ResolveTypeDefOrRef(eh.CatchType, replacer);
+						info.CatchType.NeedGenIsType = true;
+					}
 
 					info.HandlerType = eh.HandlerType;
 					sortedHandlers.Add(new Tuple<int, ExHandlerInfo>(idx++, info));
@@ -669,6 +672,23 @@ namespace il2cpp
 										}
 										else
 											ResolveBoxedType(tyX);
+									}
+									break;
+							}
+
+							switch (inst.OpCode.Code)
+							{
+								case Code.Unbox:
+								case Code.Unbox_Any:
+								case Code.Isinst:
+								case Code.Castclass:
+									{
+										TypeX tempTyX = tyX;
+										if (tempTyX.IsNullableType)
+											tempTyX = tempTyX.NullableElem;
+										if (tempTyX.IsValueType && tempTyX.BoxedType != null)
+											tempTyX = tempTyX.BoxedType;
+										tempTyX.NeedGenIsType = true;
 									}
 									break;
 							}

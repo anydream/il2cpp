@@ -109,6 +109,8 @@ namespace il2cpp
 
 		// 是否实例化过
 		public bool IsInstantiated;
+		// 是否需要生成判断类型的函数
+		public bool NeedGenIsType;
 
 		// 生成的类型名称
 		public string GeneratedTypeName;

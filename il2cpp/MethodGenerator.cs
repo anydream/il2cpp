@@ -947,8 +947,8 @@ namespace il2cpp
 						{
 							RefTypeImpl(chandler.CatchType);
 
-							prt.AppendFormatLine("if (istype_{0}({1}->TypeID))",
-								GenContext.GetTypeName(chandler.CatchType),
+							prt.AppendFormatLine("if ({0}({1}->TypeID))",
+								GenContext.GetIsTypeFuncName(chandler.CatchType),
 								TempName(0, StackType.Obj));
 							prt.AppendLine("{");
 							++prt.Indents;
@@ -2552,10 +2552,10 @@ namespace il2cpp
 			RefTypeImpl(tyX);
 
 			inst.InstCode = string.Format(
-				"if (istype_{1}({0}->TypeID)) {2}\n" +
+				"if ({0}({1}->TypeID)) {2}\n" +
 				"else IL2CPP_THROW_INVALIDCAST;",
+				GenContext.GetIsTypeFuncName(tyX),
 				TempName(slotPop),
-				GenContext.GetTypeName(tyX),
 				GenAssign(
 					TempName(slotPush),
 					string.Format("{0}(({1}*){2})->{3}",
@@ -2585,11 +2585,12 @@ namespace il2cpp
 			}
 
 			RefTypeImpl(tyX);
+
 			inst.InstCode = GenAssign(
 				TempName(slotPush),
-				string.Format("(({0} && istype_{1}({0}->TypeID)) ? {0} : nullptr)",
+				string.Format("(({0} && {1}({0}->TypeID)) ? {0} : nullptr)",
 					TempName(slotPop),
-					GenContext.GetTypeName(tyX)),
+					GenContext.GetIsTypeFuncName(tyX)),
 				slotPush.SlotType);
 		}
 
@@ -2612,11 +2613,12 @@ namespace il2cpp
 			}
 
 			RefTypeImpl(tyX);
+
 			inst.InstCode = string.Format(
-				"if ({0} == nullptr || istype_{1}({0}->TypeID)) {2}\n" +
+				"if ({0} == nullptr || {1}({0}->TypeID)) {2}\n" +
 				"else IL2CPP_THROW_INVALIDCAST;",
 				TempName(slotPop),
-				GenContext.GetTypeName(tyX),
+				GenContext.GetIsTypeFuncName(tyX),
 				GenAssign(
 					TempName(slotPush),
 					TempName(slotPop),

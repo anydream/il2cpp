@@ -639,6 +639,12 @@ namespace il2cpp
 			return name;
 		}
 
+		public string GetIsTypeFuncName(TypeX tyX)
+		{
+			Debug.Assert(tyX.NeedGenIsType);
+			return "istype_" + GetTypeName(tyX);
+		}
+
 		private static string EscapeName(string fullName)
 		{
 			StringBuilder sb = new StringBuilder();

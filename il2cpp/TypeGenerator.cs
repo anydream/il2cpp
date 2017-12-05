@@ -174,9 +174,6 @@ namespace il2cpp
 
 			CodePrinter prtImpl = new CodePrinter();
 
-			// 生成类型判断函数
-			GenerateIsType(prtDecl, prtImpl, currIsObject);
-
 			// 生成静态字段
 			foreach (var sfldX in sfields)
 			{
@@ -190,6 +187,9 @@ namespace il2cpp
 				prtDecl.AppendLine("extern " + fldDecl);
 				prtImpl.AppendLine(fldDecl);
 			}
+
+			// 生成类型判断函数
+			GenerateIsType(prtDecl, prtImpl, currIsObject);
 
 			// 生成方法
 			foreach (MethodX metX in CurrType.Methods)
@@ -222,13 +222,13 @@ namespace il2cpp
 
 		private void GenerateIsType(CodePrinter prtDecl, CodePrinter prtImpl, bool currIsObject)
 		{
-			if (CurrType.IsValueType)
+			if (CurrType.IsValueType || !CurrType.NeedGenIsType)
 				return;
 
 			CodePrinter prt = new CodePrinter();
 
-			prt.AppendFormat("uint8_t istype_{0}(uint32_t typeID)",
-				GenContext.GetTypeName(CurrType));
+			prt.AppendFormat("uint8_t {0}(uint32_t typeID)",
+				GenContext.GetIsTypeFuncName(CurrType));
 
 			string strDecl = prt.ToString() + ";\n";
 
