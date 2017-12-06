@@ -2424,7 +2424,7 @@ namespace il2cpp
 						GenContext.GetTypeName(tyX),
 						strAddSize,
 						GenContext.GetTypeID(tyX),
-						GenContext.IsNoRefType(tyX) ? "1" : "0",
+						GenContext.IsTypeNoRef(tyX) ? "1" : "0",
 						tyX.FinalizerMethod != null ? ", (IL2CPP_FINALIZER_FUNC)&" + GenContext.GetMethodName(tyX.FinalizerMethod, PrefixMet) : null),
 					slotPush.SlotType);
 
@@ -2476,7 +2476,7 @@ namespace il2cpp
 					string.Format("IL2CPP_NEW(sizeof({0}), {1}, {2})",
 						GenContext.GetTypeName(tyX),
 						GenContext.GetTypeID(tyX),
-						GenContext.IsNoRefType(tyX) ? "1" : "0"),
+						GenContext.IsTypeNoRef(tyX) ? "1" : "0"),
 					slotPush.SlotType));
 
 				string rhs;

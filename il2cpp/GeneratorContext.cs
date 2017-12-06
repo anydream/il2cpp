@@ -362,17 +362,16 @@ namespace il2cpp
 			}
 		}
 
-		private bool RefToTypeIsNoRef(TypeX tyX)
+		private bool IsFieldNoRef(TypeX tyX)
 		{
 			if (tyX == null)
 				return true;
-
 			if (tyX.IsValueType)
-				return IsNoRefType(tyX);
+				return IsTypeNoRef(tyX);
 			return false;
 		}
 
-		public bool IsNoRefType(TypeX tyX)
+		public bool IsTypeNoRef(TypeX tyX)
 		{
 			if (tyX == null)
 				return true;
@@ -385,7 +384,7 @@ namespace il2cpp
 				// 数组取决于其元素类型的属性
 				Debug.Assert(tyX.HasGenArgs && tyX.GenArgs.Count == 1);
 				TypeX elemType = GetTypeBySig(tyX.GenArgs[0]);
-				tyX.NoRefFlag = (byte)(RefToTypeIsNoRef(elemType) ? 1 : 2);
+				tyX.NoRefFlag = (byte)(IsFieldNoRef(elemType) ? 1 : 2);
 			}
 			else
 			{
@@ -397,7 +396,7 @@ namespace il2cpp
 						continue;
 
 					TypeX fldType = GetTypeBySig(fldX.FieldType);
-					if (!RefToTypeIsNoRef(fldType))
+					if (!IsFieldNoRef(fldType))
 					{
 						// 存在包含引用的字段
 						tyX.NoRefFlag = 2;
