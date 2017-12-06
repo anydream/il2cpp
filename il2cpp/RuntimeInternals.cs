@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 
 namespace il2cpp
 {
@@ -34,15 +35,18 @@ namespace il2cpp
 					return true;
 				}
 			}
-			/*
-			else if (typeName == "System.ValueType")
+			else if (typeName == "System.Runtime.CompilerServices.RuntimeHelpers")
 			{
-				if (metName == "GetHashCode")
+				if (metX.Def.Name == "IsReferenceOrContainsReferences")
 				{
-					prt.AppendLine("return (int32_t)0x14AE055C;");
+					Debug.Assert(metX.HasGenArgs && metX.GenArgs.Count == 1);
+					TypeX targetType = genContext.GetTypeBySig(metX.GenArgs[0]);
+					prt.AppendFormatLine("return {0};",
+						genContext.IsRefOrContainsRef(targetType) ? "1" : "0");
+
 					return true;
 				}
-			}*/
+			}
 			return false;
 		}
 	}
