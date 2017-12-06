@@ -13,6 +13,7 @@ namespace il2cpp
 	{
 		// 当前环境
 		public readonly Il2cppContext Context;
+		public ICorLibTypes CorLibTypes => Context.CorLibTypes;
 
 		// 实例类型映射
 		private readonly Dictionary<string, TypeX> TypeMap = new Dictionary<string, TypeX>();
@@ -50,8 +51,6 @@ namespace il2cpp
 		private bool IsRTTypeHandleResolved;
 		private bool IsRTMethodHandleResolved;
 		private bool IsRTFieldHandleResolved;
-
-		private const string NsIl2cppRT = "il2cpprt";
 
 		public StringBuilder RecordLogs;
 #if DEBUG && false
@@ -329,7 +328,7 @@ namespace il2cpp
 						inst.Operand = new MemberRefUser(
 							Context.CorLibModule,
 							".ctor",
-							MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32),
+							MethodSig.CreateInstance(CorLibTypes.Void, CorLibTypes.Int32),
 							new TypeSpecUser(new SZArraySig(elemSig)));
 						break;
 					}
@@ -342,7 +341,7 @@ namespace il2cpp
 						inst.Operand = new MemberRefUser(
 							Context.CorLibModule,
 							"Address",
-							MethodSig.CreateInstance(new ByRefSig(elemSig), Context.CorLibTypes.Int32),
+							MethodSig.CreateInstance(new ByRefSig(elemSig), CorLibTypes.Int32),
 							new TypeSpecUser(new SZArraySig(elemSig)));
 						break;
 					}
@@ -364,37 +363,37 @@ namespace il2cpp
 						switch (inst.OpCode.Code)
 						{
 							case Code.Ldelem_I1:
-								elemSig = Context.CorLibTypes.SByte;
+								elemSig = CorLibTypes.SByte;
 								break;
 							case Code.Ldelem_U1:
-								elemSig = Context.CorLibTypes.Byte;
+								elemSig = CorLibTypes.Byte;
 								break;
 							case Code.Ldelem_I2:
-								elemSig = Context.CorLibTypes.Int16;
+								elemSig = CorLibTypes.Int16;
 								break;
 							case Code.Ldelem_U2:
-								elemSig = Context.CorLibTypes.UInt16;
+								elemSig = CorLibTypes.UInt16;
 								break;
 							case Code.Ldelem_I4:
-								elemSig = Context.CorLibTypes.Int32;
+								elemSig = CorLibTypes.Int32;
 								break;
 							case Code.Ldelem_U4:
-								elemSig = Context.CorLibTypes.UInt32;
+								elemSig = CorLibTypes.UInt32;
 								break;
 							case Code.Ldelem_I8:
-								elemSig = Context.CorLibTypes.Int64;
+								elemSig = CorLibTypes.Int64;
 								break;
 							case Code.Ldelem_I:
-								elemSig = Context.CorLibTypes.IntPtr;
+								elemSig = CorLibTypes.IntPtr;
 								break;
 							case Code.Ldelem_R4:
-								elemSig = Context.CorLibTypes.Single;
+								elemSig = CorLibTypes.Single;
 								break;
 							case Code.Ldelem_R8:
-								elemSig = Context.CorLibTypes.Double;
+								elemSig = CorLibTypes.Double;
 								break;
 							case Code.Ldelem_Ref:
-								elemSig = Context.CorLibTypes.Object;
+								elemSig = CorLibTypes.Object;
 								break;
 							case Code.Ldelem:
 								elemSig = ((ITypeDefOrRef)inst.Operand).ToTypeSig();
@@ -405,7 +404,7 @@ namespace il2cpp
 						inst.Operand = new MemberRefUser(
 							Context.CorLibModule,
 							"Get",
-							MethodSig.CreateInstance(elemSig, Context.CorLibTypes.Int32),
+							MethodSig.CreateInstance(elemSig, CorLibTypes.Int32),
 							new TypeSpecUser(new SZArraySig(elemSig)));
 						break;
 					}
@@ -424,28 +423,28 @@ namespace il2cpp
 						switch (inst.OpCode.Code)
 						{
 							case Code.Stelem_I1:
-								elemSig = Context.CorLibTypes.SByte;
+								elemSig = CorLibTypes.SByte;
 								break;
 							case Code.Stelem_I2:
-								elemSig = Context.CorLibTypes.Int16;
+								elemSig = CorLibTypes.Int16;
 								break;
 							case Code.Stelem_I4:
-								elemSig = Context.CorLibTypes.Int32;
+								elemSig = CorLibTypes.Int32;
 								break;
 							case Code.Stelem_I8:
-								elemSig = Context.CorLibTypes.Int64;
+								elemSig = CorLibTypes.Int64;
 								break;
 							case Code.Stelem_I:
-								elemSig = Context.CorLibTypes.IntPtr;
+								elemSig = CorLibTypes.IntPtr;
 								break;
 							case Code.Stelem_R4:
-								elemSig = Context.CorLibTypes.Single;
+								elemSig = CorLibTypes.Single;
 								break;
 							case Code.Stelem_R8:
-								elemSig = Context.CorLibTypes.Double;
+								elemSig = CorLibTypes.Double;
 								break;
 							case Code.Stelem_Ref:
-								elemSig = Context.CorLibTypes.Object;
+								elemSig = CorLibTypes.Object;
 								break;
 							case Code.Stelem:
 								elemSig = ((ITypeDefOrRef)inst.Operand).ToTypeSig();
@@ -456,7 +455,7 @@ namespace il2cpp
 						inst.Operand = new MemberRefUser(
 							Context.CorLibModule,
 							"Set",
-							MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, elemSig),
+							MethodSig.CreateInstance(CorLibTypes.Void, CorLibTypes.Int32, elemSig),
 							new TypeSpecUser(new SZArraySig(elemSig)));
 						break;
 					}
@@ -718,21 +717,21 @@ namespace il2cpp
 							if (!IsRTTypeHandleResolved)
 							{
 								IsRTTypeHandleResolved = true;
-								ResolveTypeDefOrRef(Context.CorLibTypes.GetTypeRef("System", "RuntimeTypeHandle").Resolve(), null);
+								ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeTypeHandle").Resolve(), null);
 							}
 							break;
 						case OperandType.InlineMethod:
 							if (!IsRTMethodHandleResolved)
 							{
 								IsRTMethodHandleResolved = true;
-								ResolveTypeDefOrRef(Context.CorLibTypes.GetTypeRef("System", "RuntimeMethodHandle").Resolve(), null);
+								ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeMethodHandle").Resolve(), null);
 							}
 							break;
 						case OperandType.InlineField:
 							if (!IsRTFieldHandleResolved)
 							{
 								IsRTFieldHandleResolved = true;
-								ResolveTypeDefOrRef(Context.CorLibTypes.GetTypeRef("System", "RuntimeFieldHandle").Resolve(), null);
+								ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeFieldHandle").Resolve(), null);
 							}
 							break;
 					}
@@ -1003,7 +1002,7 @@ namespace il2cpp
 				// 值类型补齐 GetHashCode
 				if (tyX.Def.FindMethod("GetHashCode") == null)
 				{
-					var objMet = Context.CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("GetHashCode");
+					var objMet = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("GetHashCode");
 					MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
 					metDef.IsReuseSlot = true;
 					tyX.Def.Methods.Add(metDef);
@@ -1453,7 +1452,7 @@ namespace il2cpp
 				IsStringTypeResolved = true;
 				if (!TypeMap.ContainsKey("String"))
 				{
-					TypeX strTyX = ResolveTypeDefOrRef(Context.CorLibTypes.String.ToTypeDefOrRef(), null);
+					TypeX strTyX = ResolveTypeDefOrRef(CorLibTypes.String.ToTypeDefOrRef(), null);
 					strTyX.IsInstantiated = true;
 				}
 			}
@@ -1486,7 +1485,7 @@ namespace il2cpp
 				return BoxedTypePrototype;
 
 			string typeName = "BoxedType";
-			var findedDef = Context.CorLibTypes.GetTypeRef(NsIl2cppRT, typeName).Resolve();
+			var findedDef = CorLibTypes.GetTypeRef(GeneratorContext.NsIl2cppRT, typeName).Resolve();
 			if (findedDef != null)
 			{
 				BoxedTypePrototype = findedDef;
@@ -1494,9 +1493,9 @@ namespace il2cpp
 			}
 
 			TypeDefUser tyDef = new TypeDefUser(
-				NsIl2cppRT,
+				GeneratorContext.NsIl2cppRT,
 				typeName,
-				Context.CorLibTypes.Object.ToTypeDefOrRef());
+				CorLibTypes.Object.ToTypeDefOrRef());
 			tyDef.Layout = TypeAttributes.SequentialLayout;
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.NonVariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);
@@ -1557,13 +1556,13 @@ namespace il2cpp
 		private TypeDef MakeSZArrayDef()
 		{
 			string typeName = "SZArray";
-			var findedDef = Context.CorLibTypes.GetTypeRef(NsIl2cppRT, typeName).Resolve();
+			var findedDef = CorLibTypes.GetTypeRef(GeneratorContext.NsIl2cppRT, typeName).Resolve();
 			if (findedDef != null)
 				return findedDef;
 
-			var arrayTyRef = Context.CorLibTypes.GetTypeRef("System", "Array");
+			var arrayTyRef = CorLibTypes.GetTypeRef("System", "Array");
 			TypeDefUser tyDef = new TypeDefUser(
-				NsIl2cppRT,
+				GeneratorContext.NsIl2cppRT,
 				typeName,
 				arrayTyRef);
 			tyDef.Layout = TypeAttributes.SequentialLayout;
@@ -1579,7 +1578,7 @@ namespace il2cpp
 			// .ctor(int)
 			MethodDefUser metDef = new MethodDefUser(
 				".ctor",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32),
+				MethodSig.CreateInstance(CorLibTypes.Void, CorLibTypes.Int32),
 				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
@@ -1587,7 +1586,7 @@ namespace il2cpp
 			// T Get(int)
 			metDef = new MethodDefUser(
 				"Get",
-				MethodSig.CreateInstance(genArgT, Context.CorLibTypes.Int32),
+				MethodSig.CreateInstance(genArgT, CorLibTypes.Int32),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
@@ -1595,7 +1594,7 @@ namespace il2cpp
 			// void Set(int,T)
 			metDef = new MethodDefUser(
 				"Set",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, Context.CorLibTypes.Int32, genArgT),
+				MethodSig.CreateInstance(CorLibTypes.Void, CorLibTypes.Int32, genArgT),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
@@ -1603,12 +1602,12 @@ namespace il2cpp
 			// T& Address(int)
 			metDef = new MethodDefUser(
 				"Address",
-				MethodSig.CreateInstance(new ByRefSig(genArgT), Context.CorLibTypes.Int32),
+				MethodSig.CreateInstance(new ByRefSig(genArgT), CorLibTypes.Int32),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
 
-			TypeDef hlpClsDef = Context.CorLibTypes.GetTypeRef("System", "SZArrayHelper").Resolve();
+			TypeDef hlpClsDef = CorLibTypes.GetTypeRef("System", "SZArrayHelper").Resolve();
 
 			foreach (var hlpMetDef in hlpClsDef.Methods)
 			{
@@ -1622,7 +1621,7 @@ namespace il2cpp
 			// 补齐 CopyTo(Array,int)
 			metDef = new MethodDefUser(
 				"CopyTo",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, arrayTyRef.ToTypeSig(), Context.CorLibTypes.Int32),
+				MethodSig.CreateInstance(CorLibTypes.Void, arrayTyRef.ToTypeSig(), CorLibTypes.Int32),
 				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.Virtual | MethodAttributes.ReuseSlot);
 			metDef.Body = tyDef.FindMethod("CopyTo").Body;
 			tyDef.Methods.Add(metDef);
@@ -1633,14 +1632,14 @@ namespace il2cpp
 		private TypeDef MakeMDArrayDef(uint rank)
 		{
 			string typeName = "MDArray" + rank;
-			var findedDef = Context.CorLibTypes.GetTypeRef(NsIl2cppRT, typeName).Resolve();
+			var findedDef = CorLibTypes.GetTypeRef(GeneratorContext.NsIl2cppRT, typeName).Resolve();
 			if (findedDef != null)
 				return findedDef;
 
 			TypeDefUser tyDef = new TypeDefUser(
-				NsIl2cppRT,
+				GeneratorContext.NsIl2cppRT,
 				typeName,
-				Context.CorLibTypes.GetTypeRef("System", "Array"));
+				CorLibTypes.GetTypeRef("System", "Array"));
 			tyDef.Layout = TypeAttributes.SequentialLayout;
 			tyDef.GenericParameters.Add(new GenericParamUser(0, GenericParamAttributes.Covariant, "T"));
 			var genArgT = new GenericVar(0, tyDef);
@@ -1648,29 +1647,29 @@ namespace il2cpp
 
 			// .ctor(int,int)
 			TypeSig[] argSigs = new TypeSig[rank];
-			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, CorLibTypes.Int32);
 
 			MethodDefUser metDef = new MethodDefUser(
 				".ctor",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, argSigs),
+				MethodSig.CreateInstance(CorLibTypes.Void, argSigs),
 				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
 
 			// .ctor(int,int,int,int)
 			argSigs = new TypeSig[rank * 2];
-			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, CorLibTypes.Int32);
 
 			metDef = new MethodDefUser(
 				".ctor",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, argSigs),
+				MethodSig.CreateInstance(CorLibTypes.Void, argSigs),
 				MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
 
 			// T Get(int,int)
 			argSigs = new TypeSig[rank];
-			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, CorLibTypes.Int32);
 
 			metDef = new MethodDefUser(
 				"Get",
@@ -1681,19 +1680,19 @@ namespace il2cpp
 
 			// void Set(int,int,T)
 			argSigs = new TypeSig[rank + 1];
-			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, CorLibTypes.Int32);
 			argSigs[argSigs.Length - 1] = genArgT;
 
 			metDef = new MethodDefUser(
 				"Set",
-				MethodSig.CreateInstance(Context.CorLibTypes.Void, argSigs),
+				MethodSig.CreateInstance(CorLibTypes.Void, argSigs),
 				MethodAttributes.Public | MethodAttributes.HideBySig);
 			metDef.ImplAttributes = MethodImplAttributes.InternalCall;
 			tyDef.Methods.Add(metDef);
 
 			// T& Address(int,int)
 			argSigs = new TypeSig[rank];
-			SetAllTypeSig(argSigs, Context.CorLibTypes.Int32);
+			SetAllTypeSig(argSigs, CorLibTypes.Int32);
 
 			metDef = new MethodDefUser(
 				"Address",
@@ -1845,7 +1844,7 @@ namespace il2cpp
 			if (ThrowHelperType == null)
 			{
 				string typeName = "ThrowHelper";
-				var findedDef = Context.CorLibTypes.GetTypeRef(NsIl2cppRT, typeName).Resolve();
+				var findedDef = CorLibTypes.GetTypeRef(GeneratorContext.NsIl2cppRT, typeName).Resolve();
 				if (findedDef != null)
 				{
 					ThrowHelperType = findedDef;
@@ -1853,9 +1852,9 @@ namespace il2cpp
 				else
 				{
 					TypeDef tyDef = new TypeDefUser(
-										NsIl2cppRT,
-										typeName,
-										Context.CorLibTypes.Object.TypeRef);
+						GeneratorContext.NsIl2cppRT,
+						typeName,
+						CorLibTypes.Object.TypeRef);
 					Context.CorLibModule.Types.Add(tyDef);
 					ThrowHelperType = tyDef;
 				}
@@ -1865,7 +1864,7 @@ namespace il2cpp
 			MethodDef metDef = ThrowHelperType.FindMethod(metName);
 			if (metDef == null)
 			{
-				TypeDef exDef = Context.CorLibTypes.GetTypeRef("System", exName).Resolve();
+				TypeDef exDef = CorLibTypes.GetTypeRef("System", exName).Resolve();
 				Debug.Assert(
 					exDef != null &&
 					exDef.BaseType.Name.Contains("Exception"));
@@ -1874,7 +1873,7 @@ namespace il2cpp
 
 				metDef = new MethodDefUser(
 				   metName,
-				   MethodSig.CreateStatic(Context.CorLibTypes.Void),
+				   MethodSig.CreateStatic(CorLibTypes.Void),
 				   MethodAttributes.Public | MethodAttributes.Static);
 				ThrowHelperType.Methods.Add(metDef);
 
@@ -1892,7 +1891,7 @@ namespace il2cpp
 			if (DelegateType != null)
 				return;
 
-			TypeDef tyDef = Context.CorLibTypes.GetTypeRef("System", "Delegate").Resolve();
+			TypeDef tyDef = CorLibTypes.GetTypeRef("System", "Delegate").Resolve();
 			Debug.Assert(tyDef != null);
 
 			// 使用微软的 BCL 布局
@@ -1914,7 +1913,7 @@ namespace il2cpp
 		{
 			return new InterfaceImplUser(
 				new TypeSpecUser(
-					new GenericInstSig((ClassOrValueTypeSig)Context.CorLibTypes.GetTypeRef(ns, name).ToTypeSig(), genArg)));
+					new GenericInstSig((ClassOrValueTypeSig)CorLibTypes.GetTypeRef(ns, name).ToTypeSig(), genArg)));
 		}
 
 		private static void SetAllTypeSig(TypeSig[] sigList, TypeSig sig)

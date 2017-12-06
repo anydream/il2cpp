@@ -262,6 +262,12 @@ namespace il2cpp
 
 	internal class GeneratorContext
 	{
+		public const string NsIl2cppRT = "il2cpprt";
+		public const string PrefixMet = "met_";
+		public const string PrefixWrap = "wrap_";
+		public const string PrefixVMet = "vmet_";
+		public const string PrefixVFtn = "vftn_";
+
 		public readonly TypeManager TypeMgr;
 		public readonly StringGenerator StrGen = new StringGenerator();
 		private uint TypeIDCounter;
@@ -273,23 +279,25 @@ namespace il2cpp
 
 		public GenerateResult Generate()
 		{
-			var units = new Dictionary<string, CompileUnit>();
+			var unitMap = new Dictionary<string, CompileUnit>();
 
 			// 生成类型代码
 			var types = TypeMgr.Types;
 			foreach (TypeX tyX in types)
 			{
 				CompileUnit unit = new TypeGenerator(this, tyX).Generate();
-				units.Add(unit.Name, unit);
+				unitMap.Add(unit.Name, unit);
 			}
 
-			var transMap = new CompileUnitMerger(units).Merge();
+			// 合并代码单元
+			var transMap = new CompileUnitMerger(unitMap).Merge();
 
-			TypeX strTyX = TypeMgr.GetTypeByName("String");
+			// 生成字符串常量单元
+			TypeX strTyX = GetTypeByName("String");
 			if (strTyX != null)
-				StrGen.Generate(units, GetTypeID(strTyX));
+				StrGen.Generate(unitMap, GetTypeID(strTyX));
 
-			return new GenerateResult(this, units.Values.ToList(), transMap);
+			return new GenerateResult(this, unitMap.Values.ToList(), transMap);
 		}
 
 		public int GetTypeLayoutOrder(TypeSig tySig)
@@ -362,7 +370,7 @@ namespace il2cpp
 			}
 		}
 
-		private bool IsFieldNoRef(TypeX tyX)
+		private bool IsInstanceNoRef(TypeX tyX)
 		{
 			if (tyX == null)
 				return true;
@@ -384,7 +392,7 @@ namespace il2cpp
 				// 数组取决于其元素类型的属性
 				Debug.Assert(tyX.HasGenArgs && tyX.GenArgs.Count == 1);
 				TypeX elemType = GetTypeBySig(tyX.GenArgs[0]);
-				tyX.NoRefFlag = (byte)(IsFieldNoRef(elemType) ? 1 : 2);
+				tyX.NoRefFlag = (byte)(IsInstanceNoRef(elemType) ? 1 : 2);
 			}
 			else
 			{
@@ -396,7 +404,7 @@ namespace il2cpp
 						continue;
 
 					TypeX fldType = GetTypeBySig(fldX.FieldType);
-					if (!IsFieldNoRef(fldType))
+					if (!IsInstanceNoRef(fldType))
 					{
 						// 存在包含引用的字段
 						tyX.NoRefFlag = 2;
@@ -406,6 +414,11 @@ namespace il2cpp
 			}
 
 			return tyX.NoRefFlag == 1;
+		}
+
+		public bool IsRefOrContainsRef(TypeX tyX)
+		{
+			return !IsInstanceNoRef(tyX);
 		}
 
 		public string GetTypeDefaultValue(TypeSig tySig)
@@ -568,11 +581,16 @@ namespace il2cpp
 			return tyX.GeneratedTypeID;
 		}
 
+		public TypeX GetTypeByName(string name)
+		{
+			return TypeMgr.GetTypeByName(name);
+		}
+
 		public TypeX GetTypeBySig(TypeSig tySig)
 		{
 			StringBuilder sb = new StringBuilder();
 			Helper.TypeSigName(sb, tySig, true);
-			return TypeMgr.GetTypeByName(sb.ToString());
+			return GetTypeByName(sb.ToString());
 		}
 
 		public string GetMethodName(MethodX metX, string prefix)

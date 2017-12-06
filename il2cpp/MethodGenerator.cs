@@ -318,7 +318,7 @@ namespace il2cpp
 			{
 				// 静态构造实现
 				string onceFuncName = string.Format("once_{0}",
-					GenContext.GetMethodName(CurrMethod, PrefixMet));
+					GenContext.GetMethodName(CurrMethod, GeneratorContext.PrefixMet));
 				prt.AppendFormatLine("static void {0}()",
 					onceFuncName);
 				prt.AppendLine("{");
@@ -331,7 +331,7 @@ namespace il2cpp
 
 				// 静态构造调用包装
 				CodePrinter prt2 = new CodePrinter();
-				GenFuncDef(prt2, PrefixMet);
+				GenFuncDef(prt2, GeneratorContext.PrefixMet);
 				DeclCode += prt2 + ";\n";
 
 				prt.Append(prt2.ToString());
@@ -348,7 +348,7 @@ namespace il2cpp
 			}
 			else
 			{
-				GenFuncDef(prt, PrefixMet);
+				GenFuncDef(prt, GeneratorContext.PrefixMet);
 				DeclCode += prt + ";\n";
 
 				CodePrinter prt2 = new CodePrinter();
@@ -519,7 +519,7 @@ namespace il2cpp
 
 			// 函数签名
 			prt.AppendFormat("void* {0}(uint32_t typeID)",
-				GenContext.GetMethodName(CurrMethod, PrefixVFtn));
+				GenContext.GetMethodName(CurrMethod, GeneratorContext.PrefixVFtn));
 
 			DeclCode += prt + ";\n";
 
@@ -571,7 +571,7 @@ namespace il2cpp
 						implMetX.GetReplacedNameKey());
 					prt.AppendFormatLine("return (void*)&{0};",
 						GenContext.GetMethodName(implMetX,
-							declTyX.HasBoxedType ? PrefixWrap : PrefixMet));
+							declTyX.HasBoxedType ? GeneratorContext.PrefixWrap : GeneratorContext.PrefixMet));
 					--prt.Indents;
 
 					// 如果是值类型则必须存在装箱类型
@@ -598,14 +598,14 @@ namespace il2cpp
 
 			CodePrinter prt = new CodePrinter();
 
-			GenFuncDef(prt, PrefixVMet);
+			GenFuncDef(prt, GeneratorContext.PrefixVMet);
 			DeclCode += prt + ";\n";
 
 			prt.AppendLine("\n{");
 			++prt.Indents;
 
 			prt.AppendFormatLine("void* pftn = {0}(((cls_Object*){1})->TypeID);",
-				GenContext.GetMethodName(CurrMethod, PrefixVFtn),
+				GenContext.GetMethodName(CurrMethod, GeneratorContext.PrefixVFtn),
 				ArgName(0));
 
 			if (CurrMethod.ReturnType.ElementType != ElementType.Void)
@@ -638,7 +638,7 @@ namespace il2cpp
 
 			CodePrinter prt = new CodePrinter();
 
-			GenFuncDef(prt, PrefixWrap, boxedTyX.GetThisTypeSig());
+			GenFuncDef(prt, GeneratorContext.PrefixWrap, boxedTyX.GetThisTypeSig());
 			DeclCode += prt + ";\n";
 
 			prt.AppendLine("\n{");
@@ -648,7 +648,7 @@ namespace il2cpp
 				prt.Append("return ");
 
 			prt.AppendFormat("{0}(&{1}->{2}",
-				GenContext.GetMethodName(CurrMethod, PrefixMet),
+				GenContext.GetMethodName(CurrMethod, GeneratorContext.PrefixMet),
 				ArgName(0),
 				GenContext.GetFieldName(boxedTyX.Fields.First()));
 
@@ -1055,7 +1055,7 @@ namespace il2cpp
 		{
 			MethodX cctor = tyX.CctorMethod;
 			if (cctor != null && cctor != CurrMethod)
-				return string.Format("{0}();\n", GenContext.GetMethodName(cctor, PrefixMet));
+				return string.Format("{0}();\n", GenContext.GetMethodName(cctor, GeneratorContext.PrefixMet));
 			return null;
 		}
 
@@ -2293,7 +2293,7 @@ namespace il2cpp
 
 			RefTypeImpl(metX.DeclType);
 
-			string prefix = isVirt ? PrefixVMet : PrefixMet;
+			string prefix = isVirt ? GeneratorContext.PrefixVMet : GeneratorContext.PrefixMet;
 
 			StringBuilder sb = new StringBuilder();
 			sb.Append(GenContext.GetMethodName(metX, prefix));
@@ -2339,14 +2339,14 @@ namespace il2cpp
 
 				string metName = string.Format(
 					"{0}({1}->TypeID)",
-					GenContext.GetMethodName(metX, PrefixVFtn),
+					GenContext.GetMethodName(metX, GeneratorContext.PrefixVFtn),
 					TempName(slotPop));
 				inst.InstCode = GenAssign(TempName(slotPush), metName, slotPush.SlotType);
 			}
 			else
 			{
 				var slotPush = Push(StackType.Ptr);
-				string metName = GenContext.GetMethodName(metX, PrefixMet);
+				string metName = GenContext.GetMethodName(metX, GeneratorContext.PrefixMet);
 				inst.InstCode = GenAssign(TempName(slotPush), '&' + metName, slotPush.SlotType);
 			}
 		}
@@ -2425,7 +2425,7 @@ namespace il2cpp
 						strAddSize,
 						GenContext.GetTypeID(tyX),
 						GenContext.IsTypeNoRef(tyX) ? "1" : "0",
-						tyX.FinalizerMethod != null ? ", (IL2CPP_FINALIZER_FUNC)&" + GenContext.GetMethodName(tyX.FinalizerMethod, PrefixMet) : null),
+						tyX.FinalizerMethod != null ? ", (IL2CPP_FINALIZER_FUNC)&" + GenContext.GetMethodName(tyX.FinalizerMethod, GeneratorContext.PrefixMet) : null),
 					slotPush.SlotType);
 
 				strCode += '\n' + GenCall(metX, false, ctorArgs);
@@ -3071,11 +3071,6 @@ namespace il2cpp
 			else
 				return num.ToString("R");
 		}
-
-		private const string PrefixMet = "met_";
-		private const string PrefixWrap = "wrap_";
-		private const string PrefixVMet = "vmet_";
-		private const string PrefixVFtn = "vftn_";
 
 		private static bool IsBinaryOpValid(StackTypeKind op1, StackTypeKind op2, out StackTypeKind retType, Code code)
 		{

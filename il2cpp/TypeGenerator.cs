@@ -49,7 +49,7 @@ namespace il2cpp
 
 				// 接口类型继承 object
 				if (baseType == null && CurrType.Def.IsInterface)
-					baseType = GenContext.TypeMgr.GetTypeByName("Object");
+					baseType = GenContext.GetTypeByName("Object");
 
 				if (baseType != null)
 				{
@@ -189,7 +189,7 @@ namespace il2cpp
 			}
 
 			// 生成类型判断函数
-			GenerateIsType(prtDecl, prtImpl, currIsObject);
+			GenIsTypeFunc(prtDecl, prtImpl, currIsObject);
 
 			// 生成方法
 			foreach (MethodX metX in CurrType.Methods)
@@ -220,7 +220,7 @@ namespace il2cpp
 			return unit;
 		}
 
-		private void GenerateIsType(CodePrinter prtDecl, CodePrinter prtImpl, bool currIsObject)
+		private void GenIsTypeFunc(CodePrinter prtDecl, CodePrinter prtImpl, bool currIsObject)
 		{
 			if (CurrType.IsValueType || !CurrType.NeedGenIsType)
 				return;
