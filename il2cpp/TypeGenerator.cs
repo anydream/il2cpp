@@ -39,7 +39,11 @@ namespace il2cpp
 					throw new TypeLoadException();
 
 				if (packSize != 0)
-					prtDecl.AppendFormatLine("IL2CPP_PACKED_BEGIN({0})", packSize);
+				{
+					prtDecl.AppendLine("#if defined(IL2CPP_MSVC_LIKE)");
+					prtDecl.AppendFormatLine("#pragma pack(push, {0})", packSize);
+					prtDecl.AppendLine("#endif");
+				}
 
 				var baseType = CurrType.BaseType;
 
@@ -169,7 +173,11 @@ namespace il2cpp
 					prtDecl.AppendLine("};");
 
 				if (packSize != 0)
-					prtDecl.AppendLine("IL2CPP_PACKED_END");
+				{
+					prtDecl.AppendLine("#if defined(IL2CPP_MSVC_LIKE)");
+					prtDecl.AppendLine("#pragma pack(pop)");
+					prtDecl.AppendLine("#endif");
+				}
 			}
 
 			CodePrinter prtImpl = new CodePrinter();

@@ -12,23 +12,21 @@
 #endif
 
 #if defined(__clang__) || defined(__GNUC__)
-#define GNU_LIKE
+#define IL2CPP_GNU_LIKE
 #elif defined(_MSC_VER)
 #include <intrin.h>
-#define MSVC_LIKE
+#define IL2CPP_MSVC_LIKE
 #else
 #error Cannot detect your compiler environment!
 #endif
 
-#ifdef GNU_LIKE
+#if defined(IL2CPP_GNU_LIKE)
 #define IL2CPP_TRAP							__builtin_trap()
 #define IL2CPP_UNREACHABLE					__builtin_unreachable()
 #define IL2CPP_ATOMIC_CAS(_dst, _cmp, _new)	__sync_val_compare_and_swap(_dst, _cmp, _new)
 #define IL2CPP_LIKELY(_x)					__builtin_expect(!!(_x), 1)
 #define IL2CPP_UNLIKELY(_x)					__builtin_expect(!!(_x), 0)
 #define IL2CPP_PACKED_TAIL(_x)				__attribute__((packed, aligned(_x)))
-#define IL2CPP_PACKED_BEGIN(_x)
-#define IL2CPP_PACKED_END
 #else
 #define IL2CPP_TRAP							abort()
 #define IL2CPP_UNREACHABLE					abort()
@@ -36,8 +34,6 @@
 #define IL2CPP_LIKELY(_x)					_x
 #define IL2CPP_UNLIKELY(_x)					_x
 #define IL2CPP_PACKED_TAIL(_x)
-#define IL2CPP_PACKED_BEGIN(_x)				#pragma pack(push, _x)
-#define IL2CPP_PACKED_END					#pragma pack(pop)
 #endif
 
 #define IL2CPP_ASSERT(_x)				do { if (!(_x)) IL2CPP_TRAP; } while(0)
