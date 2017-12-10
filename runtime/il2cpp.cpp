@@ -86,11 +86,11 @@ void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 {
 	if (IL2CPP_UNLIKELY(onceFlag != 2))
 	{
-		if (IL2CPP_ATOMIC_CAS(&onceFlag, 0, 1) == 0)
+		if (IL2CPP_ATOMIC_CAS_8(&onceFlag, 0, 1) == 0)
 		{
 			lockTid = il2cpp_ThreadID();
 			invokeFunc();
-			IL2CPP_ATOMIC_CAS(&onceFlag, 1, 2);
+			IL2CPP_ATOMIC_CAS_8(&onceFlag, 1, 2);
 		}
 		else if (lockTid != il2cpp_ThreadID())
 		{
@@ -98,14 +98,14 @@ void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 				il2cpp_Yield();
 		}
 		else if (onceFlag != 1)
-			IL2CPP_TRAP;
+			IL2CPP_UNREACHABLE;
 	}
 }
 
 void il2cpp_SpinLock(uint8_t &flag)
 {
 	uint32_t count = 10;
-	while (IL2CPP_ATOMIC_CAS(&flag, 0, 1) != 0)
+	while (IL2CPP_ATOMIC_CAS_8(&flag, 0, 1) != 0)
 	{
 		if (count < 200)
 		{
@@ -120,7 +120,7 @@ void il2cpp_SpinLock(uint8_t &flag)
 
 void il2cpp_SpinUnlock(uint8_t &flag)
 {
-	IL2CPP_ATOMIC_CAS(&flag, 1, 0);
+	IL2CPP_ATOMIC_CAS_8(&flag, 1, 0);
 }
 
 #if defined(IL2CPP_DISABLE_CHECK_RANGE)
