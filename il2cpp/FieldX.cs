@@ -19,6 +19,7 @@ namespace il2cpp
 		public TypeSig FieldType;
 
 		public bool IsStatic => Def.IsStatic;
+		public bool IsInstance => Helper.IsInstanceField(Def);
 
 		// 生成的字段名称
 		public string GeneratedFieldName;

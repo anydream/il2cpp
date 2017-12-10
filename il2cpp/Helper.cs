@@ -515,6 +515,11 @@ namespace il2cpp
 					EscapeName(fullName));
 		}
 
+		public static bool IsInstanceField(FieldDef fldDef)
+		{
+			return !fldDef.IsStatic && !fldDef.IsLiteral;
+		}
+
 		public static string IsBasicType(string fullName)
 		{
 			switch (fullName)

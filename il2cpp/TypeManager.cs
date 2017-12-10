@@ -1017,7 +1017,7 @@ namespace il2cpp
 					bool last = false;
 					foreach (var fldDef in fldList)
 					{
-						if (fldDef.IsStatic)
+						if (!Helper.IsInstanceField(fldDef))
 							continue;
 
 						if (last)

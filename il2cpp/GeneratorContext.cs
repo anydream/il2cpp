@@ -351,7 +351,7 @@ namespace il2cpp
 						int size = 0;
 						foreach (var fldX in tyX.Fields)
 						{
-							if (fldX.IsStatic)
+							if (!fldX.IsInstance)
 								continue;
 
 							size += GetTypeLayoutOrder(fldX.FieldType);
@@ -400,7 +400,7 @@ namespace il2cpp
 				// 检查对象的字段
 				foreach (var fldX in tyX.Fields)
 				{
-					if (fldX.IsStatic)
+					if (!fldX.IsInstance)
 						continue;
 
 					TypeX fldType = GetTypeBySig(fldX.FieldType);

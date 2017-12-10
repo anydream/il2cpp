@@ -310,7 +310,7 @@ namespace il2cpp
 			{
 				if (fldX.IsStatic)
 					sfields.Add(fldX);
-				else
+				else if (fldX.IsInstance)
 					fields.Add(fldX);
 			}
 
