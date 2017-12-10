@@ -308,7 +308,7 @@ namespace il2cpp
 			List<FieldX> fields = new List<FieldX>();
 			foreach (var fldX in CurrType.Fields)
 			{
-				if (fldX.IsStatic)
+				if (fldX.IsStatic && !fldX.Def.IsLiteral)
 					sfields.Add(fldX);
 				else if (fldX.IsInstance)
 					fields.Add(fldX);

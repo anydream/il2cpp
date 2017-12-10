@@ -517,7 +517,7 @@ namespace il2cpp
 
 		public static bool IsInstanceField(FieldDef fldDef)
 		{
-			return !fldDef.IsStatic && !fldDef.IsLiteral;
+			return !fldDef.IsStatic;
 		}
 
 		public static string IsBasicType(string fullName)
