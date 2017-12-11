@@ -170,7 +170,7 @@ std::common_type_t<T, U> il2cpp_SafeAdd(T lhs, U rhs)
 {
 	using common_t = std::common_type_t<T, U>;
 	using unsigned_t = std::make_unsigned_t<common_t>;
-	return static_cast<unsigned_t>(lhs) + static_cast<unsigned_t>(rhs);
+	return static_cast<common_t>(static_cast<unsigned_t>(lhs) + static_cast<unsigned_t>(rhs));
 }
 
 inline float il2cpp_SafeAdd(float lhs, float rhs)
@@ -188,7 +188,7 @@ std::common_type_t<T, U> il2cpp_SafeSub(T lhs, U rhs)
 {
 	using common_t = std::common_type_t<T, U>;
 	using unsigned_t = std::make_unsigned_t<common_t>;
-	return static_cast<unsigned_t>(lhs) - static_cast<unsigned_t>(rhs);
+	return static_cast<common_t>(static_cast<unsigned_t>(lhs) - static_cast<unsigned_t>(rhs));
 }
 
 inline float il2cpp_SafeSub(float lhs, float rhs)
