@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using testInsts;
 
 namespace testcase
 {
@@ -99,6 +100,38 @@ namespace testcase
 			long res = Fib(37).First();
 			if (res != 24157817)
 				return 1;
+			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestSameName
+	{
+		public static int Entry()
+		{
+			string nameA = TestInstructions.GetNameDLLA();
+			string nameB = TestInstructions.GetNameDLLB();
+
+			if (nameA != "dllA")
+				return 1;
+			if (nameB != "dllB")
+				return 2;
+
+			return 0;
+		}
+	}
+
+	//[CodeGen]
+	static class TestLiteral
+	{
+		const int blabla = 1234;
+		public static int Entry()
+		{
+			int[] ary = { 1, 3, 5, 7, 9 };
+			if (blabla != 1234)
+				return 1;
+			if (ary[4] != 9)
+				return 2;
 			return 0;
 		}
 	}
@@ -1312,6 +1345,10 @@ namespace testcase
 
 			if (e8 != (MyEnumI8)123)
 				return 7;
+
+			int hcode = e8.GetHashCode();
+			if (hcode != 0x14AE0527)
+				return 8;
 
 			return 0;
 		}
