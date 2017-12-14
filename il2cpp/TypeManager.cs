@@ -11,6 +11,8 @@ namespace il2cpp
 	// 类型管理器
 	internal class TypeManager
 	{
+		public const string NsIl2cppRT = "il2cpprt";
+
 		// 当前环境
 		public readonly Il2cppContext Context;
 		public ICorLibTypes CorLibTypes => Context.CorLibTypes;
@@ -1485,7 +1487,7 @@ namespace il2cpp
 				return BoxedTypePrototype;
 
 			string typeName = "BoxedType";
-			var findedDef = CorLibTypes.GetTypeRef(GeneratorContext.NsIl2cppRT, typeName).Resolve();
+			var findedDef = CorLibTypes.GetTypeRef(NsIl2cppRT, typeName).Resolve();
 			if (findedDef != null)
 			{
 				BoxedTypePrototype = findedDef;
@@ -1493,7 +1495,7 @@ namespace il2cpp
 			}
 
 			TypeDefUser tyDef = new TypeDefUser(
-				GeneratorContext.NsIl2cppRT,
+				NsIl2cppRT,
 				typeName,
 				CorLibTypes.Object.ToTypeDefOrRef());
 			tyDef.Layout = TypeAttributes.SequentialLayout;
@@ -1556,13 +1558,13 @@ namespace il2cpp
 		private TypeDef MakeSZArrayDef()
 		{
 			string typeName = "SZArray";
-			var findedDef = CorLibTypes.GetTypeRef(GeneratorContext.NsIl2cppRT, typeName).Resolve();
+			var findedDef = CorLibTypes.GetTypeRef(NsIl2cppRT, typeName).Resolve();
 			if (findedDef != null)
 				return findedDef;
 
 			var arrayTyRef = CorLibTypes.GetTypeRef("System", "Array");
 			TypeDefUser tyDef = new TypeDefUser(
-				GeneratorContext.NsIl2cppRT,
+				NsIl2cppRT,
 				typeName,
 				arrayTyRef);
 			tyDef.Layout = TypeAttributes.SequentialLayout;
@@ -1632,12 +1634,12 @@ namespace il2cpp
 		private TypeDef MakeMDArrayDef(uint rank)
 		{
 			string typeName = "MDArray" + rank;
-			var findedDef = CorLibTypes.GetTypeRef(GeneratorContext.NsIl2cppRT, typeName).Resolve();
+			var findedDef = CorLibTypes.GetTypeRef(NsIl2cppRT, typeName).Resolve();
 			if (findedDef != null)
 				return findedDef;
 
 			TypeDefUser tyDef = new TypeDefUser(
-				GeneratorContext.NsIl2cppRT,
+				NsIl2cppRT,
 				typeName,
 				CorLibTypes.GetTypeRef("System", "Array"));
 			tyDef.Layout = TypeAttributes.SequentialLayout;
@@ -1844,7 +1846,7 @@ namespace il2cpp
 			if (ThrowHelperType == null)
 			{
 				string typeName = "ThrowHelper";
-				var findedDef = CorLibTypes.GetTypeRef(GeneratorContext.NsIl2cppRT, typeName).Resolve();
+				var findedDef = CorLibTypes.GetTypeRef(NsIl2cppRT, typeName).Resolve();
 				if (findedDef != null)
 				{
 					ThrowHelperType = findedDef;
@@ -1852,7 +1854,7 @@ namespace il2cpp
 				else
 				{
 					TypeDef tyDef = new TypeDefUser(
-						GeneratorContext.NsIl2cppRT,
+						NsIl2cppRT,
 						typeName,
 						CorLibTypes.Object.TypeRef);
 					Context.CorLibModule.Types.Add(tyDef);

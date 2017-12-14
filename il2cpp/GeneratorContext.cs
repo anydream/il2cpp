@@ -55,7 +55,7 @@ namespace il2cpp
 			MethodX metX = GenContext.TypeMgr.ResolveMethodDef(metDef);
 			string typeName = GenContext.GetTypeName(metX.DeclType);
 			unitName = TransMap[typeName];
-			return GenContext.GetMethodName(metX, "met_");
+			return GenContext.GetMethodName(metX, MethodGenerator.PrefixMet);
 		}
 	}
 
@@ -262,12 +262,6 @@ namespace il2cpp
 
 	internal class GeneratorContext
 	{
-		public const string NsIl2cppRT = "il2cpprt";
-		public const string PrefixMet = "met_";
-		public const string PrefixWrap = "wrap_";
-		public const string PrefixVMet = "vmet_";
-		public const string PrefixVFtn = "vftn_";
-
 		public readonly TypeManager TypeMgr;
 		public readonly StringGenerator StrGen = new StringGenerator();
 		private uint TypeIDCounter;
