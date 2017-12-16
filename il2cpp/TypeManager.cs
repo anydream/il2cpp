@@ -999,6 +999,23 @@ namespace il2cpp
 			// 更新子类集合
 			tyX.UpdateDerivedTypes();
 
+			TryAddGetHashCode(tyX);
+
+			string typeName = tyX.GetNameKey();
+			if (typeName == "String")
+			{
+				// 解析所有的字段
+				ResolveAllFields(tyX);
+			}
+			else if (typeName == "System.Delegate")
+			{
+				// 解析委托类
+				ResolveDelegateType();
+			}
+		}
+
+		private void TryAddGetHashCode(TypeX tyX)
+		{
 			if (tyX.IsValueType)
 			{
 				// 值类型补齐 GetHashCode
@@ -1063,18 +1080,6 @@ namespace il2cpp
 					insts.Add(OpCodes.Ret.ToInstruction());
 					insts.UpdateInstructionOffsets();
 				}
-			}
-
-			string typeName = tyX.GetNameKey();
-			if (typeName == "String")
-			{
-				// 解析所有的字段
-				ResolveAllFields(tyX);
-			}
-			else if (typeName == "System.Delegate")
-			{
-				// 解析委托类
-				ResolveDelegateType();
 			}
 		}
 
