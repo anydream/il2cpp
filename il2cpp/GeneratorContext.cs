@@ -264,8 +264,9 @@ namespace il2cpp
 	{
 		public readonly TypeManager TypeMgr;
 		public readonly StringGenerator StrGen = new StringGenerator();
+		private readonly HashSet<string> UsedTypeNames = new HashSet<string>();
+		private readonly HashSet<string> UsedMethodNames = new HashSet<string>();
 		private uint TypeIDCounter;
-		private HashSet<string> UsedNames = new HashSet<string>();
 
 		public GeneratorContext(TypeManager typeMgr)
 		{
@@ -558,7 +559,7 @@ namespace il2cpp
 				else
 					strName += NameHash(nameKey.GetHashCode()) + '_' + GetNameWithGen(tyX.Def.Name, tyX.GenArgs);
 
-				tyX.GeneratedTypeName = strName = GetNotUsedName(EscapeName(strName));
+				tyX.GeneratedTypeName = strName = GetNotUsedTypeName(EscapeName(strName));
 			}
 
 			return strName;
@@ -602,7 +603,7 @@ namespace il2cpp
 					GetNameWithGen(metX.DeclType.Def.Name, metX.DeclType.GenArgs) + "__" +
 					GetNameWithGen(metX.Def.Name, metX.GenArgs);
 
-				metX.GeneratedMethodName = strName = GetNotUsedName(EscapeName(strName));
+				metX.GeneratedMethodName = strName = GetNotUsedMethodName(EscapeName(strName));
 			}
 			return prefix + strName;
 		}
@@ -633,7 +634,7 @@ namespace il2cpp
 
 				strName = prefix + middle + "__" + fldX.Def.Name;
 
-				fldX.GeneratedFieldName = strName = GetNotUsedName(EscapeName(strName));
+				fldX.GeneratedFieldName = strName = EscapeName(strName);
 			}
 			return strName;
 		}
@@ -657,14 +658,31 @@ namespace il2cpp
 			return "istype_" + GetTypeName(tyX);
 		}
 
-		private string GetNotUsedName(string name)
+		private string GetNotUsedTypeName(string name)
 		{
 			uint count = 1;
 			string testName = name;
-			while (UsedNames.Contains(testName))
+			while (UsedTypeNames.Contains(testName))
+			{
 				testName = name + "_" + ToRadix(count, (uint)DigMap.Length);
+				++count;
+			}
 
-			UsedNames.Add(testName);
+			UsedTypeNames.Add(testName);
+			return testName;
+		}
+
+		private string GetNotUsedMethodName(string name)
+		{
+			uint count = 1;
+			string testName = name;
+			while (UsedMethodNames.Contains(testName))
+			{
+				testName = name + "_" + ToRadix(count, (uint)DigMap.Length);
+				++count;
+			}
+
+			UsedMethodNames.Add(testName);
 			return testName;
 		}
 
