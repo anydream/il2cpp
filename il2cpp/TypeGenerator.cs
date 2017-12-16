@@ -306,11 +306,14 @@ namespace il2cpp
 		private List<FieldX> LayoutFields(out List<FieldX> sfields)
 		{
 			sfields = new List<FieldX>();
-
 			List<FieldX> fields = new List<FieldX>();
+
 			foreach (var fldX in CurrType.Fields)
 			{
-				if (fldX.IsStatic && !fldX.Def.IsLiteral)
+				if (fldX.Def.IsLiteral)
+					continue;
+
+				if (fldX.IsStatic)
 					sfields.Add(fldX);
 				else if (fldX.IsInstance)
 					fields.Add(fldX);
