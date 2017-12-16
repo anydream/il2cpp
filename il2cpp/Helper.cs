@@ -243,7 +243,7 @@ namespace il2cpp
 			IList<TypeSig> paramTypes,
 			CallingConvention callConv)
 		{
-			sb.Append(EscapeName(name));
+			sb.Append(name);
 			sb.Append('|');
 
 			TypeSigName(sb, retType, false);
@@ -271,7 +271,7 @@ namespace il2cpp
 			IList<TypeSig> paramTypes,
 			CallingConvention callConv)
 		{
-			sb.Append(EscapeName(name));
+			sb.Append(name);
 			sb.Append('|');
 
 			TypeSigName(sb, retType, false);
@@ -326,7 +326,7 @@ namespace il2cpp
 			string name,
 			TypeSig fldType)
 		{
-			sb.Append(EscapeName(name));
+			sb.Append(name);
 			sb.Append('|');
 			TypeSigName(sb, fldType, false);
 		}
@@ -493,8 +493,8 @@ namespace il2cpp
 			}
 			else
 				sb.AppendFormat("[{0}]{1}",
-					EscapeName(tySig.DefinitionAssembly.Name),
-					EscapeName(fullName));
+					AssemblyName(tySig.DefinitionAssembly),
+					fullName);
 		}
 
 		private static void ClassSigName(StringBuilder sb, TypeDef tyDef)
@@ -511,8 +511,8 @@ namespace il2cpp
 			}
 			else
 				sb.AppendFormat("[{0}]{1}",
-					EscapeName(tyDef.DefinitionAssembly.Name),
-					EscapeName(fullName));
+								AssemblyName(tyDef.DefinitionAssembly),
+								fullName);
 		}
 
 		public static bool IsInstanceField(FieldDef fldDef)
@@ -562,32 +562,33 @@ namespace il2cpp
 			return null;
 		}
 
-		private static string EscapeChar(char ch)
+		public static string AssemblyName(IAssembly asm)
 		{
-			if (ch >= 'a' && ch <= 'z' ||
-				ch >= 'A' && ch <= 'Z' ||
-				ch >= '0' && ch <= '9' ||
-				ch == '_' || ch == '`' || ch == '.' ||
-				ch == ':' || ch == '/')
-			{
-				return null;
-			}
-			return @"\u" + ((uint)ch).ToString("X4");
-		}
+			var sb = new StringBuilder();
 
-		// 转义特殊符号
-		private static string EscapeName(string name)
-		{
-			string result = null;
-			foreach (char ch in name)
+			sb.Append(asm.Name);
+
+			if (asm.Version != null)
 			{
-				string escape = EscapeChar(ch);
-				if (escape == null)
-					result += ch;
-				else
-					result += escape;
+				sb.AppendFormat(",ver={0}", asm.Version);
 			}
-			return result;
+
+			if (!UTF8String.IsNullOrEmpty(asm.Culture))
+			{
+				sb.AppendFormat(",cul={0}", asm.Culture.String);
+			}
+
+			var publicKey = asm.PublicKeyOrToken;
+			if (publicKey != null &&
+				publicKey.Data != null &&
+				publicKey.Data.Length != 0)
+			{
+				sb.AppendFormat(",{0}={1}",
+					publicKey is PublicKeyToken ? "tok=" : "key=",
+					publicKey);
+			}
+
+			return sb.ToString();
 		}
 
 		public static int CombineHash(params int[] hashCodes)

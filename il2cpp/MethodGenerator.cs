@@ -566,14 +566,14 @@ namespace il2cpp
 						RefTypeImpl(implTyX);
 
 						prt.AppendFormatLine("// {0}",
-							implTyX.GetNameKey());
+							Helper.EscapeString(implTyX.GetNameKey()));
 						prt.AppendFormatLine("case {0}:",
 							GenContext.GetTypeID(implTyX));
 					}
 
 					++prt.Indents;
 					prt.AppendFormatLine("// {0}",
-						implMetX.GetReplacedNameKey());
+						Helper.EscapeString(implMetX.GetReplacedNameKey()));
 					prt.AppendFormatLine("return (void*)&{0};",
 						GenContext.GetMethodName(implMetX,
 							declTyX.HasBoxedType ? PrefixWrap : PrefixMet));

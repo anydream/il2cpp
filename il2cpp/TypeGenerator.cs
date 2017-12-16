@@ -32,7 +32,7 @@ namespace il2cpp
 
 			if (!CurrType.IsEnumType)
 			{
-				prtDecl.AppendFormatLine("// {0}", nameKey);
+				prtDecl.AppendFormatLine("// {0}", Helper.EscapeString(nameKey));
 
 				ushort packSize = CurrType.Def.HasClassLayout ? CurrType.Def.PackingSize : (ushort)0;
 				if (packSize > 2 && !Helper.IsPowerOfTwo(packSize))
@@ -191,7 +191,9 @@ namespace il2cpp
 					GenContext.GetTypeName(sfldX.FieldType),
 					GenContext.GetFieldName(sfldX));
 
-				prtDecl.AppendFormatLine("// {0} -> {1}", sfldX.DeclType.GetNameKey(), sfldX.GetReplacedNameKey());
+				prtDecl.AppendFormatLine("// {0} -> {1}",
+					Helper.EscapeString(sfldX.DeclType.GetNameKey()),
+					Helper.EscapeString(sfldX.GetReplacedNameKey()));
 				prtDecl.AppendLine("extern " + fldDecl);
 				prtImpl.AppendLine(fldDecl);
 			}
@@ -210,8 +212,8 @@ namespace il2cpp
 				prtDecl.AppendFormatLine("// {0}{1}{2} -> {3}",
 					!metX.Def.HasBody && !metX.Def.IsAbstract ? "extern " : null,
 					metX.Def.IsInternalCall ? "internalcall " : null,
-					metX.DeclType.GetNameKey(),
-					metX.GetReplacedNameKey());
+					Helper.EscapeString(metX.DeclType.GetNameKey()),
+					Helper.EscapeString(metX.GetReplacedNameKey()));
 
 				prtDecl.Append(metGen.DeclCode);
 				unit.DeclDepends.UnionWith(metGen.DeclDepends);
@@ -269,7 +271,7 @@ namespace il2cpp
 				foreach (var derTyX in derTypes)
 				{
 					prt.AppendFormatLine("// {0}",
-						derTyX.GetNameKey());
+						Helper.EscapeString(derTyX.GetNameKey()));
 					prt.AppendFormatLine("case {0}:",
 						GenContext.GetTypeID(derTyX));
 				}

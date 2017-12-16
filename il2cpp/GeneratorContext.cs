@@ -666,7 +666,7 @@ namespace il2cpp
 				if (IsLegalIdentChar(ch))
 					sb.Append(ch);
 				else if (ch >= 0x7F)
-					sb.AppendFormat("{0:X}", ch);
+					sb.AppendFormat("{0:X}", (uint)ch);
 				else
 					sb.Append('_');
 			}
