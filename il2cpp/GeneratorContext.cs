@@ -315,15 +315,15 @@ namespace il2cpp
 				case ElementType.I8:
 				case ElementType.U8:
 				case ElementType.R8:
-					return 8;
-
 				case ElementType.I:
 				case ElementType.U:
+					return 8;
+
 				case ElementType.Ptr:
 				case ElementType.ByRef:
-				case ElementType.Object:
 				case ElementType.Class:
 				case ElementType.TypedByRef:
+				case ElementType.Object:
 				case ElementType.SZArray:
 				case ElementType.Array:
 				case ElementType.String:
