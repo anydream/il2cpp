@@ -265,6 +265,7 @@ namespace il2cpp
 		public readonly TypeManager TypeMgr;
 		public readonly StringGenerator StrGen = new StringGenerator();
 		private uint TypeIDCounter;
+		private HashSet<string> UsedNames = new HashSet<string>();
 
 		public GeneratorContext(TypeManager typeMgr)
 		{
@@ -557,7 +558,7 @@ namespace il2cpp
 				else
 					strName += NameHash(nameKey.GetHashCode()) + '_' + GetNameWithGen(tyX.Def.Name, tyX.GenArgs);
 
-				tyX.GeneratedTypeName = strName = EscapeName(strName);
+				tyX.GeneratedTypeName = strName = GetNotUsedName(EscapeName(strName));
 			}
 
 			return strName;
@@ -601,7 +602,7 @@ namespace il2cpp
 					GetNameWithGen(metX.DeclType.Def.Name, metX.DeclType.GenArgs) + "__" +
 					GetNameWithGen(metX.Def.Name, metX.GenArgs);
 
-				metX.GeneratedMethodName = strName = EscapeName(strName);
+				metX.GeneratedMethodName = strName = GetNotUsedName(EscapeName(strName));
 			}
 			return prefix + strName;
 		}
@@ -632,7 +633,7 @@ namespace il2cpp
 
 				strName = prefix + middle + "__" + fldX.Def.Name;
 
-				fldX.GeneratedFieldName = strName = EscapeName(strName);
+				fldX.GeneratedFieldName = strName = GetNotUsedName(EscapeName(strName));
 			}
 			return strName;
 		}
@@ -654,6 +655,17 @@ namespace il2cpp
 		{
 			Debug.Assert(tyX.NeedGenIsType);
 			return "istype_" + GetTypeName(tyX);
+		}
+
+		private string GetNotUsedName(string name)
+		{
+			uint count = 1;
+			string testName = name;
+			while (UsedNames.Contains(testName))
+				testName = name + "_" + ToRadix(count, (uint)DigMap.Length);
+
+			UsedNames.Add(testName);
+			return testName;
 		}
 
 		private static string EscapeName(string fullName)
