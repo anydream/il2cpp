@@ -286,6 +286,14 @@ namespace il2cpp
 			FieldMap.Add(key, fldX);
 		}
 
+		public void CalcFieldsOrder()
+		{
+			List<FieldX> sortedFields = new List<FieldX>(Fields);
+			sortedFields.Sort((lhs, rhs) => lhs.Def.Rid.CompareTo(rhs.Def.Rid));
+			for (int i = 0; i < sortedFields.Count; ++i)
+				sortedFields[i].SetDefOrder(i);
+		}
+
 		private void ResolveVTable(TypeManager typeMgr)
 		{
 			if (VTable != null)

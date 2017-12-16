@@ -629,10 +629,10 @@ namespace il2cpp
 				}
 				else
 				{
-					middle = NameHash((int)fldX.Def.Rid);
+					middle = fldX.GetDefOrder().ToString();
 				}
 
-				strName = prefix + middle + "__" + fldX.Def.Name;
+				strName = prefix + middle + '_' + fldX.Def.Name;
 
 				fldX.GeneratedFieldName = strName = EscapeName(strName);
 			}

@@ -14,15 +14,17 @@ namespace il2cpp
 
 		// 唯一名称
 		private string NameKey;
+		// 定义顺序
+		private int DefOrder = -1;
 
 		// 字段类型
 		public TypeSig FieldType;
 
-		public bool IsStatic => Def.IsStatic;
-		public bool IsInstance => Helper.IsInstanceField(Def);
-
 		// 生成的字段名称
 		public string GeneratedFieldName;
+
+		public bool IsStatic => Def.IsStatic;
+		public bool IsInstance => Helper.IsInstanceField(Def);
 
 		public FieldX(TypeX declType, FieldDef fldDef)
 		{
@@ -58,6 +60,19 @@ namespace il2cpp
 			Helper.FieldNameKey(sb, Def.Name, FieldType);
 
 			return sb.ToString();
+		}
+
+		public int GetDefOrder()
+		{
+			Debug.Assert(IsInstance);
+			if (DefOrder == -1)
+				DeclType.CalcFieldsOrder();
+			return DefOrder;
+		}
+
+		internal void SetDefOrder(int order)
+		{
+			DefOrder = order;
 		}
 	}
 }
