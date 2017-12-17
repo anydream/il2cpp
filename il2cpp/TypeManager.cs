@@ -999,7 +999,14 @@ namespace il2cpp
 			// 更新子类集合
 			tyX.UpdateDerivedTypes();
 
+			// 补齐 GetHashCode
 			TryAddGetHashCode(tyX);
+
+			if (tyX.Def.IsExplicitLayout)
+			{
+				// 递归解析所有的字段
+				ResolveAllFields(tyX, true);
+			}
 
 			string typeName = tyX.GetNameKey();
 			if (typeName == "String")
@@ -1280,7 +1287,7 @@ namespace il2cpp
 			return baseTyX.IsDerivedType(derivedTyX);
 		}
 
-		private TypeX TryAddType(TypeX tyX)
+		private TypeX AddType(TypeX tyX)
 		{
 			Debug.Assert(tyX != null);
 
@@ -1305,7 +1312,7 @@ namespace il2cpp
 		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
 		{
 			TypeX tyX = ResolveTypeDefOrRefImpl(tyDefRef, replacer);
-			return TryAddType(tyX);
+			return AddType(tyX);
 		}
 
 		// 解析类型引用
@@ -1439,8 +1446,12 @@ namespace il2cpp
 			return AddMethod(metX);
 		}
 
-		private void ResolveAllFields(TypeX tyX)
+		private void ResolveAllFields(TypeX tyX, bool isRecursive = false)
 		{
+			if (tyX.IsAllFieldsResolved)
+				return;
+			tyX.IsAllFieldsResolved = true;
+
 			foreach (FieldDef fldDef in tyX.Def.Fields)
 			{
 				if (fldDef.IsStatic)
@@ -1448,6 +1459,13 @@ namespace il2cpp
 
 				FieldX fldX = new FieldX(tyX, fldDef);
 				AddField(fldX);
+
+				// 递归解析值类型字段
+				if (isRecursive && fldX.FieldType.IsValueType)
+				{
+					TypeX fldTyX = ResolveTypeSigImpl(fldX.FieldType, null);
+					ResolveAllFields(fldTyX, true);
+				}
 			}
 		}
 
@@ -1476,7 +1494,7 @@ namespace il2cpp
 			TypeDef boxedTyDef = GetBoxedTypeDef();
 			TypeX tyX = new TypeX(boxedTyDef);
 			tyX.GenArgs = new List<TypeSig>() { valueTyX.GetTypeSig() };
-			tyX = TryAddType(tyX);
+			tyX = AddType(tyX);
 			tyX.IsInstantiated = true;
 			tyX.IsBoxedType = true;
 
