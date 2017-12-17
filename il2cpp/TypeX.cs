@@ -111,6 +111,8 @@ namespace il2cpp
 		public bool IsInstantiated;
 		// 是否需要生成判断类型的函数
 		public bool NeedGenIsType;
+		// 是否需要生成元数据
+		public bool NeedGenMetadata;
 		// 是否解析了所有的字段
 		public bool IsAllFieldsResolved;
 

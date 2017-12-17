@@ -224,6 +224,8 @@ namespace il2cpp
 				unit.StringDepends.UnionWith(metGen.StringDepends);
 			}
 
+			GenerateMetadata(prtDecl, prtImpl);
+
 			unit.DeclCode = prtDecl.ToString();
 			unit.ImplCode = prtImpl.ToString();
 
@@ -350,6 +352,11 @@ namespace il2cpp
 				prt.AppendFormatLine("#define IL2CPP_BRIDGE_HAS_{0}",
 					GenContext.GetMethodName(metX, null));
 			}
+		}
+
+		private void GenerateMetadata(CodePrinter prtDecl, CodePrinter prtImpl)
+		{
+
 		}
 	}
 }

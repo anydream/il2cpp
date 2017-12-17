@@ -109,10 +109,6 @@ namespace il2cpp
 		public Dictionary<MethodX, HashSet<TypeX>> OverrideImpls;
 		public bool HasOverrideImpls => OverrideImpls.IsCollectionValid();
 
-		public bool HasThis => DefSig.HasThis;
-		public bool IsStatic => !HasThis;
-		public bool IsVirtual => Def.IsVirtual;
-
 		// 是否已处理过
 		public bool IsProcessed;
 		// 是否跳过处理 (1: true, 2: false)
@@ -131,6 +127,12 @@ namespace il2cpp
 
 		// 生成的方法名称
 		public string GeneratedMethodName;
+		// 是否需要生成元数据
+		public bool NeedGenMetadata;
+
+		public bool HasThis { get { Debug.Assert(!Def.IsStatic); return DefSig.HasThis; } }
+		public bool IsStatic { get { Debug.Assert(!DefSig.HasThis); return Def.IsStatic; } }
+		public bool IsVirtual => Def.IsVirtual;
 
 		public MethodX(TypeX declType, MethodDef metDef)
 		{
