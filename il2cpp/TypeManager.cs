@@ -332,8 +332,8 @@ namespace il2cpp
 							".ctor",
 							MethodSig.CreateInstance(CorLibTypes.Void, CorLibTypes.Int32),
 							new TypeSpecUser(new SZArraySig(elemSig)));
-						break;
 					}
+					break;
 
 				case Code.Ldelema:
 					{
@@ -345,8 +345,8 @@ namespace il2cpp
 							"Address",
 							MethodSig.CreateInstance(new ByRefSig(elemSig), CorLibTypes.Int32),
 							new TypeSpecUser(new SZArraySig(elemSig)));
-						break;
 					}
+					break;
 
 				case Code.Ldelem_I1:
 				case Code.Ldelem_U1:
@@ -408,8 +408,8 @@ namespace il2cpp
 							"Get",
 							MethodSig.CreateInstance(elemSig, CorLibTypes.Int32),
 							new TypeSpecUser(new SZArraySig(elemSig)));
-						break;
 					}
+					break;
 
 				case Code.Stelem_I1:
 				case Code.Stelem_I2:
@@ -459,13 +459,14 @@ namespace il2cpp
 							"Set",
 							MethodSig.CreateInstance(CorLibTypes.Void, CorLibTypes.Int32, elemSig),
 							new TypeSpecUser(new SZArraySig(elemSig)));
-						break;
 					}
+					break;
 			}
 
 			var operType = inst.OpCode.OperandType;
 			if (operType == OperandType.InlineTok)
 			{
+				Debug.Assert(inst.OpCode.Code == Code.Ldtoken);
 				switch (inst.Operand)
 				{
 					case MemberRef memRef:
@@ -576,8 +577,8 @@ namespace il2cpp
 						}
 
 						inst.Operand = resMetX;
-						break;
 					}
+					break;
 
 				case OperandType.InlineField:
 					{
@@ -601,8 +602,8 @@ namespace il2cpp
 						}
 
 						inst.Operand = resFldX;
-						break;
 					}
+					break;
 
 				case OperandType.InlineType:
 					{
@@ -642,7 +643,6 @@ namespace il2cpp
 										isKeepToken = true;
 										break;
 								}
-
 								break;
 						}
 
@@ -696,8 +696,8 @@ namespace il2cpp
 
 							inst.Operand = tyX;
 						}
-						break;
 					}
+					break;
 
 				case OperandType.InlineSig:
 					{
@@ -716,10 +716,14 @@ namespace il2cpp
 					switch (operType)
 					{
 						case OperandType.InlineType:
-							if (!IsRTTypeHandleResolved)
 							{
-								IsRTTypeHandleResolved = true;
-								ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeTypeHandle").Resolve(), null);
+								ResolveAllFields((TypeX)inst.Operand);
+
+								if (!IsRTTypeHandleResolved)
+								{
+									IsRTTypeHandleResolved = true;
+									ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeTypeHandle").Resolve(), null);
+								}
 							}
 							break;
 						case OperandType.InlineMethod:

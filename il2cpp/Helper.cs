@@ -194,8 +194,8 @@ namespace il2cpp
 								if (IsReplaceNeeded(arg))
 									return true;
 							}
-							break;
 						}
+						break;
 				}
 
 				tySig = tySig.Next;
