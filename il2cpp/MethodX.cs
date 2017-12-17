@@ -86,6 +86,8 @@ namespace il2cpp
 		public readonly MethodDef Def;
 		// 方法签名
 		public MethodSig DefSig => Def.MethodSig;
+		// 是否为虚方法
+		public bool IsVirtual => Def.IsVirtual;
 
 		// 唯一名称
 		private string NameKey;
@@ -130,9 +132,31 @@ namespace il2cpp
 		// 是否需要生成元数据
 		public bool NeedGenMetadata;
 
-		public bool HasThis { get { Debug.Assert(!Def.IsStatic); return DefSig.HasThis; } }
-		public bool IsStatic { get { Debug.Assert(!DefSig.HasThis); return Def.IsStatic; } }
-		public bool IsVirtual => Def.IsVirtual;
+		public bool HasThis
+		{
+			get
+			{
+				if (DefSig.HasThis)
+				{
+					Debug.Assert(!Def.IsStatic);
+					return true;
+				}
+				return false;
+			}
+		}
+
+		public bool IsStatic
+		{
+			get
+			{
+				if (Def.IsStatic)
+				{
+					Debug.Assert(!DefSig.HasThis);
+					return true;
+				}
+				return false;
+			}
+		}
 
 		public MethodX(TypeX declType, MethodDef metDef)
 		{
