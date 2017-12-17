@@ -1308,10 +1308,17 @@ namespace il2cpp
 			return tyX;
 		}
 
-		// 解析类型并添加到映射
+		// 解析类型定义或引用
 		public TypeX ResolveTypeDefOrRef(ITypeDefOrRef tyDefRef, IGenericReplacer replacer)
 		{
 			TypeX tyX = ResolveTypeDefOrRefImpl(tyDefRef, replacer);
+			return AddType(tyX);
+		}
+
+		// 解析类型签名
+		public TypeX ResolveTypeSig(TypeSig tySig, IGenericReplacer replacer)
+		{
+			TypeX tyX = ResolveTypeSigImpl(tySig, replacer);
 			return AddType(tyX);
 		}
 
@@ -1461,9 +1468,10 @@ namespace il2cpp
 				AddField(fldX);
 
 				// 递归解析值类型字段
-				if (isRecursive && fldX.FieldType.IsValueType)
+				if (isRecursive &&
+					fldX.FieldType.IsValueType)
 				{
-					TypeX fldTyX = ResolveTypeSigImpl(fldX.FieldType, null);
+					TypeX fldTyX = ResolveTypeSig(fldX.FieldType, null);
 					ResolveAllFields(fldTyX, true);
 				}
 			}
