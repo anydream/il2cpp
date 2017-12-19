@@ -463,10 +463,12 @@ namespace il2cpp
 					break;
 			}
 
+			bool isLdtoken = inst.OpCode.Code == Code.Ldtoken;
 			var operType = inst.OpCode.OperandType;
-			if (operType == OperandType.InlineTok)
+			Debug.Assert(operType == OperandType.InlineTok == isLdtoken);
+
+			if (isLdtoken)
 			{
-				Debug.Assert(inst.OpCode.Code == Code.Ldtoken);
 				switch (inst.Operand)
 				{
 					case MemberRef memRef:
@@ -576,6 +578,9 @@ namespace il2cpp
 							GenStaticCctor(resMetX.DeclType);
 						}
 
+						if (isLdtoken)
+							resMetX.NeedGenMetadata = true;
+
 						inst.Operand = resMetX;
 					}
 					break;
@@ -600,6 +605,9 @@ namespace il2cpp
 							// 生成静态构造
 							GenStaticCctor(resFldX.DeclType);
 						}
+
+						if (isLdtoken)
+							resFldX.NeedGenMetadata = true;
 
 						inst.Operand = resFldX;
 					}
@@ -648,7 +656,7 @@ namespace il2cpp
 
 						if (!isKeepToken)
 						{
-							TypeX tyX = ResolveTypeDefOrRef(tyDefRef, replacer);
+							TypeX resTyX = ResolveTypeDefOrRef(tyDefRef, replacer);
 
 							switch (inst.OpCode.Code)
 							{
@@ -658,21 +666,21 @@ namespace il2cpp
 								case Code.Isinst:
 								case Code.Castclass:
 								case Code.Constrained:
-									if (tyX.IsValueType)
+									if (resTyX.IsValueType)
 									{
-										if (tyX.IsNullableType)
+										if (resTyX.IsNullableType)
 										{
-											if (tyX.NullableElem == null)
+											if (resTyX.NullableElem == null)
 											{
 												// 解析可空类型的所有字段
-												ResolveAllFields(tyX);
+												ResolveAllFields(resTyX);
 
-												tyX.NullableElem = ResolveTypeDefOrRef(tyX.GenArgs[0].ToTypeDefOrRef(), null);
-												ResolveBoxedType(tyX.NullableElem);
+												resTyX.NullableElem = ResolveTypeDefOrRef(resTyX.GenArgs[0].ToTypeDefOrRef(), null);
+												ResolveBoxedType(resTyX.NullableElem);
 											}
 										}
 										else
-											ResolveBoxedType(tyX);
+											ResolveBoxedType(resTyX);
 									}
 									break;
 							}
@@ -684,17 +692,21 @@ namespace il2cpp
 								case Code.Isinst:
 								case Code.Castclass:
 									{
-										TypeX tempTyX = tyX;
+										TypeX tempTyX = resTyX;
 										if (tempTyX.IsNullableType)
 											tempTyX = tempTyX.NullableElem;
 										if (tempTyX.IsValueType && tempTyX.BoxedType != null)
 											tempTyX = tempTyX.BoxedType;
+
 										tempTyX.NeedGenIsType = true;
 									}
 									break;
 							}
 
-							inst.Operand = tyX;
+							if (isLdtoken)
+								resTyX.NeedGenMetadata = true;
+
+							inst.Operand = resTyX;
 						}
 					}
 					break;
@@ -717,6 +729,7 @@ namespace il2cpp
 					{
 						case OperandType.InlineType:
 							{
+								//! ResolveAllMethods
 								ResolveAllFields((TypeX)inst.Operand);
 
 								if (!IsRTTypeHandleResolved)
