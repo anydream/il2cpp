@@ -141,6 +141,40 @@ struct il2cppException
 	il2cppException(cls_Object* ptr) : ExceptionPtr(ptr) {}
 };
 
+struct il2cppMetaBuffer
+{
+	const uint8_t* Data;
+	uint32_t Length;
+};
+
+struct il2cppTypeInfo
+{
+	const uint16_t* Name;
+	const uint16_t* Namespace;
+};
+
+struct il2cppMethodInfo
+{
+	const uint16_t* Name;
+};
+
+struct il2cppCustomAttr
+{
+	il2cppMethodInfo* AttrCtor;
+	il2cppMetaBuffer AttrData;
+};
+
+struct il2cppFieldInfo
+{
+	const uint16_t* Name;
+	il2cppTypeInfo* DeclType;
+	il2cppTypeInfo* FieldType;
+	il2cppCustomAttr** CustomAttrs;
+	il2cppMetaBuffer FieldInit;
+	uint32_t FieldAttr;
+	uint32_t Offset;
+};
+
 using IL2CPP_FINALIZER_FUNC = void(*)(cls_Object*);
 
 void il2cpp_Init();

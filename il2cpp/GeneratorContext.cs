@@ -639,6 +639,13 @@ namespace il2cpp
 			return strName;
 		}
 
+		public string GetMetaName(FieldX fldX)
+		{
+			return string.Format("meta_{0}{1}",
+				fldX.IsStatic ? null : GetTypeName(fldX.DeclType) + '_',
+				GetFieldName(fldX));
+		}
+
 		private static string GetNameWithGen(string name, IList<TypeSig> genArgs)
 		{
 			if (genArgs.IsCollectionValid())

@@ -102,7 +102,7 @@ namespace il2cpp
 			return prt.ToString();
 		}
 
-		private static string StringToArrayOrRaw(string str, out bool isRaw)
+		public static string StringToArrayOrRaw(string str, out bool isRaw)
 		{
 			isRaw = true;
 			StringBuilder sbRaw = new StringBuilder();

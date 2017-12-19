@@ -647,5 +647,19 @@ namespace il2cpp
 		{
 			return (x & (x - 1)) == 0;
 		}
+
+		public static string ByteArrayToCode(byte[] arr)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append('{');
+			for (int i = 0; i < arr.Length; ++i)
+			{
+				if (i != 0)
+					sb.Append(',');
+				sb.Append(arr[i].ToString());
+			}
+			sb.Append('}');
+			return sb.ToString();
+		}
 	}
 }

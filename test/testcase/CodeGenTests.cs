@@ -2287,12 +2287,15 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestReflection
 	{
 		public static int Entry()
 		{
-			var mets = typeof(TestReflection).GetMethods();
+			float[] ary = { 1, 2, 3, 4, 5 };
+			if (ary[4] != 5)
+				return 1;
+
 			return 0;
 		}
 	}

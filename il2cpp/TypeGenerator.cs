@@ -356,7 +356,59 @@ namespace il2cpp
 
 		private void GenerateMetadata(CodePrinter prtDecl, CodePrinter prtImpl)
 		{
+			bool isTypeGenMeta = CurrType.NeedGenMetadata;
 
+			foreach (var fldX in CurrType.Fields)
+			{
+				if (isTypeGenMeta || fldX.NeedGenMetadata)
+				{
+					string strMetaName = GenContext.GetMetaName(fldX);
+					string strDecl = string.Format("il2cppFieldInfo {0}",
+						strMetaName);
+					prtDecl.AppendFormatLine("extern {0};", strDecl);
+
+					string strNameData = StringGenerator.StringToArrayOrRaw(fldX.Def.Name, out bool isRaw);
+					prtImpl.AppendFormatLine("static const {0} {1}_Name[] = {2};",
+						isRaw ? "char16_t" : "uint16_t",
+						strMetaName,
+						strNameData);
+
+					var initValue = fldX.Def.InitialValue;
+					bool hasInitValue = initValue != null && initValue.Length > 0;
+					if (hasInitValue)
+					{
+						prtImpl.AppendFormatLine("static const uint8_t {0}_InitData[] = {1};",
+							strMetaName,
+							Helper.ByteArrayToCode(initValue));
+					}
+
+					prtImpl.AppendFormatLine("{0} =", strDecl);
+					prtImpl.AppendLine("{");
+					++prtImpl.Indents;
+					prtImpl.AppendFormatLine("(uint16_t*){0}_Name,", strMetaName);
+					prtImpl.AppendLine("nullptr,");
+					prtImpl.AppendLine("nullptr,");
+					prtImpl.AppendLine("nullptr,");
+
+					prtImpl.AppendLine("{");
+					++prtImpl.Indents;
+					if (hasInitValue)
+					{
+						prtImpl.AppendFormatLine("{0}_InitData,\n{1}",
+							strMetaName,
+							initValue.Length);
+					}
+					--prtImpl.Indents;
+					prtImpl.AppendLine("},");
+
+					prtImpl.AppendFormatLine("{0},\n{1}",
+						(uint)fldX.Def.Attributes,
+						fldX.Def.FieldOffset ?? 0);
+
+					--prtImpl.Indents;
+					prtImpl.AppendLine("};");
+				}
+			}
 		}
 	}
 }
