@@ -362,15 +362,15 @@ namespace il2cpp
 			{
 				if (isTypeGenMeta || fldX.NeedGenMetadata)
 				{
-					string strMetaName = GenContext.GetMetaName(fldX);
+					string strMDataName = GenContext.GetMetaName(fldX, true);
 					string strDecl = string.Format("il2cppFieldInfo {0}",
-						strMetaName);
+						GenContext.GetMetaName(fldX));
 					prtDecl.AppendFormatLine("extern {0};", strDecl);
 
 					string strNameData = StringGenerator.StringToArrayOrRaw(fldX.Def.Name, out bool isRaw);
 					prtImpl.AppendFormatLine("static const {0} {1}_Name[] = {2};",
 						isRaw ? "char16_t" : "uint16_t",
-						strMetaName,
+						strMDataName,
 						strNameData);
 
 					var initValue = fldX.Def.InitialValue;
@@ -378,14 +378,14 @@ namespace il2cpp
 					if (hasInitValue)
 					{
 						prtImpl.AppendFormatLine("static const uint8_t {0}_InitData[] = {1};",
-							strMetaName,
+							strMDataName,
 							Helper.ByteArrayToCode(initValue));
 					}
 
 					prtImpl.AppendFormatLine("{0} =", strDecl);
 					prtImpl.AppendLine("{");
 					++prtImpl.Indents;
-					prtImpl.AppendFormatLine("(uint16_t*){0}_Name,", strMetaName);
+					prtImpl.AppendFormatLine("(uint16_t*){0}_Name,", strMDataName);
 					prtImpl.AppendLine("nullptr,");
 					prtImpl.AppendLine("nullptr,");
 					prtImpl.AppendLine("nullptr,");
@@ -395,7 +395,7 @@ namespace il2cpp
 					if (hasInitValue)
 					{
 						prtImpl.AppendFormatLine("{0}_InitData,\n{1}",
-							strMetaName,
+							strMDataName,
 							initValue.Length);
 					}
 					--prtImpl.Indents;

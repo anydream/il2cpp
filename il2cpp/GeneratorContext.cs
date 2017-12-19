@@ -639,9 +639,10 @@ namespace il2cpp
 			return strName;
 		}
 
-		public string GetMetaName(FieldX fldX)
+		public string GetMetaName(FieldX fldX, bool isData = false)
 		{
-			return string.Format("meta_{0}{1}",
+			return string.Format("{0}{1}{2}",
+				isData ? "mdata_" : "meta_",
 				fldX.IsStatic ? null : GetTypeName(fldX.DeclType) + '_',
 				GetFieldName(fldX));
 		}
