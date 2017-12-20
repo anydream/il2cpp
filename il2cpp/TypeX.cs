@@ -113,6 +113,7 @@ namespace il2cpp
 		public bool NeedGenIsType;
 		// 是否需要生成元数据
 		public bool NeedGenMetadata;
+		public bool GenMetadata => NeedGenMetadata;
 		// 是否解析了所有的字段
 		public bool IsAllFieldsResolved;
 

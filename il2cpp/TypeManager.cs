@@ -735,7 +735,8 @@ namespace il2cpp
 								if (!IsRTTypeHandleResolved)
 								{
 									IsRTTypeHandleResolved = true;
-									ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeTypeHandle").Resolve(), null);
+									var rtHandle = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeTypeHandle").Resolve(), null);
+									ResolveAllFields(rtHandle);
 								}
 							}
 							break;
@@ -743,14 +744,16 @@ namespace il2cpp
 							if (!IsRTMethodHandleResolved)
 							{
 								IsRTMethodHandleResolved = true;
-								ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeMethodHandle").Resolve(), null);
+								var rtHandle = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeMethodHandle").Resolve(), null);
+								ResolveAllFields(rtHandle);
 							}
 							break;
 						case OperandType.InlineField:
 							if (!IsRTFieldHandleResolved)
 							{
 								IsRTFieldHandleResolved = true;
-								ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeFieldHandle").Resolve(), null);
+								var rtHandle = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeFieldHandle").Resolve(), null);
+								ResolveAllFields(rtHandle);
 							}
 							break;
 					}

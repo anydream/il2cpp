@@ -639,6 +639,20 @@ namespace il2cpp
 			return strName;
 		}
 
+		public string GetMetaName(TypeX tyX, bool isData = false)
+		{
+			return string.Format("{0}{1}",
+				isData ? "mdata_" : "meta_",
+				GetTypeName(tyX, false));
+		}
+
+		public string GetMetaName(MethodX metX, bool isData = false)
+		{
+			return string.Format("{0}{1}",
+				isData ? "mdata_" : "meta_",
+				GetMethodName(metX, metX.IsStatic ? "smet_" : "met_"));
+		}
+
 		public string GetMetaName(FieldX fldX, bool isData = false)
 		{
 			return string.Format("{0}{1}{2}",

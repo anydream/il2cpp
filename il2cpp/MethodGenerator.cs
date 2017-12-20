@@ -1723,7 +1723,16 @@ namespace il2cpp
 							GenLoad(inst, new StackType("stru_System_RuntimeMethodHandle"), "{}");
 							break;
 						case FieldX opFldX:
-							GenLoad(inst, new StackType("stru_System_RuntimeFieldHandle"), "{}");
+							if (opFldX.GenMetadata)
+							{
+								GenLoad(
+									inst,
+									new StackType("stru_System_RuntimeFieldHandle"),
+									string.Format("{{ (cls_Object*)&{0} }}",
+										GenContext.GetMetaName(opFldX)));
+							}
+							else
+								GenLoad(inst, new StackType("stru_System_RuntimeFieldHandle"), "{}");
 							break;
 						default:
 							throw new NotImplementedException();

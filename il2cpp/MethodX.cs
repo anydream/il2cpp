@@ -131,6 +131,7 @@ namespace il2cpp
 		public string GeneratedMethodName;
 		// 是否需要生成元数据
 		public bool NeedGenMetadata;
+		public bool GenMetadata => NeedGenMetadata || DeclType.NeedGenMetadata;
 
 		public bool HasThis
 		{

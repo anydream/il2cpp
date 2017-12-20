@@ -356,36 +356,69 @@ namespace il2cpp
 
 		private void GenerateMetadata(CodePrinter prtDecl, CodePrinter prtImpl)
 		{
-			bool isTypeGenMeta = CurrType.NeedGenMetadata;
+			if (CurrType.GenMetadata)
+			{
+				string strMDataName = GenContext.GetMetaName(CurrType, true);
+				string strDecl = string.Format("il2cppTypeInfo {0}",
+					GenContext.GetMetaName(CurrType));
+				prtDecl.AppendFormatLine("extern {0};", strDecl);
+
+				string varName = GenMetaStringLiteral(prtImpl, "Name", CurrType.Def.Name, strMDataName);
+				string varNamespace = GenMetaStringLiteral(prtImpl, "Namespace", CurrType.Def.Namespace, strMDataName);
+
+				prtImpl.AppendFormatLine("{0} =", strDecl);
+				prtImpl.AppendLine("{");
+				++prtImpl.Indents;
+				prtImpl.AppendFormatLine("(uint16_t*){0},", varName);
+				prtImpl.AppendFormatLine("(uint16_t*){0},", varNamespace);
+				--prtImpl.Indents;
+				prtImpl.AppendLine("};");
+			}
+
+			foreach (var metX in CurrType.Methods)
+			{
+				if (metX.GenMetadata)
+				{
+					string strMDataName = GenContext.GetMetaName(metX, true);
+					string strDecl = string.Format("il2cppMethodInfo {0}",
+						GenContext.GetMetaName(metX));
+					prtDecl.AppendFormatLine("extern {0};", strDecl);
+
+					string varName = GenMetaStringLiteral(prtImpl, "Name", metX.Def.Name, strMDataName);
+
+					prtImpl.AppendFormatLine("{0} =", strDecl);
+					prtImpl.AppendLine("{");
+					++prtImpl.Indents;
+					prtImpl.AppendFormatLine("(uint16_t*){0},", varName);
+					--prtImpl.Indents;
+					prtImpl.AppendLine("};");
+				}
+			}
 
 			foreach (var fldX in CurrType.Fields)
 			{
-				if (isTypeGenMeta || fldX.NeedGenMetadata)
+				if (fldX.GenMetadata)
 				{
 					string strMDataName = GenContext.GetMetaName(fldX, true);
 					string strDecl = string.Format("il2cppFieldInfo {0}",
 						GenContext.GetMetaName(fldX));
 					prtDecl.AppendFormatLine("extern {0};", strDecl);
 
-					string strNameData = StringGenerator.StringToArrayOrRaw(fldX.Def.Name, out bool isRaw);
-					prtImpl.AppendFormatLine("static const {0} {1}_Name[] = {2};",
-						isRaw ? "char16_t" : "uint16_t",
-						strMDataName,
-						strNameData);
+					string varName = GenMetaStringLiteral(prtImpl, "Name", fldX.Def.Name, strMDataName);
 
 					var initValue = fldX.Def.InitialValue;
 					bool hasInitValue = initValue != null && initValue.Length > 0;
+
+					string varInitData = null;
 					if (hasInitValue)
 					{
-						prtImpl.AppendFormatLine("static const uint8_t {0}_InitData[] = {1};",
-							strMDataName,
-							Helper.ByteArrayToCode(initValue));
+						varInitData = GenMetaBytesLiteral(prtImpl, "InitData", initValue, strMDataName);
 					}
 
 					prtImpl.AppendFormatLine("{0} =", strDecl);
 					prtImpl.AppendLine("{");
 					++prtImpl.Indents;
-					prtImpl.AppendFormatLine("(uint16_t*){0}_Name,", strMDataName);
+					prtImpl.AppendFormatLine("(uint16_t*){0},", varName);
 					prtImpl.AppendLine("nullptr,");
 					prtImpl.AppendLine("nullptr,");
 					prtImpl.AppendLine("nullptr,");
@@ -394,9 +427,13 @@ namespace il2cpp
 					++prtImpl.Indents;
 					if (hasInitValue)
 					{
-						prtImpl.AppendFormatLine("{0}_InitData,\n{1}",
-							strMDataName,
+						prtImpl.AppendFormatLine("{0},\n{1}",
+							varInitData,
 							initValue.Length);
+					}
+					else
+					{
+						prtImpl.AppendFormatLine("nullptr,\nnullptr");
 					}
 					--prtImpl.Indents;
 					prtImpl.AppendLine("},");
@@ -409,6 +446,34 @@ namespace il2cpp
 					prtImpl.AppendLine("};");
 				}
 			}
+		}
+
+		private static string GenMetaStringLiteral(CodePrinter prt, string postfix, string str, string mdataName)
+		{
+			string strNameData = StringGenerator.StringToArrayOrRaw(str, out bool isRaw);
+			string varName = string.Format("{0}_{1}",
+				mdataName,
+				postfix);
+
+			prt.AppendFormatLine("static const {0} {1}[] = {2};",
+				isRaw ? "char16_t" : "uint16_t",
+				varName,
+				strNameData);
+
+			return varName;
+		}
+
+		private static string GenMetaBytesLiteral(CodePrinter prt, string postfix, byte[] data, string mdataName)
+		{
+			string varName = string.Format("{0}_{1}",
+				mdataName,
+				postfix);
+
+			prt.AppendFormatLine("static const uint8_t {0}_InitData[] = {1};",
+				mdataName,
+				Helper.ByteArrayToCode(data));
+
+			return varName;
 		}
 	}
 }

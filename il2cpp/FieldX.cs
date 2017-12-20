@@ -24,6 +24,7 @@ namespace il2cpp
 		public string GeneratedFieldName;
 		// 是否需要生成元数据
 		public bool NeedGenMetadata;
+		public bool GenMetadata => NeedGenMetadata || DeclType.NeedGenMetadata;
 
 		public bool IsStatic => Def.IsStatic;
 		public bool IsInstance => Helper.IsInstanceField(Def);
