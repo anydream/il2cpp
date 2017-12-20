@@ -64,7 +64,7 @@
 
 ## 明确不支持的特性
 - [x] 运行时创建新类型 (TypeBuilder.CreateType)
-- [x] 运行时生成并执行机器码 (Expression Trees)
+- [x] 运行时生成并执行机器码 (Emit/Expression Trees)
 - [x] 运行时加载 .NET DLL 并实例化其中的类型
 - [x] 运行时实例化不存在的泛型展开 (只支持编译期存在的泛型展开)
 - [x] 运行时增加/删除/修改反射信息
