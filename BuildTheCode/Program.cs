@@ -675,8 +675,11 @@ namespace BuildTheCode
 					if (str.Length > 0 && str[0] == '@')
 					{
 						return str.Replace(
-							"= local_unnamed_addr global",
-							"= internal local_unnamed_addr global");
+								"= global",
+								"= internal global")
+								.Replace(
+								"= local_unnamed_addr global",
+								"= internal local_unnamed_addr global");
 					}
 					return str;
 				}))
