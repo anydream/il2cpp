@@ -661,7 +661,22 @@ namespace BuildTheCode
 						str[0] == cmp[0] &&
 						str.Substring(0, cmp.Length) == cmp)
 					{
-						return str.Replace("attributes #", ";");
+						return str.Replace(cmp, ";");
+					}
+					return str;
+				}))
+				{
+					return null;
+				}
+
+				// 内部化全局变量
+				if (!Helper.PatchTextFile(lastOptFile, str =>
+				{
+					if (str.Length > 0 && str[0] == '@')
+					{
+						return str.Replace(
+							"= local_unnamed_addr global",
+							"= internal local_unnamed_addr global");
 					}
 					return str;
 				}))
@@ -749,7 +764,7 @@ namespace BuildTheCode
 	static class Program
 	{
 		static string OptLevel = "-O3";
-		static int GenOptCount = 1;
+		static int GenOptCount = 2;
 		static int FinalOptCount = 1;
 		static string AddCFlags;
 
