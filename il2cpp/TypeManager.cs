@@ -48,11 +48,12 @@ namespace il2cpp
 
 		private DelegateProperty DelegateType;
 
+		public TypeX RTTypeHandle;
+		public TypeX RTMethodHandle;
+		public TypeX RTFieldHandle;
+
 		// 字符串对象是否已经解析
 		private bool IsStringTypeResolved;
-		private bool IsRTTypeHandleResolved;
-		private bool IsRTMethodHandleResolved;
-		private bool IsRTFieldHandleResolved;
 
 		public StringBuilder RecordLogs;
 #if DEBUG && false
@@ -732,28 +733,25 @@ namespace il2cpp
 								//! ResolveAllMethods
 								ResolveAllFields((TypeX)inst.Operand);
 
-								if (!IsRTTypeHandleResolved)
+								if (RTTypeHandle == null)
 								{
-									IsRTTypeHandleResolved = true;
-									var rtHandle = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeTypeHandle").Resolve(), null);
-									ResolveAllFields(rtHandle);
+									RTTypeHandle = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeTypeHandle").Resolve(), null);
+									ResolveAllFields(RTTypeHandle);
 								}
 							}
 							break;
 						case OperandType.InlineMethod:
-							if (!IsRTMethodHandleResolved)
+							if (RTMethodHandle == null)
 							{
-								IsRTMethodHandleResolved = true;
-								var rtHandle = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeMethodHandle").Resolve(), null);
-								ResolveAllFields(rtHandle);
+								RTMethodHandle = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeMethodHandle").Resolve(), null);
+								ResolveAllFields(RTMethodHandle);
 							}
 							break;
 						case OperandType.InlineField:
-							if (!IsRTFieldHandleResolved)
+							if (RTFieldHandle == null)
 							{
-								IsRTFieldHandleResolved = true;
-								var rtHandle = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeFieldHandle").Resolve(), null);
-								ResolveAllFields(rtHandle);
+								RTFieldHandle = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "RuntimeFieldHandle").Resolve(), null);
+								ResolveAllFields(RTFieldHandle);
 							}
 							break;
 					}

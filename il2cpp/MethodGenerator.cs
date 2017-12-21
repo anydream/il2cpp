@@ -1723,16 +1723,23 @@ namespace il2cpp
 							GenLoad(inst, new StackType("stru_System_RuntimeMethodHandle"), "{}");
 							break;
 						case FieldX opFldX:
-							if (opFldX.GenMetadata)
 							{
-								GenLoad(
-									inst,
-									new StackType("stru_System_RuntimeFieldHandle"),
-									string.Format("{{ (cls_Object*)&{0} }}",
-										GenContext.GetMetaName(opFldX)));
+								TypeX rtFldType = GenContext.TypeMgr.RTFieldHandle;
+								Debug.Assert(rtFldType != null);
+								FieldX rtFldTypeFld = rtFldType.Fields.First();
+								string rtFldTypeName = GenContext.GetTypeName(rtFldType);
+
+								var slotPush = Push(new StackType(rtFldTypeName));
+
+								inst.InstCode = GenAssign(
+									string.Format("{0}.{1}",
+										TempName(slotPush),
+										GenContext.GetFieldName(rtFldTypeFld)),
+									opFldX.GenMetadata ?
+										'&' + GenContext.GetMetaName(opFldX) :
+										"nullptr",
+									rtFldTypeFld.FieldType);
 							}
-							else
-								GenLoad(inst, new StackType("stru_System_RuntimeFieldHandle"), "{}");
 							break;
 						default:
 							throw new NotImplementedException();
