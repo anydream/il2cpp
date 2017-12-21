@@ -187,6 +187,18 @@ void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 void il2cpp_SpinLock(uint8_t &flag);
 void il2cpp_SpinUnlock(uint8_t &flag);
 
+template <class T>
+inline T il2cpp_Min(T lhs, T rhs)
+{
+	return lhs < rhs ? lhs : rhs;
+}
+
+template <class T>
+inline T il2cpp_Max(T lhs, T rhs)
+{
+	return lhs > rhs ? lhs : rhs;
+}
+
 inline float il2cpp_NaNF()
 {
 	uint32_t n = 0xFFC00000;
@@ -427,3 +439,4 @@ int32_t il2cpp_Array__GetLowerBound(cls_System_Array* ary, uint32_t dim);
 int32_t il2cpp_Array__GetUpperBound(cls_System_Array* ary, uint32_t dim);
 void il2cpp_Array__Copy(cls_System_Array* srcAry, uint32_t srcIdx, cls_System_Array* dstAry, uint32_t dstIdx, uint32_t copyLen);
 void il2cpp_Array__Clear(cls_System_Array* ary, uint32_t idx, uint32_t clearLen);
+void il2cpp_Array__Init(cls_System_Array* ary, il2cppFieldInfo* fldInfo);

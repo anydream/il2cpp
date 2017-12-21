@@ -326,4 +326,16 @@ void il2cpp_Array__Clear(cls_System_Array* ary, uint32_t idx, uint32_t clearLen)
 
 	IL2CPP_MEMSET(ptr, 0, elemSize * clearLen);
 }
+
+void il2cpp_Array__Init(cls_System_Array* ary, il2cppFieldInfo* fldInfo)
+{
+	auto elemSize = ary->ElemSize;
+	auto rank = ary->Rank;
+	auto aryLen = ary->Length;
+
+	uint32_t dataOffset = rank == 0 ? 0 : rank * sizeof(uint32_t) * 2;
+	uint8_t* ptr = (uint8_t*)&ary[1] + dataOffset;
+
+	IL2CPP_MEMCPY(ptr, fldInfo->FieldInit.Data, il2cpp_Min(elemSize * aryLen, fldInfo->FieldInit.Length));
+}
 #endif

@@ -2293,8 +2293,19 @@ namespace testcase
 		public static int Entry()
 		{
 			float[] ary = { 1, 2, 3, 4, 5 };
-			if (ary[4] != 5)
+
+			if (ary[0] != 1 ||
+				ary[1] != 2 ||
+				ary[2] != 3 ||
+				ary[3] != 4 ||
+				ary[4] != 5)
 				return 1;
+
+			float sum = 0;
+			foreach (var n in ary)
+				sum += n;
+			if (!sum.IsEquals(15))
+				return 2;
 
 			return 0;
 		}

@@ -438,9 +438,19 @@ namespace il2cpp
 					--prtImpl.Indents;
 					prtImpl.AppendLine("},");
 
-					prtImpl.AppendFormatLine("{0},\n{1}",
-						(uint)fldX.Def.Attributes,
-						fldX.Def.FieldOffset ?? 0);
+					prtImpl.AppendFormatLine("{0},",
+						(uint)fldX.Def.Attributes);
+
+					if (fldX.IsInstance)
+					{
+						prtImpl.AppendFormatLine("offsetof({0}, {1})",
+							GenContext.GetTypeName(CurrType),
+							GenContext.GetFieldName(fldX));
+					}
+					else
+					{
+						prtImpl.AppendLine("0");
+					}
 
 					--prtImpl.Indents;
 					prtImpl.AppendLine("};");

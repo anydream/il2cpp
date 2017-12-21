@@ -37,12 +37,23 @@ namespace il2cpp
 			}
 			else if (typeName == "System.Runtime.CompilerServices.RuntimeHelpers")
 			{
-				if (metX.Def.Name == "IsReferenceOrContainsReferences")
+				if (metName == "IsReferenceOrContainsReferences")
 				{
 					Debug.Assert(metX.HasGenArgs && metX.GenArgs.Count == 1);
 					TypeX targetType = genContext.GetTypeBySig(metX.GenArgs[0]);
 					prt.AppendFormatLine("return {0};",
 						genContext.IsRefOrContainsRef(targetType) ? "1" : "0");
+
+					return true;
+				}
+				else if (metName == "InitializeArray")
+				{
+					TypeX tyArg1 = genContext.GetTypeBySig(metX.ParamTypes[1]);
+					Debug.Assert(tyArg1 != null);
+					FieldX rtFldX = tyArg1.Fields.First();
+
+					prt.AppendFormatLine("il2cpp_Array__Init(arg_0, (il2cppFieldInfo*)arg_1.{0});",
+						genContext.GetFieldName(rtFldX));
 
 					return true;
 				}
