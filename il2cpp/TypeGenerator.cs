@@ -433,7 +433,7 @@ namespace il2cpp
 					}
 					else
 					{
-						prtImpl.AppendFormatLine("nullptr,\nnullptr");
+						prtImpl.AppendLine("nullptr,\n0");
 					}
 					--prtImpl.Indents;
 					prtImpl.AppendLine("},");
@@ -443,7 +443,7 @@ namespace il2cpp
 
 					if (fldX.IsInstance)
 					{
-						prtImpl.AppendFormatLine("offsetof({0}, {1})",
+						prtImpl.AppendFormatLine("IL2CPP_OFFSETOF(&{0}::{1})",
 							GenContext.GetTypeName(CurrType),
 							GenContext.GetFieldName(fldX));
 					}

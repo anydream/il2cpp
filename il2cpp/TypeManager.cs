@@ -730,8 +730,9 @@ namespace il2cpp
 					{
 						case OperandType.InlineType:
 							{
+								if (inst.Operand is TypeX opTyX)
+									ResolveAllFields(opTyX);
 								//! ResolveAllMethods
-								ResolveAllFields((TypeX)inst.Operand);
 
 								if (RTTypeHandle == null)
 								{

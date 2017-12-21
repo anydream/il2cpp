@@ -44,6 +44,7 @@
 #define IL2CPP_THROW(_ex)				throw il2cppException(_ex)
 #define IL2CPP_THROW_INVALIDCAST		do { il2cpp_ThrowInvalidCast(); IL2CPP_UNREACHABLE; } while(0)
 
+#define IL2CPP_OFFSETOF(_fld)			il2cpp_OffsetOf(_fld)
 #define IL2CPP_NANF						il2cpp_NaNF()
 #define IL2CPP_NAND						il2cpp_NaND()
 #define IL2CPP_POS_INF					(1E+300 * 1E+300)
@@ -197,6 +198,14 @@ template <class T>
 inline T il2cpp_Max(T lhs, T rhs)
 {
 	return lhs > rhs ? lhs : rhs;
+}
+
+template <typename TField, typename TCls>
+constexpr uintptr_t il2cpp_OffsetOf(TField TCls::*member)
+{
+	const char obj_dummy[sizeof(TCls)] = {};
+	const TCls *obj = reinterpret_cast<const TCls*>(obj_dummy);
+	return reinterpret_cast<uintptr_t>(&(obj->*member)) - reinterpret_cast<uintptr_t>(obj);
 }
 
 inline float il2cpp_NaNF()
