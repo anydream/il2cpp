@@ -441,7 +441,7 @@ namespace il2cpp
 					prtImpl.AppendFormatLine("{0},",
 						(uint)fldX.Def.Attributes);
 
-					if (fldX.IsInstance)
+					if (fldX.IsInstance && !CurrType.IsEnumType)
 					{
 						prtImpl.AppendFormatLine("IL2CPP_OFFSETOF(&{0}::{1})",
 							GenContext.GetTypeName(CurrType),

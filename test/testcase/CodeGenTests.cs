@@ -1033,15 +1033,15 @@ namespace testcase
 			if (!sum.IsEquals(1368.6f))
 				return 15;
 
-			short[,,] sary3d = new short[2, 3, 4];
-			/*{
+			short[,,] sary3d = new short[2, 3, 4]
+			{
 				{
 					{ 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12 }
 				},
 				{
 					{ 13, 14, 15, 16 }, { 17, 18, 19, 20 }, { 21, 22, 23, 24 }
 				}
-			};*/
+			};
 
 			rank = sary3d.Rank;
 			len = sary3d.Length;
@@ -1097,7 +1097,9 @@ namespace testcase
 				{
 					for (int z = 0; z < 4; ++z)
 					{
-						sary3d[x, y, z] = ++num;
+						++num;
+						if (sary3d[x, y, z] != num)
+							return 31;
 					}
 				}
 			}
@@ -1269,7 +1271,9 @@ namespace testcase
 					return 2;
 			}
 
-			//MyStru[,,] sary3d = new MyStru[5, 4, 3];
+			MyStru[,,] sary3d = new MyStru[5, 4, 3];
+			if (sary3d[4, 3, 2].fldI4 != 0)
+				return 3;
 
 			return 0;
 		}
@@ -2013,6 +2017,16 @@ namespace testcase
 				actres = SMethod(false);
 		}
 
+		static void ActAA()
+		{
+			++actres;
+		}
+
+		static void ActBB()
+		{
+			actres *= 10;
+		}
+
 		delegate int SFunc(bool b);
 		public static int Entry()
 		{
@@ -2042,6 +2056,20 @@ namespace testcase
 			act();
 			if (actres != 0)
 				return actres;
+
+			/*act -= Act;
+			act += ActAA;
+			act += ActBB;
+			act();
+
+			if (actres != 10)
+				return actres;
+
+			act -= ActBB;
+			act();
+
+			if (actres != 11)
+				return actres;*/
 
 			return 0;
 		}
@@ -3241,7 +3269,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = FibonacciYield.Entry();
+			var result = TestMDArray.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
