@@ -123,6 +123,29 @@ void il2cpp_SpinUnlock(uint8_t &flag)
 	IL2CPP_ATOMIC_CAS_8(&flag, 1, 0);
 }
 
+int32_t il2cpp_HashString(int32_t len, const uint16_t* str)
+{
+	const size_t szLen = static_cast<size_t>(len);
+	const size_t unitSize = sizeof(uintptr_t) / sizeof(uint16_t);
+	const size_t step = szLen / unitSize;
+	const size_t remain = szLen % unitSize;
+
+	uintptr_t result = 0x14AE055C;
+	for (size_t i = 0; i < step; ++i)
+	{
+		result += result << 5;
+		result ^= reinterpret_cast<const uintptr_t*>(str)[i];
+	}
+
+	for (size_t i = szLen - remain; i < szLen; ++i)
+	{
+		result += result << 5;
+		result ^= str[i];
+	}
+
+	return static_cast<int32_t>(static_cast<uint32_t>(result >> 31) ^ static_cast<uint32_t>(result));
+}
+
 #if defined(IL2CPP_DISABLE_CHECK_RANGE)
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 {

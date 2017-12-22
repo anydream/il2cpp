@@ -121,21 +121,6 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
-	static class TestLiteral
-	{
-		const int blabla = 1234;
-		public static int Entry()
-		{
-			int[] ary = { 1, 3, 5, 7, 9 };
-			if (blabla != 1234)
-				return 1;
-			if (ary[4] != 9)
-				return 2;
-			return 0;
-		}
-	}
-
 	[CodeGen]
 	static class TestConstStatic
 	{
@@ -586,9 +571,9 @@ namespace testcase
 			if (s[10] != 'd')
 				return 5;
 
-			/*int hash = s.GetHashCode();
-			if (hash != -1668901784)
-				return 6;*/
+			int hash = s.GetHashCode();
+			if (hash != "hello,world".GetHashCode())
+				return 6;
 
 			MyCls cls = new MyCls();
 			if (cls.strfld != "defaultstr")
@@ -1034,7 +1019,7 @@ namespace testcase
 				return 15;
 
 			short[,,] sary3d = new short[2, 3, 4]
-			{
+				{
 				{
 					{ 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12 }
 				},

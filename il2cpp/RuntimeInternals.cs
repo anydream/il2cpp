@@ -27,9 +27,23 @@ namespace il2cpp
 						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.I4);
 					FieldX fldFirstChar = metX.DeclType.Fields.FirstOrDefault(
 						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.Char);
+
 					prt.AppendFormatLine("IL2CPP_CHECK_RANGE(0, arg_0->{0}, arg_1);",
 						genContext.GetFieldName(fldLen));
 					prt.AppendFormatLine("return ((uint16_t*)&arg_0->{0})[arg_1];",
+						genContext.GetFieldName(fldFirstChar));
+
+					return true;
+				}
+				else if (metName == "InternalMarvin32HashString")
+				{
+					FieldX fldLen = metX.DeclType.Fields.FirstOrDefault(
+						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.I4);
+					FieldX fldFirstChar = metX.DeclType.Fields.FirstOrDefault(
+						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.Char);
+
+					prt.AppendFormatLine("return il2cpp_HashString(arg_0->{0}, &arg_0->{1});",
+						genContext.GetFieldName(fldLen),
 						genContext.GetFieldName(fldFirstChar));
 
 					return true;
@@ -58,6 +72,7 @@ namespace il2cpp
 					return true;
 				}
 			}
+
 			return false;
 		}
 	}
