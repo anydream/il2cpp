@@ -657,7 +657,7 @@ namespace il2cpp
 		{
 			return string.Format("{0}{1}{2}",
 				isData ? "mdata_" : "meta_",
-				fldX.IsStatic ? null : GetTypeName(fldX.DeclType) + '_',
+				fldX.IsStatic ? null : GetTypeName(fldX.DeclType, false) + '_',
 				GetFieldName(fldX));
 		}
 
@@ -677,7 +677,7 @@ namespace il2cpp
 		public string GetIsTypeFuncName(TypeX tyX)
 		{
 			Debug.Assert(tyX.NeedGenIsType);
-			return "istype_" + GetTypeName(tyX);
+			return "istype_" + GetTypeName(tyX, false);
 		}
 
 		private string GetNotUsedTypeName(string name)
