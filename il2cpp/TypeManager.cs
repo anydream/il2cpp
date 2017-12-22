@@ -51,6 +51,7 @@ namespace il2cpp
 		public TypeX RTTypeHandle;
 		public TypeX RTMethodHandle;
 		public TypeX RTFieldHandle;
+		public TypeX RTTypedRef;
 
 		// 字符串对象是否已经解析
 		private bool IsStringTypeResolved;
@@ -755,6 +756,14 @@ namespace il2cpp
 								ResolveAllFields(RTFieldHandle);
 							}
 							break;
+					}
+					break;
+
+				case Code.Mkrefany:
+					if (RTTypedRef == null)
+					{
+						RTTypedRef = ResolveTypeDefOrRef(CorLibTypes.GetTypeRef("System", "TypedReference").Resolve(), null);
+						ResolveAllFields(RTTypedRef);
 					}
 					break;
 			}

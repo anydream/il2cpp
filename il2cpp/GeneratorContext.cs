@@ -114,6 +114,7 @@ namespace il2cpp
 			"stru_System_RuntimeTypeHandle",
 			"stru_System_RuntimeMethodHandle",
 			"stru_System_RuntimeFieldHandle",
+			"stru_System_TypedReference",
 		};
 
 		public CompileUnitMerger(Dictionary<string, CompileUnit> units)
