@@ -1059,11 +1059,17 @@ namespace il2cpp
 
 					List<FieldDef> fldList = new List<FieldDef>(tyX.Def.Fields);
 					fldList.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
+
+					int count = 0;
 					bool last = false;
 					foreach (var fldDef in fldList)
 					{
 						if (!Helper.IsInstanceField(fldDef))
 							continue;
+
+						// 限制计算的字段个数
+						if (++count > 4)
+							break;
 
 						if (last)
 						{
