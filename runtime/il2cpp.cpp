@@ -143,7 +143,7 @@ int32_t il2cpp_HashString(int32_t len, const uint16_t* str)
 		result ^= str[i];
 	}
 
-	return static_cast<int32_t>(static_cast<uint32_t>(result >> 31) ^ static_cast<uint32_t>(result));
+	return static_cast<int32_t>(result & 0xFFFFFFFF) ^ ((result >> 32) & 0xFFFFFFFF);
 }
 
 #if defined(IL2CPP_DISABLE_CHECK_RANGE)
