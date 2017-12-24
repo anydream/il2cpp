@@ -42,7 +42,7 @@ namespace il2cpp
 					FieldX fldFirstChar = metX.DeclType.Fields.FirstOrDefault(
 						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.Char);
 
-					prt.AppendFormatLine("return il2cpp_HashString(arg_0->{0}, &arg_0->{1});",
+					prt.AppendFormatLine("return il2cpp_HashString(&arg_0->{0}, arg_0->{1});",
 						genContext.GetFieldName(fldFirstChar),
 						genContext.GetFieldName(fldLen));
 
