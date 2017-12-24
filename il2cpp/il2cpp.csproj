@@ -116,6 +116,6 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>..\..\..\tools\PackZip.exe ..\..\runtime.zip ..\..\..\runtime\</PreBuildEvent>
+    <PreBuildEvent>$(ProjectDir)..\tools\PackZip.exe $(ProjectDir)runtime.zip $(ProjectDir)..\runtime\</PreBuildEvent>
   </PropertyGroup>
 </Project>
