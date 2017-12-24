@@ -2265,11 +2265,90 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestContainer2
 	{
+		class ObjEqualityComparer<T> : EqualityComparer<T>
+		{
+			public override bool Equals(T x, T y)
+			{
+				if (x != null)
+				{
+					if (y != null) return x.Equals(y);
+					return false;
+				}
+				if (y != null) return false;
+				return true;
+			}
+
+			public override int GetHashCode(T obj) => obj?.GetHashCode() ?? 0;
+
+			public override int GetHashCode() => 0;
+		}
+
+		static int TestObjEqualityComparer()
+		{
+			{
+				ObjEqualityComparer<int> cint = new ObjEqualityComparer<int>();
+				int int1 = 123;
+				int int2 = 456;
+
+				if (cint.Equals(int1, int2))
+					return 1;
+
+				if (!cint.Equals(int1, int1))
+					return 2;
+			}
+
+			{
+				ObjEqualityComparer<byte> cbyte = new ObjEqualityComparer<byte>();
+				byte byte1 = 0xFF;
+				byte byte2 = 0x12;
+
+				if (cbyte.Equals(byte1, byte2))
+					return 3;
+
+				if (!cbyte.Equals(byte1, byte1))
+					return 4;
+			}
+
+			{
+				ObjEqualityComparer<object> cobj = new ObjEqualityComparer<object>();
+				object obj1 = "hello";
+				object obj2 = "world";
+
+				if (!cobj.Equals(obj1, "hel" + "lo"))
+					return 5;
+
+				if (cobj.Equals(obj1, obj2))
+					return 6;
+			}
+
+			{
+				ObjEqualityComparer<int?> cnul = new ObjEqualityComparer<int?>();
+				int? n1 = 123;
+				int? n2 = 456;
+				int? n3 = null;
+
+				if (!cnul.Equals(n1, 122 + 1))
+					return 7;
+
+				if (cnul.Equals(n1, n2))
+					return 8;
+
+				if (!cnul.Equals(n3, null))
+					return 9;
+			}
+
+			return 0;
+		}
+
 		public static int Entry()
 		{
+			/*int res = TestObjEqualityComparer();
+			if (res != 0)
+				return res;*/
+
 			var dict = new Dictionary<int, int>();
 			return 0;
 		}

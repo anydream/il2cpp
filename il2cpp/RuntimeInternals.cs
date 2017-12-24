@@ -72,6 +72,14 @@ namespace il2cpp
 					return true;
 				}
 			}
+			else if (typeName == "System.Math")
+			{
+				if (metName == "Sqrt")
+				{
+					prt.AppendLine("return il2cpp_Sqrt(arg_0);");
+					return true;
+				}
+			}
 
 			return false;
 		}

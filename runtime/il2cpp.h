@@ -188,6 +188,12 @@ void il2cpp_CallOnce(uint8_t &onceFlag, uintptr_t &lockTid, void(*invokeFunc)())
 void il2cpp_SpinLock(uint8_t &flag);
 void il2cpp_SpinUnlock(uint8_t &flag);
 int32_t il2cpp_HashString(const uint16_t* str, int32_t len);
+double il2cpp_Sqrt(double n);
+double il2cpp_Sin(double n);
+double il2cpp_Cos(double n);
+double il2cpp_Tan(double n);
+double il2cpp_Exp(double n);
+double il2cpp_Pow(double n, double m);
 
 template <class T>
 inline T il2cpp_Min(T lhs, T rhs)

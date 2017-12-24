@@ -146,6 +146,36 @@ int32_t il2cpp_HashString(const uint16_t* str, int32_t len)
 	return static_cast<int32_t>(result & 0xFFFFFFFF) ^ ((result >> 32) & 0xFFFFFFFF);
 }
 
+double il2cpp_Sqrt(double n)
+{
+	return sqrt(n);
+}
+
+double il2cpp_Sin(double n)
+{
+	return sin(n);
+}
+
+double il2cpp_Cos(double n)
+{
+	return cos(n);
+}
+
+double il2cpp_Tan(double n)
+{
+	return tan(n);
+}
+
+double il2cpp_Exp(double n)
+{
+	return exp(n);
+}
+
+double il2cpp_Pow(double n, double m)
+{
+	return pow(n, m);
+}
+
 #if defined(IL2CPP_DISABLE_CHECK_RANGE)
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index)
 {
