@@ -43,8 +43,8 @@ namespace il2cpp
 						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.Char);
 
 					prt.AppendFormatLine("return il2cpp_HashString(arg_0->{0}, &arg_0->{1});",
-						genContext.GetFieldName(fldLen),
-						genContext.GetFieldName(fldFirstChar));
+						genContext.GetFieldName(fldFirstChar),
+						genContext.GetFieldName(fldLen));
 
 					return true;
 				}

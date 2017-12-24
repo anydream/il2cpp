@@ -123,7 +123,7 @@ void il2cpp_SpinUnlock(uint8_t &flag)
 	IL2CPP_ATOMIC_CAS_8(&flag, 1, 0);
 }
 
-int32_t il2cpp_HashString(int32_t len, const uint16_t* str)
+int32_t il2cpp_HashString(const uint16_t* str, int32_t len)
 {
 	const size_t szLen = static_cast<size_t>(len);
 	const size_t unitSize = sizeof(uintptr_t) / sizeof(uint16_t);
