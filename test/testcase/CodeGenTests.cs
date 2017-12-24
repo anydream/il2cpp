@@ -2317,7 +2317,7 @@ namespace testcase
 				object obj1 = "hello";
 				object obj2 = "world";
 
-				if (!cobj.Equals(obj1, "hel" + "lo"))
+				if (!cobj.Equals(obj1, "hello"))
 					return 5;
 
 				if (cobj.Equals(obj1, obj2))
@@ -2345,11 +2345,58 @@ namespace testcase
 
 		public static int Entry()
 		{
-			/*int res = TestObjEqualityComparer();
-			if (res != 0)
-				return res;*/
-
 			var dict = new Dictionary<int, int>();
+			dict.Add(1, 123);
+			dict.Add(2, 456);
+			dict.Add(3, 789);
+			dict[4] = 120;
+			if (dict.Count != 4)
+				return 1;
+
+			if (!dict.ContainsKey(1))
+				return 2;
+			if (!dict.ContainsKey(2))
+				return 3;
+			if (!dict.ContainsKey(3))
+				return 4;
+			if (!dict.ContainsKey(4))
+				return 5;
+			if (dict.ContainsKey(0))
+				return 6;
+
+			if (dict[1] != 123)
+				return 7;
+			if (dict[2] != 456)
+				return 8;
+			if (dict[3] != 789)
+				return 9;
+			if (dict[4] != 120)
+				return 10;
+
+			/*int sumKey = 0;
+			int sumVal = 0;
+			foreach (var kv in dict)
+			{
+				sumKey += kv.Key;
+				sumVal += kv.Value;
+			}
+			if (sumKey != 10)
+				return 11;
+			if (sumVal != 1488)
+				return 12;*/
+
+			dict.Remove(2);
+			dict.Remove(3);
+			if (dict.Count != 2)
+				return 13;
+
+			if (dict[1] != 123 || dict[4] != 120)
+				return 14;
+
+			dict.Clear();
+			if (dict.Count != 0)
+				return 15;
+
 			return 0;
 		}
 	}
@@ -3333,7 +3380,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestMDArray.Entry();
+			var result = TestContainer2.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);

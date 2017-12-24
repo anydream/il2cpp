@@ -71,6 +71,11 @@ namespace il2cpp
 
 					return true;
 				}
+				else if (metName == "Equals")
+				{
+					prt.AppendLine("return arg_0 == arg_1 ? 1 : 0;");
+					return true;
+				}
 			}
 			else if (typeName == "System.Math")
 			{
