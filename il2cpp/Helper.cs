@@ -85,6 +85,27 @@ namespace il2cpp
 			return val;
 		}
 
+		public static List<T> SortStable<T>(this List<T> ary, Comparison<T> comp)
+		{
+			List<int> idxAry = new List<int>();
+			for (int i = 0; i < ary.Count; ++i)
+				idxAry.Add(i);
+
+			idxAry.Sort((ilhs, irhs) =>
+			{
+				int res = comp(ary[ilhs], ary[irhs]);
+				if (res == 0)
+					return ilhs.CompareTo(irhs);
+				return res;
+			});
+
+			List<T> result = new List<T>();
+			foreach (int idx in idxAry)
+				result.Add(ary[idx]);
+
+			return result;
+		}
+
 		// 替换类型中的泛型签名
 		public static TypeSig ReplaceGenericSig(TypeSig tySig, IGenericReplacer replacer)
 		{

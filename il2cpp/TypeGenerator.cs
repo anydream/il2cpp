@@ -330,7 +330,12 @@ namespace il2cpp
 			if (layoutType == TypeAttributes.AutoLayout)
 			{
 				fields.Sort((lhs, rhs) =>
-					GenContext.GetTypeLayoutOrder(rhs.FieldType).CompareTo(GenContext.GetTypeLayoutOrder(lhs.FieldType)));
+				{
+					int cmp = GenContext.GetTypeLayoutOrder(rhs.FieldType).CompareTo(GenContext.GetTypeLayoutOrder(lhs.FieldType));
+					if (cmp == 0)
+						return lhs.Def.Rid.CompareTo(rhs.Def.Rid);
+					return cmp;
+				});
 			}
 			else if (layoutType == TypeAttributes.SequentialLayout ||
 					 layoutType == TypeAttributes.ExplicitLayout)
