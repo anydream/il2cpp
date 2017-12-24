@@ -17,6 +17,17 @@ namespace il2cpp
 
 		internal TypeManager TypeMgr;
 
+		static Il2cppContext()
+		{
+			// 释放 GAC
+			string strGACPack = "il2cpp.gac.zip";
+			var zip = new FastZip();
+			zip.ExtractZip(Assembly.GetExecutingAssembly().GetManifestResourceStream(strGACPack),
+				"./gac/",
+				FastZip.Overwrite.Always,
+				null, null, null, false, true);
+		}
+
 		public Il2cppContext(string imagePath)
 		{
 			Module = ModuleDefMD.Load(imagePath);
