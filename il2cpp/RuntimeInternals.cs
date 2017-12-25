@@ -10,7 +10,15 @@ namespace il2cpp
 			string typeName = metX.DeclType.GetNameKey();
 			string metName = metX.Def.Name;
 
-			if (typeName == "String")
+			if (typeName == "Object")
+			{
+				if (metName == "GetInternalTypeID")
+				{
+					prt.AppendLine("return (int32_t)arg_0->TypeID;");
+					return true;
+				}
+			}
+			else if (typeName == "String")
 			{
 				if (metName == "get_Length")
 				{
