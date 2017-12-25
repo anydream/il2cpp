@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -23,7 +24,7 @@ namespace il2cpp
 			string strGACPack = "il2cpp.gac.zip";
 			var zip = new FastZip();
 			zip.ExtractZip(Assembly.GetExecutingAssembly().GetManifestResourceStream(strGACPack),
-				"./gac/",
+				Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "gac/"),
 				FastZip.Overwrite.Always,
 				null, null, null, false, true);
 		}

@@ -63,7 +63,7 @@ namespace dnlib.DotNet {
 		static AssemblyResolver() {
 			gacInfos = new List<GacInfo>();
 
-			string selfPath = Path.GetFullPath("./");
+			string selfPath = AppDomain.CurrentDomain.BaseDirectory;
 			gacInfos.Add(new GacInfo(2, "", selfPath, new[] { "gac" }));
 			gacInfos.Add(new GacInfo(4, "", selfPath, new[] { "gac" }));
 
