@@ -84,6 +84,26 @@ namespace il2cpp
 					prt.AppendLine("return il2cpp_Sqrt(arg_0);");
 					return true;
 				}
+				else if (metName == "Sin")
+				{
+					prt.AppendLine("return il2cpp_Sin(arg_0);");
+					return true;
+				}
+				else if (metName == "Cos")
+				{
+					prt.AppendLine("return il2cpp_Cos(arg_0);");
+					return true;
+				}
+				else if (metName == "Tan")
+				{
+					prt.AppendLine("return il2cpp_Tan(arg_0);");
+					return true;
+				}
+				else if (metName == "Pow")
+				{
+					prt.AppendLine("return il2cpp_Pow(arg_0, arg_1);");
+					return true;
+				}
 			}
 
 			return false;

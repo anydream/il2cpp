@@ -2450,15 +2450,8 @@ namespace testcase
 		}
 	}
 
-	static class TestRayTrace
+	/*static class TestRayTrace
 	{
-#if false
-		static extern double MathSqrt(double n);
-		static extern double MathAbs(double n);
-		static extern double MathSin(double n);
-		static extern double MathCos(double n);
-		static extern double MathPow(double n, double m);
-#else
 		static double MathSqrt(double n)
 		{
 			return Math.Sqrt(n);
@@ -2479,8 +2472,6 @@ namespace testcase
 		{
 			return Math.Pow(n, m);
 		}
-#endif
-
 		static double MathMax(double v1, double v2)
 		{
 			return v1 > v2 ? v1 : v2;
@@ -2862,7 +2853,7 @@ namespace testcase
 				}
 			}
 
-			public static Vec[] RenderEntry()
+			private static Vec[] RenderEntry()
 			{
 				const int w = 256;
 				const int h = 256;
@@ -2945,23 +2936,12 @@ namespace testcase
 				return c;
 			}
 		}
-
-		public static Vec[] Entry()
-		{
-			return Smallpt.RenderEntry();
-		}
 	}
+	*/
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestRayTrace2
 	{
-#if true
-		static extern double MathSqrt(double n);
-		static extern double MathAbs(double n);
-		static extern double MathSin(double n);
-		static extern double MathCos(double n);
-		static extern double MathPow(double n, double m);
-#else
 		static double MathSqrt(double n)
 		{
 			return Math.Sqrt(n);
@@ -2982,7 +2962,21 @@ namespace testcase
 		{
 			return Math.Pow(n, m);
 		}
-#endif
+
+		public static double clamp(double x)
+		{
+			if (x < 0)
+				return 0;
+			else if (x > 1)
+				return 1;
+			else
+				return x;
+		}
+
+		public static int toInt(double x)
+		{
+			return (int)(Math.Pow(clamp(x), 1 / 2.2) * 255 + .5);
+		}
 
 		static double M_PI = 3.141592653589793238462643;
 
@@ -3147,21 +3141,6 @@ namespace testcase
 			new Sphere(600,  new Vec(50,681.6 - .27,81.6), new Vec(12,12,12), Vec_Zero,         MatType.DIFF) //Lite
 		};
 
-		public static double clamp(double x)
-		{
-			if (x < 0)
-				return 0;
-			else if (x > 1)
-				return 1;
-			else
-				return x;
-		}
-
-		public static int toInt(double x)
-		{
-			return (int)(MathPow(clamp(x), 1 / 2.2) * 255 + .5);
-		}
-
 		public static unsafe Sphere* intersect(ref Ray r, out double t)
 		{
 			t = 1e20;
@@ -3297,7 +3276,7 @@ namespace testcase
 			}
 		}
 
-		public static Vec[] Entry()
+		public static Vec[] RenderEntry()
 		{
 			int w = 256;
 			int h = 256;
@@ -3355,32 +3334,66 @@ namespace testcase
 			}
 			return c;
 		}
+
+		public static uint CalcHash(Vec v)
+		{
+			uint x = (uint)toInt(v.x);
+			uint y = (uint)toInt(v.y);
+			uint z = (uint)toInt(v.z);
+
+			uint hash = x;
+			hash += hash << 5;
+			hash ^= y;
+			hash += hash << 5;
+			hash ^= z;
+
+			return hash;
+		}
+
+		public static int Entry()
+		{
+			var result = RenderEntry();
+			uint hash = 0;
+			foreach (var item in result)
+			{
+				hash += hash << 5;
+				hash ^= CalcHash(item);
+			}
+			if (hash != 2449431406)
+				return 1;
+			return 0;
+		}
 	}
 
 	internal class Program
 	{
-		private static void MainRayTrace()
+		/*private static void MainRayTrace()
 		{
 			var tw = new Stopwatch();
 			tw.Start();
-			var c = TestRayTrace2.Entry();
+			var c = TestRayTrace2.RenderEntry();
 			tw.Stop();
 			Console.WriteLine("Elapsed: {0}", tw.ElapsedMilliseconds);
 
-			using (StreamWriter sw = new StreamWriter("imageCS.ppm"))
+			using (StreamWriter sw = new StreamWriter("imageCS.ppm"),
+				sw2 = new StreamWriter("imageCS.ppm.d"))
 			{
 				sw.Write("P3\r\n{0} {1}\r\n{2}\r\n", 256, 256, 255);
 				for (int i = 0; i < 256 * 256; i++)
+				{
 					sw.Write("{0} {1} {2}\r\n", TestRayTrace2.toInt(c[i].x), TestRayTrace2.toInt(c[i].y), TestRayTrace2.toInt(c[i].z));
+
+					sw2.Write("{0:x}\r\n", TestRayTrace2.CalcHash(c[i]));
+				}
 			}
-		}
+		}*/
 
 		private static void Main()
 		{
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestContainer2.Entry();
+			var result = TestRayTrace2.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
