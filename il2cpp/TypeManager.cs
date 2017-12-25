@@ -1051,77 +1051,75 @@ namespace il2cpp
 
 		private void TryAddGetHashCode(TypeX tyX)
 		{
-			if (tyX.IsValueType)
+			// 值类型补齐 GetHashCode
+			if (!tyX.IsValueType ||
+				tyX.Def.FindMethod("GetHashCode") != null)
+				return;
+
+			var objMet = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("GetHashCode");
+			MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
+			metDef.IsReuseSlot = true;
+			tyX.Def.Methods.Add(metDef);
+
+			var body = metDef.Body = new CilBody();
+			var insts = body.Instructions;
+
+			insts.Add(OpCodes.Ldc_I4.ToInstruction(0x14AE055C));
+
+			List<FieldDef> fldList = new List<FieldDef>(tyX.Def.Fields);
+			fldList.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
+
+			int count = 0;
+			bool last = false;
+			foreach (var fldDef in fldList)
 			{
-				// 值类型补齐 GetHashCode
-				if (tyX.Def.FindMethod("GetHashCode") == null)
+				if (!Helper.IsInstanceField(fldDef))
+					continue;
+
+				// 限制计算的字段个数
+				if (++count > 4)
+					break;
+
+				if (last)
 				{
-					var objMet = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("GetHashCode");
-					MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
-					metDef.IsReuseSlot = true;
-					tyX.Def.Methods.Add(metDef);
-
-					var body = metDef.Body = new CilBody();
-					var insts = body.Instructions;
-
-					insts.Add(OpCodes.Ldc_I4.ToInstruction(0x14AE055C));
-
-					List<FieldDef> fldList = new List<FieldDef>(tyX.Def.Fields);
-					fldList.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
-
-					int count = 0;
-					bool last = false;
-					foreach (var fldDef in fldList)
-					{
-						if (!Helper.IsInstanceField(fldDef))
-							continue;
-
-						// 限制计算的字段个数
-						if (++count > 4)
-							break;
-
-						if (last)
-						{
-							insts.Add(OpCodes.Dup.ToInstruction());
-							insts.Add(OpCodes.Ldc_I4_5.ToInstruction());
-							insts.Add(OpCodes.Shl.ToInstruction());
-							insts.Add(OpCodes.Add.ToInstruction());
-						}
-						last = true;
-
-						insts.Add(OpCodes.Ldarg_0.ToInstruction());
-
-						MemberRef fldRef = null;
-						TypeSig tyGenInstSig = tyX.GetGenericInstSig();
-						if (tyGenInstSig != null)
-						{
-							fldRef = new MemberRefUser(fldDef.Module, fldDef.Name, fldDef.FieldSig, new TypeSpecUser(tyGenInstSig));
-						}
-
-						if (fldDef.FieldType.IsValueType ||
-							fldDef.FieldType.ElementType == ElementType.Var)
-						{
-							if (fldRef != null)
-								insts.Add(OpCodes.Ldflda.ToInstruction(fldRef));
-							else
-								insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
-							insts.Add(OpCodes.Constrained.ToInstruction(fldDef.FieldType.ToTypeDefOrRef()));
-						}
-						else
-						{
-							if (fldRef != null)
-								insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
-							else
-								insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
-						}
-						insts.Add(OpCodes.Callvirt.ToInstruction(objMet));
-						insts.Add(OpCodes.Xor.ToInstruction());
-					}
-
-					insts.Add(OpCodes.Ret.ToInstruction());
-					insts.UpdateInstructionOffsets();
+					insts.Add(OpCodes.Dup.ToInstruction());
+					insts.Add(OpCodes.Ldc_I4_5.ToInstruction());
+					insts.Add(OpCodes.Shl.ToInstruction());
+					insts.Add(OpCodes.Add.ToInstruction());
 				}
+				last = true;
+
+				insts.Add(OpCodes.Ldarg_0.ToInstruction());
+
+				MemberRef fldRef = null;
+				TypeSig tyGenInstSig = tyX.GetGenericInstSig();
+				if (tyGenInstSig != null)
+				{
+					fldRef = new MemberRefUser(fldDef.Module, fldDef.Name, fldDef.FieldSig, new TypeSpecUser(tyGenInstSig));
+				}
+
+				if (fldDef.FieldType.IsValueType ||
+					fldDef.FieldType.ElementType == ElementType.Var)
+				{
+					if (fldRef != null)
+						insts.Add(OpCodes.Ldflda.ToInstruction(fldRef));
+					else
+						insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
+					insts.Add(OpCodes.Constrained.ToInstruction(fldDef.FieldType.ToTypeDefOrRef()));
+				}
+				else
+				{
+					if (fldRef != null)
+						insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+					else
+						insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+				}
+				insts.Add(OpCodes.Callvirt.ToInstruction(objMet));
+				insts.Add(OpCodes.Xor.ToInstruction());
 			}
+
+			insts.Add(OpCodes.Ret.ToInstruction());
+			insts.UpdateInstructionOffsets();
 		}
 
 		private void TryAddVariance(TypeX tyX)
