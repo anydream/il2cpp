@@ -1053,7 +1053,8 @@ namespace il2cpp
 		{
 			// 值类型补齐 GetHashCode
 			if (!tyX.IsValueType ||
-				tyX.Def.FindMethod("GetHashCode") != null)
+				tyX.Def.FindMethod("GetHashCode") != null &&
+				tyX.Def.FindMethod("GetHashCode", MethodSig.CreateInstance(CorLibTypes.Int32)) != null)
 				return;
 
 			var objMet = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("GetHashCode");
@@ -1119,6 +1120,27 @@ namespace il2cpp
 			}
 
 			insts.Add(OpCodes.Ret.ToInstruction());
+			insts.UpdateInstructionOffsets();
+		}
+
+		private void TryAddEquals(TypeX tyX)
+		{
+			// 值类型补齐 Equals
+			if (!tyX.IsValueType ||
+				tyX.Def.FindMethod("Equals") != null &&
+				tyX.Def.FindMethod("Equals", MethodSig.CreateInstance(CorLibTypes.Boolean, CorLibTypes.Object)) != null)
+				return;
+
+			var objMet = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("Equals");
+			MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
+			metDef.IsReuseSlot = true;
+			tyX.Def.Methods.Add(metDef);
+
+			var body = metDef.Body = new CilBody();
+			var insts = body.Instructions;
+
+			//!
+
 			insts.UpdateInstructionOffsets();
 		}
 
