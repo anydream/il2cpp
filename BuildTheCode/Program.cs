@@ -565,7 +565,7 @@ namespace BuildTheCode
 			objSet.Add(outFile);
 
 			CompileUnit compUnit = new CompileUnit(
-				string.Format("clang {0} -o {1} {2} -MD -c -flto -ffast-math " + cflags,
+				string.Format("clang {0} -o {1} {2} -MD -c -flto " + cflags,
 					srcFile,
 					outFile,
 					OptLevel),
@@ -689,7 +689,7 @@ namespace BuildTheCode
 
 				string optFile = Path.Combine(OutDir, "!opt_" + outNamePostfix + i + strExt);
 				CompileUnit optUnit = new CompileUnit(
-					string.Format("clang {0} -o {1} {2} {3} -flto -ffast-math",
+					string.Format("clang {0} -o {1} {2} {3} -flto",
 						lastOptFile,
 						optFile,
 						OptLevel,
@@ -766,7 +766,7 @@ namespace BuildTheCode
 
 	static class Program
 	{
-		static string OptLevel = "-O3";
+		static string OptLevel = "-Ofast";
 		static int GenOptCount = 2;
 		static int FinalOptCount = 1;
 		static string AddCFlags;
