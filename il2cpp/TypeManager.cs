@@ -1067,10 +1067,10 @@ namespace il2cpp
 			var body = metDef.Body = new CilBody();
 			var insts = body.Instructions;
 
-			insts.Add(OpCodes.Ldc_I4.ToInstruction(0x14AE055C));
-
 			List<FieldDef> fldList = new List<FieldDef>(tyX.Def.Fields);
 			fldList.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
+
+			insts.Add(OpCodes.Ldc_I4.ToInstruction(0x14AE055C ^ tyX.GetNameKey().GetHashCode()));
 
 			int count = 0;
 			bool last = false;
