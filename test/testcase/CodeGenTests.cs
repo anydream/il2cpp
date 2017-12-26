@@ -646,6 +646,13 @@ namespace testcase
 			public MyCls cls;
 		}
 
+		struct StruT<T>
+		{
+			public int aa;
+			public T bb;
+			public IList<T> cc;
+		}
+
 		private static MyStru Foo1(MyStru s, ref MyStru rs, out MyStru os)
 		{
 			rs = s;
@@ -725,6 +732,40 @@ namespace testcase
 
 			if (!TestLocalloc())
 				return 15;
+
+			StruT<int> stt = new StruT<int>()
+			{
+				aa = 123,
+				bb = 456,
+				cc = new List<int>()
+			};
+			int h1 = stt.GetHashCode();
+
+			StruT<int> cmp1 = new StruT<int>()
+			{
+				aa = 123,
+				bb = 456,
+				cc = stt.cc
+			};
+			if (h1 != cmp1.GetHashCode())
+				return 16;
+
+			StruT<object> stt2 = new StruT<object>()
+			{
+				aa = 789,
+				bb = 234,
+				cc = new List<object>()
+			};
+			int h2 = stt2.GetHashCode();
+
+			StruT<object> cmp2 = new StruT<object>()
+			{
+				aa = 789,
+				bb = 234,
+				cc = stt2.cc
+			};
+			if (h2 != cmp2.GetHashCode())
+				return 17;
 
 			return 0;
 		}
@@ -3393,7 +3434,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestRayTrace2.Entry();
+			var result = TestValueType.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
