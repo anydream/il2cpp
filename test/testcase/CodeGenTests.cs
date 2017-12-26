@@ -1376,8 +1376,8 @@ namespace testcase
 			if (e8 != (MyEnumI8)123)
 				return 7;
 
-			int hcode = e8.GetHashCode();
-			if (hcode != 0x14AE0527)
+			MyEnumI8 e9 = e8;
+			if (e8.GetHashCode() != e9.GetHashCode())
 				return 8;
 
 			return 0;
