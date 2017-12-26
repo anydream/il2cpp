@@ -1067,21 +1067,25 @@ namespace il2cpp
 			var body = metDef.Body = new CilBody();
 			var insts = body.Instructions;
 
-			List<FieldDef> fldList = new List<FieldDef>(tyX.Def.Fields);
-			fldList.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
+			List<FieldDef> fldListSorted = new List<FieldDef>(tyX.Def.Fields);
+			fldListSorted.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
+
+			// 筛选需要计算的字段
+			var fldList = fldListSorted.Where(fld => fld.FieldType.IsValueType).ToList();
+
+			const int fldLimit = 4;
+			if (fldList.Count > fldLimit)
+				fldList.RemoveRange(fldLimit, fldList.Count - fldLimit);
+			else if (fldList.Count == 0 && fldListSorted.Count > 0)
+				fldList.Add(fldListSorted[0]);
 
 			insts.Add(OpCodes.Ldc_I4.ToInstruction(0x14AE055C ^ tyX.GetNameKey().GetHashCode()));
 
-			int count = 0;
 			bool last = false;
 			foreach (var fldDef in fldList)
 			{
 				if (!Helper.IsInstanceField(fldDef))
 					continue;
-
-				// 限制计算的字段个数
-				if (++count > 4)
-					break;
 
 				if (last)
 				{
