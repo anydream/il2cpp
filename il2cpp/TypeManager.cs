@@ -1029,6 +1029,8 @@ namespace il2cpp
 
 			// 补齐 GetHashCode
 			TryAddGetHashCode(tyX);
+			// 补齐 Equals
+			//TryAddEquals(tyX);
 
 			if (tyX.Def.IsExplicitLayout)
 			{
@@ -1131,7 +1133,8 @@ namespace il2cpp
 				tyX.Def.FindMethod("Equals", MethodSig.CreateInstance(CorLibTypes.Boolean, CorLibTypes.Object)) != null)
 				return;
 
-			var objMet = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("Equals");
+			var objTyDef = CorLibTypes.Object.TypeRef.ResolveTypeDef();
+			var objMet = objTyDef.FindMethod("Equals");
 			MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
 			metDef.IsReuseSlot = true;
 			tyX.Def.Methods.Add(metDef);
@@ -1139,7 +1142,42 @@ namespace il2cpp
 			var body = metDef.Body = new CilBody();
 			var insts = body.Instructions;
 
+			var metIntTyID = objTyDef.FindMethod("GetInternalTypeID");
+			Debug.Assert(metIntTyID != null);
+			var metCanCmpBits = objTyDef.FindMethod("CanCompareBits");
+			Debug.Assert(metCanCmpBits != null);
+			var metFastEqChk = objTyDef.FindMethod("FastEqualsCheck");
+			Debug.Assert(metFastEqChk != null);
+
+			insts.Add(OpCodes.Ldarg_1.ToInstruction());
+			insts.Add(OpCodes.Brfalse.ToInstruction( /**/));
+
+			insts.Add(OpCodes.Ldarg_0.ToInstruction());
+			insts.Add(OpCodes.Call.ToInstruction(metIntTyID));
+			insts.Add(OpCodes.Ldarg_1.ToInstruction());
+			insts.Add(OpCodes.Call.ToInstruction(metIntTyID));
+			insts.Add(OpCodes.Bne_Un.ToInstruction(/**/));
+
+			insts.Add(OpCodes.Ldarg_0.ToInstruction());
+			insts.Add(OpCodes.Call.ToInstruction(metCanCmpBits));
+			insts.Add(OpCodes.Brfalse.ToInstruction( /**/));
+
+			insts.Add(OpCodes.Ldarg_0.ToInstruction());
+			insts.Add(OpCodes.Ldarg_1.ToInstruction());
+			insts.Add(OpCodes.Call.ToInstruction(metFastEqChk));
+			insts.Add(OpCodes.Ret.ToInstruction());
+
 			//!
+			List<FieldDef> fldList = new List<FieldDef>(tyX.Def.Fields);
+			fldList.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
+
+			foreach (var fldDef in fldList)
+			{
+				if (!Helper.IsInstanceField(fldDef))
+					continue;
+			}
+
+			insts.Add(OpCodes.Ret.ToInstruction());
 
 			insts.UpdateInstructionOffsets();
 		}
