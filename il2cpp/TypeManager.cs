@@ -1181,12 +1181,12 @@ namespace il2cpp
 			insts.Add(OpCodes.Call.ToInstruction(metGetTyID));
 			insts.Add(OpCodes.Bne_Un.ToInstruction(labelRetFalse));
 
-			insts.Add(OpCodes.Call.ToInstruction(new MethodSpecUser(metContainsRef, new GenericInstMethodSig(selfSig))));
-			insts.Add(OpCodes.Brtrue.ToInstruction(labelLoopChk));
-
 			insts.Add(OpCodes.Ldarg_1.ToInstruction());
 			insts.Add(OpCodes.Unbox_Any.ToInstruction(selfSig.ToTypeDefOrRef()));
 			insts.Add(OpCodes.Stloc_0.ToInstruction());
+
+			insts.Add(OpCodes.Call.ToInstruction(new MethodSpecUser(metContainsRef, new GenericInstMethodSig(selfSig))));
+			insts.Add(OpCodes.Brtrue.ToInstruction(labelLoopChk));
 
 			insts.Add(OpCodes.Ldarg_0.ToInstruction());
 			insts.Add(OpCodes.Ldloca.ToInstruction(body.Variables[0]));

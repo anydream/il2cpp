@@ -61,11 +61,23 @@ namespace il2cpp
 			{
 				if (metName == "IsReferenceOrContainsReferences")
 				{
-					Debug.Assert(metX.HasGenArgs && metX.GenArgs.Count == 1);
-					TypeX targetType = genContext.GetTypeBySig(metX.GenArgs[0]);
+					var targetType = GetMethodGenType(metX, genContext);
 					prt.AppendFormatLine("return {0};",
 						genContext.IsRefOrContainsRef(targetType) ? "1" : "0");
 
+					return true;
+				}
+				else if (metName == "GetInternalTypeID")
+				{
+					var targetType = GetMethodGenType(metX, genContext);
+					prt.AppendFormatLine("return {0};",
+						genContext.GetTypeID(targetType));
+
+					return true;
+				}
+				else if (metName == "FastCompareBits")
+				{
+					prt.AppendLine("return IL2CPP_MEMCMP(arg_0, arg_1, sizeof(*arg_0)) == 0 ? 1 : 0;");
 					return true;
 				}
 				else if (metName == "InitializeArray")
@@ -77,14 +89,6 @@ namespace il2cpp
 					prt.AppendFormatLine("il2cpp_Array__Init(arg_0, (il2cppFieldInfo*)arg_1.{0});",
 						genContext.GetFieldName(rtFldX));
 
-					return true;
-				}
-				else if (metName == "GetInternalTypeID")
-				{
-					return true;
-				}
-				else if (metName == "FastCompareBits")
-				{
 					return true;
 				}
 				else if (metName == "Equals")
@@ -123,6 +127,14 @@ namespace il2cpp
 			}
 
 			return false;
+		}
+
+		private static TypeX GetMethodGenType(MethodX metX, GeneratorContext genContext)
+		{
+			Debug.Assert(metX.HasGenArgs && metX.GenArgs.Count == 1);
+			TypeX genType = genContext.GetTypeBySig(metX.GenArgs[0]);
+			Debug.Assert(genType != null);
+			return genType;
 		}
 	}
 }
