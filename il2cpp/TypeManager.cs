@@ -1061,8 +1061,10 @@ namespace il2cpp
 				tyX.Def.FindMethod(kGetHashCode, MethodSig.CreateInstance(CorLibTypes.Int32)) != null)
 				return;
 
-			var objMet = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod(kGetHashCode);
-			MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
+			var metGetHashCode = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod(kGetHashCode);
+			Debug.Assert(metGetHashCode != null);
+
+			MethodDefUser metDef = new MethodDefUser(metGetHashCode.Name, metGetHashCode.MethodSig, metGetHashCode.Attributes);
 			metDef.IsReuseSlot = true;
 			tyX.Def.Methods.Add(metDef);
 
@@ -1084,7 +1086,7 @@ namespace il2cpp
 			insts.Add(OpCodes.Ldc_I4.ToInstruction(0x14AE055C ^ tyX.GetNameKey().GetHashCode()));
 
 			bool last = false;
-			TypeSig tyGenInstSig = tyX.GetGenericInstSig();
+			TypeSig tyGenInstSig = tyX.GetDefGenericInstSig();
 			foreach (var fldDef in fldList)
 			{
 				if (!Helper.IsInstanceField(fldDef))
@@ -1122,70 +1124,11 @@ namespace il2cpp
 						insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
 				}
 
-				insts.Add(OpCodes.Callvirt.ToInstruction(objMet));
+				insts.Add(OpCodes.Callvirt.ToInstruction(metGetHashCode));
 				insts.Add(OpCodes.Xor.ToInstruction());
 			}
 
 			insts.Add(OpCodes.Ret.ToInstruction());
-			insts.UpdateInstructionOffsets();
-		}
-
-		private void TryAddEquals(TypeX tyX)
-		{
-			const string kEquals = "Equals";
-
-			// 值类型补齐 Equals
-			if (!tyX.IsValueType ||
-				tyX.Def.FindMethod(kEquals) != null &&
-				tyX.Def.FindMethod(kEquals, MethodSig.CreateInstance(CorLibTypes.Boolean, CorLibTypes.Object)) != null)
-				return;
-
-			var objTyDef = CorLibTypes.Object.TypeRef.ResolveTypeDef();
-			var objMet = objTyDef.FindMethod(kEquals);
-			MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
-			metDef.IsReuseSlot = true;
-			tyX.Def.Methods.Add(metDef);
-
-			var body = metDef.Body = new CilBody();
-			var insts = body.Instructions;
-
-			var metGetTyID = objTyDef.FindMethod("GetInternalTypeID");
-			Debug.Assert(metGetTyID != null);
-			var metCanCmpBits = objTyDef.FindMethod("CanCompareBits");
-			Debug.Assert(metCanCmpBits != null);
-			var metFastEqChk = objTyDef.FindMethod("FastEqualsCheck");
-			Debug.Assert(metFastEqChk != null);
-
-			insts.Add(OpCodes.Ldarg_1.ToInstruction());
-			insts.Add(OpCodes.Brfalse.ToInstruction( /**/));
-
-			insts.Add(OpCodes.Ldarg_0.ToInstruction());
-			insts.Add(OpCodes.Call.ToInstruction(metGetTyID));
-			insts.Add(OpCodes.Ldarg_1.ToInstruction());
-			insts.Add(OpCodes.Call.ToInstruction(metGetTyID));
-			insts.Add(OpCodes.Bne_Un.ToInstruction(/**/));
-
-			insts.Add(OpCodes.Ldarg_0.ToInstruction());
-			insts.Add(OpCodes.Call.ToInstruction(metCanCmpBits));
-			insts.Add(OpCodes.Brfalse.ToInstruction( /**/));
-
-			insts.Add(OpCodes.Ldarg_0.ToInstruction());
-			insts.Add(OpCodes.Ldarg_1.ToInstruction());
-			insts.Add(OpCodes.Call.ToInstruction(metFastEqChk));
-			insts.Add(OpCodes.Ret.ToInstruction());
-
-			//!
-			List<FieldDef> fldList = new List<FieldDef>(tyX.Def.Fields);
-			fldList.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
-
-			foreach (var fldDef in fldList)
-			{
-				if (!Helper.IsInstanceField(fldDef))
-					continue;
-			}
-
-			insts.Add(OpCodes.Ret.ToInstruction());
-
 			insts.UpdateInstructionOffsets();
 		}
 

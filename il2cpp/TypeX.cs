@@ -202,7 +202,7 @@ namespace il2cpp
 			return thisSig;
 		}
 
-		public GenericInstSig GetGenericInstSig()
+		public GenericInstSig GetDefGenericInstSig()
 		{
 			if (!Def.HasGenericParameters)
 				return null;
