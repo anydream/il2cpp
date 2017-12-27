@@ -653,6 +653,27 @@ namespace testcase
 			public IList<T> cc;
 		}
 
+		struct StruSelf
+		{
+			public object obj;
+		}
+
+		struct StruNeq
+		{
+			public int fld;
+
+			public override bool Equals(object obj)
+			{
+				return false;
+			}
+		}
+
+		struct StruCmp
+		{
+			public int aa;
+			public double bb;
+		}
+
 		private static MyStru Foo1(MyStru s, ref MyStru rs, out MyStru os)
 		{
 			rs = s;
@@ -772,6 +793,46 @@ namespace testcase
 
 			if (!stt2.Equals(cmp2))
 				return 19;
+
+			StruSelf sslf = new StruSelf();
+			sslf.obj = sslf;
+
+			StruSelf sslf2 = new StruSelf();
+			sslf2.obj = sslf;
+
+			if (!sslf.Equals(sslf))
+				return 20;
+
+			if (sslf.Equals(sslf2))
+				return 21;
+
+			if (!sslf2.Equals(sslf2))
+				return 22;
+
+			if (sslf2.Equals(sslf))
+				return 23;
+
+			StruSelf sslf3 = new StruSelf();
+			sslf3.obj = sslf.obj;
+
+			if (!sslf.Equals(sslf3))
+				return 24;
+
+			if (!sslf3.Equals(sslf))
+				return 25;
+
+			if (new StruNeq().Equals(new StruNeq()))
+				return 26;
+
+			StruNeq sneq = new StruNeq();
+			if (sneq.Equals(sneq))
+				return 27;
+
+			StruCmp scmp = new StruCmp { aa = 123, bb = 456.789 };
+			StruCmp scmp2 = new StruCmp { aa = 123, bb = 456.789 };
+
+			if (!scmp.Equals(scmp2))
+				return 28;
 
 			return 0;
 		}

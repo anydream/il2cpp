@@ -1262,18 +1262,35 @@ namespace il2cpp
 						}
 						else
 						{
+							Func<Instruction> genLdfld;
+							if (fldRef != null)
+								genLdfld = () => OpCodes.Ldfld.ToInstruction(fldRef);
+							else
+								genLdfld = () => OpCodes.Ldfld.ToInstruction(fldDef);
+
+							var labelCheckRhs = OpCodes.Nop.ToInstruction();
+							var labelPassed = OpCodes.Nop.ToInstruction();
+
 							insts.Add(OpCodes.Ldarg_0.ToInstruction());
-							if (fldRef != null)
-								insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
-							else
-								insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+							insts.Add(genLdfld());
+							insts.Add(OpCodes.Brfalse.ToInstruction(labelCheckRhs));
+
+							insts.Add(OpCodes.Ldarg_0.ToInstruction());
+							insts.Add(genLdfld());
+
 							insts.Add(OpCodes.Ldloc_0.ToInstruction());
-							if (fldRef != null)
-								insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
-							else
-								insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+							insts.Add(genLdfld());
+
 							insts.Add(OpCodes.Callvirt.ToInstruction(metEquals));
 							insts.Add(OpCodes.Brfalse.ToInstruction(labelRetFalse));
+							insts.Add(OpCodes.Br.ToInstruction(labelPassed));
+
+							insts.Add(labelCheckRhs);
+							insts.Add(OpCodes.Ldloc_0.ToInstruction());
+							insts.Add(genLdfld());
+							insts.Add(OpCodes.Brtrue.ToInstruction(labelRetFalse));
+
+							insts.Add(labelPassed);
 						}
 						break;
 				}
