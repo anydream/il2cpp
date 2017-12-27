@@ -202,6 +202,19 @@ namespace il2cpp
 			return thisSig;
 		}
 
+		public TypeSig GetDefTypeSig()
+		{
+			if (IsArrayType)
+			{
+				if (ArrayInfo.IsSZArray)
+					return new SZArraySig(GenArgs[0]);
+
+				return new ArraySig(GenArgs[0], ArrayInfo.Rank, ArrayInfo.Sizes, ArrayInfo.LowerBounds);
+			}
+
+			return Def.ToTypeSig();
+		}
+
 		public GenericInstSig GetDefGenericInstSig()
 		{
 			if (!Def.HasGenericParameters)

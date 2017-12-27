@@ -1030,7 +1030,7 @@ namespace il2cpp
 			// 补齐 GetHashCode
 			TryAddGetHashCode(tyX);
 			// 补齐 Equals
-			//TryAddEquals(tyX);
+			TryAddEquals(tyX);
 
 			if (tyX.Def.IsExplicitLayout)
 			{
@@ -1129,6 +1129,164 @@ namespace il2cpp
 			}
 
 			insts.Add(OpCodes.Ret.ToInstruction());
+			insts.UpdateInstructionOffsets();
+		}
+
+		private void TryAddEquals(TypeX tyX)
+		{
+			const string kEquals = "Equals";
+
+			// 值类型补齐 Equals
+			if (!tyX.IsValueType ||
+				tyX.Def.FindMethod(kEquals) != null &&
+				tyX.Def.FindMethod(kEquals, MethodSig.CreateInstance(CorLibTypes.Boolean, CorLibTypes.Object)) != null)
+				return;
+
+			var objTyDef = CorLibTypes.Object.TypeRef.ResolveTypeDef();
+			var valueTypeDef = CorLibTypes.GetTypeRef("System", "ValueType").Resolve();
+			var rtHlpDef = CorLibTypes.GetTypeRef("System.Runtime.CompilerServices", "RuntimeHelpers").Resolve();
+
+			var metEquals = objTyDef.FindMethod(kEquals);
+			Debug.Assert(metEquals != null);
+			var metVTEquals = valueTypeDef.FindMethod(kEquals);
+			Debug.Assert(metVTEquals != null);
+			var metGetTyID = objTyDef.FindMethod("GetInternalTypeID");
+			Debug.Assert(metGetTyID != null);
+			var metRtGetTyID = rtHlpDef.FindMethod("GetInternalTypeID");
+			Debug.Assert(metRtGetTyID != null);
+			var metCanCmpBits = rtHlpDef.FindMethod("CanCompareBits");
+			Debug.Assert(metCanCmpBits != null);
+			var metFastCmp = rtHlpDef.FindMethod("FastCompareBits");
+			Debug.Assert(metFastCmp != null);
+
+			MethodDefUser metDef = new MethodDefUser(metEquals.Name, metEquals.MethodSig, metEquals.Attributes);
+			metDef.IsReuseSlot = true;
+			tyX.Def.Methods.Add(metDef);
+
+			TypeSig tyGenInstSig = tyX.GetDefGenericInstSig();
+			var selfSig = tyGenInstSig ?? tyX.GetDefTypeSig();
+
+			var body = metDef.Body = new CilBody();
+			var insts = body.Instructions;
+			body.Variables.Add(new Local(selfSig));
+
+			Instruction labelRetFalse = OpCodes.Nop.ToInstruction();
+			Instruction labelLoopChk = OpCodes.Nop.ToInstruction();
+
+			insts.Add(OpCodes.Ldarg_1.ToInstruction());
+			insts.Add(OpCodes.Brfalse.ToInstruction(labelRetFalse));
+
+			insts.Add(OpCodes.Call.ToInstruction(new MethodSpecUser(metRtGetTyID, new GenericInstMethodSig(selfSig))));
+			insts.Add(OpCodes.Ldarg_1.ToInstruction());
+			insts.Add(OpCodes.Call.ToInstruction(metGetTyID));
+			insts.Add(OpCodes.Bne_Un.ToInstruction(labelRetFalse));
+
+			insts.Add(OpCodes.Call.ToInstruction(new MethodSpecUser(metCanCmpBits, new GenericInstMethodSig(selfSig))));
+			insts.Add(OpCodes.Brfalse.ToInstruction(labelLoopChk));
+
+			insts.Add(OpCodes.Ldarg_1.ToInstruction());
+			insts.Add(OpCodes.Unbox_Any.ToInstruction(selfSig.ToTypeDefOrRef()));
+			insts.Add(OpCodes.Stloc_0.ToInstruction());
+
+			insts.Add(OpCodes.Ldarg_0.ToInstruction());
+			insts.Add(OpCodes.Ldloca.ToInstruction(body.Variables[0]));
+			insts.Add(OpCodes.Call.ToInstruction(new MethodSpecUser(metFastCmp, new GenericInstMethodSig(selfSig))));
+			insts.Add(OpCodes.Ret.ToInstruction());
+
+			insts.Add(labelLoopChk);
+
+			List<FieldDef> fldList = new List<FieldDef>(tyX.Def.Fields);
+			fldList.Sort((lhs, rhs) => lhs.Rid.CompareTo(rhs.Rid));
+
+			foreach (var fldDef in fldList)
+			{
+				if (!Helper.IsInstanceField(fldDef))
+					continue;
+
+				MemberRef fldRef = null;
+				if (tyGenInstSig != null)
+					fldRef = new MemberRefUser(fldDef.Module, fldDef.Name, fldDef.FieldSig, new TypeSpecUser(tyGenInstSig));
+
+				switch (fldDef.FieldType.ElementType)
+				{
+					case ElementType.Boolean:
+					case ElementType.Char:
+					case ElementType.I1:
+					case ElementType.I2:
+					case ElementType.I4:
+					case ElementType.I8:
+					case ElementType.U1:
+					case ElementType.U2:
+					case ElementType.U4:
+					case ElementType.U8:
+					case ElementType.R4:
+					case ElementType.R8:
+					case ElementType.I:
+					case ElementType.U:
+					case ElementType.Ptr:
+					case ElementType.ByRef:
+						insts.Add(OpCodes.Ldarg_0.ToInstruction());
+						if (fldRef != null)
+							insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+						else
+							insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+						insts.Add(OpCodes.Ldloc_0.ToInstruction());
+						if (fldRef != null)
+							insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+						else
+							insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+						insts.Add(OpCodes.Bne_Un.ToInstruction(labelRetFalse));
+						break;
+
+					default:
+						if (fldDef.FieldType.IsValueType ||
+							fldDef.FieldType.ElementType == ElementType.Var)
+						{
+							insts.Add(OpCodes.Ldarg_0.ToInstruction());
+							if (fldRef != null)
+								insts.Add(OpCodes.Ldflda.ToInstruction(fldRef));
+							else
+								insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
+							insts.Add(OpCodes.Ldloc_0.ToInstruction());
+							if (fldRef != null)
+							{
+								insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+								insts.Add(OpCodes.Box.ToInstruction(fldRef.FieldSig.Type.ToTypeDefOrRef()));
+							}
+							else
+							{
+								insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+								insts.Add(OpCodes.Box.ToInstruction(fldDef.FieldType.ToTypeDefOrRef()));
+							}
+							insts.Add(OpCodes.Callvirt.ToInstruction(metEquals));
+							insts.Add(OpCodes.Brfalse.ToInstruction(labelRetFalse));
+						}
+						else
+						{
+							insts.Add(OpCodes.Ldarg_0.ToInstruction());
+							if (fldRef != null)
+								insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+							else
+								insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+							insts.Add(OpCodes.Ldloc_0.ToInstruction());
+							if (fldRef != null)
+								insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+							else
+								insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+							insts.Add(OpCodes.Callvirt.ToInstruction(metEquals));
+							insts.Add(OpCodes.Brfalse.ToInstruction(labelRetFalse));
+						}
+						break;
+				}
+			}
+
+			insts.Add(OpCodes.Ldc_I4_1.ToInstruction());
+			insts.Add(OpCodes.Ret.ToInstruction());
+
+			insts.Add(labelRetFalse);
+			insts.Add(OpCodes.Ldc_I4_0.ToInstruction());
+			insts.Add(OpCodes.Ret.ToInstruction());
+
 			insts.UpdateInstructionOffsets();
 		}
 
