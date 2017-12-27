@@ -2481,7 +2481,7 @@ namespace testcase
 			if (dict[4] != 120)
 				return 10;
 
-			/*int sumKey = 0;
+			int sumKey = 0;
 			int sumVal = 0;
 			foreach (var kv in dict)
 			{
@@ -2491,7 +2491,7 @@ namespace testcase
 			if (sumKey != 10)
 				return 11;
 			if (sumVal != 1488)
-				return 12;*/
+				return 12;
 
 			dict.Remove(2);
 			dict.Remove(3);
@@ -2504,6 +2504,10 @@ namespace testcase
 			dict.Clear();
 			if (dict.Count != 0)
 				return 15;
+
+			int res = TestObjEqualityComparer();
+			if (res != 0)
+				return 20 + res;
 
 			return 0;
 		}
@@ -3501,7 +3505,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestValueType.Entry();
+			var result = TestContainer2.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
