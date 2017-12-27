@@ -1249,15 +1249,14 @@ namespace il2cpp
 								insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
 							insts.Add(OpCodes.Ldloc_0.ToInstruction());
 							if (fldRef != null)
-							{
 								insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
-								insts.Add(OpCodes.Box.ToInstruction(fldRef.FieldSig.Type.ToTypeDefOrRef()));
-							}
 							else
-							{
 								insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
-								insts.Add(OpCodes.Box.ToInstruction(fldDef.FieldType.ToTypeDefOrRef()));
-							}
+
+							var fldTyRef = fldDef.FieldType.ToTypeDefOrRef();
+							insts.Add(OpCodes.Box.ToInstruction(fldTyRef));
+
+							insts.Add(OpCodes.Constrained.ToInstruction(fldTyRef));
 							insts.Add(OpCodes.Callvirt.ToInstruction(metEquals));
 							insts.Add(OpCodes.Brfalse.ToInstruction(labelRetFalse));
 						}
