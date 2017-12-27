@@ -1053,13 +1053,15 @@ namespace il2cpp
 
 		private void TryAddGetHashCode(TypeX tyX)
 		{
+			const string kGetHashCode = "GetHashCode";
+
 			// 值类型补齐 GetHashCode
 			if (!tyX.IsValueType ||
-				tyX.Def.FindMethod("GetHashCode") != null &&
-				tyX.Def.FindMethod("GetHashCode", MethodSig.CreateInstance(CorLibTypes.Int32)) != null)
+				tyX.Def.FindMethod(kGetHashCode) != null &&
+				tyX.Def.FindMethod(kGetHashCode, MethodSig.CreateInstance(CorLibTypes.Int32)) != null)
 				return;
 
-			var objMet = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod("GetHashCode");
+			var objMet = CorLibTypes.Object.TypeRef.ResolveTypeDef().FindMethod(kGetHashCode);
 			MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
 			metDef.IsReuseSlot = true;
 			tyX.Def.Methods.Add(metDef);
@@ -1082,6 +1084,7 @@ namespace il2cpp
 			insts.Add(OpCodes.Ldc_I4.ToInstruction(0x14AE055C ^ tyX.GetNameKey().GetHashCode()));
 
 			bool last = false;
+			TypeSig tyGenInstSig = tyX.GetGenericInstSig();
 			foreach (var fldDef in fldList)
 			{
 				if (!Helper.IsInstanceField(fldDef))
@@ -1099,11 +1102,8 @@ namespace il2cpp
 				insts.Add(OpCodes.Ldarg_0.ToInstruction());
 
 				MemberRef fldRef = null;
-				TypeSig tyGenInstSig = tyX.GetGenericInstSig();
 				if (tyGenInstSig != null)
-				{
 					fldRef = new MemberRefUser(fldDef.Module, fldDef.Name, fldDef.FieldSig, new TypeSpecUser(tyGenInstSig));
-				}
 
 				if (fldDef.FieldType.IsValueType ||
 					fldDef.FieldType.ElementType == ElementType.Var)
@@ -1121,6 +1121,7 @@ namespace il2cpp
 					else
 						insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
 				}
+
 				insts.Add(OpCodes.Callvirt.ToInstruction(objMet));
 				insts.Add(OpCodes.Xor.ToInstruction());
 			}
@@ -1131,14 +1132,16 @@ namespace il2cpp
 
 		private void TryAddEquals(TypeX tyX)
 		{
+			const string kEquals = "Equals";
+
 			// 值类型补齐 Equals
 			if (!tyX.IsValueType ||
-				tyX.Def.FindMethod("Equals") != null &&
-				tyX.Def.FindMethod("Equals", MethodSig.CreateInstance(CorLibTypes.Boolean, CorLibTypes.Object)) != null)
+				tyX.Def.FindMethod(kEquals) != null &&
+				tyX.Def.FindMethod(kEquals, MethodSig.CreateInstance(CorLibTypes.Boolean, CorLibTypes.Object)) != null)
 				return;
 
 			var objTyDef = CorLibTypes.Object.TypeRef.ResolveTypeDef();
-			var objMet = objTyDef.FindMethod("Equals");
+			var objMet = objTyDef.FindMethod(kEquals);
 			MethodDefUser metDef = new MethodDefUser(objMet.Name, objMet.MethodSig, objMet.Attributes);
 			metDef.IsReuseSlot = true;
 			tyX.Def.Methods.Add(metDef);
@@ -1146,8 +1149,8 @@ namespace il2cpp
 			var body = metDef.Body = new CilBody();
 			var insts = body.Instructions;
 
-			var metIntTyID = objTyDef.FindMethod("GetInternalTypeID");
-			Debug.Assert(metIntTyID != null);
+			var metGetTyID = objTyDef.FindMethod("GetInternalTypeID");
+			Debug.Assert(metGetTyID != null);
 			var metCanCmpBits = objTyDef.FindMethod("CanCompareBits");
 			Debug.Assert(metCanCmpBits != null);
 			var metFastEqChk = objTyDef.FindMethod("FastEqualsCheck");
@@ -1157,9 +1160,9 @@ namespace il2cpp
 			insts.Add(OpCodes.Brfalse.ToInstruction( /**/));
 
 			insts.Add(OpCodes.Ldarg_0.ToInstruction());
-			insts.Add(OpCodes.Call.ToInstruction(metIntTyID));
+			insts.Add(OpCodes.Call.ToInstruction(metGetTyID));
 			insts.Add(OpCodes.Ldarg_1.ToInstruction());
-			insts.Add(OpCodes.Call.ToInstruction(metIntTyID));
+			insts.Add(OpCodes.Call.ToInstruction(metGetTyID));
 			insts.Add(OpCodes.Bne_Un.ToInstruction(/**/));
 
 			insts.Add(OpCodes.Ldarg_0.ToInstruction());
