@@ -1154,8 +1154,8 @@ namespace il2cpp
 			Debug.Assert(metGetTyID != null);
 			var metRtGetTyID = rtHlpDef.FindMethod("GetInternalTypeID");
 			Debug.Assert(metRtGetTyID != null);
-			var metCanCmpBits = rtHlpDef.FindMethod("CanCompareBits");
-			Debug.Assert(metCanCmpBits != null);
+			var metContainsRef = rtHlpDef.FindMethod("IsReferenceOrContainsReferences");
+			Debug.Assert(metContainsRef != null);
 			var metFastCmp = rtHlpDef.FindMethod("FastCompareBits");
 			Debug.Assert(metFastCmp != null);
 
@@ -1181,8 +1181,8 @@ namespace il2cpp
 			insts.Add(OpCodes.Call.ToInstruction(metGetTyID));
 			insts.Add(OpCodes.Bne_Un.ToInstruction(labelRetFalse));
 
-			insts.Add(OpCodes.Call.ToInstruction(new MethodSpecUser(metCanCmpBits, new GenericInstMethodSig(selfSig))));
-			insts.Add(OpCodes.Brfalse.ToInstruction(labelLoopChk));
+			insts.Add(OpCodes.Call.ToInstruction(new MethodSpecUser(metContainsRef, new GenericInstMethodSig(selfSig))));
+			insts.Add(OpCodes.Brtrue.ToInstruction(labelLoopChk));
 
 			insts.Add(OpCodes.Ldarg_1.ToInstruction());
 			insts.Add(OpCodes.Unbox_Any.ToInstruction(selfSig.ToTypeDefOrRef()));

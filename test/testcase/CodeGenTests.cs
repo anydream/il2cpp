@@ -767,6 +767,12 @@ namespace testcase
 			if (h2 != cmp2.GetHashCode())
 				return 17;
 
+			if (!stt.Equals(cmp1))
+				return 18;
+
+			if (!stt2.Equals(cmp2))
+				return 19;
+
 			return 0;
 		}
 	}
