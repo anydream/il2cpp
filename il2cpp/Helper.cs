@@ -541,6 +541,31 @@ namespace il2cpp
 			return !fldDef.IsStatic;
 		}
 
+		public static bool IsBasicValueType(ElementType elemType)
+		{
+			switch (elemType)
+			{
+				case ElementType.Boolean:
+				case ElementType.Char:
+				case ElementType.I1:
+				case ElementType.I2:
+				case ElementType.I4:
+				case ElementType.I8:
+				case ElementType.U1:
+				case ElementType.U2:
+				case ElementType.U4:
+				case ElementType.U8:
+				case ElementType.R4:
+				case ElementType.R8:
+				case ElementType.I:
+				case ElementType.U:
+				case ElementType.Ptr:
+				case ElementType.ByRef:
+					return true;
+			}
+			return false;
+		}
+
 		public static string IsBasicType(string fullName)
 		{
 			switch (fullName)

@@ -67,6 +67,24 @@ namespace il2cpp
 
 					return true;
 				}
+				else if (metName == "CanCompareBits")
+				{
+					var targetType = GetMethodGenType(metX, genContext);
+					bool canCompareBits = true;
+					foreach (var fldX in targetType.Fields)
+					{
+						if (!Helper.IsBasicValueType(fldX.FieldType.ElementType))
+						{
+							canCompareBits = false;
+							break;
+						}
+					}
+
+					prt.AppendFormatLine("return {0};",
+						canCompareBits ? "1" : "0");
+
+					return true;
+				}
 				else if (metName == "GetInternalTypeID")
 				{
 					var targetType = GetMethodGenType(metX, genContext);

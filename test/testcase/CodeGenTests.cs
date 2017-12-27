@@ -668,6 +668,12 @@ namespace testcase
 			}
 		}
 
+		struct StruNeq2
+		{
+			public int fld;
+			public StruNeq n;
+		}
+
 		struct StruCmp
 		{
 			public int aa;
@@ -833,6 +839,10 @@ namespace testcase
 
 			if (!scmp.Equals(scmp2))
 				return 28;
+
+			StruNeq2 sneq2 = new StruNeq2();
+			if (sneq2.Equals(sneq2))
+				return 29;
 
 			return 0;
 		}
@@ -3505,7 +3515,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestContainer2.Entry();
+			var result = TestValueType.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);

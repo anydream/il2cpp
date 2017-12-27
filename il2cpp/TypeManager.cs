@@ -1154,8 +1154,8 @@ namespace il2cpp
 			Debug.Assert(metGetTyID != null);
 			var metRtGetTyID = rtHlpDef.FindMethod("GetInternalTypeID");
 			Debug.Assert(metRtGetTyID != null);
-			var metContainsRef = rtHlpDef.FindMethod("IsReferenceOrContainsReferences");
-			Debug.Assert(metContainsRef != null);
+			var metCanCmpBits = rtHlpDef.FindMethod("CanCompareBits");
+			Debug.Assert(metCanCmpBits != null);
 			var metFastCmp = rtHlpDef.FindMethod("FastCompareBits");
 			Debug.Assert(metFastCmp != null);
 
@@ -1185,8 +1185,8 @@ namespace il2cpp
 			insts.Add(OpCodes.Unbox_Any.ToInstruction(selfSig.ToTypeDefOrRef()));
 			insts.Add(OpCodes.Stloc_0.ToInstruction());
 
-			insts.Add(OpCodes.Call.ToInstruction(new MethodSpecUser(metContainsRef, new GenericInstMethodSig(selfSig))));
-			insts.Add(OpCodes.Brtrue.ToInstruction(labelLoopChk));
+			insts.Add(OpCodes.Call.ToInstruction(new MethodSpecUser(metCanCmpBits, new GenericInstMethodSig(selfSig))));
+			insts.Add(OpCodes.Brfalse.ToInstruction(labelLoopChk));
 
 			insts.Add(OpCodes.Ldarg_0.ToInstruction());
 			insts.Add(OpCodes.Ldloca.ToInstruction(body.Variables[0]));
@@ -1207,92 +1207,75 @@ namespace il2cpp
 				if (tyGenInstSig != null)
 					fldRef = new MemberRefUser(fldDef.Module, fldDef.Name, fldDef.FieldSig, new TypeSpecUser(tyGenInstSig));
 
-				switch (fldDef.FieldType.ElementType)
+				if (Helper.IsBasicValueType(fldDef.FieldType.ElementType))
 				{
-					case ElementType.Boolean:
-					case ElementType.Char:
-					case ElementType.I1:
-					case ElementType.I2:
-					case ElementType.I4:
-					case ElementType.I8:
-					case ElementType.U1:
-					case ElementType.U2:
-					case ElementType.U4:
-					case ElementType.U8:
-					case ElementType.R4:
-					case ElementType.R8:
-					case ElementType.I:
-					case ElementType.U:
-					case ElementType.Ptr:
-					case ElementType.ByRef:
+					insts.Add(OpCodes.Ldarg_0.ToInstruction());
+					if (fldRef != null)
+						insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+					else
+						insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+					insts.Add(OpCodes.Ldloc_0.ToInstruction());
+					if (fldRef != null)
+						insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+					else
+						insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+					insts.Add(OpCodes.Bne_Un.ToInstruction(labelRetFalse));
+				}
+				else
+				{
+					if (fldDef.FieldType.IsValueType ||
+						fldDef.FieldType.ElementType == ElementType.Var)
+					{
 						insts.Add(OpCodes.Ldarg_0.ToInstruction());
 						if (fldRef != null)
-							insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
+							insts.Add(OpCodes.Ldflda.ToInstruction(fldRef));
 						else
-							insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+							insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
 						insts.Add(OpCodes.Ldloc_0.ToInstruction());
 						if (fldRef != null)
 							insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
 						else
 							insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
-						insts.Add(OpCodes.Bne_Un.ToInstruction(labelRetFalse));
-						break;
 
-					default:
-						if (fldDef.FieldType.IsValueType ||
-							fldDef.FieldType.ElementType == ElementType.Var)
-						{
-							insts.Add(OpCodes.Ldarg_0.ToInstruction());
-							if (fldRef != null)
-								insts.Add(OpCodes.Ldflda.ToInstruction(fldRef));
-							else
-								insts.Add(OpCodes.Ldflda.ToInstruction(fldDef));
-							insts.Add(OpCodes.Ldloc_0.ToInstruction());
-							if (fldRef != null)
-								insts.Add(OpCodes.Ldfld.ToInstruction(fldRef));
-							else
-								insts.Add(OpCodes.Ldfld.ToInstruction(fldDef));
+						var fldTyRef = fldDef.FieldType.ToTypeDefOrRef();
+						insts.Add(OpCodes.Box.ToInstruction(fldTyRef));
 
-							var fldTyRef = fldDef.FieldType.ToTypeDefOrRef();
-							insts.Add(OpCodes.Box.ToInstruction(fldTyRef));
-
-							insts.Add(OpCodes.Constrained.ToInstruction(fldTyRef));
-							insts.Add(OpCodes.Callvirt.ToInstruction(metEquals));
-							insts.Add(OpCodes.Brfalse.ToInstruction(labelRetFalse));
-						}
+						insts.Add(OpCodes.Constrained.ToInstruction(fldTyRef));
+						insts.Add(OpCodes.Callvirt.ToInstruction(metEquals));
+						insts.Add(OpCodes.Brfalse.ToInstruction(labelRetFalse));
+					}
+					else
+					{
+						Func<Instruction> genLdfld;
+						if (fldRef != null)
+							genLdfld = () => OpCodes.Ldfld.ToInstruction(fldRef);
 						else
-						{
-							Func<Instruction> genLdfld;
-							if (fldRef != null)
-								genLdfld = () => OpCodes.Ldfld.ToInstruction(fldRef);
-							else
-								genLdfld = () => OpCodes.Ldfld.ToInstruction(fldDef);
+							genLdfld = () => OpCodes.Ldfld.ToInstruction(fldDef);
 
-							var labelCheckRhs = OpCodes.Nop.ToInstruction();
-							var labelPassed = OpCodes.Nop.ToInstruction();
+						var labelCheckRhs = OpCodes.Nop.ToInstruction();
+						var labelPassed = OpCodes.Nop.ToInstruction();
 
-							insts.Add(OpCodes.Ldarg_0.ToInstruction());
-							insts.Add(genLdfld());
-							insts.Add(OpCodes.Brfalse.ToInstruction(labelCheckRhs));
+						insts.Add(OpCodes.Ldarg_0.ToInstruction());
+						insts.Add(genLdfld());
+						insts.Add(OpCodes.Brfalse.ToInstruction(labelCheckRhs));
 
-							insts.Add(OpCodes.Ldarg_0.ToInstruction());
-							insts.Add(genLdfld());
+						insts.Add(OpCodes.Ldarg_0.ToInstruction());
+						insts.Add(genLdfld());
 
-							insts.Add(OpCodes.Ldloc_0.ToInstruction());
-							insts.Add(genLdfld());
+						insts.Add(OpCodes.Ldloc_0.ToInstruction());
+						insts.Add(genLdfld());
 
-							insts.Add(OpCodes.Callvirt.ToInstruction(metEquals));
-							insts.Add(OpCodes.Brfalse.ToInstruction(labelRetFalse));
-							insts.Add(OpCodes.Br.ToInstruction(labelPassed));
+						insts.Add(OpCodes.Callvirt.ToInstruction(metEquals));
+						insts.Add(OpCodes.Brfalse.ToInstruction(labelRetFalse));
+						insts.Add(OpCodes.Br.ToInstruction(labelPassed));
 
-							insts.Add(labelCheckRhs);
-							insts.Add(OpCodes.Ldloc_0.ToInstruction());
-							insts.Add(genLdfld());
-							insts.Add(OpCodes.Brtrue.ToInstruction(labelRetFalse));
+						insts.Add(labelCheckRhs);
+						insts.Add(OpCodes.Ldloc_0.ToInstruction());
+						insts.Add(genLdfld());
+						insts.Add(OpCodes.Brtrue.ToInstruction(labelRetFalse));
 
-							insts.Add(labelPassed);
-						}
-						break;
+						insts.Add(labelPassed);
+					}
 				}
 			}
 
