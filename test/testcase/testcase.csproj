@@ -58,6 +58,7 @@
     <Compile Include="CodeGenTests.cs" />
     <Compile Include="InstExceptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RayTrace.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
