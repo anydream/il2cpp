@@ -2569,15 +2569,56 @@ namespace testcase
 				return 34;
 
 			dict2["foo"] = "blabla";
+			dict2.Add("123", "4567");
 
 			if (!dict2.ContainsValue("feline") ||
 				!dict2.ContainsValue("canine") ||
-				!dict2.ContainsValue("blabla"))
+				!dict2.ContainsValue("blabla") ||
+				!dict2.ContainsValue("4567"))
 				return 35;
 
+			var lst = dict2.ToList();
+			int b3 = 0, b4 = 0;
+			b1 = b2 = 0;
+			foreach (var item in lst)
+			{
+				string val = item.Value;
+				switch (item.Key)
+				{
+					case "cat":
+						if (val != "feline")
+							return 36;
+						++b1;
+						break;
+
+					case "dog":
+						if (val != "canine")
+							return 37;
+						++b2;
+						break;
+
+					case "foo":
+						if (val != "blabla")
+							return 38;
+						++b3;
+						break;
+
+					case "123":
+						if (val != "4567")
+							return 39;
+						++b4;
+						break;
+				}
+			}
+
+			if (b1 != 1 || b2 != 1 || b3 != 1 || b4 != 1)
+				return 40;
+
 			dict2.Remove("foo");
-			if (dict2.ContainsValue("blabla"))
-				return 36;
+			dict2.Remove("123");
+			if (dict2.ContainsValue("blabla") ||
+				dict2.ContainsValue("4567"))
+				return 41;
 
 			/*string[] arr = new string[]
 			{
@@ -2678,7 +2719,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestValueType.Entry();
+			var result = TestContainer2.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
