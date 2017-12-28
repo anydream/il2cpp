@@ -65,9 +65,7 @@ static void GC_CALLBACK FinalizerNotifier()
 
 void il2cpp_GC_Init()
 {
-#if defined(IL2CPP_GNUC_LIKE)
-	GC_set_no_dls(1);
-#endif
+	//GC_set_no_dls(1);
 
 	GC_INIT();
 
