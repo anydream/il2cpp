@@ -267,11 +267,56 @@ namespace il2cpp
 		public readonly StringGenerator StrGen = new StringGenerator();
 		private readonly HashSet<string> UsedTypeNames = new HashSet<string>();
 		private readonly HashSet<string> UsedMethodNames = new HashSet<string>();
+		private readonly Dictionary<string, List<Tuple<string, bool>>> InitFldsMap = new Dictionary<string, List<Tuple<string, bool>>>();
 		private uint TypeIDCounter;
 
 		public GeneratorContext(TypeManager typeMgr)
 		{
 			TypeMgr = typeMgr;
+		}
+
+		public void AddStaticField(string typeName, string sfldName, bool hasRef)
+		{
+			if (!InitFldsMap.TryGetValue(typeName, out var nameSet))
+			{
+				nameSet = new List<Tuple<string, bool>>();
+				InitFldsMap.Add(typeName, nameSet);
+			}
+			nameSet.Add(new Tuple<string, bool>(sfldName, hasRef));
+		}
+
+		private CompileUnit GenInitUnit(Dictionary<string, string> transMap)
+		{
+			CompileUnit unit = new CompileUnit();
+			unit.Name = "il2cppInit";
+
+			CodePrinter prtGC = new CodePrinter();
+			CodePrinter prtInit = new CodePrinter();
+			foreach (var kv in InitFldsMap)
+			{
+				unit.ImplDepends.Add(transMap[kv.Key]);
+
+				foreach (var item in kv.Value)
+				{
+					if (item.Item2)
+						prtGC.AppendFormatLine("IL2CPP_ADD_ROOT({0});", item.Item1);
+					prtInit.AppendFormatLine("{0} = {{}};", item.Item1);
+				}
+			}
+
+			prtGC.AppendLine("il2cpp_CommitRoots();");
+
+			CodePrinter prtFunc = new CodePrinter();
+			prtFunc.AppendLine("void il2cpp_InitVariables()\n{");
+			++prtFunc.Indents;
+			prtFunc.Append(prtGC.ToString());
+			prtFunc.Append(prtInit.ToString());
+			--prtFunc.Indents;
+			prtFunc.AppendLine("}");
+
+			unit.ImplCode = prtFunc.ToString();
+
+			return unit;
 		}
 
 		public GenerateResult Generate()
@@ -293,6 +338,10 @@ namespace il2cpp
 			TypeX strTyX = GetTypeByName("String");
 			if (strTyX != null)
 				StrGen.Generate(unitMap, GetTypeID(strTyX));
+
+			// 生成初始化单元
+			var unitInit = GenInitUnit(transMap);
+			unitMap[unitInit.Name] = unitInit;
 
 			return new GenerateResult(this, unitMap.Values.ToList(), transMap);
 		}

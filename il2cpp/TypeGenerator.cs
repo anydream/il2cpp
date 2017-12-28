@@ -19,7 +19,8 @@ namespace il2cpp
 		public CompileUnit Generate()
 		{
 			CompileUnit unit = new CompileUnit();
-			unit.Name = GenContext.GetTypeName(CurrType, false);
+			string strTypeName = GenContext.GetTypeName(CurrType, false);
+			unit.Name = strTypeName;
 
 			// 重排字段
 			var fields = LayoutFields(out var sfields);
@@ -61,13 +62,13 @@ namespace il2cpp
 					unit.DeclDepends.Add(strBaseTypeName);
 
 					prtDecl.AppendFormatLine("struct {0} : {1}",
-						GenContext.GetTypeName(CurrType),
+						strTypeName,
 						strBaseTypeName);
 				}
 				else
 				{
 					prtDecl.AppendFormatLine("struct {0}",
-						GenContext.GetTypeName(CurrType));
+						strTypeName);
 				}
 
 				prtDecl.AppendLine("{");
@@ -187,15 +188,19 @@ namespace il2cpp
 			{
 				RefValueTypeDecl(unit, sfldX.FieldType);
 
+				string sfldName = GenContext.GetFieldName(sfldX);
 				string fldDecl = string.Format("{0} {1};",
 					GenContext.GetTypeName(sfldX.FieldType),
-					GenContext.GetFieldName(sfldX));
+					sfldName);
 
 				prtDecl.AppendFormatLine("// {0} -> {1}",
 					Helper.EscapeString(sfldX.DeclType.GetNameKey()),
 					Helper.EscapeString(sfldX.GetReplacedNameKey()));
 				prtDecl.AppendLine("extern " + fldDecl);
 				prtImpl.AppendLine(fldDecl);
+
+				bool hasRef = GenContext.IsRefOrContainsRef(GenContext.GetTypeBySig(sfldX.FieldType));
+				GenContext.AddStaticField(strTypeName, sfldName, hasRef);
 			}
 
 			// 生成类型判断函数
