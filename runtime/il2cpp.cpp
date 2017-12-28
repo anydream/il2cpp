@@ -2,7 +2,6 @@
 #include "il2cppGC.h"
 #include "il2cppBridge.h"
 #include <math.h>
-#include <vector>
 #include <algorithm>
 
 #if defined(_WIN32)
@@ -59,39 +58,24 @@ void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, IL2CPP_FINALIZER
 	return obj;
 }
 
-struct GCRootItem
+void il2cpp_CommitRoots(il2cppRootItem* roots, uint32_t num)
 {
-	uint8_t* Start;
-	uint32_t Length;
-
-	GCRootItem(uint8_t* start, uint32_t len)
-		: Start(start)
-		, Length(len)
+	std::sort(roots, roots + num,
+		[](const il2cppRootItem& lhs, const il2cppRootItem& rhs)
 	{
-	}
-};
-
-static std::vector<GCRootItem> g_Roots;
-void il2cpp_AddRoot(void* ptr, uint32_t len)
-{
-	g_Roots.emplace_back(static_cast<uint8_t*>(ptr), len);
-}
-
-void il2cpp_CommitRoots()
-{
-	std::sort(g_Roots.begin(), g_Roots.end(),
-		[](const GCRootItem& lhs, const GCRootItem& rhs)
-	{
-		return lhs.Start < rhs.Start;
+		return lhs.Ptr < rhs.Ptr;
 	});
 
 	uint8_t* start = nullptr;
 	uint8_t* end = nullptr;
-	for (const auto& item : g_Roots)
+	for (const il2cppRootItem* itEnd = roots + num;
+		roots < itEnd;
+		++roots)
 	{
+		const il2cppRootItem& item = *roots;
 		if (start)
 		{
-			if (item.Start <= end)
+			if (item.Ptr <= end)
 			{
 				end += item.Length;
 				continue;
@@ -99,15 +83,11 @@ void il2cpp_CommitRoots()
 			il2cpp_GC_AddRoots(start, end);
 		}
 
-		start = item.Start;
-		end = item.Start + item.Length;
+		start = item.Ptr;
+		end = item.Ptr + item.Length;
 	}
 	if (start)
 		il2cpp_GC_AddRoots(start, end);
-
-	g_Roots.clear();
-	g_Roots.reserve(0);
-	auto tmp = std::move(g_Roots);
 }
 
 void il2cpp_Yield()

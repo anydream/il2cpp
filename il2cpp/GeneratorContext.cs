@@ -301,20 +301,25 @@ namespace il2cpp
 				{
 					if (item.Item2)
 					{
-						prtGC.AppendFormatLine("IL2CPP_ADD_ROOT({0});", item.Item1);
+						prtGC.AppendFormatLine("IL2CPP_ADD_ROOT({0}),", item.Item1);
 						addedRoots = true;
 					}
 					prtInit.AppendFormatLine("{0} = {{}};", item.Item1);
 				}
 			}
 
-			if (addedRoots)
-				prtGC.AppendLine("il2cpp_CommitRoots();");
-
 			CodePrinter prtFunc = new CodePrinter();
 			prtFunc.AppendLine("void il2cpp_InitVariables()\n{");
 			++prtFunc.Indents;
-			prtFunc.Append(prtGC.ToString());
+			if (addedRoots)
+			{
+				prtFunc.AppendLine("il2cppRootItem roots[] =\n{");
+				++prtFunc.Indents;
+				prtFunc.Append(prtGC.ToString());
+				--prtFunc.Indents;
+				prtFunc.AppendLine("};");
+				prtFunc.AppendLine("il2cpp_CommitRoots(roots, sizeof(roots) / sizeof(roots[0]));");
+			}
 			prtFunc.Append(prtInit.ToString());
 			--prtFunc.Indents;
 			prtFunc.AppendLine("}");

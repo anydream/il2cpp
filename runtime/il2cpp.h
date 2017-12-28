@@ -42,7 +42,7 @@
 #define IL2CPP_MEMCMP					memcmp
 #define IL2CPP_ALLOCA					alloca
 #define IL2CPP_NEW						il2cpp_New
-#define IL2CPP_ADD_ROOT(_x)				il2cpp_AddRoot(&(_x), sizeof(_x))
+#define IL2CPP_ADD_ROOT(_x)				il2cppRootItem(&(_x), sizeof(_x))
 #define IL2CPP_THROW(_ex)				throw il2cppException(_ex)
 #define IL2CPP_THROW_INVALIDCAST		do { il2cpp_ThrowInvalidCast(); IL2CPP_UNREACHABLE; } while(0)
 
@@ -178,13 +178,23 @@ struct il2cppFieldInfo
 	uint32_t Offset;
 };
 
+struct il2cppRootItem
+{
+	uint8_t* Ptr;
+	uint32_t Length;
+
+	il2cppRootItem(const void* ptr, uint32_t len)
+		: Ptr((uint8_t*)ptr)
+		, Length(len)
+	{}
+};
+
 using IL2CPP_FINALIZER_FUNC = void(*)(cls_Object*);
 
 void il2cpp_Init();
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, IL2CPP_FINALIZER_FUNC finalizer);
-void il2cpp_AddRoot(void* ptr, uint32_t len);
-void il2cpp_CommitRoots();
+void il2cpp_CommitRoots(il2cppRootItem* roots, uint32_t num);
 void il2cpp_Yield();
 void il2cpp_SleepMS(uint32_t ms);
 uintptr_t il2cpp_ThreadID();
