@@ -2519,6 +2519,84 @@ namespace testcase
 			if (res != 0)
 				return 20 + res;
 
+			Dictionary<string, string> dict2 = new Dictionary<string, string>
+			{
+				{ "cat", "feline" },
+				{ "dog", "canine" }
+			};
+
+			if (!dict2.TryGetValue("cat", out var test) ||
+				test != "feline")
+				return 30;
+
+			if (dict2.TryGetValue("bird", out test))
+				return 31;
+
+			foreach (var pair in dict2)
+			{
+				string val = pair.Value;
+				switch (pair.Key)
+				{
+					case "cat":
+						if (val != "feline")
+							return 32;
+						break;
+
+					case "dog":
+						if (val != "canine")
+							return 33;
+						break;
+				}
+			}
+
+			List<string> list = new List<string>(dict2.Keys);
+			int b1 = 0, b2 = 0;
+			foreach (var item in list)
+			{
+				switch (item)
+				{
+					case "cat":
+						++b1;
+						break;
+
+					case "dog":
+						++b2;
+						break;
+				}
+			}
+
+			if (b1 != 1 || b2 != 1)
+				return 34;
+
+			dict2["foo"] = "blabla";
+
+			if (!dict2.ContainsValue("feline") ||
+				!dict2.ContainsValue("canine") ||
+				!dict2.ContainsValue("blabla"))
+				return 35;
+
+			dict2.Remove("foo");
+			if (dict2.ContainsValue("blabla"))
+				return 36;
+
+			/*string[] arr = new string[]
+			{
+				"abc",
+				"defg"
+			};
+			var dict3 = arr.ToDictionary(item => item, item => item.Length);
+			if (dict3.Count != 2)
+				return 35;
+
+			if (!dict3.TryGetValue("abc", out var value) ||
+				value != 3)
+				return 36;
+
+			if (!dict3.TryGetValue("defg", out value) ||
+				value != 4)
+				return 37;*/
+
+
 			return 0;
 		}
 	}
