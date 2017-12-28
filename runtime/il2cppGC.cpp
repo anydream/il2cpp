@@ -65,7 +65,7 @@ static void GC_CALLBACK FinalizerNotifier()
 
 void il2cpp_GC_Init()
 {
-	//GC_set_no_dls(1);
+	GC_set_no_dls(1);
 
 	GC_INIT();
 
@@ -90,6 +90,11 @@ void* il2cpp_GC_AllocAtomic(uintptr_t sz)
 	void* ptr = GC_MALLOC_ATOMIC(sz);
 	memset(ptr, 0, sz);
 	return ptr;
+}
+
+void il2cpp_GC_AddRoots(void* low, void* high)
+{
+	GC_add_roots(low, high);
 }
 
 bool il2cpp_GC_RegisterThread()
