@@ -2708,6 +2708,82 @@ namespace testcase
 		}
 	}
 
+	[CodeGen]
+	static class TestGarbageCollection
+	{
+		private const int Capacity = 50000;
+		private static List<int> s_AA = new List<int>(Capacity);
+		private static List<float> s_BB = new List<float>(Capacity);
+		private static List<object> s_CC = new List<object>(Capacity);
+
+		class Node
+		{
+			public Node next;
+			public byte[] payload = new byte[64];
+		}
+
+		static TestGarbageCollection()
+		{
+			for (int i = 0; i < Capacity; ++i)
+			{
+				s_AA.Add(123);
+				s_BB.Add(4.56f);
+				s_CC.Add(null);
+			}
+		}
+
+		private static int ProbeIsStaticAlive()
+		{
+			if (s_AA.Count != Capacity)
+				return 1;
+
+			foreach (var item in s_AA)
+			{
+				if (item != 123)
+					return 2;
+			}
+
+			if (s_BB.Count != Capacity)
+				return 3;
+
+			foreach (var item in s_BB)
+			{
+				if (item != 4.56f)
+					return 4;
+			}
+
+			if (s_CC.Count != Capacity)
+				return 5;
+
+			foreach (var item in s_CC)
+			{
+				if (item != null)
+					return 6;
+			}
+
+			return 0;
+		}
+
+		public static int Entry()
+		{
+			Node curr = new Node();
+
+			for (int i = 0; i < 10000; ++i)
+			{
+				curr.next = new Node();
+				curr = curr.next;
+
+				GC.Collect();
+
+				int res = ProbeIsStaticAlive();
+				if (res != 0)
+					return 10 + res;
+			}
+
+			return 0;
+		}
+	}
+
 	internal class Program
 	{
 		/*private static void MainRayTrace()
@@ -2736,7 +2812,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestContainerPerf.Entry();
+			var result = TestGarbageCollection.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
