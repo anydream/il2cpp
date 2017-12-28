@@ -292,6 +292,7 @@ namespace il2cpp
 
 			CodePrinter prtGC = new CodePrinter();
 			CodePrinter prtInit = new CodePrinter();
+			bool addedRoots = false;
 			foreach (var kv in InitFldsMap)
 			{
 				unit.ImplDepends.Add(transMap[kv.Key]);
@@ -299,12 +300,16 @@ namespace il2cpp
 				foreach (var item in kv.Value)
 				{
 					if (item.Item2)
+					{
 						prtGC.AppendFormatLine("IL2CPP_ADD_ROOT({0});", item.Item1);
+						addedRoots = true;
+					}
 					prtInit.AppendFormatLine("{0} = {{}};", item.Item1);
 				}
 			}
 
-			prtGC.AppendLine("il2cpp_CommitRoots();");
+			if (addedRoots)
+				prtGC.AppendLine("il2cpp_CommitRoots();");
 
 			CodePrinter prtFunc = new CodePrinter();
 			prtFunc.AppendLine("void il2cpp_InitVariables()\n{");
