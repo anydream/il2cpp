@@ -2642,6 +2642,23 @@ namespace testcase
 		}
 	}
 
+	[CodeGen]
+	static class TestContainerPerf
+	{
+		public static int Entry()
+		{
+			const int amount = 50000000;
+			Dictionary<int, int> dict = new Dictionary<int, int>();
+			for (int i = 0; i < amount; ++i)
+			{
+				dict.Add(i, i);
+				if (!dict.TryGetValue(i, out var oi) || oi != i)
+					return 1;
+			}
+			return 0;
+		}
+	}
+
 	//[CodeGen]
 	static class TestYield
 	{
@@ -2719,7 +2736,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestContainer2.Entry();
+			var result = TestContainerPerf.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
