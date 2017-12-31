@@ -191,7 +191,7 @@ namespace test
 
 			string testName = string.Format("[{0}]{1}", imageName, typeDef.FullName);
 			var oldColor = Console.ForegroundColor;
-			Console.Write("{0} {1}: ", subDir, testName);
+			Console.Write("{0,-52}", string.Format("{0} {1}:", subDir, testName));
 
 			context.AddEntry(metDef);
 
@@ -202,7 +202,7 @@ namespace test
 
 			sw.Stop();
 			long elapsedMS = sw.ElapsedMilliseconds;
-			Console.Write("Res({0}ms) ", elapsedMS);
+			Console.Write("{0,-10}", string.Format("Res({0}ms)", elapsedMS));
 
 			string strRecLogs = context.GetRecordLogs();
 			if (strRecLogs != null)
@@ -212,7 +212,7 @@ namespace test
 			var genResult = context.Generate();
 			sw.Stop();
 			elapsedMS = sw.ElapsedMilliseconds;
-			Console.Write("Gen({0}ms) ", elapsedMS);
+			Console.Write("{0,-10}", string.Format("Gen({0}ms)", elapsedMS));
 
 			string validatedName = ValidatePath(testName);
 			string genDir = Path.Combine(imageDir, "../../gen/", validatedName);
@@ -247,7 +247,7 @@ namespace test
 				new HashSet<string> { "main" });
 			genDir = Path.GetFullPath(genDir);
 
-			Console.Write("Building");
+			Console.Write(" Building");
 			bool hasBuildErr = false;
 			Action<string> actOutput = strOut =>
 			{
