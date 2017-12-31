@@ -202,7 +202,7 @@ namespace test
 
 			sw.Stop();
 			long elapsedMS = sw.ElapsedMilliseconds;
-			Console.Write("{0,-10}", string.Format("Res({0}ms)", elapsedMS));
+			Console.Write("{0,-12}", string.Format("Res({0}ms)", elapsedMS));
 
 			string strRecLogs = context.GetRecordLogs();
 			if (strRecLogs != null)
@@ -212,7 +212,7 @@ namespace test
 			var genResult = context.Generate();
 			sw.Stop();
 			elapsedMS = sw.ElapsedMilliseconds;
-			Console.Write("{0,-10}", string.Format("Gen({0}ms)", elapsedMS));
+			Console.Write("{0,-12}", string.Format("Gen({0}ms)", elapsedMS));
 
 			string validatedName = ValidatePath(testName);
 			string genDir = Path.Combine(imageDir, "../../gen/", validatedName);
@@ -247,7 +247,7 @@ namespace test
 				new HashSet<string> { "main" });
 			genDir = Path.GetFullPath(genDir);
 
-			Console.Write(" Building");
+			Console.Write("Building");
 			bool hasBuildErr = false;
 			Action<string> actOutput = strOut =>
 			{
@@ -283,7 +283,7 @@ namespace test
 
 			if (!hasBuildErr)
 			{
-				Console.Write(" Running");
+				Console.Write(" Running ");
 				string runOutput = null;
 				RunCommand(
 					null,
@@ -292,7 +292,7 @@ namespace test
 					strOut => runOutput = strOut,
 					Console.Error.WriteLine);
 
-				Console.Write(" {0} ", runOutput);
+				Console.Write("{0,-20}", runOutput);
 
 				if (runOutput != null)
 					result = GetRunResult(runOutput);
