@@ -181,6 +181,11 @@ int32_t il2cpp_HashString(const uint16_t* str, int32_t len)
 	return static_cast<int32_t>(result & 0xFFFFFFFF) ^ ((result >> 32) & 0xFFFFFFFF);
 }
 
+double il2cpp_Abs(double n)
+{
+	return fabs(n);
+}
+
 double il2cpp_Sqrt(double n)
 {
 	return sqrt(n);

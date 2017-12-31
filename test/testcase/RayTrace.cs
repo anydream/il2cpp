@@ -2,7 +2,8 @@
 
 namespace testcase
 {
-	/*static class TestRayTrace
+	[CodeGen]
+	static class TestRayTrace1
 	{
 		static double MathSqrt(double n)
 		{
@@ -181,11 +182,9 @@ namespace testcase
 			}
 		};
 
-		public class Smallpt
+		//Scene: radius, position, emission, color, material
+		static Sphere[] spheres =
 		{
-			//Scene: radius, position, emission, color, material
-			static Sphere[] spheres =
-			{
 				new Sphere(1e5,  new Vec( 1e5+1,40.8,81.6),  Vec.Zero, new Vec(.75,.25,.25), Refl_t.DIFF),//Left
 				new Sphere(1e5,  new Vec(-1e5+99,40.8,81.6), Vec.Zero, new Vec(.25,.25,.75), Refl_t.DIFF),//Rght
 				new Sphere(1e5,  new Vec(50,40.8, 1e5),      Vec.Zero, new Vec(.75,.75,.75), Refl_t.DIFF),//Back
@@ -197,299 +196,326 @@ namespace testcase
 				new Sphere(600,  new Vec(50,681.6-.27,81.6), new Vec(12,12,12), Vec.Zero,    Refl_t.DIFF) //Lite
 			};
 
-			//static Random random = new Random();
-			static RandomLCG random = new RandomLCG(0u);
+		//static Random random = new Random();
+		static RandomLCG random = new RandomLCG(0u);
 
-			static double rand()
+		static double rand()
+		{
+			return random.NextDouble();
+		}
+
+		static double clamp(double x)
+		{
+			if (x < 0)
+				return 0;
+			else if (x > 1)
+				return 1;
+			else
+				return x;
+		}
+
+		public static int toInt(double x)
+		{
+			return (int)(MathPow(clamp(x), 1 / 2.2) * 255 + .5);
+		}
+
+		static Sphere intersect(ref Ray r, out double t)
+		{
+			double d, inf = t = 1e20;
+			Sphere ret = null;
+
+			foreach (Sphere s in spheres)
 			{
-				return random.NextDouble();
-			}
-
-			static double clamp(double x)
-			{
-				if (x < 0)
-					return 0;
-				else if (x > 1)
-					return 1;
-				else
-					return x;
-			}
-
-			public static int toInt(double x)
-			{
-				return (int)(MathPow(clamp(x), 1 / 2.2) * 255 + .5);
-			}
-
-			static Sphere intersect(ref Ray r, out double t)
-			{
-				double d, inf = t = 1e20;
-				Sphere ret = null;
-
-				foreach (Sphere s in spheres)
+				d = s.intersect(ref r);
+				if (d < t)
 				{
-					d = s.intersect(ref r);
-					if (d < t)
-					{
-						t = d;
-						ret = s;
-					}
+					t = d;
+					ret = s;
 				}
-
-				return ret;
 			}
 
-			static void radiance(out Vec rad, ref Ray r, int depth)
-			{
-				double t;   // distance to intersection
-				Sphere obj = intersect(ref r, out t);
+			return ret;
+		}
 
-				if (obj == null)
-					rad = Vec.Zero;       // if miss, return black
+		static void radiance(out Vec rad, ref Ray r, int depth)
+		{
+			double t;   // distance to intersection
+			Sphere obj = intersect(ref r, out t);
+
+			if (obj == null)
+				rad = Vec.Zero;       // if miss, return black
+			else
+			{
+				int newDepth = depth + 1;
+				bool isMaxDepth = newDepth > 100;
+
+				// Russian roulette for path termination
+				bool isUseRR = newDepth > 5;
+				bool isRR = isUseRR && rand() < obj.maxC;
+
+				if (isMaxDepth || (isUseRR && !isRR))
+					rad = obj.e;
 				else
 				{
-					int newDepth = depth + 1;
-					bool isMaxDepth = newDepth > 100;
+					Vec f = (isUseRR && isRR) ? obj.cc : obj.c;
+					//Vec x = r.o + r.d * t;
+					Vec x;
+					Vec.mul(out x, ref r.d, t);
+					Vec.add(out x, ref r.o, ref x);
+					//Vec n = (x - obj.p).norm();
+					Vec n;
+					Vec.sub(out n, ref x, ref obj.p);
+					n.normal();
 
-					// Russian roulette for path termination
-					bool isUseRR = newDepth > 5;
-					bool isRR = isUseRR && rand() < obj.maxC;
-
-					if (isMaxDepth || (isUseRR && !isRR))
-						rad = obj.e;
+					//Vec nl = n.dot(r.d) < 0 ? n : n * -1;
+					Vec nl;
+					if (n.dot(ref r.d) < 0)
+						nl = n;
 					else
+						Vec.mul(out nl, ref n, -1);
+
+					if (obj.refl == Refl_t.DIFF) // Ideal DIFFUSE reflection
 					{
-						Vec f = (isUseRR && isRR) ? obj.cc : obj.c;
-						//Vec x = r.o + r.d * t;
-						Vec x;
-						Vec.mul(out x, ref r.d, t);
-						Vec.add(out x, ref r.o, ref x);
-						//Vec n = (x - obj.p).norm();
-						Vec n;
-						Vec.sub(out n, ref x, ref obj.p);
-						n.normal();
+						double r1 = 2 * MathPI * rand();
+						double r2 = rand();
+						double r2s = MathSqrt(r2);
 
-						//Vec nl = n.dot(r.d) < 0 ? n : n * -1;
-						Vec nl;
-						if (n.dot(ref r.d) < 0)
-							nl = n;
+						Vec w = nl;
+						Vec wo = MathAbs(w.x) > .1 ? Vec.YAxis : Vec.XAxis;
+						//Vec u = (wo % w).norm();
+						Vec u;
+						Vec.cross(out u, ref wo, ref w);
+						u.normal();
+						//Vec v = w % u;
+						Vec v;
+						Vec.cross(out v, ref w, ref u);
+
+						//Vec d = (u * (MathCos(r1) * r2s) + v * (MathSin(r1) * r2s) + w * MathSqrt(1 - r2)).norm();
+						Vec d, ta, tb;
+						Vec.mul(out d, ref u, MathCos(r1) * r2s);
+						Vec.mul(out ta, ref v, MathSin(r1) * r2s);
+						Vec.mul(out tb, ref w, MathSqrt(1 - r2));
+						Vec.add(out d, ref d, ref ta);
+						Vec.add(out d, ref d, ref tb);
+						d.normal();
+
+						//return obj.e + f.mult(radiance(new Ray(x, d), newDepth));
+						Ray ray = new Ray(ref x, ref d);
+						Vec childRad;
+						radiance(out childRad, ref ray, newDepth);
+						Vec.mul(out childRad, ref f, ref childRad);
+						Vec.add(out rad, ref obj.e, ref childRad);
+					}
+					else if (obj.refl == Refl_t.SPEC) // Ideal SPECULAR reflection
+					{
+						//return obj.e + f.mult(radiance(new Ray(x, r.d - n * 2 * n.dot(r.d)), newDepth));
+						Vec reflect;
+						Vec.mul(out reflect, ref n, 2 * n.dot(ref r.d));
+						Vec.sub(out reflect, ref r.d, ref reflect);
+
+						Ray ray = new Ray(ref x, ref reflect);
+						Vec childRad;
+						radiance(out childRad, ref ray, newDepth);
+						Vec.mul(out childRad, ref f, ref childRad);
+						Vec.add(out rad, ref obj.e, ref childRad);
+					}
+					else // Ideal dielectric REFRACTION
+					{
+						//Ray reflRay = new Ray(x, r.d - n * (2 * n.dot(ref r.d)));
+						Vec reflect;
+						Vec.mul(out reflect, ref n, 2 * n.dot(ref r.d));
+						Vec.sub(out reflect, ref r.d, ref reflect);
+						Ray reflRay = new Ray(ref x, ref reflect);
+
+						bool into = n.dot(ref nl) > 0;  // Ray from outside going in?
+						double nc = 1;
+						double nt = 1.5;
+						double nnt = into ? nc / nt : nt / nc;
+						double ddn = r.d.dot(ref nl);
+						double cos2t = 1 - nnt * nnt * (1 - ddn * ddn);
+
+						if (cos2t < 0)  // Total internal reflection
+						{
+							//return obj.e + f.mult(radiance(reflRay, newDepth));
+							Vec childRad;
+							radiance(out childRad, ref reflRay, newDepth);
+							Vec.mul(out childRad, ref f, ref childRad);
+							Vec.add(out rad, ref obj.e, ref childRad);
+						}
 						else
-							Vec.mul(out nl, ref n, -1);
-
-						if (obj.refl == Refl_t.DIFF) // Ideal DIFFUSE reflection
 						{
-							double r1 = 2 * MathPI * rand();
-							double r2 = rand();
-							double r2s = MathSqrt(r2);
+							//Vec tdir = (r.d * nnt - n * ((into ? 1 : -1) * (ddn * nnt + MathSqrt(cos2t)))).norm();
+							double temp = ddn * nnt + MathSqrt(cos2t);
+							if (!into) temp = -temp;
+							Vec tn;
+							Vec.mul(out tn, ref n, temp);
+							Vec tdir;
 
-							Vec w = nl;
-							Vec wo = MathAbs(w.x) > .1 ? Vec.YAxis : Vec.XAxis;
-							//Vec u = (wo % w).norm();
-							Vec u;
-							Vec.cross(out u, ref wo, ref w);
-							u.normal();
-							//Vec v = w % u;
-							Vec v;
-							Vec.cross(out v, ref w, ref u);
+							Vec.mul(out tdir, ref r.d, nnt);
+							Vec.sub(out tdir, ref tdir, ref tn);
+							tdir.normal();
 
-							//Vec d = (u * (MathCos(r1) * r2s) + v * (MathSin(r1) * r2s) + w * MathSqrt(1 - r2)).norm();
-							Vec d, ta, tb;
-							Vec.mul(out d, ref u, MathCos(r1) * r2s);
-							Vec.mul(out ta, ref v, MathSin(r1) * r2s);
-							Vec.mul(out tb, ref w, MathSqrt(1 - r2));
-							Vec.add(out d, ref d, ref ta);
-							Vec.add(out d, ref d, ref tb);
-							d.normal();
+							double a = nt - nc;
+							double b = nt + nc;
+							double R0 = (a * a) / (b * b);
+							double c = 1 - (into ? -ddn : tdir.dot(ref n));
+							double Re = R0 + (1 - R0) * c * c * c * c * c;
+							double Tr = 1 - Re;
+							double P = .25 + .5 * Re;
+							double RP = Re / P;
+							double TP = Tr / (1 - P);
 
-							//return obj.e + f.mult(radiance(new Ray(x, d), newDepth));
-							Ray ray = new Ray(ref x, ref d);
-							Vec childRad;
-							radiance(out childRad, ref ray, newDepth);
-							Vec.mul(out childRad, ref f, ref childRad);
-							Vec.add(out rad, ref obj.e, ref childRad);
-						}
-						else if (obj.refl == Refl_t.SPEC) // Ideal SPECULAR reflection
-						{
-							//return obj.e + f.mult(radiance(new Ray(x, r.d - n * 2 * n.dot(r.d)), newDepth));
-							Vec reflect;
-							Vec.mul(out reflect, ref n, 2 * n.dot(ref r.d));
-							Vec.sub(out reflect, ref r.d, ref reflect);
-
-							Ray ray = new Ray(ref x, ref reflect);
-							Vec childRad;
-							radiance(out childRad, ref ray, newDepth);
-							Vec.mul(out childRad, ref f, ref childRad);
-							Vec.add(out rad, ref obj.e, ref childRad);
-						}
-						else // Ideal dielectric REFRACTION
-						{
-							//Ray reflRay = new Ray(x, r.d - n * (2 * n.dot(ref r.d)));
-							Vec reflect;
-							Vec.mul(out reflect, ref n, 2 * n.dot(ref r.d));
-							Vec.sub(out reflect, ref r.d, ref reflect);
-							Ray reflRay = new Ray(ref x, ref reflect);
-
-							bool into = n.dot(ref nl) > 0;  // Ray from outside going in?
-							double nc = 1;
-							double nt = 1.5;
-							double nnt = into ? nc / nt : nt / nc;
-							double ddn = r.d.dot(ref nl);
-							double cos2t = 1 - nnt * nnt * (1 - ddn * ddn);
-
-							if (cos2t < 0)  // Total internal reflection
+							Vec result;
+							if (newDepth > 2)
 							{
-								//return obj.e + f.mult(radiance(reflRay, newDepth));
-								Vec childRad;
-								radiance(out childRad, ref reflRay, newDepth);
-								Vec.mul(out childRad, ref f, ref childRad);
-								Vec.add(out rad, ref obj.e, ref childRad);
-							}
-							else
-							{
-								//Vec tdir = (r.d * nnt - n * ((into ? 1 : -1) * (ddn * nnt + MathSqrt(cos2t)))).norm();
-								double temp = ddn * nnt + MathSqrt(cos2t);
-								if (!into) temp = -temp;
-								Vec tn;
-								Vec.mul(out tn, ref n, temp);
-								Vec tdir;
-
-								Vec.mul(out tdir, ref r.d, nnt);
-								Vec.sub(out tdir, ref tdir, ref tn);
-								tdir.normal();
-
-								double a = nt - nc;
-								double b = nt + nc;
-								double R0 = (a * a) / (b * b);
-								double c = 1 - (into ? -ddn : tdir.dot(ref n));
-								double Re = R0 + (1 - R0) * c * c * c * c * c;
-								double Tr = 1 - Re;
-								double P = .25 + .5 * Re;
-								double RP = Re / P;
-								double TP = Tr / (1 - P);
-
-								Vec result;
-								if (newDepth > 2)
+								// Russian roulette and splitting for selecting reflection and/or refraction
+								if (rand() < P)
 								{
-									// Russian roulette and splitting for selecting reflection and/or refraction
-									if (rand() < P)
-									{
-										//result = radiance(reflRay, newDepth) * RP;
-										radiance(out result, ref reflRay, newDepth);
-										Vec.mul(out result, ref result, RP);
-									}
-									else
-									{
-										//result = radiance(new Ray(x, tdir), newDepth) * TP;
-										reflRay = new Ray(ref x, ref tdir);
-										radiance(out result, ref reflRay, newDepth);
-										Vec.mul(out result, ref result, TP);
-									}
+									//result = radiance(reflRay, newDepth) * RP;
+									radiance(out result, ref reflRay, newDepth);
+									Vec.mul(out result, ref result, RP);
 								}
 								else
 								{
-									//result = radiance(reflRay, newDepth) * Re + radiance(new Ray(x, tdir), newDepth) * Tr;
-									radiance(out result, ref reflRay, newDepth);
-									Vec.mul(out result, ref result, Re);
-									Vec result1;
+									//result = radiance(new Ray(x, tdir), newDepth) * TP;
 									reflRay = new Ray(ref x, ref tdir);
-									radiance(out result1, ref reflRay, newDepth);
-									Vec.mul(out result1, ref result1, Tr);
-									Vec.add(out result, ref result, ref result1);
+									radiance(out result, ref reflRay, newDepth);
+									Vec.mul(out result, ref result, TP);
 								}
-
-								//return obj.e + f.mult(result);
-								Vec.mul(out rad, ref result, ref f);
-								Vec.add(out rad, ref rad, ref obj.e);
 							}
-						}
-					}
-				}
-			}
-
-			private static Vec[] RenderEntry()
-			{
-				const int w = 256;
-				const int h = 256;
-				int samps = 25; // # samples
-
-				// cam pos, dir
-				//Ray cam = new Ray(new Vec(50, 52, 295.6), new Vec(0, -0.042612, -1).norm());
-				Vec rd = new Vec(0, -0.042612, -1);
-				rd.normal();
-				Vec cpos = new Vec(50, 52, 295.6);
-				Ray cam = new Ray(ref cpos, ref rd); // cam pos, dir
-				Vec cx = new Vec(w * .5135 / h, 0, 0);
-				//Vec cy = (cx % cam.d).norm() * .5135;
-				Vec cy;
-				Vec.cross(out cy, ref cx, ref cam.d);
-				cy.normal();
-				Vec.mul(out cy, ref cy, .5135);
-
-				// final color buffer
-				Vec[] c = new Vec[w * h];
-
-				// Loop over image rows
-				for (int y = 0; y < h; y++)
-				{
-					//Console.Write("\rRendering ({0} spp) {1:F2}%", samps * 4, 100.0 * y / (h - 1));
-
-					// Loop cols
-					for (int x = 0; x < w; x++)
-					{
-						int i = (h - y - 1) * w + x;
-						c[i] = Vec.Zero;
-
-						// 2x2 subpixel rows
-						for (int sy = 0; sy < 2; sy++)
-						{
-							// 2x2 subpixel cols
-							for (int sx = 0; sx < 2; sx++)
+							else
 							{
-								Vec r = Vec.Zero;
-								for (int s = 0; s < samps; s++)
-								{
-									double r1 = 2 * rand();
-									double r2 = 2 * rand();
-									double dx = r1 < 1 ? MathSqrt(r1) - 1 : 1 - MathSqrt(2 - r1);
-									double dy = r2 < 1 ? MathSqrt(r2) - 1 : 1 - MathSqrt(2 - r2);
-									//Vec d = cx * (((sx + .5 + dx) / 2 + x) / w - .5) +
-									//        cy * (((sy + .5 + dy) / 2 + y) / h - .5) + cam.d;
-									Vec temp;
-									Vec.mul(out temp, ref cx, (((sx + .5 + dx) / 2 + x) / w - .5));
-									Vec d;
-									Vec.mul(out d, ref cy, (((sy + .5 + dy) / 2 + y) / h - .5));
-									Vec.add(out d, ref d, ref temp);
-									Vec.add(out d, ref d, ref cam.d);
-
-									// Camera rays are pushed forward to start in interior
-									//Ray camRay = new Ray(cam.o + d * 140, d.norm());
-									Vec td;
-									Vec.mul(out td, ref d, 140);
-									Vec.add(out td, ref cam.o, ref td);
-									d.normal();
-									Ray camRay = new Ray(ref td, ref d);
-
-									// Accumuate radiance
-									//r = r + radiance(camRay, 0) * (1.0 / samps);
-									Vec rad;
-									radiance(out rad, ref camRay, 0);
-									Vec.mul(out rad, ref rad, 1.0 / samps);
-									Vec.add(out r, ref r, ref rad);
-								}
-
-								// Convert radiance to color
-								//c[i] = c[i] + new Vec(clamp(r.x), clamp(r.y), clamp(r.z)) * .25;
-								Vec color = new Vec(clamp(r.x), clamp(r.y), clamp(r.z));
-								Vec.mul(out color, ref color, .25);
-								Vec.add(out c[i], ref c[i], ref color);
+								//result = radiance(reflRay, newDepth) * Re + radiance(new Ray(x, tdir), newDepth) * Tr;
+								radiance(out result, ref reflRay, newDepth);
+								Vec.mul(out result, ref result, Re);
+								Vec result1;
+								reflRay = new Ray(ref x, ref tdir);
+								radiance(out result1, ref reflRay, newDepth);
+								Vec.mul(out result1, ref result1, Tr);
+								Vec.add(out result, ref result, ref result1);
 							}
+
+							//return obj.e + f.mult(result);
+							Vec.mul(out rad, ref result, ref f);
+							Vec.add(out rad, ref rad, ref obj.e);
 						}
 					}
 				}
-				return c;
 			}
 		}
+
+		private static Vec[] RenderEntry()
+		{
+			const int w = 256;
+			const int h = 256;
+			int samps = 25; // # samples
+
+			// cam pos, dir
+			//Ray cam = new Ray(new Vec(50, 52, 295.6), new Vec(0, -0.042612, -1).norm());
+			Vec rd = new Vec(0, -0.042612, -1);
+			rd.normal();
+			Vec cpos = new Vec(50, 52, 295.6);
+			Ray cam = new Ray(ref cpos, ref rd); // cam pos, dir
+			Vec cx = new Vec(w * .5135 / h, 0, 0);
+			//Vec cy = (cx % cam.d).norm() * .5135;
+			Vec cy;
+			Vec.cross(out cy, ref cx, ref cam.d);
+			cy.normal();
+			Vec.mul(out cy, ref cy, .5135);
+
+			// final color buffer
+			Vec[] c = new Vec[w * h];
+
+			// Loop over image rows
+			for (int y = 0; y < h; y++)
+			{
+				//Console.Write("\rRendering ({0} spp) {1:F2}%", samps * 4, 100.0 * y / (h - 1));
+
+				// Loop cols
+				for (int x = 0; x < w; x++)
+				{
+					int i = (h - y - 1) * w + x;
+					c[i] = Vec.Zero;
+
+					// 2x2 subpixel rows
+					for (int sy = 0; sy < 2; sy++)
+					{
+						// 2x2 subpixel cols
+						for (int sx = 0; sx < 2; sx++)
+						{
+							Vec r = Vec.Zero;
+							for (int s = 0; s < samps; s++)
+							{
+								double r1 = 2 * rand();
+								double r2 = 2 * rand();
+								double dx = r1 < 1 ? MathSqrt(r1) - 1 : 1 - MathSqrt(2 - r1);
+								double dy = r2 < 1 ? MathSqrt(r2) - 1 : 1 - MathSqrt(2 - r2);
+								//Vec d = cx * (((sx + .5 + dx) / 2 + x) / w - .5) +
+								//        cy * (((sy + .5 + dy) / 2 + y) / h - .5) + cam.d;
+								Vec temp;
+								Vec.mul(out temp, ref cx, (((sx + .5 + dx) / 2 + x) / w - .5));
+								Vec d;
+								Vec.mul(out d, ref cy, (((sy + .5 + dy) / 2 + y) / h - .5));
+								Vec.add(out d, ref d, ref temp);
+								Vec.add(out d, ref d, ref cam.d);
+
+								// Camera rays are pushed forward to start in interior
+								//Ray camRay = new Ray(cam.o + d * 140, d.norm());
+								Vec td;
+								Vec.mul(out td, ref d, 140);
+								Vec.add(out td, ref cam.o, ref td);
+								d.normal();
+								Ray camRay = new Ray(ref td, ref d);
+
+								// Accumuate radiance
+								//r = r + radiance(camRay, 0) * (1.0 / samps);
+								Vec rad;
+								radiance(out rad, ref camRay, 0);
+								Vec.mul(out rad, ref rad, 1.0 / samps);
+								Vec.add(out r, ref r, ref rad);
+							}
+
+							// Convert radiance to color
+							//c[i] = c[i] + new Vec(clamp(r.x), clamp(r.y), clamp(r.z)) * .25;
+							Vec color = new Vec(clamp(r.x), clamp(r.y), clamp(r.z));
+							Vec.mul(out color, ref color, .25);
+							Vec.add(out c[i], ref c[i], ref color);
+						}
+					}
+				}
+			}
+			return c;
+		}
+
+		public static uint CalcHash(Vec v)
+		{
+			uint x = (uint)toInt(v.x);
+			uint y = (uint)toInt(v.y);
+			uint z = (uint)toInt(v.z);
+
+			uint hash = x;
+			hash += hash << 5;
+			hash ^= y;
+			hash += hash << 5;
+			hash ^= z;
+
+			return hash;
+		}
+
+		public static int Entry()
+		{
+			var result = RenderEntry();
+			uint hash = 0;
+			foreach (var item in result)
+			{
+				hash += hash << 5;
+				hash ^= CalcHash(item);
+			}
+			if (hash != 3570284958)
+				return 1;
+			return 0;
+		}
 	}
-	*/
 
 	[CodeGen]
 	static class TestRayTrace2

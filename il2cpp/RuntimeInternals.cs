@@ -117,7 +117,12 @@ namespace il2cpp
 			}
 			else if (typeName == "System.Math")
 			{
-				if (metName == "Sqrt")
+				if (metName == "Abs")
+				{
+					prt.AppendLine("return il2cpp_Abs(arg_0);");
+					return true;
+				}
+				else if (metName == "Sqrt")
 				{
 					prt.AppendLine("return il2cpp_Sqrt(arg_0);");
 					return true;
