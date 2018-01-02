@@ -612,6 +612,10 @@ namespace testcase
 			if (aabb != "Test拼接")
 				return 11;
 
+			aabb = aabb.Substring(2, 3);
+			if (aabb != "st拼")
+				return 12;
+
 			/*int a = 123;
 			string sconcat = "测试" + a;
 			if (sconcat != "测试123")
