@@ -17,8 +17,11 @@ namespace il2cpp
 		private int CurrUnitIndex = 1;
 		private int CurrAccLength;
 
+		public bool HasStrings { get; private set; }
+
 		public string AddString(string str)
 		{
+			HasStrings = true;
 			if (!StringMap.TryGetValue(str, out var prop))
 			{
 				prop = new StringProp();

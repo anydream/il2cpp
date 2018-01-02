@@ -346,7 +346,8 @@ namespace il2cpp
 			var transMap = new CompileUnitMerger(unitMap).Merge();
 
 			// 生成字符串常量单元
-			StrGen.Generate(unitMap, GetStringTypeID());
+			if (StrGen.HasStrings)
+				StrGen.Generate(unitMap, GetStringTypeID());
 
 			// 生成初始化单元
 			var unitInit = GenInitUnit(transMap);
