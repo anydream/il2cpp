@@ -20,10 +20,13 @@ namespace il2cpp
 			}
 			else if (typeName == "String")
 			{
+				FieldX fldLen = metX.DeclType.Fields.FirstOrDefault(
+					fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.I4);
+				FieldX fldFirstChar = metX.DeclType.Fields.FirstOrDefault(
+					fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.Char);
+
 				if (metName == "get_Length")
 				{
-					FieldX fldLen = metX.DeclType.Fields.FirstOrDefault(
-						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.I4);
 					prt.AppendFormatLine(@"return arg_0->{0};",
 						genContext.GetFieldName(fldLen));
 
@@ -31,11 +34,6 @@ namespace il2cpp
 				}
 				else if (metName == "get_Chars")
 				{
-					FieldX fldLen = metX.DeclType.Fields.FirstOrDefault(
-						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.I4);
-					FieldX fldFirstChar = metX.DeclType.Fields.FirstOrDefault(
-						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.Char);
-
 					prt.AppendFormatLine("IL2CPP_CHECK_RANGE(0, arg_0->{0}, arg_1);",
 						genContext.GetFieldName(fldLen));
 					prt.AppendFormatLine("return ((uint16_t*)&arg_0->{0})[arg_1];",
@@ -45,15 +43,20 @@ namespace il2cpp
 				}
 				else if (metName == "InternalMarvin32HashString")
 				{
-					FieldX fldLen = metX.DeclType.Fields.FirstOrDefault(
-						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.I4);
-					FieldX fldFirstChar = metX.DeclType.Fields.FirstOrDefault(
-						fld => fld.FieldType.ElementType == dnlib.DotNet.ElementType.Char);
-
 					prt.AppendFormatLine("return il2cpp_HashString(&arg_0->{0}, arg_0->{1});",
 						genContext.GetFieldName(fldFirstChar),
 						genContext.GetFieldName(fldLen));
 
+					return true;
+				}
+				else if (metName == "FastAllocateString")
+				{
+					prt.AppendFormatLine(
+						"cls_String* str = (cls_String*)IL2CPP_NEW(sizeof(cls_Object) + sizeof(int32_t) + sizeof(uint16_t) * (arg_0 + 1), {0}, 1);",
+						genContext.GetStringTypeID());
+					prt.AppendFormatLine("str->{0} = arg_0;",
+						genContext.GetFieldName(fldLen));
+					prt.AppendLine("return str;");
 					return true;
 				}
 			}
@@ -112,6 +115,14 @@ namespace il2cpp
 				else if (metName == "Equals")
 				{
 					prt.AppendLine("return arg_0 == arg_1 ? 1 : 0;");
+					return true;
+				}
+			}
+			else if (typeName == "System.Buffer")
+			{
+				if (metName == "__Memmove")
+				{
+					prt.AppendLine("IL2CPP_MEMMOVE(arg_0, arg_1, arg_2);");
 					return true;
 				}
 			}

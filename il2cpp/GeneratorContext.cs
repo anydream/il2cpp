@@ -269,6 +269,7 @@ namespace il2cpp
 		private readonly HashSet<string> UsedMethodNames = new HashSet<string>();
 		private readonly Dictionary<string, List<Tuple<string, bool>>> InitFldsMap = new Dictionary<string, List<Tuple<string, bool>>>();
 		private uint TypeIDCounter;
+		private uint StringTypeID;
 
 		public GeneratorContext(TypeManager typeMgr)
 		{
@@ -345,15 +346,25 @@ namespace il2cpp
 			var transMap = new CompileUnitMerger(unitMap).Merge();
 
 			// 生成字符串常量单元
-			TypeX strTyX = GetTypeByName("String");
-			if (strTyX != null)
-				StrGen.Generate(unitMap, GetTypeID(strTyX));
+			StrGen.Generate(unitMap, GetStringTypeID());
 
 			// 生成初始化单元
 			var unitInit = GenInitUnit(transMap);
 			unitMap[unitInit.Name] = unitInit;
 
 			return new GenerateResult(this, unitMap.Values.ToList(), transMap);
+		}
+
+		public uint GetStringTypeID()
+		{
+			if (StringTypeID == 0)
+			{
+				TypeX strTyX = GetTypeByName("String");
+				Debug.Assert(strTyX != null);
+				StringTypeID = GetTypeID(strTyX);
+			}
+			Debug.Assert(StringTypeID != 0);
+			return StringTypeID;
 		}
 
 		public int GetTypeLayoutOrder(TypeSig tySig)

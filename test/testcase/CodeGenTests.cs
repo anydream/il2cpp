@@ -606,6 +606,12 @@ namespace testcase
 				strRep2[16] != ' ')
 				return 10;
 
+			string aa = "Test";
+			string bb = "拼接";
+			string aabb = aa + bb;
+			if (aabb != "Test拼接")
+				return 11;
+
 			/*int a = 123;
 			string sconcat = "测试" + a;
 			if (sconcat != "测试123")
