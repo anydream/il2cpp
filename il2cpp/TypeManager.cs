@@ -645,7 +645,11 @@ namespace il2cpp
 										break;
 
 									case CModReqdSig modReqdSig:
-										tyDefRef = modReqdSig.Next.ToTypeDefOrRef();
+										tyDefRef = Helper.RemoveModifiers(modReqdSig).ToTypeDefOrRef();
+										break;
+
+									case CModOptSig modOptSig:
+										tyDefRef = Helper.RemoveModifiers(modOptSig).ToTypeDefOrRef();
 										break;
 
 									default:

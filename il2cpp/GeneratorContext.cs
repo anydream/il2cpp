@@ -431,6 +431,7 @@ namespace il2cpp
 						return 10;
 
 				case ElementType.CModReqd:
+				case ElementType.CModOpt:
 					return GetTypeLayoutOrder(tySig.Next);
 
 				default:
