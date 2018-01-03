@@ -2682,13 +2682,29 @@ namespace il2cpp
 			{
 				if (fldX.DeclType.IsEnumType)
 				{
-					inst.InstCode = GenAssign(
-						TempName(slotPush),
-						string.Format("{0}({1}*){2}",
-							isAddr ? null : "*",
-							GenContext.GetTypeName(fldX.DeclType),
-							TempName(slotPop)),
-						slotPush.SlotType);
+					// 对象为值类型表示为展开的枚举值
+					switch (slotPop.SlotType.Kind)
+					{
+						case StackTypeKind.I4:
+						case StackTypeKind.I8:
+						case StackTypeKind.R4:
+						case StackTypeKind.R8:
+							inst.InstCode = GenAssign(
+								TempName(slotPush),
+								(isAddr ? "&" : null) + TempName(slotPop),
+								slotPush.SlotType);
+							break;
+
+						default:
+							inst.InstCode = GenAssign(
+								TempName(slotPush),
+								string.Format("{0}({1}*){2}",
+									isAddr ? null : "*",
+									GenContext.GetTypeName(fldX.DeclType),
+									TempName(slotPop)),
+								slotPush.SlotType);
+							break;
+					}
 				}
 				else
 				{
