@@ -612,14 +612,14 @@ namespace testcase
 			if (aabb != "Test拼接")
 				return 11;
 
-			aabb = aabb.Substring(2, 3);
-			if (aabb != "st拼")
+			if (aabb.Substring(2, 3) != "st拼")
 				return 12;
 
-			/*int a = 123;
-			string sconcat = "测试" + a;
-			if (sconcat != "测试123")
-				return 11;*/
+			if (aabb.IndexOf('拼') != 4)
+				return 13;
+
+			/*if (aabb.IndexOf("t拼", StringComparison.Ordinal) != 3)
+				return 14;*/
 
 			return 0;
 		}
