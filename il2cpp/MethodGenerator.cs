@@ -155,8 +155,8 @@ namespace il2cpp
 		public const string PrefixVMet = "vmet_";
 		public const string PrefixVFtn = "vftn_";
 
-		private readonly GeneratorContext GenContext;
-		private readonly MethodX CurrMethod;
+		public readonly GeneratorContext GenContext;
+		public readonly MethodX CurrMethod;
 
 		// 类型栈
 		private Stack<StackType> TypeStack = new Stack<StackType>();
@@ -890,7 +890,7 @@ namespace il2cpp
 				//	throw new NotImplementedException();
 			}
 			else
-				return RuntimeInternals.GenInternalMethod(CurrMethod, prt, GenContext);
+				return RuntimeInternals.GenInternalMethod(this, prt);
 
 			return false;
 		}
@@ -2996,7 +2996,7 @@ namespace il2cpp
 			ImplDepends.Add(GenContext.GetTypeName(tyX));
 		}
 
-		private void RefValueTypeImpl(TypeSig tySig)
+		public void RefValueTypeImpl(TypeSig tySig)
 		{
 			if (tySig.IsValueType)
 				RefTypeImpl(tySig);

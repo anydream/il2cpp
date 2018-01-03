@@ -5,8 +5,11 @@ namespace il2cpp
 {
 	internal static class RuntimeInternals
 	{
-		public static bool GenInternalMethod(MethodX metX, CodePrinter prt, GeneratorContext genContext)
+		public static bool GenInternalMethod(MethodGenerator metGen, CodePrinter prt)
 		{
+			MethodX metX = metGen.CurrMethod;
+			GeneratorContext genContext = metGen.GenContext;
+
 			string typeName = metX.DeclType.GetNameKey();
 			string metName = metX.Def.Name;
 
@@ -98,6 +101,7 @@ namespace il2cpp
 				}
 				else if (metName == "FastCompareBits")
 				{
+					metGen.RefValueTypeImpl(metX.ParamTypes[0].Next);
 					prt.AppendLine("return IL2CPP_MEMCMP(arg_0, arg_1, sizeof(*arg_0)) == 0 ? 1 : 0;");
 					return true;
 				}
