@@ -2572,11 +2572,13 @@ namespace il2cpp
 			Debug.Assert(tyX != null);
 			RefTypeImpl(tyX);
 
-			inst.InstCode = string.Format(
-				"if ({0}({1}->TypeID)) {2}\n" +
-				"else IL2CPP_THROW_INVALIDCAST;",
+			CodePrinter prt = new CodePrinter();
+			prt.AppendFormatLine("if ({0}({1}->TypeID))",
 				GenContext.GetIsTypeFuncName(tyX),
-				TempName(slotPop),
+				TempName(slotPop));
+
+			++prt.Indents;
+			prt.AppendLine(
 				GenAssign(
 					TempName(slotPush),
 					string.Format("{0}(({1}*){2})->{3}",
@@ -2585,6 +2587,14 @@ namespace il2cpp
 						TempName(slotPop),
 						GenContext.GetFieldName(tyX.Fields.First())),
 					slotPush.SlotType));
+			--prt.Indents;
+
+			prt.AppendLine("else");
+			++prt.Indents;
+			prt.Append("IL2CPP_THROW_INVALIDCAST;");
+			--prt.Indents;
+
+			inst.InstCode = prt.ToString();
 		}
 
 		private void GenIsinst(InstInfo inst, TypeX tyX)
