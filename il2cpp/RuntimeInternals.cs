@@ -101,8 +101,14 @@ namespace il2cpp
 				}
 				else if (metName == "FastCompareBits")
 				{
-					metGen.RefValueTypeImpl(metX.ParamTypes[0].Next);
-					prt.AppendLine("return IL2CPP_MEMCMP(arg_0, arg_1, sizeof(*arg_0)) == 0 ? 1 : 0;");
+					var argTySig = metX.ParamTypes[0].Next;
+					metGen.RefValueTypeImpl(argTySig);
+
+					if (Helper.IsBasicValueType(argTySig.ElementType) ||
+						genContext.GetTypeBySig(argTySig).IsEnumType)
+						prt.AppendLine("return *arg_0 == *arg_1 ? 1 : 0;");
+					else
+						prt.AppendLine("return IL2CPP_MEMCMP(arg_0, arg_1, sizeof(*arg_0)) == 0 ? 1 : 0;");
 					return true;
 				}
 				else if (metName == "InitializeArray")
