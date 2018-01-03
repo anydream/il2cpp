@@ -608,18 +608,28 @@ namespace testcase
 
 			string aa = "Test";
 			string bb = "拼接";
-			string aabb = aa + bb;
-			if (aabb != "Test拼接")
+			string con = aa + bb;
+			if (con != "Test拼接")
 				return 11;
 
-			if (aabb.Substring(2, 3) != "st拼")
+			if (con.Substring(2, 3) != "st拼")
 				return 12;
 
-			if (aabb.IndexOf('拼') != 4)
+			if (con.IndexOf('拼') != 4)
 				return 13;
 
-			/*if (aabb.IndexOf("t拼", StringComparison.Ordinal) != 3)
-				return 14;*/
+			return 0;
+		}
+	}
+
+	[CodeGen]
+	static class TestString2
+	{
+		public static int Entry()
+		{
+			string str = "1234asdf测试字符串";
+			if (str.IndexOf("df测试", StringComparison.Ordinal) != 6)
+				return 1;
 
 			return 0;
 		}

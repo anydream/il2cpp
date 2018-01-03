@@ -601,8 +601,11 @@ namespace il2cpp
 				case ElementType.CModReqd:
 					{
 						CModReqdSig modReqdSig = (CModReqdSig)tySig;
-						if (modReqdSig.Modifier.FullName == "System.Runtime.CompilerServices.IsVolatile")
-							return (hasVolatile ? "volatile " : null) + GetTypeName(tySig.Next);
+						string strMod = null;
+						if (hasVolatile &&
+							modReqdSig.Modifier.FullName == "System.Runtime.CompilerServices.IsVolatile")
+							strMod = "volatile ";
+						return strMod + GetTypeName(tySig.Next);
 					}
 					break;
 			}

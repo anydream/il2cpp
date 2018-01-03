@@ -2933,7 +2933,6 @@ namespace il2cpp
 					return StackType.Ref;
 
 				case ElementType.CModReqd:
-					Debug.Assert(((CModReqdSig)tySig).Modifier.FullName == "System.Runtime.CompilerServices.IsVolatile");
 					return ToStackType(tySig.Next);
 			}
 
