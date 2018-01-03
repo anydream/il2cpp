@@ -1481,6 +1481,9 @@ namespace testcase
 			if (!e.Equals(oe))
 				return 9;
 
+			if (e.GetHashCode() != oe.GetHashCode())
+				return 10;
+
 			return 0;
 		}
 	}
