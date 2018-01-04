@@ -63,7 +63,9 @@ namespace il2cpp
 			if (RecordLogs == null)
 				RecordLogs = new StringBuilder();
 
-			RecordLogs.AppendFormat(" * {0} -> {1}\n", metX.DeclType.GetNameKey(), metX.GetNameKey());
+			string metDeclTypeName = metX.DeclType.GetNameKey();
+			string metName = metX.GetNameKey();
+			RecordLogs.AppendFormat(" * {0} -> {1}\n", metDeclTypeName, metName);
 		}
 
 		private void RecordAddingMethod(MethodX metX)
@@ -72,7 +74,11 @@ namespace il2cpp
 				RecordLogs = new StringBuilder();
 
 			if (!PendingMethods.Contains(metX))
-				RecordLogs.AppendFormat("   |- {0} -> {1}\n", metX.DeclType.GetNameKey(), metX.GetNameKey());
+			{
+				string metDeclTypeName = metX.DeclType.GetNameKey();
+				string metName = metX.GetNameKey();
+				RecordLogs.AppendFormat("   |- {0} -> {1}\n", metDeclTypeName, metName);
+			}
 		}
 #else
 		private void RecordResolvingMethod(MethodX metX)
