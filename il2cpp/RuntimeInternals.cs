@@ -63,6 +63,53 @@ namespace il2cpp
 					return true;
 				}
 			}
+			else if (typeName == "System.Array")
+			{
+				if (metName == "get_Rank")
+				{
+					prt.AppendLine("if (arg_0->Rank == 0)");
+					++prt.Indents;
+					prt.AppendLine("return 1;");
+					--prt.Indents;
+					prt.AppendLine("return arg_0->Rank;");
+					return true;
+				}
+				else if (metName == "get_Length")
+				{
+					prt.AppendLine("return il2cpp_Array__GetLength(arg_0);");
+					return true;
+				}
+				else if (metName == "get_LongLength")
+				{
+					prt.AppendLine("return il2cpp_Array__GetLongLength(arg_0);");
+					return true;
+				}
+				else if (metName == "GetLength")
+				{
+					prt.AppendLine("return il2cpp_Array__GetLength(arg_0, arg_1);");
+					return true;
+				}
+				else if (metName == "GetLowerBound")
+				{
+					prt.AppendLine("return il2cpp_Array__GetLowerBound(arg_0, arg_1);");
+					return true;
+				}
+				else if (metName == "GetUpperBound")
+				{
+					prt.AppendLine("return il2cpp_Array__GetUpperBound(arg_0, arg_1);");
+					return true;
+				}
+				else if (metName == "Copy")
+				{
+					prt.AppendLine("return il2cpp_Array__Copy(arg_0, arg_1, arg_2, arg_3, arg_4);");
+					return true;
+				}
+				else if (metName == "Clear")
+				{
+					prt.AppendLine("return il2cpp_Array__Clear(arg_0, arg_1, arg_2;");
+					return true;
+				}
+			}
 			else if (typeName == "System.Runtime.CompilerServices.RuntimeHelpers")
 			{
 				if (metName == "IsReferenceOrContainsReferences")
@@ -127,6 +174,12 @@ namespace il2cpp
 					prt.AppendLine("return arg_0 == arg_1 ? 1 : 0;");
 					return true;
 				}
+				else if (metName == "GetHashCode")
+				{
+					prt.AppendLine("uintptr_t val = (uintptr_t)arg_0;");
+					prt.AppendLine("return (int32_t)((uint32_t)val ^ (uint32_t)(val >> 32) ^ (uint32_t)0x14AE055C);");
+					return true;
+				}
 			}
 			else if (typeName == "System.Buffer")
 			{
@@ -166,6 +219,36 @@ namespace il2cpp
 				else if (metName == "Pow")
 				{
 					prt.AppendLine("return il2cpp_Pow(arg_0, arg_1);");
+					return true;
+				}
+			}
+			else if (typeName == "System.Environment")
+			{
+				if (metName == "GetResourceFromDefault")
+				{
+					prt.AppendLine("return arg_0;");
+					return true;
+				}
+			}
+			else if (typeName == "System.Threading.Monitor")
+			{
+				if (metName == "ReliableEnter")
+				{
+					prt.AppendLine("il2cpp_SpinLock(arg_0->Flags[0]);");
+					prt.AppendLine("*arg_1 = 1;");
+					return true;
+				}
+				else if (metName == "Exit")
+				{
+					prt.AppendLine("il2cpp_SpinUnlock(arg_0->Flags[0]);");
+					return true;
+				}
+			}
+			else if (typeName == "System.GC")
+			{
+				if (metName == "_Collect")
+				{
+					prt.AppendLine("il2cpp_GC_Collect();");
 					return true;
 				}
 			}

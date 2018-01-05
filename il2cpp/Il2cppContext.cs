@@ -105,7 +105,7 @@ namespace il2cpp
 			// 生成编译脚本
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine("@echo off");
-			sb.AppendFormat("BuildTheCode -addcflags \"-DGC_THREADS\" {0} il2cpp.cpp il2cppICall.cpp il2cppInit.cpp", addParams);
+			sb.AppendFormat("BuildTheCode -addcflags \"-DGC_THREADS\" {0} il2cpp.cpp", addParams);
 			foreach (string unitName in unitNames)
 				sb.AppendFormat(" {0}.cpp", unitName);
 			sb.AppendLine();

@@ -1,5 +1,4 @@
 ﻿#include "il2cpp.h"
-#include "il2cppGC.h"
 #include <gc.h>
 
 #if defined(GC_THREADS) && defined(IL2CPP_ENABLE_FINALIZER_THREAD)

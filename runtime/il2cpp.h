@@ -192,6 +192,15 @@ struct il2cppRootItem
 
 using IL2CPP_FINALIZER_FUNC = void(*)(cls_Object*);
 
+void il2cpp_GC_Init();
+void* il2cpp_GC_Alloc(uintptr_t sz);
+void* il2cpp_GC_AllocAtomic(uintptr_t sz);
+void il2cpp_GC_AddRoots(void* low, void* high);
+bool il2cpp_GC_RegisterThread();
+bool il2cpp_GC_UnregisterThread();
+void il2cpp_GC_RegisterFinalizer(cls_Object* obj, IL2CPP_FINALIZER_FUNC finalizer);
+void il2cpp_GC_Collect();
+
 void il2cpp_Init();
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef);
 void* il2cpp_New(uint32_t sz, uint32_t typeID, uint8_t isNoRef, IL2CPP_FINALIZER_FUNC finalizer);

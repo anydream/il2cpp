@@ -1,5 +1,4 @@
 ﻿#include "il2cpp.h"
-#include "il2cppGC.h"
 #include "il2cppBridge.h"
 #include <math.h>
 #include <algorithm>
