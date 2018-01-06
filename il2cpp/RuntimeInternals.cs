@@ -190,6 +190,24 @@ namespace il2cpp
 					return true;
 				}
 			}
+			else if (typeName == "System.Runtime.CompilerServices.JitHelpers")
+			{
+				if (metName == "GetRawSzArrayData")
+				{
+					prt.AppendLine("IL2CPP_ASSERT(arg_0->Rank == 0);");
+					prt.AppendLine("return (uint8_t*)&arg_0[1];");
+					return true;
+				}
+			}
+			else if (typeName == "Internal.Runtime.CompilerServices.Unsafe")
+			{
+				if (metName == "As")
+				{
+					prt.AppendFormatLine("return ({0})arg_0;",
+						genContext.GetTypeName(metX.ReturnType));
+					return true;
+				}
+			}
 			else if (typeName == "System.Buffer")
 			{
 				if (metName == "__Memmove")
@@ -257,10 +275,10 @@ namespace il2cpp
 			return false;
 		}
 
-		private static TypeX GetMethodGenType(MethodX metX, GeneratorContext genContext)
+		private static TypeX GetMethodGenType(MethodX metX, GeneratorContext genContext, int genArg = 0)
 		{
-			Debug.Assert(metX.HasGenArgs && metX.GenArgs.Count == 1);
-			TypeX genType = genContext.GetTypeBySig(metX.GenArgs[0]);
+			Debug.Assert(metX.HasGenArgs && metX.GenArgs.Count > genArg);
+			TypeX genType = genContext.GetTypeBySig(metX.GenArgs[genArg]);
 			Debug.Assert(genType != null);
 			return genType;
 		}
