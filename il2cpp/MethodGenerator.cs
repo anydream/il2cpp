@@ -2693,15 +2693,24 @@ namespace il2cpp
 
 			RefTypeImpl(tyX);
 
-			inst.InstCode = string.Format(
-				"if ({0} == nullptr || {1}({0}->TypeID)) {2}\n" +
-				"else IL2CPP_THROW_INVALIDCAST;",
+			CodePrinter prt = new CodePrinter();
+			prt.AppendFormatLine("if ({0} == nullptr || {1}({0}->TypeID))",
 				TempName(slotPop),
-				GenContext.GetIsTypeFuncName(tyX),
+				GenContext.GetIsTypeFuncName(tyX));
+			++prt.Indents;
+			prt.AppendLine(
 				GenAssign(
 					TempName(slotPush),
 					TempName(slotPop),
 					slotPush.SlotType));
+			--prt.Indents;
+
+			prt.AppendLine("else");
+			++prt.Indents;
+			prt.Append("IL2CPP_THROW_INVALIDCAST;");
+			--prt.Indents;
+
+			inst.InstCode = prt.ToString();
 		}
 
 		private void GenLdfld(InstInfo inst, FieldX fldX, bool isAddr = false)
