@@ -642,9 +642,12 @@ namespace testcase
 	{
 		public static int Entry()
 		{
-			string str = "1234asdf测试字符串";
+			string str = "1234asdf测试字符串字符串";
 			if (str.IndexOf("df测试", StringComparison.Ordinal) != 6)
 				return 1;
+
+			if (str.LastIndexOf("字符串", StringComparison.Ordinal) != 13)
+				return 2;
 
 			return 0;
 		}
