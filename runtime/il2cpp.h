@@ -47,6 +47,8 @@
 #define IL2CPP_THROW(_ex)				throw il2cppException(_ex)
 #define IL2CPP_THROW_INVALIDCAST		do { il2cpp_ThrowInvalidCast(); IL2CPP_UNREACHABLE; } while(0)
 
+#define IL2CPP_MIN(_x, _y)				il2cpp_Min(_x, _y)
+#define IL2CPP_MAX(_x, _y)				il2cpp_Max(_x, _y)
 #define IL2CPP_OFFSETOF(_fld)			il2cpp_OffsetOf(_fld)
 #define IL2CPP_NANF						il2cpp_NaNF()
 #define IL2CPP_NAND						il2cpp_NaND()

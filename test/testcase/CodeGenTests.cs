@@ -523,7 +523,7 @@ namespace testcase
 			return s;
 		}
 
-		public static int Entry()
+		public static unsafe int Entry()
 		{
 			string s = "asdf\\1234\"zxcv'!~";
 
@@ -617,6 +617,21 @@ namespace testcase
 
 			if (con.IndexOf('拼') != 4)
 				return 13;
+
+			string strCmp = "qwe\0r";
+			if (strCmp != strCmp ||
+				strCmp == "qwe\0\0")
+				return 14;
+
+			char* pstr = stackalloc char[10];
+			pstr[5] = 'H';
+			pstr[6] = 'e';
+			pstr[7] = 'l';
+			pstr[8] = 'l';
+			pstr[9] = 'o';
+			string str = new string(pstr, 5, 5);
+			if (str != "Hello")
+				return 15;
 
 			return 0;
 		}
@@ -2839,7 +2854,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestGarbageCollection.Entry();
+			var result = TestString.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);

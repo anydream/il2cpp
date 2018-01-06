@@ -2415,28 +2415,74 @@ namespace il2cpp
 				bool hasTemp = ctorArgs.Count > 1;
 
 				string strAddSize = null;
-				if (tyX.IsArrayType)
+				if (Helper.IsExtern(metX.Def))
 				{
-					var elemType = tyX.GenArgs[0];
-					RefTypeImpl(elemType);
-
-					strAddSize = string.Format(" + sizeof({0})",
-						GenContext.GetTypeName(elemType));
-
-					uint rank = tyX.ArrayInfo.Rank;
-					int argLen = ctorArgs.Count - 1;
-					if (rank == argLen)
+					if (tyX.IsArrayType)
 					{
-						for (int i = 0; i < rank; ++i)
-							strAddSize += " * " + TempName(ctorArgs[i + 1]);
+						var elemType = tyX.GenArgs[0];
+						RefTypeImpl(elemType);
+
+						strAddSize = string.Format(" + sizeof({0})",
+							GenContext.GetTypeName(elemType));
+
+						uint rank = tyX.ArrayInfo.Rank;
+						int argLen = ctorArgs.Count - 1;
+						if (rank == argLen)
+						{
+							for (int i = 0; i < rank; ++i)
+								strAddSize += " * " + TempName(ctorArgs[i + 1]);
+						}
+						else if (rank * 2 == argLen)
+						{
+							for (int i = 0; i < rank; ++i)
+								strAddSize += " * " + TempName(ctorArgs[i * 2 + 1 + 1]);
+						}
+						else
+							throw new ArgumentOutOfRangeException();
 					}
-					else if (rank * 2 == argLen)
+					else if (tyX.GetNameKey() == "String")
 					{
-						for (int i = 0; i < rank; ++i)
-							strAddSize += " * " + TempName(ctorArgs[i * 2 + 1 + 1]);
+						strAddSize = " + sizeof(uint16_t) * ";
+
+						string metSigName = metX.GetNameKey();
+						if (metSigName == ".ctor|Void(Char*,Int32,Int32)|20")
+						{
+							strAddSize += TempName(ctorArgs[3]);
+						}
+						else if (metSigName == ".ctor|Void(Char[],Int32,Int32)|20")
+						{
+							strAddSize += string.Format("IL2CPP_MIN(IL2CPP_SZARRAY_LEN({0}) - {1}, {2})",
+								TempName(ctorArgs[1]),
+								TempName(ctorArgs[2]),
+								TempName(ctorArgs[3]));
+						}
+						else if (metSigName == ".ctor|Void(Char*)|20")
+						{
+							strAddSize += string.Format("IL2CPP_STRLEN16({0})", TempName(ctorArgs[1]));
+						}
+						else if (metSigName == ".ctor|Void(Char[])|20")
+						{
+							strAddSize += string.Format("IL2CPP_SZARRAY_LEN({0})", TempName(ctorArgs[1]));
+						}
+						else if (metSigName == ".ctor|Void(Char,Int32)|20")
+						{
+							strAddSize += TempName(ctorArgs[2]);
+						}
+						else if (metSigName == ".ctor|Void(SByte*,Int32,Int32)|20" ||
+								 metSigName == ".ctor|Void(SByte*,Int32,Int32,Encoding)|20")
+						{
+							strAddSize += string.Format("IL2CPP_TOUTF16LEN({0} + {1}, {2})",
+								TempName(ctorArgs[1]),
+								TempName(ctorArgs[2]),
+								TempName(ctorArgs[3]));
+						}
+						else if (metSigName == ".ctor|Void(SByte*)|20")
+						{
+							strAddSize += string.Format("IL2CPP_TOUTF16LEN({0})", TempName(ctorArgs[1]));
+						}
+						else
+							throw new ArgumentOutOfRangeException();
 					}
-					else
-						throw new ArgumentOutOfRangeException();
 				}
 
 				string strCode = GenAssign(
