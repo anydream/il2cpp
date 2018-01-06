@@ -215,7 +215,7 @@ namespace il2cpp
 				AppendRuntimeFlags(metX, prtDecl);
 
 				prtDecl.AppendFormatLine("// {0}{1}{2} -> {3}",
-					!metX.Def.HasBody && !metX.Def.IsAbstract ? "extern " : null,
+					Helper.IsExtern(metX.Def) ? "extern " : null,
 					metX.Def.IsInternalCall ? "internalcall " : null,
 					Helper.EscapeString(metX.DeclType.GetNameKey()),
 					Helper.EscapeString(metX.GetReplacedNameKey()));

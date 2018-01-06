@@ -2446,7 +2446,9 @@ namespace il2cpp
 						strAddSize,
 						GenContext.GetTypeID(tyX),
 						GenContext.IsTypeNoRef(tyX) ? "1" : "0",
-						tyX.FinalizerMethod != null ? ", (IL2CPP_FINALIZER_FUNC)&" + GenContext.GetMethodName(tyX.FinalizerMethod, PrefixMet) : null),
+						tyX.FinalizerMethod != null ?
+							", (IL2CPP_FINALIZER_FUNC)&" + GenContext.GetMethodName(tyX.FinalizerMethod, PrefixMet) :
+							null),
 					slotPush.SlotType);
 
 				strCode += '\n' + GenCall(metX, false, ctorArgs);

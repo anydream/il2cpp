@@ -546,6 +546,11 @@ namespace il2cpp
 								fullName);
 		}
 
+		public static bool IsExtern(MethodDef metDef)
+		{
+			return !metDef.HasBody && !metDef.IsAbstract;
+		}
+
 		public static bool IsInstanceField(FieldDef fldDef)
 		{
 			return !fldDef.IsStatic;

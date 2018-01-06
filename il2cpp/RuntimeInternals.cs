@@ -12,6 +12,7 @@ namespace il2cpp
 
 			string typeName = metX.DeclType.GetNameKey();
 			string metName = metX.Def.Name;
+			string metSigName = metX.GetNameKey();
 
 			if (typeName == "Object")
 			{
@@ -219,14 +220,6 @@ namespace il2cpp
 				else if (metName == "Pow")
 				{
 					prt.AppendLine("return il2cpp_Pow(arg_0, arg_1);");
-					return true;
-				}
-			}
-			else if (typeName == "System.Environment")
-			{
-				if (metName == "GetResourceFromDefault")
-				{
-					prt.AppendLine("return arg_0;");
 					return true;
 				}
 			}
