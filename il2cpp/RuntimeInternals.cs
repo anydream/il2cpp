@@ -56,11 +56,19 @@ namespace il2cpp
 				else if (metName == "FastAllocateString")
 				{
 					prt.AppendFormatLine(
-						"cls_String* str = (cls_String*)IL2CPP_NEW(sizeof(cls_Object) + sizeof(int32_t) + sizeof(uint16_t) * (arg_0 + 1), {0}, 1);",
+						"cls_String* str = (cls_String*)IL2CPP_NEW(sizeof(cls_String) + sizeof(uint16_t) * arg_0, {0}, 1);",
 						genContext.GetStringTypeID());
 					prt.AppendFormatLine("str->{0} = arg_0;",
 						genContext.GetFieldName(fldLen));
 					prt.AppendLine("return str;");
+					return true;
+				}
+				else if (metSigName == ".ctor|Void(Char*,Int32,Int32)|20")
+				{
+					prt.AppendFormatLine("arg_0->{0} = arg_3;",
+						genContext.GetFieldName(fldLen));
+					prt.AppendFormatLine("IL2CPP_MEMCPY(&arg_0->{0}, arg_1 + arg_2, sizeof(uint16_t) * arg_3);",
+						genContext.GetFieldName(fldFirstChar));
 					return true;
 				}
 			}
