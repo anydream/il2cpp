@@ -24,13 +24,19 @@
 #define IL2CPP_TRAP								__builtin_trap()
 #define IL2CPP_UNREACHABLE						__builtin_unreachable()
 #define IL2CPP_ATOMIC_CAS_8(_dst, _cmp, _new)	__sync_val_compare_and_swap(_dst, _cmp, _new)
+#define IL2CPP_ATOMIC_CAS_16(_dst, _cmp, _new)	__sync_val_compare_and_swap(_dst, _cmp, _new)
+#define IL2CPP_ATOMIC_CAS_32(_dst, _cmp, _new)	__sync_val_compare_and_swap(_dst, _cmp, _new)
+#define IL2CPP_ATOMIC_CAS_64(_dst, _cmp, _new)	__sync_val_compare_and_swap(_dst, _cmp, _new)
 #define IL2CPP_LIKELY(_x)						__builtin_expect(!!(_x), 1)
 #define IL2CPP_UNLIKELY(_x)						__builtin_expect(!!(_x), 0)
 #define IL2CPP_PACKED_TAIL(_x)					__attribute__((packed, aligned(_x)))
 #else
 #define IL2CPP_TRAP								abort()
 #define IL2CPP_UNREACHABLE						abort()
-#define IL2CPP_ATOMIC_CAS_8(_dst, _cmp, _new)	_InterlockedCompareExchange8((volatile char*)_dst, _new, _cmp)
+#define IL2CPP_ATOMIC_CAS_8(_dst, _cmp, _new)	_InterlockedCompareExchange8((volatile char*)_dst, (char)_new, (char)_cmp)
+#define IL2CPP_ATOMIC_CAS_16(_dst, _cmp, _new)	_InterlockedCompareExchange16((volatile short*)_dst, (short)_new, (short)_cmp)
+#define IL2CPP_ATOMIC_CAS_32(_dst, _cmp, _new)	_InterlockedCompareExchange((volatile long*)_dst, (long)_new, (long)_cmp)
+#define IL2CPP_ATOMIC_CAS_64(_dst, _cmp, _new)	_InterlockedCompareExchange64((volatile __int64*)_dst, (__int64)_new, (__int64)_cmp)
 #define IL2CPP_LIKELY(_x)						_x
 #define IL2CPP_UNLIKELY(_x)						_x
 #define IL2CPP_PACKED_TAIL(_x)
@@ -461,6 +467,26 @@ T il2cpp_ConvOverflow(S s)
 	}
 
 	return static_cast<T>(s);
+}
+
+template <class T>
+T il2cpp_CompareExchange(T* dst, T value, T comparand)
+{
+	switch (sizeof(T))
+	{
+	case 1:
+		return (T)IL2CPP_ATOMIC_CAS_8(dst, comparand, value);
+
+	case 2:
+		return (T)IL2CPP_ATOMIC_CAS_16(dst, comparand, value);
+
+	case 4:
+		return (T)IL2CPP_ATOMIC_CAS_32(dst, comparand, value);
+
+	case 8:
+		return (T)IL2CPP_ATOMIC_CAS_64(dst, comparand, value);
+	}
+	IL2CPP_TRAP;
 }
 
 void il2cpp_CheckRange(int64_t lowerBound, int64_t length, int64_t index);

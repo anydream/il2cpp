@@ -263,6 +263,14 @@ namespace il2cpp
 					return true;
 				}
 			}
+			else if (typeName == "System.Threading.Interlocked")
+			{
+				if (metName == "CompareExchange")
+				{
+					prt.AppendLine("return il2cpp_CompareExchange(arg_0, arg_1, arg_2);");
+					return true;
+				}
+			}
 			else if (typeName == "System.GC")
 			{
 				if (metName == "_Collect")

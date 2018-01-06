@@ -637,7 +637,7 @@ namespace testcase
 		}
 	}
 
-	//[CodeGen]
+	[CodeGen]
 	static class TestString2
 	{
 		public static int Entry()
