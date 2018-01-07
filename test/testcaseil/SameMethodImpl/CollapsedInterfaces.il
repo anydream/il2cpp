@@ -20,7 +20,6 @@
   .method public hidebysig static int32 
           Main() cil managed
   {
-    .entrypoint
     // Code size       382 (0x17e)
     .maxstack  2
     .locals init (bool V_0,
