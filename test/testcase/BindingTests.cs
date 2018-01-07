@@ -677,7 +677,6 @@ namespace testcase
 		}
 	}
 
-	[Test]
 	static class GenOverride8
 	{
 		interface Inf<T1, T2>
@@ -697,15 +696,19 @@ namespace testcase
 		{
 		}
 
-		public static void Entry()
+		public static int Entry()
 		{
 			Inf<int, short> inf = new Cls();
 			int n = inf.Foo(123);
+
+			if (n != 123)
+				return 1;
+
+			return 0;
 		}
 	}
 
-	[Test]
-	static class GenOverride9
+	static unsafe class GenOverride9
 	{
 		interface Inf<TI>
 		{
@@ -717,74 +720,98 @@ namespace testcase
 			TF Foo<TF>(TF n, TI i);
 		}
 
-		unsafe class Cls<TC> : Inf<TC>, Inf2<short*[]>
+		class Cls<TC> : Inf<TC>, Inf2<short*[]>
 		{
 			public virtual TCF Foo<TCF>(TCF n, TC i)
 			{
+				path = 5;
 				return n;
 			}
 
 			public virtual TF Foo<TF>(TF n, short*[] i)
 			{
+				path = 6;
 				return n;
 			}
 		}
 
-		unsafe class Sub1<TC1> : Cls<TC1>
+		class Sub1<TC1> : Cls<TC1>
 		{
-			private TC1 field1;
-			private short*[] field2;
+			public TC1 field1;
+			public short*[] field2;
 
 			public override TCF1 Foo<TCF1>(TCF1 n, TC1 i)
 			{
+				path = 3;
 				field1 = i;
 				return n;
 			}
 
 			public override TCF1 Foo<TCF1>(TCF1 n, short*[] i)
 			{
+				path = 4;
 				field2 = i;
 				return n;
 			}
 		}
 
-		unsafe class Sub2 : Sub1<int*[]>
+		class Sub2 : Sub1<int*[]>
 		{
 			public override TCF2 Foo<TCF2>(TCF2 n, int*[] i)
 			{
+				path = 1;
 				return n;
 			}
 
-			public override unsafe TCF2 Foo<TCF2>(TCF2 n, short*[] i)
+			public override TCF2 Foo<TCF2>(TCF2 n, short*[] i)
 			{
+				path = 2;
 				return n;
 			}
 		}
 
-		public static unsafe void Entry()
+		private static int path = 0;
+
+		public static int Entry()
 		{
-			char*[] cc = null;
-			int*[] ii = null;
-			short*[] ss = null;
+			char*[] cc = new char*[1];
+			int*[] ii = new int*[1];
+			short*[] ss = new short*[1];
 
 			var cls = new Sub2();
 
 			cls.Foo(cc, ii);
+			if (path != 1)
+				return 1;
+
 			cls.Foo(cc, ss);
+			if (path != 2)
+				return 2;
 
 			Inf<int*[]> inf = cls;
 			inf.Foo(cc, ii);
+			if (path != 1)
+				return 3;
 
 			Inf2<short*[]> inf2 = cls;
 			inf2.Foo(cc, ss);
+			if (path != 2)
+				return 4;
 
 			var cls2 = new Cls<long*[]>();
 
 			Sub1<int*[]> s1 = cls;
 			s1.Foo(cc, ii);
+			if (path != 1)
+				return 5;
+
 			s1.Foo(cc, ss);
+			if (path != 2)
+				return 6;
 
 			new Cls<int*[]>();
+
+			return 0;
 		}
 	}
 
@@ -2431,7 +2458,13 @@ namespace testcase
 			if (res != 0)
 				return res + 50;
 
-			//GenOverride8.Entry();
+			res = GenOverride8.Entry();
+			if (res != 0)
+				return res + 60;
+
+			res = GenOverride9.Entry();
+			if (res != 0)
+				return res + 70;
 
 			return 0;
 		}
