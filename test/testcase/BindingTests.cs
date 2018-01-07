@@ -1985,7 +1985,6 @@ namespace testcase
 		}
 	}
 
-	[Test]
 	static class InterfaceImplementation
 	{
 		class A<T, U>
@@ -2012,7 +2011,7 @@ namespace testcase
 		{
 		}
 
-		public static void Entry()
+		public static int Entry()
 		{
 			I i = (I)new A2_IntInt();
 			string res1 = i.Print(1);
@@ -2020,6 +2019,14 @@ namespace testcase
 			string res2 = ji.Print(1);
 			J<string> js = (J<string>)new A2_StringString();
 			string res3 = js.Print("");
+
+			Console.WriteLine(res1);
+			Console.WriteLine(res2);
+			Console.WriteLine(res3);
+
+			if (res1 == "A.Print(U)" && res2 == "A.Print(U)" && res3 == "A.Print(U)")
+				return 100;
+			return -1;
 		}
 	}
 
@@ -2519,6 +2526,10 @@ namespace testcase
 			res = GenOverride15.Entry();
 			if (res != 0)
 				return res + 105;
+
+			res = InterfaceImplementation.Entry();
+			if (res != 100)
+				return 110;
 
 			return 0;
 		}
