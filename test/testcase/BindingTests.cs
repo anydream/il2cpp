@@ -815,7 +815,6 @@ namespace testcase
 		}
 	}
 
-	[Test]
 	static class GenOverride10
 	{
 		interface Inf<T>
@@ -839,14 +838,19 @@ namespace testcase
 			}
 		}
 
-		public static unsafe void Entry()
+		public static int Entry()
 		{
 			Inf<int> inf = new Cls<int>();
 			inf.Foo(123);
+
+			if (((Cls<int>)inf).field2 != 2 ||
+				((Cls<int>)inf).field1 != 0)
+				return 1;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride11
 	{
 		interface Inf<T>
@@ -871,14 +875,19 @@ namespace testcase
 			}
 		}
 
-		public static unsafe void Entry()
+		public static int Entry()
 		{
 			Inf<int> inf = new Cls<int>();
 			inf.Foo(123);
+
+			if (((Cls<int>)inf).field2 != 2 ||
+				((Cls<int>)inf).field1 != 0)
+				return 1;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride12
 	{
 		interface Inf0<T>
@@ -908,14 +917,19 @@ namespace testcase
 			}
 		}
 
-		public static unsafe void Entry()
+		public static int Entry()
 		{
 			Inf0<int> inf = new Cls<int>();
 			inf.Foo(123);
+
+			if (((Cls<int>)inf).field2 != 2 ||
+				((Cls<int>)inf).field1 != 0)
+				return 1;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride13
 	{
 		interface Inf<T>
@@ -940,14 +954,19 @@ namespace testcase
 			}
 		}
 
-		public static unsafe void Entry()
+		public static int Entry()
 		{
 			Inf<int> inf = new Cls<int>();
 			inf.Foo(123);
+
+			if (((Cls<int>)inf).field2 != 2 ||
+				((Cls<int>)inf).field1 != 0)
+				return 1;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride14
 	{
 		interface Inf0<T>
@@ -977,14 +996,19 @@ namespace testcase
 			}
 		}
 
-		public static unsafe void Entry()
+		public static int Entry()
 		{
 			Inf0<int> inf = new Cls<int>();
 			inf.Foo(123);
+
+			if (((Cls<int>)inf).field1 != 1 ||
+				((Cls<int>)inf).field2 != 0)
+				return 1;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride15
 	{
 		interface Inf<T>
@@ -1008,10 +1032,16 @@ namespace testcase
 			}
 		}
 
-		public static unsafe void Entry()
+		public static int Entry()
 		{
 			Inf<int> inf = new Cls<int>();
 			inf.Foo(123);
+
+			if (((Cls<int>)inf).field1 != 1 ||
+				((Cls<int>)inf).field2 != 0)
+				return 1;
+
+			return 0;
 		}
 	}
 
@@ -2465,6 +2495,30 @@ namespace testcase
 			res = GenOverride9.Entry();
 			if (res != 0)
 				return res + 70;
+
+			res = GenOverride10.Entry();
+			if (res != 0)
+				return res + 80;
+
+			res = GenOverride11.Entry();
+			if (res != 0)
+				return res + 85;
+
+			res = GenOverride12.Entry();
+			if (res != 0)
+				return res + 90;
+
+			res = GenOverride13.Entry();
+			if (res != 0)
+				return res + 95;
+
+			res = GenOverride14.Entry();
+			if (res != 0)
+				return res + 100;
+
+			res = GenOverride15.Entry();
+			if (res != 0)
+				return res + 105;
 
 			return 0;
 		}
