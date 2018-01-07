@@ -27,6 +27,10 @@
 			if (res != 100)
 				return 3;
 
+			res = SameMethodImpl.CollapsedInterfaces.HelloWorld.Main();
+			if (res != 100)
+				return 4;
+
 			return 0;
 		}
 	}

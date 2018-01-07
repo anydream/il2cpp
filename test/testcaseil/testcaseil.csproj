@@ -54,6 +54,9 @@
   <ItemGroup>
     <Compile Include="MethodOverriding\VSW576621.il" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="SameMethodImpl\CollapsedInterfaces.il" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <Target Name="CreateManifestResourceNames" />
   <Target Name="CoreCompile" Inputs="$(MSBuildAllProjects);@(Compile);" Outputs="@(IntermediateAssembly);$(NonExistentFile);">
