@@ -5,9 +5,13 @@
 	{
 		public static int Entry()
 		{
-			int res = InterfaceDefinition.HelloWorld.Main();
+			int res = CollapsedMethods.InterfaceDefinition.HelloWorld.Main();
 			if (res != 100)
 				return 1;
+
+			res = CollapsedMethods.Override.HelloWorld.Main();
+			if (res != 100)
+				return 2;
 
 			return 0;
 		}

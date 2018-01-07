@@ -14,7 +14,7 @@
 
 // =============== CLASS MEMBERS DECLARATION ===================
 
-.class public auto ansi beforefieldinit InterfaceDefinition.HelloWorld
+.class public auto ansi beforefieldinit CollapsedMethods.InterfaceDefinition.HelloWorld
        extends [mscorlib]System.Object
 {
   .method private hidebysig static bool  Check(string actual,
@@ -33,193 +33,192 @@
 
     IL_0012:  ldloc.0
     IL_0013:  ret
-  } // end of method InterfaceDefinition.HelloWorld::Check
+  } // end of method CollapsedMethods.InterfaceDefinition.HelloWorld::Check
 
   .method public hidebysig static int32 
           Main() cil managed
   {
-    .entrypoint
     // Code size       450 (0x1c2)
     .maxstack  3
     .locals init (bool V_0,
-             class InterfaceDefinition.I`1<int32> V_1,
-             class InterfaceDefinition.I2`1<int32> V_2,
-             class InterfaceDefinition.J`2<int32,int32> V_3,
-             class InterfaceDefinition.J2`2<int32,int32> V_4,
-             class InterfaceDefinition.K`1<string> V_5,
-             class InterfaceDefinition.K2`1<string> V_6,
-             class InterfaceDefinition.J`2<string,string> V_7,
-             class InterfaceDefinition.J2`2<string,string> V_8,
+             class CollapsedMethods.InterfaceDefinition.I`1<int32> V_1,
+             class CollapsedMethods.InterfaceDefinition.I2`1<int32> V_2,
+             class CollapsedMethods.InterfaceDefinition.J`2<int32,int32> V_3,
+             class CollapsedMethods.InterfaceDefinition.J2`2<int32,int32> V_4,
+             class CollapsedMethods.InterfaceDefinition.K`1<string> V_5,
+             class CollapsedMethods.InterfaceDefinition.K2`1<string> V_6,
+             class CollapsedMethods.InterfaceDefinition.J`2<string,string> V_7,
+             class CollapsedMethods.InterfaceDefinition.J2`2<string,string> V_8,
              int32 V_9,
              bool V_10)
     IL_0000:  nop
     IL_0001:  ldc.i4.1
     IL_0002:  stloc.0
-    IL_0003:  newobj     instance void InterfaceDefinition.A::.ctor()
-    IL_0008:  castclass  class InterfaceDefinition.I`1<int32>
+    IL_0003:  newobj     instance void CollapsedMethods.InterfaceDefinition.A::.ctor()
+    IL_0008:  castclass  class CollapsedMethods.InterfaceDefinition.I`1<int32>
     IL_000d:  stloc.1
     IL_000e:  ldloc.0
     IL_000f:  ldloc.1
     IL_0010:  ldc.i4.1
-    IL_0011:  callvirt   instance string class InterfaceDefinition.I`1<int32>::Print(int32)
-    IL_0016:  ldstr      "InterfaceDefinition.A.Print(int)"
-    IL_001b:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_0011:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.I`1<int32>::Print(int32)
+    IL_0016:  ldstr      "CollapsedMethods.InterfaceDefinition.A.Print(int)"
+    IL_001b:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_0020:  and
     IL_0021:  stloc.0
     IL_0022:  ldloc.0
     IL_0023:  ldloc.1
     IL_0024:  ldc.i4.1
-    IL_0025:  callvirt   instance string class InterfaceDefinition.I`1<int32>::Print(!0)
-    IL_002a:  ldstr      "InterfaceDefinition.A.Print(int)"
-    IL_002f:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_0025:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.I`1<int32>::Print(!0)
+    IL_002a:  ldstr      "CollapsedMethods.InterfaceDefinition.A.Print(int)"
+    IL_002f:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_0034:  and
     IL_0035:  stloc.0
-    IL_0036:  newobj     instance void InterfaceDefinition.A::.ctor()
-    IL_003b:  castclass  class InterfaceDefinition.I2`1<int32>
+    IL_0036:  newobj     instance void CollapsedMethods.InterfaceDefinition.A::.ctor()
+    IL_003b:  castclass  class CollapsedMethods.InterfaceDefinition.I2`1<int32>
     IL_0040:  stloc.2
     IL_0041:  ldloc.0
     IL_0042:  ldloc.2
     IL_0043:  ldc.i4.1
-    IL_0044:  callvirt   instance string class InterfaceDefinition.I2`1<int32>::Print(int32)
-    IL_0049:  ldstr      "InterfaceDefinition.A.Print(int)"
-    IL_004e:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_0044:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.I2`1<int32>::Print(int32)
+    IL_0049:  ldstr      "CollapsedMethods.InterfaceDefinition.A.Print(int)"
+    IL_004e:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_0053:  and
     IL_0054:  stloc.0
     IL_0055:  ldloc.0
     IL_0056:  ldloc.2
     IL_0057:  ldc.i4.1
-    IL_0058:  callvirt   instance string class InterfaceDefinition.I2`1<int32>::Print(!0)
-    IL_005d:  ldstr      "InterfaceDefinition.A.Print(int)"
-    IL_0062:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_0058:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.I2`1<int32>::Print(!0)
+    IL_005d:  ldstr      "CollapsedMethods.InterfaceDefinition.A.Print(int)"
+    IL_0062:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_0067:  and
     IL_0068:  stloc.0
-    IL_0069:  newobj     instance void InterfaceDefinition.A::.ctor()
-    IL_006e:  castclass  class InterfaceDefinition.J`2<int32,int32>
+    IL_0069:  newobj     instance void CollapsedMethods.InterfaceDefinition.A::.ctor()
+    IL_006e:  castclass  class CollapsedMethods.InterfaceDefinition.J`2<int32,int32>
     IL_0073:  stloc.3
     IL_0074:  ldloc.0
     IL_0075:  ldloc.3
     IL_0076:  ldc.i4.1
-    IL_0077:  callvirt   instance string class InterfaceDefinition.J`2<int32,int32>::Print(!0)
-    IL_007c:  ldstr      "InterfaceDefinition.A.Print(int)"
-    IL_0081:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_0077:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.J`2<int32,int32>::Print(!0)
+    IL_007c:  ldstr      "CollapsedMethods.InterfaceDefinition.A.Print(int)"
+    IL_0081:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_0086:  and
     IL_0087:  stloc.0
     IL_0088:  ldloc.0
     IL_0089:  ldloc.3
     IL_008a:  ldc.i4.1
-    IL_008b:  callvirt   instance string class InterfaceDefinition.J`2<int32,int32>::Print(!1)
-    IL_0090:  ldstr      "InterfaceDefinition.A.Print(int)"
-    IL_0095:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_008b:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.J`2<int32,int32>::Print(!1)
+    IL_0090:  ldstr      "CollapsedMethods.InterfaceDefinition.A.Print(int)"
+    IL_0095:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_009a:  and
     IL_009b:  stloc.0
-    IL_009c:  newobj     instance void InterfaceDefinition.A::.ctor()
-    IL_00a1:  castclass  class InterfaceDefinition.J2`2<int32,int32>
+    IL_009c:  newobj     instance void CollapsedMethods.InterfaceDefinition.A::.ctor()
+    IL_00a1:  castclass  class CollapsedMethods.InterfaceDefinition.J2`2<int32,int32>
     IL_00a6:  stloc.s    V_4
     IL_00a8:  ldloc.0
     IL_00a9:  ldloc.s    V_4
     IL_00ab:  ldc.i4.1
-    IL_00ac:  callvirt   instance string class InterfaceDefinition.J2`2<int32,int32>::Print(!0)
-    IL_00b1:  ldstr      "InterfaceDefinition.A.Print(int)"
-    IL_00b6:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_00ac:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.J2`2<int32,int32>::Print(!0)
+    IL_00b1:  ldstr      "CollapsedMethods.InterfaceDefinition.A.Print(int)"
+    IL_00b6:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_00bb:  and
     IL_00bc:  stloc.0
     IL_00bd:  ldloc.0
     IL_00be:  ldloc.s    V_4
     IL_00c0:  ldc.i4.1
-    IL_00c1:  callvirt   instance string class InterfaceDefinition.J2`2<int32,int32>::Print(!1)
-    IL_00c6:  ldstr      "InterfaceDefinition.A.Print(int)"
-    IL_00cb:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_00c1:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.J2`2<int32,int32>::Print(!1)
+    IL_00c6:  ldstr      "CollapsedMethods.InterfaceDefinition.A.Print(int)"
+    IL_00cb:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_00d0:  and
     IL_00d1:  stloc.0
-    IL_00d2:  newobj     instance void InterfaceDefinition.B::.ctor()
-    IL_00d7:  castclass  class InterfaceDefinition.K`1<string>
+    IL_00d2:  newobj     instance void CollapsedMethods.InterfaceDefinition.B::.ctor()
+    IL_00d7:  castclass  class CollapsedMethods.InterfaceDefinition.K`1<string>
     IL_00dc:  stloc.s    V_5
     IL_00de:  ldloc.0
     IL_00df:  ldloc.s    V_5
     IL_00e1:  ldnull
-    IL_00e2:  callvirt   instance string class InterfaceDefinition.K`1<string>::Print(string)
-    IL_00e7:  ldstr      "InterfaceDefinition.B.Print(string)"
-    IL_00ec:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_00e2:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.K`1<string>::Print(string)
+    IL_00e7:  ldstr      "CollapsedMethods.InterfaceDefinition.B.Print(string)"
+    IL_00ec:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_00f1:  and
     IL_00f2:  stloc.0
     IL_00f3:  ldloc.0
     IL_00f4:  ldloc.s    V_5
     IL_00f6:  ldnull
-    IL_00f7:  callvirt   instance string class InterfaceDefinition.K`1<string>::Print(!0)
-    IL_00fc:  ldstr      "InterfaceDefinition.B.Print(string)"
-    IL_0101:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_00f7:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.K`1<string>::Print(!0)
+    IL_00fc:  ldstr      "CollapsedMethods.InterfaceDefinition.B.Print(string)"
+    IL_0101:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_0106:  and
     IL_0107:  stloc.0
-    IL_0108:  newobj     instance void InterfaceDefinition.B::.ctor()
-    IL_010d:  castclass  class InterfaceDefinition.K2`1<string>
+    IL_0108:  newobj     instance void CollapsedMethods.InterfaceDefinition.B::.ctor()
+    IL_010d:  castclass  class CollapsedMethods.InterfaceDefinition.K2`1<string>
     IL_0112:  stloc.s    V_6
     IL_0114:  ldloc.0
     IL_0115:  ldloc.s    V_6
     IL_0117:  ldnull
-    IL_0118:  callvirt   instance string class InterfaceDefinition.K2`1<string>::Print(string)
-    IL_011d:  ldstr      "InterfaceDefinition.B.Print(string)"
-    IL_0122:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_0118:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.K2`1<string>::Print(string)
+    IL_011d:  ldstr      "CollapsedMethods.InterfaceDefinition.B.Print(string)"
+    IL_0122:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_0127:  and
     IL_0128:  stloc.0
     IL_0129:  ldloc.0
     IL_012a:  ldloc.s    V_6
     IL_012c:  ldnull
-    IL_012d:  callvirt   instance string class InterfaceDefinition.K2`1<string>::Print(!0)
-    IL_0132:  ldstr      "InterfaceDefinition.B.Print(string)"
-    IL_0137:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_012d:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.K2`1<string>::Print(!0)
+    IL_0132:  ldstr      "CollapsedMethods.InterfaceDefinition.B.Print(string)"
+    IL_0137:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_013c:  and
     IL_013d:  stloc.0
-    IL_013e:  newobj     instance void InterfaceDefinition.B::.ctor()
-    IL_0143:  castclass  class InterfaceDefinition.J`2<string,string>
+    IL_013e:  newobj     instance void CollapsedMethods.InterfaceDefinition.B::.ctor()
+    IL_0143:  castclass  class CollapsedMethods.InterfaceDefinition.J`2<string,string>
     IL_0148:  stloc.s    V_7
     IL_014a:  ldloc.0
     IL_014b:  ldloc.s    V_7
     IL_014d:  ldnull
-    IL_014e:  callvirt   instance string class InterfaceDefinition.J`2<string,string>::Print(!0)
-    IL_0153:  ldstr      "InterfaceDefinition.B.Print(string)"
-    IL_0158:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_014e:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.J`2<string,string>::Print(!0)
+    IL_0153:  ldstr      "CollapsedMethods.InterfaceDefinition.B.Print(string)"
+    IL_0158:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_015d:  and
     IL_015e:  stloc.0
     IL_015f:  ldloc.0
     IL_0160:  ldloc.s    V_7
     IL_0162:  ldnull
-    IL_0163:  callvirt   instance string class InterfaceDefinition.J`2<string,string>::Print(!1)
-    IL_0168:  ldstr      "InterfaceDefinition.B.Print(string)"
-    IL_016d:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_0163:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.J`2<string,string>::Print(!1)
+    IL_0168:  ldstr      "CollapsedMethods.InterfaceDefinition.B.Print(string)"
+    IL_016d:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_0172:  and
     IL_0173:  stloc.0
-    IL_0174:  newobj     instance void InterfaceDefinition.B::.ctor()
-    IL_0179:  castclass  class InterfaceDefinition.J2`2<string,string>
+    IL_0174:  newobj     instance void CollapsedMethods.InterfaceDefinition.B::.ctor()
+    IL_0179:  castclass  class CollapsedMethods.InterfaceDefinition.J2`2<string,string>
     IL_017e:  stloc.s    V_8
     IL_0180:  ldloc.0
     IL_0181:  ldloc.s    V_8
     IL_0183:  ldnull
-    IL_0184:  callvirt   instance string class InterfaceDefinition.J2`2<string,string>::Print(!0)
-    IL_0189:  ldstr      "InterfaceDefinition.B.Print(string)"
-    IL_018e:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_0184:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.J2`2<string,string>::Print(!0)
+    IL_0189:  ldstr      "CollapsedMethods.InterfaceDefinition.B.Print(string)"
+    IL_018e:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_0193:  and
     IL_0194:  stloc.0
     IL_0195:  ldloc.0
     IL_0196:  ldloc.s    V_8
     IL_0198:  ldnull
-    IL_0199:  callvirt   instance string class InterfaceDefinition.J2`2<string,string>::Print(!1)
-    IL_019e:  ldstr      "InterfaceDefinition.B.Print(string)"
-    IL_01a3:  call       bool InterfaceDefinition.HelloWorld::Check(string,
+    IL_0199:  callvirt   instance string class CollapsedMethods.InterfaceDefinition.J2`2<string,string>::Print(!1)
+    IL_019e:  ldstr      "CollapsedMethods.InterfaceDefinition.B.Print(string)"
+    IL_01a3:  call       bool CollapsedMethods.InterfaceDefinition.HelloWorld::Check(string,
                                                 string)
     IL_01a8:  and
     IL_01a9:  stloc.0
@@ -240,7 +239,7 @@
 
     IL_01bf:  ldloc.s    V_9
     IL_01c1:  ret
-  } // end of method InterfaceDefinition.HelloWorld::Main
+  } // end of method CollapsedMethods.InterfaceDefinition.HelloWorld::Main
 
   .method public hidebysig specialname rtspecialname 
           instance void  .ctor() cil managed
@@ -250,72 +249,72 @@
     IL_0000:  ldarg.0
     IL_0001:  call       instance void [mscorlib]System.Object::.ctor()
     IL_0006:  ret
-  } // end of method InterfaceDefinition.HelloWorld::.ctor
+  } // end of method CollapsedMethods.InterfaceDefinition.HelloWorld::.ctor
 
-} // end of class InterfaceDefinition.HelloWorld
+} // end of class CollapsedMethods.InterfaceDefinition.HelloWorld
 
-.class interface private abstract auto ansi InterfaceDefinition.I`1<T>
+.class interface private abstract auto ansi CollapsedMethods.InterfaceDefinition.I`1<T>
 {
   .method public hidebysig newslot abstract virtual 
           instance string  Print(int32 i) cil managed
   {
-  } // end of method InterfaceDefinition.I`1::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.I`1::Print
 
   .method public hidebysig newslot abstract virtual 
           instance string  Print(!T t) cil managed
   {
-  } // end of method InterfaceDefinition.I`1::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.I`1::Print
 
-} // end of class InterfaceDefinition.I`1
+} // end of class CollapsedMethods.InterfaceDefinition.I`1
 
-.class interface private abstract auto ansi InterfaceDefinition.I2`1<T>
+.class interface private abstract auto ansi CollapsedMethods.InterfaceDefinition.I2`1<T>
 {
   .method public hidebysig newslot abstract virtual 
           instance string  Print(!T t) cil managed
   {
-  } // end of method InterfaceDefinition.I2`1::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.I2`1::Print
 
   .method public hidebysig newslot abstract virtual 
           instance string  Print(int32 i) cil managed
   {
-  } // end of method InterfaceDefinition.I2`1::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.I2`1::Print
 
-} // end of class InterfaceDefinition.I2`1
+} // end of class CollapsedMethods.InterfaceDefinition.I2`1
 
-.class interface private abstract auto ansi InterfaceDefinition.J`2<T,U>
+.class interface private abstract auto ansi CollapsedMethods.InterfaceDefinition.J`2<T,U>
 {
   .method public hidebysig newslot abstract virtual 
           instance string  Print(!T t) cil managed
   {
-  } // end of method InterfaceDefinition.J`2::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.J`2::Print
 
   .method public hidebysig newslot abstract virtual 
           instance string  Print(!U u) cil managed
   {
-  } // end of method InterfaceDefinition.J`2::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.J`2::Print
 
-} // end of class InterfaceDefinition.J`2
+} // end of class CollapsedMethods.InterfaceDefinition.J`2
 
-.class interface private abstract auto ansi InterfaceDefinition.J2`2<T,U>
+.class interface private abstract auto ansi CollapsedMethods.InterfaceDefinition.J2`2<T,U>
 {
   .method public hidebysig newslot abstract virtual 
           instance string  Print(!U u) cil managed
   {
-  } // end of method InterfaceDefinition.J2`2::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.J2`2::Print
 
   .method public hidebysig newslot abstract virtual 
           instance string  Print(!T t) cil managed
   {
-  } // end of method InterfaceDefinition.J2`2::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.J2`2::Print
 
-} // end of class InterfaceDefinition.J2`2
+} // end of class CollapsedMethods.InterfaceDefinition.J2`2
 
-.class private auto ansi beforefieldinit InterfaceDefinition.A
+.class private auto ansi beforefieldinit CollapsedMethods.InterfaceDefinition.A
        extends [mscorlib]System.Object
-       implements class InterfaceDefinition.I`1<int32>,
-                  class InterfaceDefinition.I2`1<int32>,
-                  class InterfaceDefinition.J`2<int32,int32>,
-                  class InterfaceDefinition.J2`2<int32,int32>
+       implements class CollapsedMethods.InterfaceDefinition.I`1<int32>,
+                  class CollapsedMethods.InterfaceDefinition.I2`1<int32>,
+                  class CollapsedMethods.InterfaceDefinition.J`2<int32,int32>,
+                  class CollapsedMethods.InterfaceDefinition.J2`2<int32,int32>
 {
   .method public hidebysig newslot virtual 
           instance string  Print(int32 i) cil managed
@@ -324,13 +323,13 @@
     .maxstack  1
     .locals init (string V_0)
     IL_0000:  nop
-    IL_0001:  ldstr      "InterfaceDefinition.A.Print(int)"
+    IL_0001:  ldstr      "CollapsedMethods.InterfaceDefinition.A.Print(int)"
     IL_0006:  stloc.0
     IL_0007:  br.s       IL_0009
 
     IL_0009:  ldloc.0
     IL_000a:  ret
-  } // end of method InterfaceDefinition.A::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.A::Print
 
   .method public hidebysig specialname rtspecialname 
           instance void  .ctor() cil managed
@@ -340,44 +339,44 @@
     IL_0000:  ldarg.0
     IL_0001:  call       instance void [mscorlib]System.Object::.ctor()
     IL_0006:  ret
-  } // end of method InterfaceDefinition.A::.ctor
+  } // end of method CollapsedMethods.InterfaceDefinition.A::.ctor
 
-} // end of class InterfaceDefinition.A
+} // end of class CollapsedMethods.InterfaceDefinition.A
 
-.class interface private abstract auto ansi InterfaceDefinition.K`1<T>
+.class interface private abstract auto ansi CollapsedMethods.InterfaceDefinition.K`1<T>
 {
   .method public hidebysig newslot abstract virtual 
           instance string  Print(string s) cil managed
   {
-  } // end of method InterfaceDefinition.K`1::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.K`1::Print
 
   .method public hidebysig newslot abstract virtual 
           instance string  Print(!T t) cil managed
   {
-  } // end of method InterfaceDefinition.K`1::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.K`1::Print
 
-} // end of class InterfaceDefinition.K`1
+} // end of class CollapsedMethods.InterfaceDefinition.K`1
 
-.class interface private abstract auto ansi InterfaceDefinition.K2`1<T>
+.class interface private abstract auto ansi CollapsedMethods.InterfaceDefinition.K2`1<T>
 {
   .method public hidebysig newslot abstract virtual 
           instance string  Print(!T t) cil managed
   {
-  } // end of method InterfaceDefinition.K2`1::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.K2`1::Print
 
   .method public hidebysig newslot abstract virtual 
           instance string  Print(string s) cil managed
   {
-  } // end of method InterfaceDefinition.K2`1::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.K2`1::Print
 
-} // end of class InterfaceDefinition.K2`1
+} // end of class CollapsedMethods.InterfaceDefinition.K2`1
 
-.class private auto ansi beforefieldinit InterfaceDefinition.B
+.class private auto ansi beforefieldinit CollapsedMethods.InterfaceDefinition.B
        extends [mscorlib]System.Object
-       implements class InterfaceDefinition.K`1<string>,
-                  class InterfaceDefinition.K2`1<string>,
-                  class InterfaceDefinition.J`2<string,string>,
-                  class InterfaceDefinition.J2`2<string,string>
+       implements class CollapsedMethods.InterfaceDefinition.K`1<string>,
+                  class CollapsedMethods.InterfaceDefinition.K2`1<string>,
+                  class CollapsedMethods.InterfaceDefinition.J`2<string,string>,
+                  class CollapsedMethods.InterfaceDefinition.J2`2<string,string>
 {
   .method public hidebysig newslot virtual 
           instance string  Print(string s) cil managed
@@ -386,13 +385,13 @@
     .maxstack  1
     .locals init (string V_0)
     IL_0000:  nop
-    IL_0001:  ldstr      "InterfaceDefinition.B.Print(string)"
+    IL_0001:  ldstr      "CollapsedMethods.InterfaceDefinition.B.Print(string)"
     IL_0006:  stloc.0
     IL_0007:  br.s       IL_0009
 
     IL_0009:  ldloc.0
     IL_000a:  ret
-  } // end of method InterfaceDefinition.B::Print
+  } // end of method CollapsedMethods.InterfaceDefinition.B::Print
 
   .method public hidebysig specialname rtspecialname 
           instance void  .ctor() cil managed
@@ -402,12 +401,12 @@
     IL_0000:  ldarg.0
     IL_0001:  call       instance void [mscorlib]System.Object::.ctor()
     IL_0006:  ret
-  } // end of method InterfaceDefinition.B::.ctor
+  } // end of method CollapsedMethods.InterfaceDefinition.B::.ctor
 
-} // end of class InterfaceDefinition.B
+} // end of class CollapsedMethods.InterfaceDefinition.B
 
 
 // =============================================================
 
 // *********** DISASSEMBLY COMPLETE ***********************
-// WARNING: Created Win32 resource file InterfaceDefinition.HelloWorld.res
+// WARNING: Created Win32 resource file CollapsedMethods.InterfaceDefinition.HelloWorld.res

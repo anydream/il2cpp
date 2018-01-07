@@ -2856,7 +2856,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = BindingTests.Entry();
+			var result = TestCIL.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
