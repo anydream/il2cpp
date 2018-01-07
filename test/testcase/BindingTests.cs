@@ -4,7 +4,7 @@ namespace group1
 {
 	class Base<T, P>
 	{
-		private T fld;
+		public T fld;
 		public virtual void Foo(T a, P b)
 		{
 			fld = a;
@@ -13,7 +13,7 @@ namespace group1
 
 	class Derived<T, P> : Base<P, T>
 	{
-		private T fld;
+		public T fld;
 		public override void Foo(P a, T b)
 		{
 			fld = b;
@@ -30,8 +30,8 @@ namespace group2
 
 	class Base<T, P> : Inf<T, P>
 	{
-		private T fld;
-		private int fldInt;
+		public T fld;
+		public int fldInt;
 		public virtual void Foo(T a, P b)
 		{
 			fld = a;
@@ -45,8 +45,8 @@ namespace group2
 
 	class Derived<T, P> : Base<P, T>
 	{
-		private T fld;
-		private int fldInt;
+		public T fld;
+		public int fldInt;
 		public override void Foo(P a, T b)
 		{
 			fld = b;
@@ -60,7 +60,7 @@ namespace group2
 
 	class DerivedX2<T> : Derived<T, int>
 	{
-		private T fld;
+		public T fld;
 		public override void Foo(int a, T b)
 		{
 			fld = b;
@@ -516,46 +516,92 @@ namespace testcase
 	{
 	}
 
-	[Test]
 	static class GenOverride1
 	{
-		public static void Entry()
+		public static int Entry()
 		{
 			group1.Base<int, float> b = new group1.Derived<float, int>();
 			b.Foo(1, 1.2f);
+
+			if (b.fld != 0)
+				return 1;
+
+			if (((group1.Derived<float, int>)b).fld != 1.2f)
+				return 2;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride2
 	{
-		public static void Entry()
+		public static int Entry()
 		{
-			group1.Base<int, float> b = null;
+			group1.Base<int, float> b = new group1.Base<int, float>();
 			b.Foo(1, 1.2f);
+
+			if (b.fld != 1)
+				return 1;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride3
 	{
-		public static void Entry()
+		public static int Entry()
 		{
 			group1.Base<int, float> b = new group1.Base<int, float>();
 			b.Foo(1, 1.2f);
 			var d = new group1.Derived<float, int>();
+
+			if (b.fld != 1)
+				return 1;
+
+			if (d.fld != 0)
+				return 2;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride4
 	{
-		public static void Entry()
+		public static int Entry()
 		{
 			group2.Inf<int, float> i = new group2.DerivedX2<float>();
 			i.Foo(1, 1.2f);
-			group2.Inf<float, int> i2 = null;
+			group2.Inf<float, int> i2 = new group2.Derived<int, float>();
 			i2.Foo(1.2f, 1);
+
+			if (((group2.Base<int, float>)i).fld != 0)
+				return 1;
+
+			if (((group2.Base<int, float>)i).fldInt != 0)
+				return 2;
+
+			if (((group2.Derived<float, int>)i).fld != 0)
+				return 3;
+
+			if (((group2.DerivedX2<float>)i).fldInt != 0)
+				return 4;
+
+			if (((group2.DerivedX2<float>)i).fld != 1.2f)
+				return 5;
+
+			if (((group2.Base<float, int>)i2).fld != 0)
+				return 6;
+
+			if (((group2.Base<float, int>)i2).fldInt != 0)
+				return 7;
+
+			if (((group2.Derived<int, float>)i2).fld != 1)
+				return 8;
+
+			if (((group2.Derived<int, float>)i2).fldInt != 0)
+				return 9;
+
+			return 0;
 		}
 	}
 
@@ -2307,6 +2353,31 @@ namespace testcase
 		{
 			Inf<object> i = new Cls();
 			i.Foo();
+		}
+	}
+
+	[CodeGen]
+	static class BindingTests
+	{
+		public static int Entry()
+		{
+			int res = GenOverride1.Entry();
+			if (res != 0)
+				return res;
+
+			res = GenOverride2.Entry();
+			if (res != 0)
+				return res + 5;
+
+			res = GenOverride3.Entry();
+			if (res != 0)
+				return res + 10;
+
+			res = GenOverride4.Entry();
+			if (res != 0)
+				return res + 20;
+
+			return 0;
 		}
 	}
 }
