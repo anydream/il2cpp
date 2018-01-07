@@ -2020,10 +2020,6 @@ namespace testcase
 			J<string> js = (J<string>)new A2_StringString();
 			string res3 = js.Print("");
 
-			Console.WriteLine(res1);
-			Console.WriteLine(res2);
-			Console.WriteLine(res3);
-
 			if (res1 == "A.Print(U)" && res2 == "A.Print(U)" && res3 == "A.Print(U)")
 				return 100;
 			return -1;
