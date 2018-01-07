@@ -72,8 +72,8 @@ namespace group3
 {
 	class Base<T, P>
 	{
-		private T fld;
-		private P fld2;
+		public T fld;
+		public P fld2;
 		public virtual MT Foo<MT, MP>(T t, P p, MT mt, MP mp)
 		{
 			fld = t;
@@ -89,8 +89,8 @@ namespace group3
 
 	class Derived<T, P> : Base<P, T>
 	{
-		private T fld;
-		private P fld2;
+		public T fld;
+		public P fld2;
 		public override MT Foo<MT, MP>(P t, T p, MT mt, MP mp)
 		{
 			fld = p;
@@ -605,33 +605,75 @@ namespace testcase
 		}
 	}
 
-	[Test]
 	static class GenOverride5
 	{
-		public static void Entry()
+		public static int Entry()
 		{
 			group2.Base<int, float> b = new group2.DerivedX2<float>();
 			b.Foo(1, 1.2f);
+
+			if (b.fld != 0)
+				return 1;
+
+			if (b.fldInt != 0)
+				return 2;
+
+			if (((group2.Derived<float, int>)b).fld != 0)
+				return 3;
+
+			if (((group2.DerivedX2<float>)b).fldInt != 1)
+				return 4;
+
+			if (((group2.DerivedX2<float>)b).fld != 0)
+				return 5;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride6
 	{
-		public static void Entry()
+		public static int Entry()
 		{
 			group3.Base<int, float> b = new group3.Derived<float, int>();
 			b.Foo<short, long>(1, 1.2f, (short)12345, (long)999999);
+
+			if (b.fld != 0)
+				return 1;
+
+			if (((group3.Derived<float, int>)b).fld != 1.2f)
+				return 2;
+
+			if (b.fld2 != 0)
+				return 3;
+
+			if (((group3.Derived<float, int>)b).fld2 != 0)
+				return 4;
+
+			return 0;
 		}
 	}
 
-	[Test]
 	static class GenOverride7
 	{
-		public static void Entry()
+		public static int Entry()
 		{
 			group3.Base<int, float> b = new group3.Derived<float, int>();
 			b.Foo<short, long>(1, 1.2f, (long)999999, (short)12345);
+
+			if (b.fld != 0)
+				return 1;
+
+			if (((group3.Derived<float, int>)b).fld != 0)
+				return 2;
+
+			if (b.fld2 != 0)
+				return 3;
+
+			if (((group3.Derived<float, int>)b).fld2 != 1)
+				return 4;
+
+			return 0;
 		}
 	}
 
@@ -2376,6 +2418,20 @@ namespace testcase
 			res = GenOverride4.Entry();
 			if (res != 0)
 				return res + 20;
+
+			res = GenOverride5.Entry();
+			if (res != 0)
+				return res + 30;
+
+			res = GenOverride6.Entry();
+			if (res != 0)
+				return res + 40;
+
+			res = GenOverride7.Entry();
+			if (res != 0)
+				return res + 50;
+
+			//GenOverride8.Entry();
 
 			return 0;
 		}
