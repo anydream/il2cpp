@@ -2,12 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-.assembly extern System.Console { }
-
 //  Microsoft (R) .NET Framework IL Disassembler.  Version 4.0.20508.0
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
-
-
 
 // Metadata version: v4.0.20508
 .assembly extern mscorlib
@@ -18,7 +14,7 @@
 
 // =============== CLASS MEMBERS DECLARATION ===================
 
-.class private auto ansi beforefieldinit InterfaceDefinition.HelloWorld
+.class public auto ansi beforefieldinit InterfaceDefinition.HelloWorld
        extends [mscorlib]System.Object
 {
   .method private hidebysig static bool  Check(string actual,
@@ -27,9 +23,6 @@
     // Code size       20 (0x14)
     .maxstack  2
     .locals init (bool V_0)
-    IL_0000:  nop
-    IL_0001:  ldarg.0
-    IL_0002:  call       void [System.Console]System.Console::WriteLine(string)
     IL_0007:  nop
     IL_0008:  ldarg.0
     IL_0009:  ldarg.1
@@ -42,7 +35,7 @@
     IL_0013:  ret
   } // end of method InterfaceDefinition.HelloWorld::Check
 
-  .method private hidebysig static int32 
+  .method public hidebysig static int32 
           Main() cil managed
   {
     .entrypoint

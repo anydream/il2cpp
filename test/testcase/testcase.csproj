@@ -59,6 +59,7 @@
     <Compile Include="InstExceptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RayTrace.cs" />
+    <Compile Include="TestCIL.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
