@@ -88,13 +88,13 @@
 	
 PASS:
     ldstr      "Pass"
-    nop//call       void [mscorlib]System.Console::WriteLine(string)
+    pop//call       void [mscorlib]System.Console::WriteLine(string)
     ldc.i4.s   100
     ret
 
 FAILURE:
     ldstr      "Failed!"
-    nop//call       void [mscorlib]System.Console::WriteLine(string)
+    pop//call       void [mscorlib]System.Console::WriteLine(string)
     ldc.i4.m1
     ret
   }
