@@ -410,14 +410,14 @@ namespace il2cpp
 				case ElementType.CModReqd:
 					TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 					sb.Append(" modreq(");
-					ClassSigName(sb, ((CModReqdSig)tySig).Modifier.ResolveTypeDef());
+					ClassSigName(sb, ((CModReqdSig)tySig).Modifier.ToTypeSig());
 					sb.Append(')');
 					return;
 
 				case ElementType.CModOpt:
 					TypeSigName(sb, tySig.Next, printGenOwner, depth + 1);
 					sb.Append(" modopt(");
-					ClassSigName(sb, ((CModOptSig)tySig).Modifier.ResolveTypeDef());
+					ClassSigName(sb, ((CModOptSig)tySig).Modifier.ToTypeSig());
 					sb.Append(')');
 					return;
 

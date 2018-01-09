@@ -172,8 +172,8 @@ namespace test
 			{
 				var codeGenAttr = typeDef.CustomAttributes.FirstOrDefault(attr => attr.AttributeType.Name == "CodeGenAttribute");
 				if (codeGenAttr != null
-				// )
-				&& typeDef.Name == "TestCIL")
+				)
+				// && typeDef.Name == "TestCIL")
 				{
 					return typeDef.FindMethod("Entry");
 				}
