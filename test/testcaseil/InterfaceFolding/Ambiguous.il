@@ -145,14 +145,14 @@
     IL_003d:  br.s       IL_004f
 
     IL_003f:  ldstr      "Pass"
-    IL_0044:  pop
+    IL_0044:  pop//call       void [System.Console]System.Console::WriteLine(string)
     IL_0049:  nop
     IL_004a:  ldc.i4.s   100
     IL_004c:  stloc.2
     IL_004d:  br.s       IL_005e
 
     IL_004f:  ldstr      "Failed!"
-    IL_0054:  pop
+    IL_0054:  pop//call       void [System.Console]System.Console::WriteLine(string)
     IL_0059:  nop
     IL_005a:  ldc.i4.m1
     IL_005b:  stloc.2

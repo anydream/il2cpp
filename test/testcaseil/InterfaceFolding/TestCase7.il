@@ -115,13 +115,13 @@
 	
 PASS:
     ldstr      "Pass"
-    pop
+    pop//call       void [System.Console]System.Console::WriteLine(string)
     ldc.i4.s   100
     ret
 
 FAILURE:
     ldstr      "Failed!"
-    pop
+    pop//call       void [System.Console]System.Console::WriteLine(string)
     ldc.i4.m1
     ret
   }
