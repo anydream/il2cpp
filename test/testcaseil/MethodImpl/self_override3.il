@@ -2,14 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-// MethodImpl.Desktop.self_override3.MyBar is a normal reference type.
-// MethodImpl.Desktop.self_override3.MyBar::DoSelfBar explicitly overrides MethodImpl.Desktop.self_override3.MyBar::DoBar
+// MethodImpl.self_override3.MyBar is a normal reference type.
+// MethodImpl.self_override3.MyBar::DoSelfBar explicitly overrides MethodImpl.self_override3.MyBar::DoBar
 // DoSelfBar has a different signature than DoBar.
-// Expect TypeLoadException when loading MethodImpl.Desktop.self_override3.MyBar.
+// Expect TypeLoadException when loading MethodImpl.self_override3.MyBar.
 
 .assembly extern mscorlib{}
 
-.class public auto ansi beforefieldinit MethodImpl.Desktop.self_override3.MyBar
+.class public auto ansi beforefieldinit MethodImpl.self_override3.MyBar
        extends [mscorlib]System.Object
 {
   .method public hidebysig newslot virtual 
@@ -17,7 +17,7 @@
   {
     .maxstack  1
     .locals init (int32 V_0)
-    IL_0000:  ldstr      "In MethodImpl.Desktop.self_override3.MyBar.DoBar"
+    IL_0000:  ldstr      "In MethodImpl.self_override3.MyBar.DoBar"
     IL_0005:  pop//call       void [mscorlib]System.Console::WriteLine(string)
     IL_000a:  ldc.i4.4
     IL_000b:  stloc.0
@@ -25,16 +25,16 @@
 
     IL_000e:  ldloc.0
     IL_000f:  ret
-  } // end of method MethodImpl.Desktop.self_override3.MyBar::DoBar
+  } // end of method MethodImpl.self_override3.MyBar::DoBar
 
   .method public hidebysig newslot virtual 
           instance int32  DoSelfBar(int32 i)
   {
     // Code size       16 (0x10)
     .maxstack  1
-    .override MethodImpl.Desktop.self_override3.MyBar::DoBar
+    .override MethodImpl.self_override3.MyBar::DoBar
     .locals init (int32 V_0)
-    IL_0000:  ldstr      "In MethodImpl.Desktop.self_override3.MyBar.DoSelfBar"
+    IL_0000:  ldstr      "In MethodImpl.self_override3.MyBar.DoSelfBar"
     IL_0005:  pop//call       void [mscorlib]System.Console::WriteLine(string)
     IL_000a:  ldc.i4.5
     IL_000b:  stloc.0
@@ -52,21 +52,21 @@
     IL_0000:  ldarg.0
     IL_0001:  call       instance void [mscorlib]System.Object::.ctor()
     IL_0006:  ret
-  } // end of method MethodImpl.Desktop.self_override3.MyBar::.ctor
+  } // end of method MethodImpl.self_override3.MyBar::.ctor
 
-} // end of class MethodImpl.Desktop.self_override3.MyBar
+} // end of class MethodImpl.self_override3.MyBar
 
-.class public auto ansi beforefieldinit MethodImpl.Desktop.self_override3.CMain
+.class public auto ansi beforefieldinit MethodImpl.self_override3.CMain
        extends [mscorlib]System.Object
 {
 
   .method public static int32 Go(){
     .maxstack 8
-    .locals init (class MethodImpl.Desktop.self_override3.MyBar V_1)
-    newobj     instance void MethodImpl.Desktop.self_override3.MyBar::.ctor()
+    .locals init (class MethodImpl.self_override3.MyBar V_1)
+    newobj     instance void MethodImpl.self_override3.MyBar::.ctor()
     stloc.0
     ldloc.0
-    callvirt   instance int32 MethodImpl.Desktop.self_override3.MyBar::DoBar()
+    callvirt   instance int32 MethodImpl.self_override3.MyBar::DoBar()
     ret
   }
 
@@ -80,11 +80,11 @@
     IL_0000:  ldc.i4.1
     IL_0001:  stloc.0
     .try{
-        call int32 MethodImpl.Desktop.self_override3.CMain::Go()
+        call int32 MethodImpl.self_override3.CMain::Go()
         pop
         ldc.i4.0
-        stloc.0 // pass=false because we shouldn't have returned from MethodImpl.Desktop.self_override3.CMain::Go, expected TypeLoadException
-        ldstr      "FAIL: did not catch expected TypeLoadException when loading MethodImpl.Desktop.self_override3.MyBar."
+        stloc.0 // pass=false because we shouldn't have returned from MethodImpl.self_override3.CMain::Go, expected TypeLoadException
+        ldstr      "FAIL: did not catch expected TypeLoadException when loading MethodImpl.self_override3.MyBar."
         pop//call       void [mscorlib]System.Console::WriteLine(string)
         leave.s L1
     }
@@ -113,7 +113,7 @@
 
     IL_0029:  ldloc.1
     IL_002a:  ret
-  } // end of method MethodImpl.Desktop.self_override3.CMain::Main
+  } // end of method MethodImpl.self_override3.CMain::Main
 
   .method public hidebysig specialname rtspecialname 
           instance void  .ctor() cil managed
@@ -123,6 +123,6 @@
     IL_0000:  ldarg.0
     IL_0001:  call       instance void [mscorlib]System.Object::.ctor()
     IL_0006:  ret
-  } // end of method MethodImpl.Desktop.self_override3.CMain::.ctor
+  } // end of method MethodImpl.self_override3.CMain::.ctor
 
-} // end of class MethodImpl.Desktop.self_override3.CMain
+} // end of class MethodImpl.self_override3.CMain

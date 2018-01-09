@@ -2,17 +2,17 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-// MethodImpl.Desktop.self_override5.MyBar is a normal reference type.
-// MethodImpl.Desktop.self_override5.MyBar::DoBarOverride explicitly overrides MethodImpl.Desktop.self_override5.MyBar::DoBar
-// MethodImpl.Desktop.self_override5.MyFoo is a subclass of MethodImpl.Desktop.self_override5.MyBar and it has a virtual method DoBarOverride(), which
-// overrides MethodImpl.Desktop.self_override5.MyBar::DoBarOverride(), but not explicitly, that is, it doesn't not involve a MethodImpl.
+// MethodImpl.self_override5.MyBar is a normal reference type.
+// MethodImpl.self_override5.MyBar::DoBarOverride explicitly overrides MethodImpl.self_override5.MyBar::DoBar
+// MethodImpl.self_override5.MyFoo is a subclass of MethodImpl.self_override5.MyBar and it has a virtual method DoBarOverride(), which
+// overrides MethodImpl.self_override5.MyBar::DoBarOverride(), but not explicitly, that is, it doesn't not involve a MethodImpl.
 //
 // 4/6: See also VSWhidbey 165006.  This test has been modified from its original form in light of this bug. -mwilk
 
-// 8/28: Even though we invoke MethodImpl.Desktop.self_override5.MyBar::DoBar virtually and non-virtually in both cases MethodImpl.Desktop.self_override5.MyBar::DoBarOverride() should be 
-// invoked since this is an explicit override and as such MethodImpl.Desktop.self_override5.MyBar::DoBar()'s method body is substituted by that of 
-// MethodImpl.Desktop.self_override5.MyBar::DoBarOverride().
-// MethodImpl.Desktop.self_override5.MyFoo::DoBarOverride() implicitly overrides MethodImpl.Desktop.self_override5.MyBar::DoBarOverride() but it doesn't affect MethodImpl.Desktop.self_override5.MyBar::DoBar() in any way.
+// 8/28: Even though we invoke MethodImpl.self_override5.MyBar::DoBar virtually and non-virtually in both cases MethodImpl.self_override5.MyBar::DoBarOverride() should be 
+// invoked since this is an explicit override and as such MethodImpl.self_override5.MyBar::DoBar()'s method body is substituted by that of 
+// MethodImpl.self_override5.MyBar::DoBarOverride().
+// MethodImpl.self_override5.MyFoo::DoBarOverride() implicitly overrides MethodImpl.self_override5.MyBar::DoBarOverride() but it doesn't affect MethodImpl.self_override5.MyBar::DoBar() in any way.
 // -dmilirud
 
 
@@ -21,11 +21,11 @@
 
 .assembly extern mscorlib{}
 
-.class public MethodImpl.Desktop.self_override5.MyBar extends [mscorlib]System.Object
+.class public MethodImpl.self_override5.MyBar extends [mscorlib]System.Object
 {
   .method public virtual newslot instance int32 DoBar()
   {
-    IL_0000:  ldstr      "In MethodImpl.Desktop.self_override5.MyBar::DoBar"
+    IL_0000:  ldstr      "In MethodImpl.self_override5.MyBar::DoBar"
     IL_0005:  pop//call       void [mscorlib]System.Console::WriteLine(string)
     IL_000a:  ldc.i4.4
     IL_000f:  ret
@@ -33,8 +33,8 @@
 
   .method public virtual newslot instance int32 DoBarOverride()
   {
-    .override MethodImpl.Desktop.self_override5.MyBar::DoBar
-    ldstr      "In MethodImpl.Desktop.self_override5.MyBar::DoBarOverride"
+    .override MethodImpl.self_override5.MyBar::DoBar
+    ldstr      "In MethodImpl.self_override5.MyBar::DoBarOverride"
     pop//call       void [mscorlib]System.Console::WriteLine(string)
     ldc.i4.5
     ret
@@ -49,17 +49,17 @@
   }
 }
 
-.class public beforefieldinit MethodImpl.Desktop.self_override5.MyFoo extends MethodImpl.Desktop.self_override5.MyBar{
+.class public beforefieldinit MethodImpl.self_override5.MyFoo extends MethodImpl.self_override5.MyBar{
   .method public specialname rtspecialname 
           instance void  .ctor()
   {
     IL_0000:  ldarg.0
-    IL_0001:  call       instance void MethodImpl.Desktop.self_override5.MyBar::.ctor()
+    IL_0001:  call       instance void MethodImpl.self_override5.MyBar::.ctor()
     IL_0006:  ret
   } 
 
     .method public virtual instance int32 DoBarOverride(){
-        ldstr "In MethodImpl.Desktop.self_override5.MyFoo::DoBarOverride"
+        ldstr "In MethodImpl.self_override5.MyFoo::DoBarOverride"
         pop//call       void [mscorlib]System.Console::WriteLine(string)
         ldc.i4.6
         ret
@@ -67,7 +67,7 @@
 
 }
 
-.class public beforefieldinit MethodImpl.Desktop.self_override5.CMain extends [mscorlib]System.Object
+.class public beforefieldinit MethodImpl.self_override5.CMain extends [mscorlib]System.Object
 {
 
   .method public hidebysig static int32  Main() cil managed
@@ -75,41 +75,41 @@
     //.entrypoint
 
     .locals init (bool V_0,
-             class MethodImpl.Desktop.self_override5.MyBar V_1,
-             class MethodImpl.Desktop.self_override5.MyFoo V_2,
+             class MethodImpl.self_override5.MyBar V_1,
+             class MethodImpl.self_override5.MyFoo V_2,
              int32 V_3)
 
     IL_0000:  ldc.i4.1
     IL_0001:  stloc.0
 
-    // Invoke mf.DoBar() virtually where b is a MethodImpl.Desktop.self_override5.MyBar reference
-    // and mf is an instance of MethodImpl.Desktop.self_override5.MyFoo.
-    // expect MethodImpl.Desktop.self_override5.MyFoo::DoBarOverride to execute.
+    // Invoke mf.DoBar() virtually where b is a MethodImpl.self_override5.MyBar reference
+    // and mf is an instance of MethodImpl.self_override5.MyFoo.
+    // expect MethodImpl.self_override5.MyFoo::DoBarOverride to execute.
 
-    IL_0002:  newobj     instance void MethodImpl.Desktop.self_override5.MyFoo::.ctor()
+    IL_0002:  newobj     instance void MethodImpl.self_override5.MyFoo::.ctor()
     dup
     IL_0007:  stloc.1
     stloc.2
     IL_0008:  ldc.i4.6
     IL_0009:  ldloc.1
-    IL_000a:  callvirt   instance int32 MethodImpl.Desktop.self_override5.MyBar::DoBar()
+    IL_000a:  callvirt   instance int32 MethodImpl.self_override5.MyBar::DoBar()
     IL_000f:  beq.s      L0
 
-    IL_0011:  ldstr      "FAIL: expected MethodImpl.Desktop.self_override5.MyFoo::DoBarOverride() to execute, but anoth"
+    IL_0011:  ldstr      "FAIL: expected MethodImpl.self_override5.MyFoo::DoBarOverride() to execute, but anoth"
     + "er method was executed instead."
     IL_0016:  pop//call       void [mscorlib]System.Console::WriteLine(string)
     IL_001b:  ldc.i4.0
     IL_001c:  stloc.0
 
 L0:
-    // Invoke mb.DoBar() non-virtually where b is a MethodImpl.Desktop.self_override5.MyBar reference and
-    // mb is an instance of MethodImpl.Desktop.self_override5.MyFoo
-    // expect MethodImpl.Desktop.self_override5.MyBar::DoBarOverride to execute.
+    // Invoke mb.DoBar() non-virtually where b is a MethodImpl.self_override5.MyBar reference and
+    // mb is an instance of MethodImpl.self_override5.MyFoo
+    // expect MethodImpl.self_override5.MyBar::DoBarOverride to execute.
     IL_001f:  ldc.i4.5
     IL_0020:  ldloc.1
-    call instance int32 MethodImpl.Desktop.self_override5.MyBar::DoBar()
+    call instance int32 MethodImpl.self_override5.MyBar::DoBar()
     beq.s      L1
-    ldstr      "FAIL: expected MethodImpl.Desktop.self_override5.MyBar::DoBarOverride to execute, but ano"
+    ldstr      "FAIL: expected MethodImpl.self_override5.MyBar::DoBarOverride to execute, but ano"
         + "ther method was executed instead."
     pop//call       void [mscorlib]System.Console::WriteLine(string)
     ldc.i4.0
@@ -135,7 +135,7 @@ L1:
 
     IL_0040:  ldloc.3
     IL_0041:  ret
-  } // end of method MethodImpl.Desktop.self_override5.CMain::Main
+  } // end of method MethodImpl.self_override5.CMain::Main
 
   .method public hidebysig specialname rtspecialname 
           instance void  .ctor() cil managed
@@ -145,6 +145,6 @@ L1:
     IL_0000:  ldarg.0
     IL_0001:  call       instance void [mscorlib]System.Object::.ctor()
     IL_0006:  ret
-  } // end of method MethodImpl.Desktop.self_override5.CMain::.ctor
+  } // end of method MethodImpl.self_override5.CMain::.ctor
 
-} // end of class MethodImpl.Desktop.self_override5.CMain
+} // end of class MethodImpl.self_override5.CMain

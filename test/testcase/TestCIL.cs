@@ -182,19 +182,15 @@
 
 			res = MethodImpl.self_override1.CMain.Main();
 			if (res != 100)
-				return 43;
-			
-			res = MethodImpl.Desktop.self_override1.CMain.Main();
-			if (res != 100)
-				return 46;
+				return 42;
 
-			res = MethodImpl.Desktop.self_override2.CMain.Main();
+			res = MethodImpl.self_override2.CMain.Main();
 			if (res != 100)
-				return 47;
-			
-			res = MethodImpl.Desktop.self_override5.CMain.Main();
+				return 43;
+
+			res = MethodImpl.self_override5.CMain.Main();
 			if (res != 100)
-				return 49;
+				return 44;
 
 			return 0;
 		}
