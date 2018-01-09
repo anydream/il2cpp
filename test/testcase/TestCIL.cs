@@ -192,6 +192,10 @@
 			if (res != 100)
 				return 44;
 
+			res = MethodImplFinal.CMain.Main();
+			if (res != 100)
+				return 45;
+
 			return 0;
 		}
 	}

@@ -2985,6 +2985,7 @@ namespace il2cpp
 
 		private StackType ToStackType(TypeSig tySig)
 		{
+			tySig = tySig.RemoveModifiers();
 			switch (tySig.ElementType)
 			{
 				case ElementType.I1:

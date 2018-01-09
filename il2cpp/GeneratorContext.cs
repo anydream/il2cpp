@@ -608,7 +608,12 @@ namespace il2cpp
 							strMod = "volatile ";
 						return strMod + GetTypeName(tySig.Next);
 					}
-					break;
+
+				case ElementType.CModOpt:
+					{
+						CModOptSig modOptSig = (CModOptSig)tySig;
+						return GetTypeName(tySig.Next);
+					}
 			}
 
 			throw new NotImplementedException(tySig.ElementType.ToString());
@@ -660,6 +665,7 @@ namespace il2cpp
 
 		public TypeX GetTypeBySig(TypeSig tySig)
 		{
+			tySig = tySig.RemoveModifiers();
 			StringBuilder sb = new StringBuilder();
 			Helper.TypeSigName(sb, tySig, true);
 			return GetTypeByName(sb.ToString());

@@ -108,6 +108,9 @@
     <Compile Include="MethodImpl\self_override3.il" />
     <Compile Include="MethodImpl\self_override5.il" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="MethodImpl\MethodImplFinal.il" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <Target Name="CreateManifestResourceNames" />
   <Target Name="CoreCompile" Inputs="$(MSBuildAllProjects);@(Compile);" Outputs="@(IntermediateAssembly);$(NonExistentFile);">

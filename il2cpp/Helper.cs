@@ -106,16 +106,6 @@ namespace il2cpp
 			return result;
 		}
 
-		public static TypeSig RemoveModifiers(TypeSig tySig)
-		{
-			while (tySig.ElementType == ElementType.CModReqd ||
-				   tySig.ElementType == ElementType.CModOpt)
-			{
-				tySig = tySig.Next;
-			}
-			return tySig;
-		}
-
 		// 替换类型中的泛型签名
 		public static TypeSig ReplaceGenericSig(TypeSig tySig, IGenericReplacer replacer)
 		{
