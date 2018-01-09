@@ -101,6 +101,16 @@
     <Compile Include="InterfaceFolding\Nested_J_Nested_I\TestCase5.il" />
     <Compile Include="InterfaceFolding\Nested_J_Nested_I\TestCase6.il" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="MethodImpl\Desktop\override_override1.il" />
+    <None Include="MethodImpl\Desktop\self_override1.il" />
+    <None Include="MethodImpl\Desktop\self_override2.il" />
+    <None Include="MethodImpl\Desktop\self_override3.il" />
+    <None Include="MethodImpl\Desktop\self_override5.il" />
+    <None Include="MethodImpl\override_override1.il" />
+    <None Include="MethodImpl\self_override1.il" />
+    <None Include="MethodImpl\self_override3.il" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <Target Name="CreateManifestResourceNames" />
   <Target Name="CoreCompile" Inputs="$(MSBuildAllProjects);@(Compile);" Outputs="@(IntermediateAssembly);$(NonExistentFile);">
