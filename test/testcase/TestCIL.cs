@@ -31,6 +31,42 @@
 			if (res != 100)
 				return 4;
 
+			res = InterfaceFolding.Ambiguous.Test.Main();
+			if (res != 100)
+				return 5;
+
+			res = InterfaceFolding.TestCase0.Test.Main();
+			if (res != 100)
+				return 6;
+
+			res = InterfaceFolding.TestCase1.Test.Main();
+			if (res != 100)
+				return 7;
+
+			res = InterfaceFolding.TestCase2.Test.Main();
+			if (res != 100)
+				return 8;
+
+			res = InterfaceFolding.TestCase3.Test.Main();
+			if (res != 100)
+				return 9;
+
+			res = InterfaceFolding.TestCase4.Test.Main();
+			if (res != 100)
+				return 10;
+
+			res = InterfaceFolding.TestCase5.Test.Main();
+			if (res != 100)
+				return 11;
+
+			res = InterfaceFolding.TestCase6.Test.Main();
+			if (res != 100)
+				return 12;
+
+			res = InterfaceFolding.TestCase7.Test.Main();
+			if (res != 100)
+				return 13;
+
 			return 0;
 		}
 	}
