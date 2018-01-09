@@ -60,6 +60,17 @@
   <ItemGroup>
     <Compile Include="SameMethodImpl\Override.il" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="InterfaceFolding\Ambiguous.il" />
+    <Compile Include="InterfaceFolding\TestCase0.il" />
+    <Compile Include="InterfaceFolding\TestCase1.il" />
+    <Compile Include="InterfaceFolding\TestCase2.il" />
+    <Compile Include="InterfaceFolding\TestCase3.il" />
+    <Compile Include="InterfaceFolding\TestCase4.il" />
+    <Compile Include="InterfaceFolding\TestCase5.il" />
+    <Compile Include="InterfaceFolding\TestCase6.il" />
+    <Compile Include="InterfaceFolding\TestCase7.il" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <Target Name="CreateManifestResourceNames" />
   <Target Name="CoreCompile" Inputs="$(MSBuildAllProjects);@(Compile);" Outputs="@(IntermediateAssembly);$(NonExistentFile);">
