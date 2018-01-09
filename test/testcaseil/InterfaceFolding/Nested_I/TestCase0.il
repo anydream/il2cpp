@@ -14,9 +14,9 @@
 }
 
 .class private auto ansi beforefieldinit InterfaceFolding.Nested_I.TestCase0.A`1<U> 
-		implements class InterfaceFolding.Nested_I.TestCase0.A`1/InterfaceFolding.Nested_I.TestCase0.I`1<!U>
+		implements class InterfaceFolding.Nested_I.TestCase0.A`1/I`1<!U>
 {
-  .class interface nested family abstract auto ansi InterfaceFolding.Nested_I.TestCase0.I`1<T>
+  .class interface nested family abstract auto ansi I`1<T>
   { .method public hidebysig newslot abstract virtual instance string  Foo() cil managed {} }
   
   .method public hidebysig newslot virtual instance string  Foo() cil managed
@@ -44,7 +44,7 @@
 
 .class private auto ansi beforefieldinit InterfaceFolding.Nested_I.TestCase0.B`2<V,W>
        extends class InterfaceFolding.Nested_I.TestCase0.A`1<!V>
-       implements class InterfaceFolding.Nested_I.TestCase0.A`1/InterfaceFolding.Nested_I.TestCase0.I`1<!W>, InterfaceFolding.Nested_I.TestCase0.J
+       implements class InterfaceFolding.Nested_I.TestCase0.A`1/I`1<!W>, InterfaceFolding.Nested_I.TestCase0.J
 {
   .method public hidebysig newslot virtual instance string  Foo() cil managed
   {

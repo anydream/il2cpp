@@ -67,6 +67,118 @@
 			if (res != 100)
 				return 13;
 
+			res = InterfaceFolding.Nested_I.TestCase0.Test.Main();
+			if (res != 100)
+				return 14;
+
+			res = InterfaceFolding.Nested_I.TestCase1.Test.Main();
+			if (res != 100)
+				return 15;
+
+			res = InterfaceFolding.Nested_I.TestCase2.Test.Main();
+			if (res != 100)
+				return 16;
+
+			res = InterfaceFolding.Nested_I.TestCase3.Test.Main();
+			if (res != 100)
+				return 17;
+
+			res = InterfaceFolding.Nested_I.TestCase4.Test.Main();
+			if (res != 100)
+				return 18;
+
+			res = InterfaceFolding.Nested_I.TestCase5.Test.Main();
+			if (res != 100)
+				return 19;
+
+			res = InterfaceFolding.Nested_I.TestCase6.Test.Main();
+			if (res != 100)
+				return 20;
+
+			res = InterfaceFolding.Nested_I_Nested_J.TestCase0.Test.Main();
+			if (res != 100)
+				return 21;
+
+			res = InterfaceFolding.Nested_I_Nested_J.TestCase1.Test.Main();
+			if (res != 100)
+				return 22;
+
+			res = InterfaceFolding.Nested_I_Nested_J.TestCase2.Test.Main();
+			if (res != 100)
+				return 23;
+
+			res = InterfaceFolding.Nested_I_Nested_J.TestCase3.Test.Main();
+			if (res != 100)
+				return 24;
+
+			res = InterfaceFolding.Nested_I_Nested_J.TestCase4.Test.Main();
+			if (res != 100)
+				return 25;
+
+			res = InterfaceFolding.Nested_I_Nested_J.TestCase5.Test.Main();
+			if (res != 100)
+				return 26;
+
+			res = InterfaceFolding.Nested_I_Nested_J.TestCase6.Test.Main();
+			if (res != 100)
+				return 27;
+
+			res = InterfaceFolding.Nested_J.TestCase0.Test.Main();
+			if (res != 100)
+				return 28;
+
+			res = InterfaceFolding.Nested_J.TestCase1.Test.Main();
+			if (res != 100)
+				return 29;
+
+			res = InterfaceFolding.Nested_J.TestCase2.Test.Main();
+			if (res != 100)
+				return 30;
+
+			res = InterfaceFolding.Nested_J.TestCase3.Test.Main();
+			if (res != 100)
+				return 31;
+
+			res = InterfaceFolding.Nested_J.TestCase4.Test.Main();
+			if (res != 100)
+				return 32;
+
+			res = InterfaceFolding.Nested_J.TestCase5.Test.Main();
+			if (res != 100)
+				return 33;
+
+			res = InterfaceFolding.Nested_J.TestCase6.Test.Main();
+			if (res != 100)
+				return 34;
+
+			res = InterfaceFolding.Nested_J_Nested_I.TestCase0.Test.Main();
+			if (res != 100)
+				return 35;
+
+			res = InterfaceFolding.Nested_J_Nested_I.TestCase1.Test.Main();
+			if (res != 100)
+				return 36;
+
+			res = InterfaceFolding.Nested_J_Nested_I.TestCase2.Test.Main();
+			if (res != 100)
+				return 37;
+
+			res = InterfaceFolding.Nested_J_Nested_I.TestCase3.Test.Main();
+			if (res != 100)
+				return 38;
+
+			res = InterfaceFolding.Nested_J_Nested_I.TestCase4.Test.Main();
+			if (res != 100)
+				return 39;
+
+			res = InterfaceFolding.Nested_J_Nested_I.TestCase5.Test.Main();
+			if (res != 100)
+				return 40;
+
+			res = InterfaceFolding.Nested_J_Nested_I.TestCase6.Test.Main();
+			if (res != 100)
+				return 41;
+
 			return 0;
 		}
 	}
