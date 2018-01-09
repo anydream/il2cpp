@@ -26,7 +26,7 @@
   .method public virtual newslot instance int32 DoBar()
   {
     IL_0000:  ldstr      "In MethodImpl.Desktop.self_override5.MyBar::DoBar"
-    IL_0005:  call       void [mscorlib]System.Console::WriteLine(string)
+    IL_0005:  pop//call       void [mscorlib]System.Console::WriteLine(string)
     IL_000a:  ldc.i4.4
     IL_000f:  ret
   }
@@ -35,7 +35,7 @@
   {
     .override MethodImpl.Desktop.self_override5.MyBar::DoBar
     ldstr      "In MethodImpl.Desktop.self_override5.MyBar::DoBarOverride"
-    call       void [mscorlib]System.Console::WriteLine(string)
+    pop//call       void [mscorlib]System.Console::WriteLine(string)
     ldc.i4.5
     ret
   }
@@ -60,7 +60,7 @@
 
     .method public virtual instance int32 DoBarOverride(){
         ldstr "In MethodImpl.Desktop.self_override5.MyFoo::DoBarOverride"
-        call       void [mscorlib]System.Console::WriteLine(string)
+        pop//call       void [mscorlib]System.Console::WriteLine(string)
         ldc.i4.6
         ret
     }
@@ -97,7 +97,7 @@
 
     IL_0011:  ldstr      "FAIL: expected MethodImpl.Desktop.self_override5.MyFoo::DoBarOverride() to execute, but anoth"
     + "er method was executed instead."
-    IL_0016:  call       void [mscorlib]System.Console::WriteLine(string)
+    IL_0016:  pop//call       void [mscorlib]System.Console::WriteLine(string)
     IL_001b:  ldc.i4.0
     IL_001c:  stloc.0
 
@@ -111,7 +111,7 @@ L0:
     beq.s      L1
     ldstr      "FAIL: expected MethodImpl.Desktop.self_override5.MyBar::DoBarOverride to execute, but ano"
         + "ther method was executed instead."
-    call       void [mscorlib]System.Console::WriteLine(string)
+    pop//call       void [mscorlib]System.Console::WriteLine(string)
     ldc.i4.0
     stloc.0
 
@@ -124,13 +124,13 @@ L1:
     IL_0037:  ldc.i4.s   101
     stloc.3
     ldstr "FAIL"
-    call void [mscorlib]System.Console::WriteLine(string)
+    pop//call void [mscorlib]System.Console::WriteLine(string)
     IL_0039:  br.s       IL_0040
 
     IL_003b:  ldc.i4.s   100
     IL_003d:  stloc.3
     ldstr "PASS"
-    call void [mscorlib]System.Console::WriteLine(string)
+    pop//call void [mscorlib]System.Console::WriteLine(string)
     IL_003e:  br.s       IL_0040
 
     IL_0040:  ldloc.3

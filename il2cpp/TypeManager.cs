@@ -1554,7 +1554,7 @@ namespace il2cpp
 						if (tyDef != null)
 							return new TypeX(tyDef);
 
-						throw new NotSupportedException();
+						throw new NotSupportedException(tyRef.ToString());
 					}
 
 				case TypeSpec tySpec:

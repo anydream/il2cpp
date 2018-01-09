@@ -4,8 +4,8 @@
 
 // MethodImpl.self_override1.MyBar is an abstract class which declares an abstract method MethodImpl.self_override1.MyBar::DoBar().
 // MethodImpl.self_override1.MyBar also DoSelfBar() that explicitly overrides DoBar().
-// BarImpl extends MethodImpl.self_override1.MyBar and also overrides DoBar().
-// Expect that b.DoBar() will invoke BarImpl::DoBar() if called virtually, whether b is a BarImpl reference
+// MethodImpl.self_override1.BarImpl extends MethodImpl.self_override1.MyBar and also overrides DoBar().
+// Expect that b.DoBar() will invoke MethodImpl.self_override1.BarImpl::DoBar() if called virtually, whether b is a MethodImpl.self_override1.BarImpl reference
 // or a MethodImpl.self_override1.MyBar reference. 
 
 .assembly extern mscorlib{}
@@ -32,7 +32,7 @@
 
     IL_000e:  ldloc.0
     IL_000f:  ret
-  } // end of method BarImpl::DoBar
+  } // end of method MethodImpl.self_override1.BarImpl::DoBar
 
 
   .method family hidebysig specialname rtspecialname 
@@ -47,7 +47,7 @@
 
 } // end of class MethodImpl.self_override1.MyBar
 
-.class public auto ansi beforefieldinit BarImpl
+.class public auto ansi beforefieldinit MethodImpl.self_override1.BarImpl
        extends MethodImpl.self_override1.MyBar
 {
   .method public hidebysig virtual instance int32 
@@ -56,7 +56,7 @@
     // Code size       16 (0x10)
     .maxstack  1
     .locals init (int32 V_0)
-    IL_0000:  ldstr      "In BarImpl.DoBar"
+    IL_0000:  ldstr      "In MethodImpl.self_override1.BarImpl.DoBar"
     IL_0005:  pop//call       void [System.Console]System.Console::WriteLine(string)
     IL_000a:  ldc.i4.2
     IL_000b:  stloc.0
@@ -64,7 +64,7 @@
 
     IL_000e:  ldloc.0
     IL_000f:  ret
-  } // end of method BarImpl::DoBar
+  } // end of method MethodImpl.self_override1.BarImpl::DoBar
 
   .method public hidebysig specialname rtspecialname 
           instance void  .ctor() cil managed
@@ -74,9 +74,9 @@
     IL_0000:  ldarg.0
     IL_0001:  call       instance void MethodImpl.self_override1.MyBar::.ctor()
     IL_0006:  ret
-  } // end of method BarImpl::.ctor
+  } // end of method MethodImpl.self_override1.BarImpl::.ctor
 
-} // end of class BarImpl
+} // end of class MethodImpl.self_override1.BarImpl
 
 .class public auto ansi beforefieldinit MethodImpl.self_override1.CMain
        extends [mscorlib]System.Object
@@ -87,22 +87,22 @@
     // Code size       66 (0x42)
     .maxstack  2
     .locals init (bool V_0,
-             class BarImpl V_1,
+             class MethodImpl.self_override1.BarImpl V_1,
              class MethodImpl.self_override1.MyBar V_2,
              int32 V_3)
 
 
-    // Invoke b.DoBar() virtually where b is a BarImpl reference.
+    // Invoke b.DoBar() virtually where b is a MethodImpl.self_override1.BarImpl reference.
     IL_0000:  ldc.i4.1
     IL_0001:  stloc.0
-    IL_0002:  newobj     instance void BarImpl::.ctor()
+    IL_0002:  newobj     instance void MethodImpl.self_override1.BarImpl::.ctor()
     IL_0007:  stloc.1
     IL_0008:  ldc.i4.2
     IL_0009:  ldloc.1
     IL_000a:  callvirt   instance int32 MethodImpl.self_override1.MyBar::DoBar()
     IL_000f:  beq.s      IL_001d
 
-    IL_0011:  ldstr      "FAIL: expected BarImpl.DoBar to execute, but anoth"
+    IL_0011:  ldstr      "FAIL: expected MethodImpl.self_override1.BarImpl.DoBar to execute, but anoth"
     + "er method was executed instead."
     IL_0016:  pop//call       void [System.Console]System.Console::WriteLine(string)
     IL_001b:  ldc.i4.0
@@ -115,7 +115,7 @@
     IL_0020:  ldloc.2
     IL_0021:  callvirt   instance int32 MethodImpl.self_override1.MyBar::DoBar()
     IL_0026:  beq.s      IL_0034
-    IL_0028:  ldstr      "FAIL: expected BarImpl.DoBar to execute, but ano"
+    IL_0028:  ldstr      "FAIL: expected MethodImpl.self_override1.BarImpl.DoBar to execute, but ano"
     + "ther method was executed instead."
     IL_002d:  pop//call       void [System.Console]System.Console::WriteLine(string)
     IL_0032:  ldc.i4.0

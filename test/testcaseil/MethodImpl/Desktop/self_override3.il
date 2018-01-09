@@ -18,7 +18,7 @@
     .maxstack  1
     .locals init (int32 V_0)
     IL_0000:  ldstr      "In MethodImpl.Desktop.self_override3.MyBar.DoBar"
-    IL_0005:  call       void [mscorlib]System.Console::WriteLine(string)
+    IL_0005:  pop//call       void [mscorlib]System.Console::WriteLine(string)
     IL_000a:  ldc.i4.4
     IL_000b:  stloc.0
     IL_000c:  br.s       IL_000e
@@ -35,7 +35,7 @@
     .override MethodImpl.Desktop.self_override3.MyBar::DoBar
     .locals init (int32 V_0)
     IL_0000:  ldstr      "In MethodImpl.Desktop.self_override3.MyBar.DoSelfBar"
-    IL_0005:  call       void [mscorlib]System.Console::WriteLine(string)
+    IL_0005:  pop//call       void [mscorlib]System.Console::WriteLine(string)
     IL_000a:  ldc.i4.5
     IL_000b:  stloc.0
     IL_000c:  br.s       IL_000e
@@ -85,13 +85,13 @@
         ldc.i4.0
         stloc.0 // pass=false because we shouldn't have returned from MethodImpl.Desktop.self_override3.CMain::Go, expected TypeLoadException
         ldstr      "FAIL: did not catch expected TypeLoadException when loading MethodImpl.Desktop.self_override3.MyBar."
-        call       void [mscorlib]System.Console::WriteLine(string)
+        pop//call       void [mscorlib]System.Console::WriteLine(string)
         leave.s L1
     }
     catch [mscorlib]System.TypeLoadException{   
         ldstr "Caught expected TypeLoadException:"
-        call       void [mscorlib]System.Console::WriteLine(string)
-        call       void [mscorlib]System.Console::WriteLine(object)        
+        pop//call       void [mscorlib]System.Console::WriteLine(string)
+        pop//call       void [mscorlib]System.Console::WriteLine(object)        
         leave.s L1
     }
 
@@ -102,13 +102,13 @@
     IL_0020:  ldc.i4.s   101
     stloc.1
     ldstr "FAIL"
-    call void [mscorlib]System.Console::WriteLine(string)
+    pop//call void [mscorlib]System.Console::WriteLine(string)
     IL_0022:  br.s       IL_0029
 
     IL_0024:  ldc.i4.s   100
     IL_0026:  stloc.1
     ldstr "PASS"
-    call void [mscorlib]System.Console::WriteLine(string)
+    pop//call void [mscorlib]System.Console::WriteLine(string)
     IL_0027:  br.s       IL_0029
 
     IL_0029:  ldloc.1
