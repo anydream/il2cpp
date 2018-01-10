@@ -15,7 +15,9 @@
 
 		public static int Entry()
 		{
-			int res = CollapsedMethods.InterfaceDefinition.HelloWorld.Main();
+			int res;
+
+			res = CollapsedMethods.InterfaceDefinition.HelloWorld.Main();
 			if (res != 100)
 				return 1;
 

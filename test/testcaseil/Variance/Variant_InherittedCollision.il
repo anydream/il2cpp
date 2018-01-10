@@ -106,8 +106,8 @@
     IL_0006:  castclass  class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.1
-    IL_000e:  callvirt   instance !0 class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>::Print(int32)
+    IL_000d:  ldstr "1"
+    IL_000e:  callvirt   instance !0 class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>::Print(string)
     IL_0013:  stloc.1
     IL_0014:  ldloc.1
     IL_0015:  callvirt   instance string Variant_InherittedCollision.A::get_Value()
@@ -131,8 +131,8 @@
     IL_0006:  castclass  class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.2
-    IL_000e:  callvirt   instance !0 class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>::Print(int32)
+    IL_000d:  ldstr "2"
+    IL_000e:  callvirt   instance !0 class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>::Print(string)
     IL_0013:  stloc.1
     IL_0014:  ldloc.1
     IL_0015:  callvirt   instance string Variant_InherittedCollision.A::get_Value()
@@ -156,8 +156,8 @@
     IL_0006:  castclass  class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.s   11
-    IL_000f:  callvirt   instance !0 class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>::Print(int32)
+    IL_000d:  ldstr "11"
+    IL_000f:  callvirt   instance !0 class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>::Print(string)
     IL_0014:  stloc.1
     IL_0015:  ldloc.1
     IL_0016:  callvirt   instance string Variant_InherittedCollision.A::get_Value()
@@ -181,8 +181,8 @@
     IL_0006:  castclass  class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.s   12
-    IL_000f:  callvirt   instance !0 class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>::Print(int32)
+    IL_000d:  ldstr "12"
+    IL_000f:  callvirt   instance !0 class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.A>::Print(string)
     IL_0014:  stloc.1
     IL_0015:  ldloc.1
     IL_0016:  callvirt   instance string Variant_InherittedCollision.A::get_Value()
@@ -210,7 +210,7 @@
 .class interface private abstract auto ansi Variant_InherittedCollision.I`1<+T>
 {
   .method public hidebysig newslot abstract virtual 
-          instance !T  Print(int32 index) cil managed
+          instance !T  Print(string index) cil managed
   {
   } // end of method Variant_InherittedCollision.I`1::Print
 
@@ -221,7 +221,7 @@
 {
   .field family string 'value'
   .method public hidebysig specialname rtspecialname 
-          instance void  .ctor(int32 index) cil managed
+          instance void  .ctor(string index) cil managed
   {
     // Code size       32 (0x20)
     .maxstack  8
@@ -232,9 +232,8 @@
     IL_0008:  ldarg.0
     IL_0009:  ldstr      "A_"
     IL_000e:  ldarg.1
-    IL_000f:  box        [mscorlib]System.Int32
-    IL_0014:  call       string [mscorlib]System.String::Concat(object,
-                                                                object)
+    IL_0014:  call       string [mscorlib]System.String::Concat(string,
+                                                                string)
     IL_0019:  stfld      string Variant_InherittedCollision.A::'value'
     IL_001e:  nop
     IL_001f:  ret
@@ -266,21 +265,20 @@
        extends Variant_InherittedCollision.A
 {
   .method public hidebysig specialname rtspecialname 
-          instance void  .ctor(int32 index) cil managed
+          instance void  .ctor(string index) cil managed
   {
     // Code size       33 (0x21)
     .maxstack  8
     IL_0000:  ldarg.0
     IL_0001:  ldarg.1
-    IL_0002:  call       instance void Variant_InherittedCollision.A::.ctor(int32)
+    IL_0002:  call       instance void Variant_InherittedCollision.A::.ctor(string)
     IL_0007:  nop
     IL_0008:  nop
     IL_0009:  ldarg.0
     IL_000a:  ldstr      "B_"
     IL_000f:  ldarg.1
-    IL_0010:  box        [mscorlib]System.Int32
-    IL_0015:  call       string [mscorlib]System.String::Concat(object,
-                                                                object)
+    IL_0015:  call       string [mscorlib]System.String::Concat(string,
+                                                                string)
     IL_001a:  stfld      string Variant_InherittedCollision.A::'value'
     IL_001f:  nop
     IL_0020:  ret
@@ -292,21 +290,20 @@
        extends Variant_InherittedCollision.B
 {
   .method public hidebysig specialname rtspecialname 
-          instance void  .ctor(int32 index) cil managed
+          instance void  .ctor(string index) cil managed
   {
     // Code size       33 (0x21)
     .maxstack  8
     IL_0000:  ldarg.0
     IL_0001:  ldarg.1
-    IL_0002:  call       instance void Variant_InherittedCollision.B::.ctor(int32)
+    IL_0002:  call       instance void Variant_InherittedCollision.B::.ctor(string)
     IL_0007:  nop
     IL_0008:  nop
     IL_0009:  ldarg.0
     IL_000a:  ldstr      "C_"
     IL_000f:  ldarg.1
-    IL_0010:  box        [mscorlib]System.Int32
-    IL_0015:  call       string [mscorlib]System.String::Concat(object,
-                                                                object)
+    IL_0015:  call       string [mscorlib]System.String::Concat(string,
+                                                                string)
     IL_001a:  stfld      string Variant_InherittedCollision.A::'value'
     IL_001f:  nop
     IL_0020:  ret
@@ -319,7 +316,7 @@
        implements class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.B>
 {
   .method public hidebysig newslot virtual final 
-          instance class Variant_InherittedCollision.B  Print(int32 index) cil managed
+          instance class Variant_InherittedCollision.B  Print(string index) cil managed
   {
     // Code size       37 (0x25)
     .maxstack  3
@@ -327,11 +324,10 @@
              [1] class Variant_InherittedCollision.B CS$1$0000)
     IL_0000:  nop
     IL_0001:  ldarg.1
-    IL_0002:  newobj     instance void Variant_InherittedCollision.B::.ctor(int32)
+    IL_0002:  newobj     instance void Variant_InherittedCollision.B::.ctor(string)
     IL_0007:  stloc.0
     IL_0008:  ldstr      "    Variant_InherittedCollision.B Variant_InherittedCollision.XIBC_1.Print(index={0}) = '{1}'"
     IL_000d:  ldarg.1
-    IL_000e:  box        [mscorlib]System.Int32
     IL_0013:  ldloc.0
     IL_0014:  callvirt   instance string Variant_InherittedCollision.A::get_Value()
     IL_0019:  pop//call       void [System.Console]System.Console::WriteLine(string, object, object)
@@ -363,7 +359,7 @@
        implements class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.C>
 {
   .method public hidebysig newslot virtual final 
-          instance class Variant_InherittedCollision.C  Print(int32 index) cil managed
+          instance class Variant_InherittedCollision.C  Print(string index) cil managed
   {
     // Code size       37 (0x25)
     .maxstack  3
@@ -371,11 +367,10 @@
              [1] class Variant_InherittedCollision.C CS$1$0000)
     IL_0000:  nop
     IL_0001:  ldarg.1
-    IL_0002:  newobj     instance void Variant_InherittedCollision.C::.ctor(int32)
+    IL_0002:  newobj     instance void Variant_InherittedCollision.C::.ctor(string)
     IL_0007:  stloc.0
     IL_0008:  ldstr      "    Variant_InherittedCollision.C Variant_InherittedCollision.XIBC_2.Print(index={0}) = '{1}'"
     IL_000d:  ldarg.1
-    IL_000e:  box        [mscorlib]System.Int32
     IL_0013:  ldloc.0
     IL_0014:  callvirt   instance string Variant_InherittedCollision.A::get_Value()
     IL_0019:  pop//call       void [System.Console]System.Console::WriteLine(string, object, object)
@@ -407,7 +402,7 @@
        implements class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.C>
 {
   .method public hidebysig newslot virtual final 
-          instance class Variant_InherittedCollision.C  Print(int32 index) cil managed
+          instance class Variant_InherittedCollision.C  Print(string index) cil managed
   {
     // Code size       37 (0x25)
     .maxstack  3
@@ -415,11 +410,10 @@
              [1] class Variant_InherittedCollision.C CS$1$0000)
     IL_0000:  nop
     IL_0001:  ldarg.1
-    IL_0002:  newobj     instance void Variant_InherittedCollision.C::.ctor(int32)
+    IL_0002:  newobj     instance void Variant_InherittedCollision.C::.ctor(string)
     IL_0007:  stloc.0
     IL_0008:  ldstr      "    Variant_InherittedCollision.C Variant_InherittedCollision.XICB_1.Print(index={0}) = '{1}'"
     IL_000d:  ldarg.1
-    IL_000e:  box        [mscorlib]System.Int32
     IL_0013:  ldloc.0
     IL_0014:  callvirt   instance string Variant_InherittedCollision.A::get_Value()
     IL_0019:  pop//call       void [System.Console]System.Console::WriteLine(string, object, object)
@@ -451,7 +445,7 @@
        implements class Variant_InherittedCollision.I`1<class Variant_InherittedCollision.B>
 {
   .method public hidebysig newslot virtual final 
-          instance class Variant_InherittedCollision.B  Print(int32 index) cil managed
+          instance class Variant_InherittedCollision.B  Print(string index) cil managed
   {
     // Code size       37 (0x25)
     .maxstack  3
@@ -459,11 +453,10 @@
              [1] class Variant_InherittedCollision.B CS$1$0000)
     IL_0000:  nop
     IL_0001:  ldarg.1
-    IL_0002:  newobj     instance void Variant_InherittedCollision.B::.ctor(int32)
+    IL_0002:  newobj     instance void Variant_InherittedCollision.B::.ctor(string)
     IL_0007:  stloc.0
     IL_0008:  ldstr      "    Variant_InherittedCollision.B Variant_InherittedCollision.XICB_2.Print(index={0}) = '{1}'"
     IL_000d:  ldarg.1
-    IL_000e:  box        [mscorlib]System.Int32
     IL_0013:  ldloc.0
     IL_0014:  callvirt   instance string Variant_InherittedCollision.A::get_Value()
     IL_0019:  pop//call       void [System.Console]System.Console::WriteLine(string, object, object)

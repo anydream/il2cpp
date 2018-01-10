@@ -82,8 +82,8 @@
     IL_0006:  castclass  class Variant_CollapsedInterfaces.I`1<class Variant_CollapsedInterfaces.A>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.1
-    IL_000e:  callvirt   instance !0 class Variant_CollapsedInterfaces.I`1<class Variant_CollapsedInterfaces.A>::Print(int32)
+    IL_000d:  ldstr "1"
+    IL_000e:  callvirt   instance !0 class Variant_CollapsedInterfaces.I`1<class Variant_CollapsedInterfaces.A>::Print(string)
     IL_0013:  stloc.1
     IL_0014:  ldloc.1
     IL_0015:  callvirt   instance string Variant_CollapsedInterfaces.A::get_Value()
@@ -107,8 +107,8 @@
     IL_0006:  castclass  class Variant_CollapsedInterfaces.I`1<class Variant_CollapsedInterfaces.A>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.s   11
-    IL_000f:  callvirt   instance !0 class Variant_CollapsedInterfaces.I`1<class Variant_CollapsedInterfaces.A>::Print(int32)
+    IL_000d:  ldstr "11"
+    IL_000f:  callvirt   instance !0 class Variant_CollapsedInterfaces.I`1<class Variant_CollapsedInterfaces.A>::Print(string)
     IL_0014:  stloc.1
     IL_0015:  ldloc.1
     IL_0016:  callvirt   instance string Variant_CollapsedInterfaces.A::get_Value()
@@ -134,7 +134,7 @@
 .class interface private abstract auto ansi Variant_CollapsedInterfaces.I`1<+T>
 {
   .method public hidebysig newslot abstract virtual 
-          instance !T  Print(int32 index) cil managed
+          instance !T  Print(string index) cil managed
   {
   } // end of method Variant_CollapsedInterfaces.I`1::Print
 
@@ -146,7 +146,7 @@
 {
   .field family string 'value'
   .method public hidebysig specialname rtspecialname 
-          instance void  .ctor(int32 index) cil managed
+          instance void  .ctor(string index) cil managed
   {
     // Code size       32 (0x20)
     .maxstack  8
@@ -157,9 +157,8 @@
     IL_0008:  ldarg.0
     IL_0009:  ldstr      "A_"
     IL_000e:  ldarg.1
-    IL_000f:  box        [mscorlib]System.Int32
-    IL_0014:  call       string [mscorlib]System.String::Concat(object,
-                                                                object)
+    IL_0014:  call       string [mscorlib]System.String::Concat(string,
+                                                                string)
     IL_0019:  stfld      string Variant_CollapsedInterfaces.A::'value'
     IL_001e:  nop
     IL_001f:  ret
@@ -191,21 +190,20 @@
        extends Variant_CollapsedInterfaces.A
 {
   .method public hidebysig specialname rtspecialname 
-          instance void  .ctor(int32 index) cil managed
+          instance void  .ctor(string index) cil managed
   {
     // Code size       33 (0x21)
     .maxstack  8
     IL_0000:  ldarg.0
     IL_0001:  ldarg.1
-    IL_0002:  call       instance void Variant_CollapsedInterfaces.A::.ctor(int32)
+    IL_0002:  call       instance void Variant_CollapsedInterfaces.A::.ctor(string)
     IL_0007:  nop
     IL_0008:  nop
     IL_0009:  ldarg.0
     IL_000a:  ldstr      "B_"
     IL_000f:  ldarg.1
-    IL_0010:  box        [mscorlib]System.Int32
-    IL_0015:  call       string [mscorlib]System.String::Concat(object,
-                                                                object)
+    IL_0015:  call       string [mscorlib]System.String::Concat(string,
+                                                                string)
     IL_001a:  stfld      string Variant_CollapsedInterfaces.A::'value'
     IL_001f:  nop
     IL_0020:  ret
@@ -217,21 +215,20 @@
        extends Variant_CollapsedInterfaces.B
 {
   .method public hidebysig specialname rtspecialname 
-          instance void  .ctor(int32 index) cil managed
+          instance void  .ctor(string index) cil managed
   {
     // Code size       33 (0x21)
     .maxstack  8
     IL_0000:  ldarg.0
     IL_0001:  ldarg.1
-    IL_0002:  call       instance void Variant_CollapsedInterfaces.B::.ctor(int32)
+    IL_0002:  call       instance void Variant_CollapsedInterfaces.B::.ctor(string)
     IL_0007:  nop
     IL_0008:  nop
     IL_0009:  ldarg.0
     IL_000a:  ldstr      "C_"
     IL_000f:  ldarg.1
-    IL_0010:  box        [mscorlib]System.Int32
-    IL_0015:  call       string [mscorlib]System.String::Concat(object,
-                                                                object)
+    IL_0015:  call       string [mscorlib]System.String::Concat(string,
+                                                                string)
     IL_001a:  stfld      string Variant_CollapsedInterfaces.A::'value'
     IL_001f:  nop
     IL_0020:  ret
@@ -245,7 +242,7 @@
                   class Variant_CollapsedInterfaces.I`1<class Variant_CollapsedInterfaces.C>
 {
   .method public hidebysig newslot virtual final 
-          instance class Variant_CollapsedInterfaces.B  Print(int32 index) cil managed
+          instance class Variant_CollapsedInterfaces.B  Print(string index) cil managed
   {
     // Code size       37 (0x25)
     .maxstack  3
@@ -253,11 +250,10 @@
              class Variant_CollapsedInterfaces.B V_1)
     IL_0000:  nop
     IL_0001:  ldarg.1
-    IL_0002:  newobj     instance void Variant_CollapsedInterfaces.B::.ctor(int32)
+    IL_0002:  newobj     instance void Variant_CollapsedInterfaces.B::.ctor(string)
     IL_0007:  stloc.0
     IL_0008:  ldstr      "    Variant_CollapsedInterfaces.B Variant_CollapsedInterfaces.XBC.Print(index={0}) = '{1}'"
     IL_000d:  ldarg.1
-    IL_000e:  box        [mscorlib]System.Int32
     IL_0013:  ldloc.0
     IL_0014:  callvirt   instance string Variant_CollapsedInterfaces.A::get_Value()
     IL_0019:  pop//call       void [System.Console]System.Console::WriteLine(string, object, object)
@@ -273,7 +269,7 @@
   } // end of method Variant_CollapsedInterfaces.XBC::Print
 
   .method public hidebysig newslot virtual final 
-          instance class Variant_CollapsedInterfaces.C  Print(int32 index) cil managed
+          instance class Variant_CollapsedInterfaces.C  Print(string index) cil managed
   {
     // Code size       37 (0x25)
     .maxstack  3
@@ -281,11 +277,10 @@
              class Variant_CollapsedInterfaces.C V_1)
     IL_0000:  nop
     IL_0001:  ldarg.1
-    IL_0002:  newobj     instance void Variant_CollapsedInterfaces.C::.ctor(int32)
+    IL_0002:  newobj     instance void Variant_CollapsedInterfaces.C::.ctor(string)
     IL_0007:  stloc.0
     IL_0008:  ldstr      "    Variant_CollapsedInterfaces.C Variant_CollapsedInterfaces.XBC.Print(index={0}) = '{1}'"
     IL_000d:  ldarg.1
-    IL_000e:  box        [mscorlib]System.Int32
     IL_0013:  ldloc.0
     IL_0014:  callvirt   instance string Variant_CollapsedInterfaces.A::get_Value()
     IL_0019:  pop//call       void [System.Console]System.Console::WriteLine(string, object, object)
@@ -318,7 +313,7 @@
                   class Variant_CollapsedInterfaces.I`1<class Variant_CollapsedInterfaces.B>
 {
   .method public hidebysig newslot virtual final 
-          instance class Variant_CollapsedInterfaces.C  Print(int32 index) cil managed
+          instance class Variant_CollapsedInterfaces.C  Print(string index) cil managed
   {
     // Code size       37 (0x25)
     .maxstack  3
@@ -326,11 +321,10 @@
              class Variant_CollapsedInterfaces.C V_1)
     IL_0000:  nop
     IL_0001:  ldarg.1
-    IL_0002:  newobj     instance void Variant_CollapsedInterfaces.C::.ctor(int32)
+    IL_0002:  newobj     instance void Variant_CollapsedInterfaces.C::.ctor(string)
     IL_0007:  stloc.0
     IL_0008:  ldstr      "    Variant_CollapsedInterfaces.C Variant_CollapsedInterfaces.XCB.Print(index={0}) = '{1}'"
     IL_000d:  ldarg.1
-    IL_000e:  box        [mscorlib]System.Int32
     IL_0013:  ldloc.0
     IL_0014:  callvirt   instance string Variant_CollapsedInterfaces.A::get_Value()
     IL_0019:  pop//call       void [System.Console]System.Console::WriteLine(string, object, object)
@@ -346,7 +340,7 @@
   } // end of method Variant_CollapsedInterfaces.XCB::Print
 
   .method public hidebysig newslot virtual final 
-          instance class Variant_CollapsedInterfaces.B  Print(int32 index) cil managed
+          instance class Variant_CollapsedInterfaces.B  Print(string index) cil managed
   {
     // Code size       37 (0x25)
     .maxstack  3
@@ -354,11 +348,10 @@
              class Variant_CollapsedInterfaces.B V_1)
     IL_0000:  nop
     IL_0001:  ldarg.1
-    IL_0002:  newobj     instance void Variant_CollapsedInterfaces.B::.ctor(int32)
+    IL_0002:  newobj     instance void Variant_CollapsedInterfaces.B::.ctor(string)
     IL_0007:  stloc.0
     IL_0008:  ldstr      "    Variant_CollapsedInterfaces.B Variant_CollapsedInterfaces.XCB.Print(index={0}) = '{1}'"
     IL_000d:  ldarg.1
-    IL_000e:  box        [mscorlib]System.Int32
     IL_0013:  ldloc.0
     IL_0014:  callvirt   instance string Variant_CollapsedInterfaces.A::get_Value()
     IL_0019:  pop//call       void [System.Console]System.Console::WriteLine(string, object, object)
