@@ -105,8 +105,8 @@
     IL_0006:  castclass  class Covariant_InherittedCollision.I`1<class Covariant_InherittedCollision.C>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.1
-    IL_000e:  newobj     instance void Covariant_InherittedCollision.C::.ctor(int32)
+    IL_000d:  ldstr "1"
+    IL_000e:  newobj     instance void Covariant_InherittedCollision.C::.ctor(string)
     IL_0013:  callvirt   instance string class Covariant_InherittedCollision.I`1<class Covariant_InherittedCollision.C>::Print(!0)
     IL_0018:  stloc.1
     IL_0019:  br.s       IL_001b
@@ -127,8 +127,8 @@
     IL_0006:  castclass  class Covariant_InherittedCollision.I`1<class Covariant_InherittedCollision.C>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.2
-    IL_000e:  newobj     instance void Covariant_InherittedCollision.C::.ctor(int32)
+    IL_000d:  ldstr "2"
+    IL_000e:  newobj     instance void Covariant_InherittedCollision.C::.ctor(string)
     IL_0013:  callvirt   instance string class Covariant_InherittedCollision.I`1<class Covariant_InherittedCollision.C>::Print(!0)
     IL_0018:  stloc.1
     IL_0019:  br.s       IL_001b
@@ -149,8 +149,8 @@
     IL_0006:  castclass  class Covariant_InherittedCollision.I`1<class Covariant_InherittedCollision.C>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.s   11
-    IL_000f:  newobj     instance void Covariant_InherittedCollision.C::.ctor(int32)
+    IL_000d:  ldstr "11"
+    IL_000f:  newobj     instance void Covariant_InherittedCollision.C::.ctor(string)
     IL_0014:  callvirt   instance string class Covariant_InherittedCollision.I`1<class Covariant_InherittedCollision.C>::Print(!0)
     IL_0019:  stloc.1
     IL_001a:  br.s       IL_001c
@@ -171,8 +171,8 @@
     IL_0006:  castclass  class Covariant_InherittedCollision.I`1<class Covariant_InherittedCollision.C>
     IL_000b:  stloc.0
     IL_000c:  ldloc.0
-    IL_000d:  ldc.i4.s   12
-    IL_000f:  newobj     instance void Covariant_InherittedCollision.C::.ctor(int32)
+    IL_000d:  ldstr "12"
+    IL_000f:  newobj     instance void Covariant_InherittedCollision.C::.ctor(string)
     IL_0014:  callvirt   instance string class Covariant_InherittedCollision.I`1<class Covariant_InherittedCollision.C>::Print(!0)
     IL_0019:  stloc.1
     IL_001a:  br.s       IL_001c
@@ -207,7 +207,7 @@
 {
   .field family string 'value'
   .method public hidebysig specialname rtspecialname 
-          instance void  .ctor(int32 index) cil managed
+          instance void  .ctor(string index) cil managed
   {
     // Code size       32 (0x20)
     .maxstack  8
@@ -218,9 +218,8 @@
     IL_0008:  ldarg.0
     IL_0009:  ldstr      "A_"
     IL_000e:  ldarg.1
-    IL_000f:  box        [mscorlib]System.Int32
-    IL_0014:  call       string [mscorlib]System.String::Concat(object,
-                                                                object)
+    IL_0014:  call       string [mscorlib]System.String::Concat(string,
+                                                                string)
     IL_0019:  stfld      string Covariant_InherittedCollision.A::'value'
     IL_001e:  nop
     IL_001f:  ret
@@ -252,21 +251,20 @@
        extends Covariant_InherittedCollision.A
 {
   .method public hidebysig specialname rtspecialname 
-          instance void  .ctor(int32 index) cil managed
+          instance void  .ctor(string index) cil managed
   {
     // Code size       33 (0x21)
     .maxstack  8
     IL_0000:  ldarg.0
     IL_0001:  ldarg.1
-    IL_0002:  call       instance void Covariant_InherittedCollision.A::.ctor(int32)
+    IL_0002:  call       instance void Covariant_InherittedCollision.A::.ctor(string)
     IL_0007:  nop
     IL_0008:  nop
     IL_0009:  ldarg.0
     IL_000a:  ldstr      "B_"
     IL_000f:  ldarg.1
-    IL_0010:  box        [mscorlib]System.Int32
-    IL_0015:  call       string [mscorlib]System.String::Concat(object,
-                                                                object)
+    IL_0015:  call       string [mscorlib]System.String::Concat(string,
+                                                                string)
     IL_001a:  stfld      string Covariant_InherittedCollision.A::'value'
     IL_001f:  nop
     IL_0020:  ret
@@ -278,21 +276,20 @@
        extends Covariant_InherittedCollision.B
 {
   .method public hidebysig specialname rtspecialname 
-          instance void  .ctor(int32 index) cil managed
+          instance void  .ctor(string index) cil managed
   {
     // Code size       33 (0x21)
     .maxstack  8
     IL_0000:  ldarg.0
     IL_0001:  ldarg.1
-    IL_0002:  call       instance void Covariant_InherittedCollision.B::.ctor(int32)
+    IL_0002:  call       instance void Covariant_InherittedCollision.B::.ctor(string)
     IL_0007:  nop
     IL_0008:  nop
     IL_0009:  ldarg.0
     IL_000a:  ldstr      "C_"
     IL_000f:  ldarg.1
-    IL_0010:  box        [mscorlib]System.Int32
-    IL_0015:  call       string [mscorlib]System.String::Concat(object,
-                                                                object)
+    IL_0015:  call       string [mscorlib]System.String::Concat(string,
+                                                                string)
     IL_001a:  stfld      string Covariant_InherittedCollision.A::'value'
     IL_001f:  nop
     IL_0020:  ret
