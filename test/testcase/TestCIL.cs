@@ -196,6 +196,26 @@
 			if (res != 100)
 				return 45;
 
+			res = Covariant_CollapsedInterfaces.HelloWorld.Main();
+			if (res != 100)
+				return 46;
+
+			res = Covariant_InherittedCollision.HelloWorld.Main();
+			if (res != 100)
+				return 47;
+
+			res = Variant_CollapsedInterfaces.HelloWorld.Main();
+			if (res != 100)
+				return 48;
+
+			res = Variant_InherittedCollision.HelloWorld.Main();
+			if (res != 100)
+				return 49;
+
+			res = ConsoleApplicationVB.Module1.Main();
+			if (res != 100)
+				return 50;
+
 			return 0;
 		}
 	}

@@ -111,6 +111,13 @@
   <ItemGroup>
     <Compile Include="MethodImpl\MethodImplFinal.il" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Variance\Covariant_CollapsedInterfaces.il" />
+    <Compile Include="Variance\Covariant_InherittedCollision.il" />
+    <Compile Include="Variance\dev10_468712.il" />
+    <Compile Include="Variance\Variant_CollapsedInterfaces.il" />
+    <Compile Include="Variance\Variant_InherittedCollision.il" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <Target Name="CreateManifestResourceNames" />
   <Target Name="CoreCompile" Inputs="$(MSBuildAllProjects);@(Compile);" Outputs="@(IntermediateAssembly);$(NonExistentFile);">
