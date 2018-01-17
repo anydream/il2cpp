@@ -31,6 +31,7 @@ namespace il2cpp
 	internal class EnumProperty
 	{
 		public FieldX EnumField;
+		public TypeX EnumBaseType;
 	}
 
 	internal class DelegateProperty
@@ -58,6 +59,7 @@ namespace il2cpp
 
 		// 继承类型集合
 		public readonly HashSet<TypeX> DerivedTypes = new HashSet<TypeX>();
+		public HashSet<TypeX> DerivedEnumTypes { get; private set; }
 
 		// 协逆变关联基类型集合
 		public HashSet<TypeX> VarianceBaseTypes;
@@ -95,6 +97,7 @@ namespace il2cpp
 		// 是否为枚举类型
 		public bool IsEnumType => EnumInfo != null;
 		public TypeSig EnumTypeSig => EnumInfo.EnumField.FieldType;
+		public TypeX EnumBaseType => EnumInfo.EnumBaseType;
 
 		public DelegateProperty DelegateInfo;
 		// 是否为委托类型
@@ -102,6 +105,7 @@ namespace il2cpp
 
 		// 装箱类型
 		public TypeX BoxedType;
+		public TypeX UnBoxedType;
 		public bool HasBoxedType => BoxedType != null;
 		public bool IsBoxedType;
 		// 可空类型原型
@@ -282,6 +286,13 @@ namespace il2cpp
 				tySet.Add(this);
 				vaBaseType.AddDerivedTypeRecursive(tySet);
 			}
+		}
+
+		public void AddDerivedEnumTypes(TypeX enumTyX)
+		{
+			if (DerivedEnumTypes == null)
+				DerivedEnumTypes = new HashSet<TypeX>();
+			DerivedEnumTypes.Add(enumTyX);
 		}
 
 		public bool GetMethod(string key, out MethodX metX)

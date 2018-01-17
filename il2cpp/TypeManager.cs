@@ -1008,7 +1008,9 @@ namespace il2cpp
 					Debug.Assert(fldDef != null);
 
 					FieldX fldX = ResolveFieldDef(fldDef);
-					tyX.EnumInfo = new EnumProperty { EnumField = fldX };
+					TypeX enumBaseType = ResolveTypeSig(fldX.FieldType, replacer);
+					tyX.EnumInfo = new EnumProperty { EnumField = fldX, EnumBaseType = enumBaseType };
+					enumBaseType.AddDerivedEnumTypes(tyX);
 				}
 				else if (tyX.Def.IsDelegate)
 				{
@@ -1728,6 +1730,7 @@ namespace il2cpp
 			AddField(fldX);
 
 			valueTyX.BoxedType = tyX;
+			tyX.UnBoxedType = valueTyX;
 		}
 
 		private TypeDef GetBoxedTypeDef()

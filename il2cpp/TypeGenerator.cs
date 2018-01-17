@@ -255,6 +255,10 @@ namespace il2cpp
 			var derivedRange = new List<TypeX>(CurrType.DerivedTypes);
 			derivedRange.Add(CurrType);
 
+			var derivedEnumTypes = CurrType.UnBoxedType?.DerivedEnumTypes;
+			if (derivedEnumTypes != null)
+				derivedRange.AddRange(derivedEnumTypes);
+
 			List<TypeX> derTypes = new List<TypeX>();
 			foreach (var derTyX in derivedRange)
 			{

@@ -1429,16 +1429,28 @@ namespace testcase
 			CC = 123
 		}
 
-		enum MyEnumI8 : long
-		{
-			DD = 3,
-			EE
-		}
-
 		enum MyEnum2
 		{
 			FF = 26,
 			GG
+		}
+
+		enum MyEnumU1 : byte
+		{
+			XX = 127,
+			YY = 128
+		}
+
+		enum MyEnumI4 : uint
+		{
+			XX,
+			YY
+		}
+
+		enum MyEnumI8 : long
+		{
+			DD = 3,
+			EE
 		}
 
 		class MyCls
@@ -1500,6 +1512,31 @@ namespace testcase
 
 			if (e.GetHashCode() != oe.GetHashCode())
 				return 10;
+
+			object o = MyEnum.CC;
+			int val = (int)o;
+			if (val != (int)MyEnum.CC)
+				return 11;
+
+			o = MyEnumI4.XX;
+			uint ui = (uint)o;
+			if (ui != 0)
+				return 12;
+
+			o = MyEnumU1.XX;
+			byte b = (byte)o;
+			if (b != 127)
+				return 13;
+
+			o = MyEnumU1.YY;
+			b = (byte)o;
+			if (b != 128)
+				return 14;
+
+			o = MyEnumI8.EE;
+			long l = (long)o;
+			if (l != 4)
+				return 15;
 
 			return 0;
 		}
@@ -2050,7 +2087,8 @@ namespace testcase
 				if (unbox2 != 456)
 					return 5;
 			}
-			else return 6;
+			else
+				return 6;
 
 			return 0;
 		}
@@ -2856,7 +2894,7 @@ namespace testcase
 			var tw = new Stopwatch();
 			tw.Start();
 
-			var result = TestCIL.Entry();
+			var result = TestEnum.Entry();
 
 			tw.Stop();
 			Console.WriteLine("Result: {0}, Elapsed: {1}ms", result, tw.ElapsedMilliseconds);
