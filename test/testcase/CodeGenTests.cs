@@ -2846,9 +2846,17 @@ namespace testcase
 			return 0;
 		}
 
+		public static ref int ReturnRef()
+		{
+			var arr = new int[] { 1, 2, 3, 4, 5, 6 };
+			return ref arr[2];
+		}
+
 		public static int Entry()
 		{
 			Node curr = new Node();
+
+			ref int retRef = ref ReturnRef();
 
 			for (int i = 0; i < 10000; ++i)
 			{
@@ -2861,6 +2869,13 @@ namespace testcase
 				if (res != 0)
 					return 10 + res;
 			}
+
+			if (retRef != 3)
+				return 20;
+
+			retRef = 4;
+			if (retRef != 4)
+				return 21;
 
 			return 0;
 		}
